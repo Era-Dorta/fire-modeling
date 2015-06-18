@@ -17,61 +17,22 @@
 MStatus VolumeFireCmd::doIt(const MArgList &) {
 	MStatus stat;
 
-	MFnSet shadingGroupFn(getInitianShadingGroup());
+	MFnSet initialSgFn(getNodeByName("initialShadingGroup"));
 
-	// create an iterator to go through all nodes
-	MItDependencyNodes it(MFn::kRenderSphere);
+	MFnSet particleSgFn(getNodeByName("initialParticleSE"));
 
-	// keep looping until done
-	while (!it.isDone()) {
+	// TODO Do this for each emitter in the scene
 
-		// get a handle to this node
-		MObject obj = it.item();
+	MObject volumeFireNode = dgMod.createNode(VolumeFireNode::id);
+	assert(!volumeFireNode.isNull());
 
-		// write the node type found
-		//cout << obj.apiTypeStr() << endl;
+	// Connect the output color of our shading node to the volume shader of the
+	// particle emitter
+	MFnDependencyNode volumeFireNodeFn(volumeFireNode);
+	MPlug fireNodeColorPlug = volumeFireNodeFn.findPlug("outColor");
+	MPlug particleSgVolShaderPlug = particleSgFn.findPlug("volumeShader");
+	dgMod.connect(fireNodeColorPlug, particleSgVolShaderPlug);
 
-		MDagPath volumeShapePath;
-		CHECK_MSTATUS(MDagPath::getAPathTo(obj, volumeShapePath));
-		MFnDagNode volumeShapePathFn(volumeShapePath);
-		MPlugArray volumeShapeOutputs, shadeNodeInputs;
-
-		volumeShapePathFn.getConnections(volumeShapeOutputs);
-		if (volumeShapeOutputs.length() > 0) {
-			volumeShapeOutputs[0].connectedTo(shadeNodeInputs, false, true);
-			if (shadeNodeInputs.length() > 0) {
-				cout << "disconnecting "
-						<< volumeShapeOutputs[0].name().asChar() << ", "
-						<< shadeNodeInputs[0].name().asChar() << endl;
-				dgMod.disconnect(volumeShapeOutputs[0], shadeNodeInputs[0]);
-			}
-		}
-
-		MString cmd = "shadingNode -asShader VolumeFireNode";
-		dgMod.commandToExecute(cmd);
-
-		cmd =
-				"sets -renderable true -noSurfaceShader true -empty -name VolumeFireNode1SG";
-		dgMod.commandToExecute(cmd);
-
-		cmd =
-				"connectAttr -f VolumeFireNode1.outColor VolumeFireNode1SG.volumeShader";
-		cout << cmd << endl;
-		dgMod.commandToExecute(cmd);
-
-		/*
-		 * select -r sphere1 ;
-		 * sets -e -forceElement VolumeFireNode1SG;
-		 */
-		/*MObject volumeFireNode = dgMod.createNode(VolumeFireNode::id);
-		 assert(!volumeFireNode.isNull());
-		 cout << "node created" << endl;
-		 MFnDependencyNode volumeFireNodeFn(volumeFireNode);
-		 MPlug volumeFireNodePlug = volumeFireNodeFn.findPlug(shadeNodeInputs[0].name().asChar());
-		 dgMod.connect(volumeShapeOutputs[0], volumeFireNodePlug);*/
-
-		it.next();
-	}
 	return redoIt();
 }
 
@@ -91,14 +52,13 @@ void *VolumeFireCmd::creator() {
 	return new VolumeFireCmd;
 }
 
-MObject VolumeFireCmd::getInitianShadingGroup() {
+MObject VolumeFireCmd::getNodeByName(const MString& nodeName) {
 	MSelectionList selection;
 	// N.B. Ensure the selection is list empty beforehand since
 	// getSelectionListByName() will append the matching objects
 	selection.clear();
 
-	CHECK_MSTATUS(
-			MGlobal::getSelectionListByName("initialShadingGroup", selection));
+	CHECK_MSTATUS(MGlobal::getSelectionListByName(nodeName, selection));
 	// Get the initial shading group
 
 	MObject shadingGroupObj;

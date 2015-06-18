@@ -20,7 +20,7 @@ public:
 private:
 	MDGModifier dgMod;
 
-	MObject getInitianShadingGroup();
+	MObject getNodeByName(const MString& nodeName);
 };
 
 #endif
