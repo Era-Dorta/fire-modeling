@@ -8,7 +8,7 @@
 #ifndef SRC_MIAUX_H_
 #define SRC_MIAUX_H_
 
-#define MAX_DATASET_SIZE 128*128*128
+#include <fstream>
 
 #include "shader.h"
 
@@ -26,8 +26,8 @@ inline double miaux_fit(double v, double oldmin, double oldmax, double newmin,
 	return newmin + ((v - oldmin) / (oldmax - oldmin)) * (newmax - newmin);
 }
 
-inline miBoolean miaux_release_user_memory(const char* shader_name, miState *state,
-		void *params) {
+inline miBoolean miaux_release_user_memory(const char* shader_name,
+		miState *state, void *params) {
 	if (params != NULL) { /* Shader instance exit */
 		void **user_pointer;
 		if (!mi_query(miQ_FUNC_USERPTR, state, 0, &user_pointer))
@@ -48,7 +48,8 @@ inline void* miaux_user_memory_pointer(miState *state, int allocation_size) {
 	return *user_pointer;
 }
 
-inline miBoolean miaux_point_inside(miVector *p, miVector *min_p, miVector *max_p) {
+inline miBoolean miaux_point_inside(miVector *p, miVector *min_p,
+		miVector *max_p) {
 	return p->x >= min_p->x && p->y >= min_p->y && p->z >= min_p->z
 			&& p->x <= max_p->x && p->y <= max_p->y && p->z <= max_p->z;
 }
@@ -56,14 +57,26 @@ inline miBoolean miaux_point_inside(miVector *p, miVector *min_p, miVector *max_
 inline void miaux_read_volume_block(char* filename, int *width, int *height,
 		int *depth, float* block) {
 	int count;
-	FILE* fp = fopen(filename, "r");
-	if (fp == NULL) {
+	std::fstream fp(filename, std::ios_base::in);
+	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
 	}
-	fscanf(fp, "%d %d %d ", width, height, depth);
+	// Read width heifht and depth
+	fp >> *width;
+	fp >> *height;
+	fp >> *depth;
+
 	count = (*width) * (*height) * (*depth);
-	mi_progress("Volume dataset : %dx%dx%d", *width, *height, *depth);
-	fread(block, sizeof(float), count, fp);
+	mi_warning("Volume dataset : %dx%dx%d", *width, *height, *depth);
+
+	for (int i = 0; i < count; i++) {
+		if (fp.eof()) {
+			mi_fatal("Error, file \"%s\" has less data that declared.",
+					filename);
+		}
+		fp >> block[i];
+	}
+	mi_warning("Done reading the dataset");
 }
 
 inline void miaux_light_array(miTag **lights, int *light_count, miState *state,
@@ -87,7 +100,8 @@ inline void miaux_point_along_vector(miVector *result, miVector *point,
 	result->z = point->z + distance * direction->z;
 }
 
-inline void miaux_march_point(miVector *result, miState *state, miScalar distance) {
+inline void miaux_march_point(miVector *result, miState *state,
+		miScalar distance) {
 	miaux_point_along_vector(result, &state->org, &state->dir, distance);
 }
 
@@ -99,7 +113,8 @@ inline void miaux_alpha_blend_colors(miColor *result, miColor *foreground,
 	result->b = foreground->b + background->b * bg_fraction;
 }
 
-inline void miaux_add_scaled_color(miColor *result, miColor *color, miScalar scale) {
+inline void miaux_add_scaled_color(miColor *result, miColor *color,
+		miScalar scale) {
 	result->r += color->r * scale;
 	result->g += color->g * scale;
 	result->b += color->b * scale;
