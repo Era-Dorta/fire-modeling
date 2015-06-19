@@ -1,6 +1,8 @@
-#include "VolumeFireCmd.h"
 #include <maya/MFnPlugin.h>
+
+#include "VolumeFireCmd.h"
 #include "FireShaderNode.h"
+#include "FireGrid.h"
 
 MStatus initializePlugin(MObject obj) {
 	const MString UserClassify("shader/volume");
@@ -12,7 +14,12 @@ MStatus initializePlugin(MObject obj) {
 					MPxNode::kDependNode, &UserClassify));
 
 	CHECK_MSTATUS(
+			plugin.registerNode("FireGrid", FireGrid::id, &FireGrid::creator,
+					&FireGrid::initialize, MPxNode::kEmitterNode));
+
+	CHECK_MSTATUS(
 			plugin.registerCommand("VolumeFireCmd", VolumeFireCmd::creator));
+
 	return MS::kSuccess;
 }
 

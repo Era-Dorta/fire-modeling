@@ -1,6 +1,3 @@
-#include "VolumeFireCmd.h"
-#include "FireShaderNode.h"
-
 #include<cassert>
 
 #include<maya/MStatus.h>
@@ -13,10 +10,18 @@
 #include<maya/MPlug.h>
 #include<maya/MString.h>
 
+#include "VolumeFireCmd.h"
+#include "FireShaderNode.h"
+#include "FireGrid.h"
+
 MStatus VolumeFireCmd::doIt(const MArgList &) {
 	MStatus stat;
 
 	MFnSet initialSgFn(getNodeByName("initialShadingGroup"));
+
+	//MObject fireGridNode = dgMod.createNode(FireGrid::id);
+
+	//MFnParticleSystem particle
 
 	MFnSet particleSgFn(getNodeByName("initialParticleSE"));
 
