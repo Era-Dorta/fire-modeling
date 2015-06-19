@@ -1,6 +1,12 @@
+#include <iostream>
+
 #include "shader.h"
 #include "mayaapi.h"
+
 #include "miaux.h"
+
+// Go to SphereFogSG and add this as its volume shader in the mental ray tab
+// in custom shaders
 
 struct parameter_volume {
 	miColor color;
@@ -49,11 +55,14 @@ extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 					density_shader, NULL);
 			if (density > 0) {
 				density *= unit_density * march_increment;
-				miaux_total_light_at_point(&light_color, &march_point, state,
-						light, light_count);
-				miaux_multiply_colors(&point_color, color, &light_color);
-				miaux_add_transparent_color(&volume_color, &point_color,
-						density);
+				//miaux_total_light_at_point(&light_color, &march_point, state,
+				//		light, light_count);
+				//miaux_multiply_colors(&point_color, color, &light_color);
+				//miaux_add_transparent_color(&volume_color, &point_color,
+				//		density);
+				volume_color.r = density;
+				volume_color.g = density;
+				volume_color.b = density;
 			}
 			if (volume_color.a == 1.0) {
 				break;
