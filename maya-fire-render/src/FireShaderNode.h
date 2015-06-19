@@ -10,8 +10,8 @@ public:
 	FireShaderNode();
 	virtual ~FireShaderNode();
 
-	virtual MStatus compute(const MPlug&, MDataBlock&);
-	virtual void postConstructor();
+	virtual MStatus compute(const MPlug&, MDataBlock&) override;
+	virtual void postConstructor() override;
 
 	static void * creator();
 	static MStatus initialize();
@@ -34,6 +34,14 @@ private:
 	static MObject aToggleObject;
 	static MObject aToggleWorld;
 	static MObject aOutAlpha;
+
+	// Attributes for raytracing
+	static MObject aRayOrigin;
+	static MObject aRayDirection;
+	static MObject aRaySampler;
+	static MObject aRayDepth;
+	static MObject aNormalCamera;
+	static MObject aPointCamera;
 };
 
 #endif
