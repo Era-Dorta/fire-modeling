@@ -1,5 +1,8 @@
+#include <iostream>
+
 #include "shader.h"
 #include "mayaapi.h"
+
 #include "miaux.h"
 
 #define MAX_DATASET_SIZE 128*128*128
@@ -25,8 +28,8 @@ extern "C" DLLEXPORT int voxel_dataset_version(void) {
 	return 1;
 }
 
-miBoolean voxel_density_init(miState *state, struct voxel_density *params,
-		miBoolean *instance_init_required) {
+extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
+		struct voxel_density *params, miBoolean *instance_init_required) {
 	if (!params) { /* Main shader init (not an instance): */
 		*instance_init_required = miTRUE;
 	} else {
@@ -35,18 +38,20 @@ miBoolean voxel_density_init(miState *state, struct voxel_density *params,
 				*mi_eval_tag(&params->filename_tag),
 				NULL);
 		if (filename) {
-			voxel_data *voxels = (voxel_data *)miaux_user_memory_pointer(state,
+			mi_warning("voxel density filename %s", filename);
+			voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state,
 					sizeof(voxel_data));
 			miaux_read_volume_block(filename, &voxels->width, &voxels->height,
 					&voxels->depth, voxels->block);
-			mi_progress("Voxel dataset: %dx%dx%d", voxels->width,
-					voxels->height, voxels->depth);
+			mi_warning("Voxel dataset: %dx%dx%d", voxels->width, voxels->height,
+					voxels->depth);
 		}
 	}
 	return miTRUE;
 }
 
-miBoolean voxel_density_exit(miState *state, void *params) {
+extern "C" DLLEXPORT miBoolean voxel_density_exit(miState *state,
+		void *params) {
 	return miaux_release_user_memory("voxel_density", state, params);
 }
 
@@ -57,10 +62,13 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 	miVector *p = &state->point;
 	if (miaux_point_inside(p, min_point, max_point)) {
 		float x, y, z;
-		voxel_data *voxels = (voxel_data *)miaux_user_memory_pointer(state, 0);
-		x = (float)miaux_fit(p->x, min_point->x, max_point->x, 0, voxels->width - 1);
-		y = (float)miaux_fit(p->y, min_point->y, max_point->y, 0, voxels->height - 1);
-		z = (float)miaux_fit(p->z, min_point->z, max_point->z, 0, voxels->depth - 1);
+		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
+		x = (float) miaux_fit(p->x, min_point->x, max_point->x, 0,
+				voxels->width - 1);
+		y = (float) miaux_fit(p->y, min_point->y, max_point->y, 0,
+				voxels->height - 1);
+		z = (float) miaux_fit(p->z, min_point->z, max_point->z, 0,
+				voxels->depth - 1);
 		*result = voxel_value(voxels, x, y, z);
 	} else {
 		*result = 0.0;
