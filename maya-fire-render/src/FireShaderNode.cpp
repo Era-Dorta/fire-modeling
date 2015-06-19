@@ -1,55 +1,53 @@
-#include "VolumeFireNode.h"
-
-// add for raytracing api enhancement
 #include <maya/MRenderUtil.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFloatVector.h>
+#include "FireShaderNode.h"
 //#include <maya/.h>
 
-MTypeId VolumeFireNode::id(0x81012);
+MTypeId FireShaderNode::id(0x81012);
 
-MObject VolumeFireNode::aColor;
-MObject VolumeFireNode::aInputValue;
-MObject VolumeFireNode::aOutColor;
-MObject VolumeFireNode::aOutTransparency;
-MObject VolumeFireNode::aOutAlpha;
-MObject VolumeFireNode::aFarPointC;
-MObject VolumeFireNode::aFarPointO;
-MObject VolumeFireNode::aFarPointW;
-MObject VolumeFireNode::aPointC;
-MObject VolumeFireNode::aPointO;
-MObject VolumeFireNode::aPointW;
-MObject VolumeFireNode::aToggleCamera;
-MObject VolumeFireNode::aToggleObject;
-MObject VolumeFireNode::aToggleWorld;
+MObject FireShaderNode::aColor;
+MObject FireShaderNode::aInputValue;
+MObject FireShaderNode::aOutColor;
+MObject FireShaderNode::aOutTransparency;
+MObject FireShaderNode::aOutAlpha;
+MObject FireShaderNode::aFarPointC;
+MObject FireShaderNode::aFarPointO;
+MObject FireShaderNode::aFarPointW;
+MObject FireShaderNode::aPointC;
+MObject FireShaderNode::aPointO;
+MObject FireShaderNode::aPointW;
+MObject FireShaderNode::aToggleCamera;
+MObject FireShaderNode::aToggleObject;
+MObject FireShaderNode::aToggleWorld;
 
-void VolumeFireNode::postConstructor() {
+void FireShaderNode::postConstructor() {
 	setMPSafe(true);
 }
 
 //
 // DESCRIPTION:
 ///////////////////////////////////////////////////////
-VolumeFireNode::VolumeFireNode() {
+FireShaderNode::FireShaderNode() {
 }
 
 //
 // DESCRIPTION:
 ///////////////////////////////////////////////////////
-VolumeFireNode::~VolumeFireNode() {
+FireShaderNode::~FireShaderNode() {
 }
 
 //
 // DESCRIPTION:
 ///////////////////////////////////////////////////////
-void* VolumeFireNode::creator() {
-	return new VolumeFireNode();
+void* FireShaderNode::creator() {
+	return new FireShaderNode();
 }
 
 //
 // DESCRIPTION:
 ///////////////////////////////////////////////////////
-MStatus VolumeFireNode::initialize() {
+MStatus FireShaderNode::initialize() {
 	MFnNumericAttribute nAttr;
 
 	// Inputs
@@ -178,7 +176,7 @@ MStatus VolumeFireNode::initialize() {
 //
 // DESCRIPTION:
 ///////////////////////////////////////////////////////
-MStatus VolumeFireNode::compute(const MPlug& plug, MDataBlock& block) {
+MStatus FireShaderNode::compute(const MPlug& plug, MDataBlock& block) {
 	if ((plug != aOutColor) && (plug.parent() != aOutColor)
 			&& (plug != aOutTransparency)
 			&& (plug.parent() != aOutTransparency))

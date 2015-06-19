@@ -1,14 +1,14 @@
-#ifndef VOLUMEFIRENODE_H
-#define VOLUMEFIRENODE_H
+#ifndef FIRESHADERNODE_H
+#define FIRESHADERNODE_H
 
 #include <maya/MPxNode.h>
 #include <maya/MDataBlock.h>
 #include <maya/MPlug.h>
 
-class VolumeFireNode: public MPxNode {
+class FireShaderNode: public MPxNode {
 public:
-	VolumeFireNode();
-	virtual ~VolumeFireNode();
+	FireShaderNode();
+	virtual ~FireShaderNode();
 
 	virtual MStatus compute(const MPlug&, MDataBlock&);
 	virtual void postConstructor();

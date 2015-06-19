@@ -1,6 +1,5 @@
 #include "VolumeFireCmd.h"
-
-#include "VolumeFireNode.h"
+#include "FireShaderNode.h"
 
 #include<cassert>
 
@@ -21,15 +20,15 @@ MStatus VolumeFireCmd::doIt(const MArgList &) {
 
 	MFnSet particleSgFn(getNodeByName("initialParticleSE"));
 
-	// TODO Do this for each emitter in the scene
+	// TODO Do this for each fire emitter in the scene
 
-	MObject volumeFireNode = dgMod.createNode(VolumeFireNode::id);
-	assert(!volumeFireNode.isNull());
+	MObject fireShaderNode = dgMod.createNode(FireShaderNode::id);
+	assert(!fireShaderNode.isNull());
 
 	// Connect the output color of our shading node to the volume shader of the
 	// particle emitter
-	MFnDependencyNode volumeFireNodeFn(volumeFireNode);
-	MPlug fireNodeColorPlug = volumeFireNodeFn.findPlug("outColor");
+	MFnDependencyNode fireShaderNodeFn(fireShaderNode);
+	MPlug fireNodeColorPlug = fireShaderNodeFn.findPlug("outColor");
 	MPlug particleSgVolShaderPlug = particleSgFn.findPlug("volumeShader");
 	dgMod.connect(fireNodeColorPlug, particleSgVolShaderPlug);
 
