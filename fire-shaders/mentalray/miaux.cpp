@@ -166,25 +166,24 @@ void miaux_add_transparent_color(miColor *result, miColor *color,
 }
 
 void miaux_total_light_at_point(miColor *result, miVector *point,
-		miState *state, miTag* light, int light_count) {
+		miState *state) {
 	miColor sum, light_color;
-	int i, light_sample_count;
+	int light_sample_count;
 	miVector original_point = state->point;
 	state->point = *point;
 
 	miaux_set_channels(result, 0.0);
-	for (i = 0; i < light_count; i++, light++) {
-		miVector direction_to_light;
-		light_sample_count = 0;
+	for (mi::shader::LightIterator iter(state); !iter.at_end(); ++iter) {
 		miaux_set_channels(&sum, 0.0);
 
-		while (mi_sample_light(&light_color, &direction_to_light, NULL, state,
-				*light, &light_sample_count)) {
-			miaux_add_scaled_color(&sum, &light_color, 1.0);
+		while (iter->sample()) {
+			iter->get_contribution(&light_color);
+			miaux_add_color(&sum, &light_color);
 		}
 
-		if (light_sample_count) {
-			miaux_add_scaled_color(result, &sum, 1 / light_sample_count);
+		light_sample_count = iter->get_number_of_samples();
+		if (light_sample_count > 0) {
+			miaux_add_scaled_color(result, &sum, 1.0 / light_sample_count);
 		}
 	}
 	state->point = original_point;

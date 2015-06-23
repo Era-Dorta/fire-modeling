@@ -24,16 +24,17 @@ extern "C" DLLEXPORT int parameter_volume_version(void) {
 extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 		struct parameter_volume *params) {
 	miScalar unit_density, march_increment, density;
-	miTag density_shader, *light;
-	int light_count;
+	miTag density_shader;
+
+	// Early return with ray lights, to avoid infinite recursion
 	if (state->type == miRAY_LIGHT) {
 		return miTRUE;
 	}
+
 	density_shader = *mi_eval_tag(&params->density_shader);
 	unit_density = *mi_eval_scalar(&params->unit_density);
 	march_increment = *mi_eval_scalar(&params->march_increment);
-	miaux_light_array(&light, &light_count, state, &params->i_light,
-			&params->n_light, params->light);
+
 	if (state->type == miRAY_SHADOW) {
 		miScalar occlusion = miaux_fractional_shader_occlusion_at_point(state,
 				&state->org, &state->dir, state->dist, density_shader,
@@ -55,14 +56,10 @@ extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 					density_shader, NULL);
 			if (density > 0) {
 				density *= unit_density * march_increment;
-				//miaux_total_light_at_point(&light_color, &march_point, state,
-				//		light, light_count);
-				//miaux_multiply_colors(&point_color, color, &light_color);
-				//miaux_add_transparent_color(&volume_color, &point_color,
-				//		density);
-				volume_color.r = density;
-				volume_color.g = density;
-				volume_color.b = density;
+				miaux_total_light_at_point(&light_color, &march_point, state);
+				miaux_multiply_colors(&point_color, color, &light_color);
+				miaux_add_transparent_color(&volume_color, &point_color,
+						density);
 			}
 			if (volume_color.a == 1.0) {
 				break;

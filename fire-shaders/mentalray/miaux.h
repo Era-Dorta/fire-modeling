@@ -54,7 +54,8 @@ void miaux_add_transparent_color(miColor *result, miColor *color,
 		miScalar transparency);
 
 void miaux_total_light_at_point(miColor *result, miVector *point,
-		miState *state, miTag* light, int light_count);
+		miState *state);
+
 void miaux_vector_warning(const char* s, const miVector& v);
 
 void miaux_vector_warning(const char* s, const miGeoVector& v);
