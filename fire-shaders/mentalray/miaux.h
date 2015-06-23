@@ -60,7 +60,7 @@ void miaux_vector_warning(const char* s, const miVector& v);
 
 void miaux_vector_warning(const char* s, const miGeoVector& v);
 
-void miaux_color_warning(const char* s, const miColor& v);
+void miaux_vector_warning(const char* s, const miColor& v);
 
 void miaux_matrix_warning(const char* s, const miMatrix& v);
 

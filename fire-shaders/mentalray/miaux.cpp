@@ -157,8 +157,9 @@ void miaux_set_channels(miColor *c, miScalar new_value) {
 void miaux_add_transparent_color(miColor *result, miColor *color,
 		miScalar transparency) {
 	miScalar new_alpha = result->a + transparency;
-	if (new_alpha > 1.0)
+	if (new_alpha > 1.0) {
 		transparency = 1.0 - result->a;
+	}
 	result->r += color->r * transparency;
 	result->g += color->g * transparency;
 	result->b += color->b * transparency;
@@ -178,7 +179,9 @@ void miaux_total_light_at_point(miColor *result, miVector *point,
 
 		while (iter->sample()) {
 			iter->get_contribution(&light_color);
-			miaux_add_color(&sum, &light_color);
+			// Do not change to miaux_add_color, since add_color also changes
+			// the alpha
+			miaux_add_scaled_color(&sum, &light_color, 1.0);
 		}
 
 		light_sample_count = iter->get_number_of_samples();
@@ -197,7 +200,7 @@ void miaux_vector_warning(const char* s, const miGeoVector& v) {
 	mi_warning("%s %f, %f, %f", s, v.x, v.y, v.z);
 }
 
-void miaux_color_warning(const char* s, const miColor& v) {
+void miaux_vector_warning(const char* s, const miColor& v) {
 	mi_warning("%s %f, %f, %f, %f", s, v.r, v.g, v.b, v.a);
 }
 
