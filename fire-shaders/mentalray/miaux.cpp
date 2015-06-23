@@ -189,3 +189,21 @@ void miaux_total_light_at_point(miColor *result, miVector *point,
 	}
 	state->point = original_point;
 }
+
+void miaux_vector_warning(const char* s, const miVector& v) {
+	mi_warning("%s %f, %f, %f", s, v.x, v.y, v.z);
+}
+
+void miaux_vector_warning(const char* s, const miGeoVector& v) {
+	mi_warning("%s %f, %f, %f", s, v.x, v.y, v.z);
+}
+
+void miaux_color_warning(const char* s, const miColor& v) {
+	mi_warning("%s %f, %f, %f, %f", s, v.r, v.g, v.b, v.a);
+}
+
+void miaux_matrix_warning(const char* s, const miMatrix& v) {
+	mi_warning("%s %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, "
+			"%f", s, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9],
+			v[10], v[11], v[12], v[13], v[14], v[15]);
+}
