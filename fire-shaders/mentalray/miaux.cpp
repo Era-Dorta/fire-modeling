@@ -192,6 +192,40 @@ void miaux_total_light_at_point(miColor *result, miVector *point,
 	state->point = original_point;
 }
 
+miScalar miaux_threshold_density(miVector *point, miVector *center,
+		miScalar radius, miScalar unit_density, miScalar march_increment) {
+	miScalar distance = mi_vector_dist(center, point);
+	if (distance <= radius) {
+		return unit_density * march_increment;
+	} else {
+		return 0.0;
+	}
+}
+
+void miaux_copy_color(miColor *result, miColor *color) {
+	result->r = color->r;
+	result->g = color->g;
+	result->b = color->b;
+	result->a = color->a;
+}
+
+double miaux_shadow_breakpoint(double color, double transparency,
+		double breakpoint) {
+	if (transparency < breakpoint) {
+		return miaux_fit(transparency, 0, breakpoint, 0, color);
+	} else {
+		return miaux_fit(transparency, breakpoint, 1, color, 1);
+	}
+}
+
+miBoolean miaux_all_channels_equal(miColor *c, miScalar v) {
+	if (c->r == v && c->g == v && c->b == v && c->a == v) {
+		return miTRUE;
+	} else {
+		return miFALSE;
+	}
+}
+
 void miaux_vector_warning(const char* s, const miVector& v) {
 	mi_warning("%s %f, %f, %f", s, v.x, v.y, v.z);
 }

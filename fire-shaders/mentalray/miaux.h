@@ -56,6 +56,16 @@ void miaux_add_transparent_color(miColor *result, miColor *color,
 void miaux_total_light_at_point(miColor *result, miVector *point,
 		miState *state);
 
+miScalar miaux_threshold_density(miVector *point, miVector *center,
+		miScalar radius, miScalar unit_density, miScalar march_increment);
+
+double miaux_shadow_breakpoint(double color, double transparency,
+		double breakpoint);
+
+void miaux_copy_color(miColor *result, miColor *color);
+
+miBoolean miaux_all_channels_equal(miColor *c, miScalar v);
+
 void miaux_vector_warning(const char* s, const miVector& v);
 
 void miaux_vector_warning(const char* s, const miGeoVector& v);
