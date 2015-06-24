@@ -32,6 +32,7 @@ extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 	miScalar unit_density, march_increment, density;
 	miTag density_shader;
 
+	miColor *color = mi_eval_color(&params->color);
 	density_shader = *mi_eval_tag(&params->density_shader);
 	unit_density = *mi_eval_scalar(&params->unit_density);
 	march_increment = *mi_eval_scalar(&params->march_increment);
@@ -45,7 +46,9 @@ extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 		//result->a *= 1.0 - occlusion;
 		return (result->r != 0 || result->g != 0 || result->b != 0);
 	} else {
-		miColor *color = mi_eval_color(&params->color);
+		if (state->dist == 0.0) /* infinite dist: outside volume */
+			return (miTRUE);
+
 		miScalar distance;
 		miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
 		miVector original_point = state->point;
