@@ -57,7 +57,7 @@ extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 		struct miRc_intersection* original_state_pri = state->pri;
 		state->pri = NULL;
 
-		for (distance = 0; distance <= state->dist; distance +=
+		for (distance = state->dist; distance >= 0; distance -=
 				march_increment) {
 			miVector march_point;
 			miaux_march_point(&march_point, state, distance);
@@ -66,6 +66,8 @@ extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 					density_shader, NULL);
 			//density = 1;
 			if (density > 0) {
+				// Here is where the equation is solved
+				// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
 				density *= unit_density * march_increment;
 				miaux_total_light_at_point(&light_color, &march_point, state);
 				miaux_multiply_colors(&point_color, color, &light_color);

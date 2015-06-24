@@ -17,6 +17,8 @@ float voxel_value(voxel_data *voxels, float x, float y, float z) {
 			+ ((int) (y + .5)) * voxels->height + ((int) (x + .5))];
 }
 
+// TODO Min and max point should come from the transformation of the object
+// this material is applied to
 struct voxel_density {
 	miTag filename_tag;
 	miVector min_point;
