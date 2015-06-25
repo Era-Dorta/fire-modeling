@@ -21,8 +21,8 @@ struct parameter_volume {
 extern "C" DLLEXPORT int parameter_volume_version(void) {
 	return 1;
 }
-extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result, miState *state,
-		struct parameter_volume *params) {
+extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result,
+		miState *state, struct parameter_volume *params) {
 
 	// Early return with ray lights to avoid infinite recursion
 	if (state->type == miRAY_LIGHT) {
@@ -46,7 +46,7 @@ extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result, miState 
 		miScalar occlusion = miaux_fractional_shader_occlusion_at_point(state,
 				&state->org, &state->dir, state->dist, density_shader,
 				unit_density, march_increment);
-		miaux_scale_color(&result->transparency, 1.0 - occlusion);
+		miaux_set_rgb(&result->transparency, 1.0 - occlusion);
 		return miTRUE;
 	} else {
 		if (state->dist == 0.0) /* infinite dist: outside volume */
@@ -83,8 +83,11 @@ extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result, miState 
 				break;
 			}
 		}
+
 		miaux_copy_color(&result->color, &volume_color);
-		miaux_set_rgb(&result->transparency, volume_color.a);
+		// In RGBA, 0 alpha is transparent, but in in transparency for maya
+		// volumetric 1 is transparent
+		miaux_set_rgb(&result->transparency, 1 - volume_color.a);
 
 		state->point = original_point;
 		state->pri = original_state_pri;
