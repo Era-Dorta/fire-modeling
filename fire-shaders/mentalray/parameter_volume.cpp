@@ -10,18 +10,18 @@
 
 struct parameter_volume {
 	miColor color;
+	miColor glowColor;
+	miColor matteOpacity;
+	miColor transparency;
 	miTag density_shader;
 	miScalar unit_density;
 	miScalar march_increment;
-	int i_light;
-	int n_light;
-	miTag light[1];
 };
 
 extern "C" DLLEXPORT int parameter_volume_version(void) {
 	return 1;
 }
-extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
+extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result, miState *state,
 		struct parameter_volume *params) {
 
 	// Early return with ray lights to avoid infinite recursion
@@ -29,27 +29,32 @@ extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 		return miTRUE;
 	}
 
-	miScalar unit_density, march_increment, density;
-	miTag density_shader;
-
 	miColor *color = mi_eval_color(&params->color);
-	density_shader = *mi_eval_tag(&params->density_shader);
-	unit_density = *mi_eval_scalar(&params->unit_density);
-	march_increment = *mi_eval_scalar(&params->march_increment);
+	//miColor *glowColor = mi_eval_color(&params->glowColor);
+	//miColor *matteOpacity = mi_eval_color(&params->matteOpacity);
+	//miColor *transparency = mi_eval_color(&params->transparency);
+	miScalar unit_density = *mi_eval_scalar(&params->unit_density);
+	miScalar march_increment = *mi_eval_scalar(&params->march_increment);
+	miTag density_shader = *mi_eval_tag(&params->density_shader);
 
 	if (state->type == miRAY_SHADOW) {
-		//TODO Shadows do not work, fix
+		/*
+		 * Seems to be affected only by transparency, 0 to not produce hard
+		 * shadows (default) effect, 1 to let that colour pass
+		 * result->transparency.r = 1; // Red shadow
+		 */
 		miScalar occlusion = miaux_fractional_shader_occlusion_at_point(state,
 				&state->org, &state->dir, state->dist, density_shader,
 				unit_density, march_increment);
-		miaux_scale_color(result, 1.0 - occlusion);
-		//result->a *= 1.0 - occlusion;
-		return (result->r != 0 || result->g != 0 || result->b != 0);
+		miaux_scale_color(&result->transparency, 1.0 - occlusion);
+		return miTRUE;
 	} else {
 		if (state->dist == 0.0) /* infinite dist: outside volume */
 			return (miTRUE);
 
-		miScalar distance;
+		miaux_initialize_volume_output(result);
+
+		miScalar distance, density;
 		miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
 		miVector original_point = state->point;
 		// Primitive intersection is the bounding box, set to null to be able
@@ -78,12 +83,9 @@ extern "C" DLLEXPORT miBoolean parameter_volume(miColor *result, miState *state,
 				break;
 			}
 		}
-		// Get background color assuming the volume is transparent
-		miColor background;
-		// TODO Check if this is not needed for volume_color.a == 0
-		mi_trace_transparent(&background, state);
-		miaux_alpha_blend_colors(&volume_color, &volume_color, &background);
-		miaux_add_color(result, &volume_color);
+		miaux_copy_color(&result->color, &volume_color);
+		miaux_set_rgb(&result->transparency, volume_color.a);
+
 		state->point = original_point;
 		state->pri = original_state_pri;
 	}

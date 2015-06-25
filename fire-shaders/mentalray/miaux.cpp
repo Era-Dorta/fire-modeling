@@ -154,6 +154,10 @@ void miaux_set_channels(miColor *c, miScalar new_value) {
 	c->r = c->g = c->b = c->a = new_value;
 }
 
+void miaux_set_rgb(miColor *c, miScalar new_value) {
+	c->r = c->g = c->b = new_value;
+}
+
 void miaux_add_transparent_color(miColor *result, miColor *color,
 		miScalar transparency) {
 	miScalar new_alpha = result->a + transparency;
@@ -224,6 +228,12 @@ miBoolean miaux_all_channels_equal(miColor *c, miScalar v) {
 	} else {
 		return miFALSE;
 	}
+}
+
+void miaux_initialize_volume_output(VolumeShader_R* result) {
+	miaux_set_rgb(&result->color, 0);
+	miaux_set_rgb(&result->glowColor, 0);
+	miaux_set_rgb(&result->transparency, 1);
 }
 
 void miaux_vector_warning(const char* s, const miVector& v) {

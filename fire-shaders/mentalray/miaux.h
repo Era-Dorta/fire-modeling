@@ -10,6 +10,14 @@
 
 #include "shader.h"
 
+// Standard Maya return struct for volumetric shaders
+typedef struct VolumeShader_R {
+	miColor color;
+	miColor glowColor;
+	miColor matteOpacity;
+	miColor transparency;
+} VolumeShader_R;
+
 char* miaux_tag_to_string(miTag tag, char *default_value);
 
 double miaux_fit(double v, double oldmin, double oldmax, double newmin,
@@ -50,6 +58,8 @@ void miaux_multiply_colors(miColor *result, miColor *x, miColor *y);
 
 void miaux_set_channels(miColor *c, miScalar new_value);
 
+void miaux_set_rgb(miColor *c, miScalar new_value);
+
 void miaux_add_transparent_color(miColor *result, miColor *color,
 		miScalar transparency);
 
@@ -65,6 +75,8 @@ double miaux_shadow_breakpoint(double color, double transparency,
 void miaux_copy_color(miColor *result, miColor *color);
 
 miBoolean miaux_all_channels_equal(miColor *c, miScalar v);
+
+void miaux_initialize_volume_output(VolumeShader_R* result);
 
 void miaux_vector_warning(const char* s, const miVector& v);
 
