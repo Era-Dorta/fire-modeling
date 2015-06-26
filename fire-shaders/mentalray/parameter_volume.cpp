@@ -4,6 +4,7 @@
 #include "mayaapi.h"
 
 #include "miaux.h"
+#include "VoxelDataset.h"
 
 // Go to SphereFogSG and add this as its volume shader in the mental ray tab
 // in custom shaders
@@ -30,14 +31,14 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 		/* Instance initialization: */
 		mi_warning("Precomputing sigma_a");
 		miTag density_shader = *mi_eval_tag(&params->density_shader);
-		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state,
-				sizeof(voxel_data));
+		VoxelDataset *voxels = (VoxelDataset *) miaux_user_memory_pointer(state,
+				sizeof(VoxelDataset));
 
 		// Save previous state
 		miVector original_point = state->point;
 		miRay_type ray_type = state->type;
 
-		int width, height, depth;
+		unsigned width, height, depth;
 		miaux_get_voxel_dataset_dims(state, density_shader, &width, &height,
 				&depth);
 

@@ -9,6 +9,7 @@
 #define SRC_MIAUX_H_
 
 #include "shader.h"
+#include "VoxelDataset.h"
 
 // Standard Maya return struct for volumetric shaders
 typedef struct VolumeShader_R {
@@ -17,13 +18,6 @@ typedef struct VolumeShader_R {
 	miColor matteOpacity;
 	miColor transparency;
 } VolumeShader_R;
-
-#define MAX_DATASET_SIZE 128*128*128
-
-typedef struct {
-	int width, height, depth;
-	float block[MAX_DATASET_SIZE];
-} voxel_data;
 
 enum Voxel_Return {
 	DENSITY, WIDTH, HEIGHT, DEPTH, DENSITY_RAW
@@ -90,21 +84,18 @@ miBoolean miaux_all_channels_equal(miColor *c, miScalar v);
 void miaux_initialize_volume_output(VolumeShader_R* result);
 
 void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
-		int *width, int *height, int *depth);
-
-void set_voxel_val(voxel_data *voxels, int x, int y, int z, float val);
-
-float get_voxel_val(voxel_data *voxels, int x, int y, int z);
+		unsigned *width, unsigned *height, unsigned *depth);
 
 void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
-		voxel_data *voxels, int width, int height, int depth);
+		VoxelDataset *voxels, unsigned width, unsigned height, unsigned depth);
 
-void miaux_compute_sigma_a(voxel_data *voxels, miState *state,
-		miTag density_shader, int i_width, int i_height, int i_depth,
-		int e_width, int e_height, int e_depth);
+void miaux_compute_sigma_a(VoxelDataset *voxels, miState *state,
+		miTag density_shader, unsigned i_width, unsigned i_height,
+		unsigned i_depth, unsigned e_width, unsigned e_height,
+		unsigned e_depth);
 
 void miaux_threaded_compute_sigma_a(miState* state, miTag density_shader,
-		voxel_data* voxels, int width, int height, int depth);
+		VoxelDataset* voxels, unsigned width, unsigned height, unsigned depth);
 
 void miaux_vector_warning(const char* s, const miVector& v);
 

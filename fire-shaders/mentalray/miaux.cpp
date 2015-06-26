@@ -238,7 +238,7 @@ void miaux_initialize_volume_output(VolumeShader_R* result) {
 }
 
 void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
-		int *width, int *height, int *depth) {
+		unsigned *width, unsigned *height, unsigned *depth) {
 	// Get the dimensions of the voxel data
 	miScalar width_s, height_s, depth_s;
 	state->type = (miRay_type) WIDTH;
@@ -253,53 +253,42 @@ void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
 	mi_call_shader_x((miColor*) &depth_s, miSHADER_MATERIAL, state,
 			density_shader, NULL);
 
-	*width = (int) width_s;
-	*height = (int) height_s;
-	*depth = (int) depth_s;
-}
-
-void set_voxel_val(voxel_data *voxels, int x, int y, int z, float val) {
-	voxels->block[z * voxels->depth * voxels->height + y * voxels->height + x] =
-			val;
-}
-
-float get_voxel_val(voxel_data *voxels, int x, int y, int z) {
-	return voxels->block[z * voxels->depth * voxels->height + y * voxels->height
-			+ x];
+	*width = (unsigned) width_s;
+	*height = (unsigned) height_s;
+	*depth = (unsigned) depth_s;
 }
 
 void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
-		voxel_data *voxels, int width, int height, int depth) {
+		VoxelDataset *voxels, unsigned width, unsigned height, unsigned depth) {
 
 	state->type = (miRay_type) DENSITY_RAW;
-	voxels->width = width;
-	voxels->height = height;
-	voxels->depth = depth;
+	voxels->resize(width, height, depth);
 	miScalar density;
-	for (int i = 0; i < width; i++) {
-		for (int j = 0; j < height; j++) {
-			for (int k = 0; k < depth; k++) {
+	for (unsigned i = 0; i < width; i++) {
+		for (unsigned j = 0; j < height; j++) {
+			for (unsigned k = 0; k < depth; k++) {
 				state->point.x = i;
 				state->point.y = j;
 				state->point.z = k;
 				mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 						density_shader, NULL);
-				set_voxel_val(voxels, i, j, k, density);
+				voxels->set_voxel_value(i, j, k, density);
 			}
 		}
 	}
 }
 
-void miaux_compute_sigma_a(voxel_data *voxels, miState *state,
-		miTag density_shader, int i_width, int i_height, int i_depth,
-		int e_width, int e_height, int e_depth) {
+void miaux_compute_sigma_a(VoxelDataset *voxels, miState *state,
+		miTag density_shader, unsigned i_width, unsigned i_height,
+		unsigned i_depth, unsigned e_width, unsigned e_height,
+		unsigned e_depth) {
 	float density = 0.0;
-	for (int i = i_width; i <= e_width; i++) {
-		for (int j = i_height; j <= e_height; j++) {
-			for (int k = i_depth; k <= e_depth; k++) {
-				density = get_voxel_val(voxels, i, j, k);
+	for (unsigned i = i_width; i <= e_width; i++) {
+		for (unsigned j = i_height; j <= e_height; j++) {
+			for (unsigned k = i_depth; k <= e_depth; k++) {
+				density = voxels->get_voxel_value(i, j, k);
 				if (density > 0.0) {
-					set_voxel_val(voxels, i, j, k, density + 0.5);
+					voxels->set_voxel_value(i, j, k, density + 0.5);
 				}
 			}
 		}
@@ -307,7 +296,7 @@ void miaux_compute_sigma_a(voxel_data *voxels, miState *state,
 }
 
 void miaux_threaded_compute_sigma_a(miState* state, miTag density_shader,
-		voxel_data* voxels, int width, int height, int depth) {
+		VoxelDataset* voxels, unsigned width, unsigned height, unsigned depth) {
 
 	// Get thread hint, i.e. number of cores
 	unsigned num_threads = std::thread::hardware_concurrency();
