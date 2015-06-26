@@ -65,7 +65,6 @@ void miaux_read_volume_block(char* filename, int *width, int *height,
 	fp >> *depth;
 
 	count = (*width) * (*height) * (*depth);
-	mi_warning("Volume dataset : %dx%dx%d", *width, *height, *depth);
 
 	for (int i = 0; i < count; i++) {
 		if (fp.eof()) {
@@ -73,8 +72,8 @@ void miaux_read_volume_block(char* filename, int *width, int *height,
 					filename);
 		}
 		fp >> block[i];
+		block[i] = block[i] * 4.15;
 	}
-	mi_warning("Done reading the dataset");
 }
 
 void miaux_light_array(miTag **lights, int *light_count, miState *state,
