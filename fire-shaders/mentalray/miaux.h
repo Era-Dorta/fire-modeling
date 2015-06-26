@@ -89,6 +89,9 @@ miBoolean miaux_all_channels_equal(miColor *c, miScalar v);
 
 void miaux_initialize_volume_output(VolumeShader_R* result);
 
+void miaux_get_voxel_data_dims(miState *state, miTag density_shader, int *width,
+		int *height, int *depth);
+
 void miaux_vector_warning(const char* s, const miVector& v);
 
 void miaux_vector_warning(const char* s, const miGeoVector& v);

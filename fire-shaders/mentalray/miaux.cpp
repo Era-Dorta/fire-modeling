@@ -236,6 +236,27 @@ void miaux_initialize_volume_output(VolumeShader_R* result) {
 	miaux_set_rgb(&result->transparency, 1);
 }
 
+void miaux_get_voxel_data_dims(miState *state, miTag density_shader, int *width,
+		int *height, int *depth) {
+	// Get the dimensions of the voxel data
+	miScalar width_s, height_s, depth_s;
+	state->type = (miRay_type) WIDTH;
+	mi_call_shader_x((miColor*) &width_s, miSHADER_MATERIAL, state,
+			density_shader, NULL);
+
+	state->type = (miRay_type) HEIGHT;
+	mi_call_shader_x((miColor*) &height_s, miSHADER_MATERIAL, state,
+			density_shader, NULL);
+
+	state->type = (miRay_type) DEPTH;
+	mi_call_shader_x((miColor*) &depth_s, miSHADER_MATERIAL, state,
+			density_shader, NULL);
+
+	*width = (int) width_s;
+	*height = (int) height_s;
+	*depth = (int) depth_s;
+}
+
 void miaux_vector_warning(const char* s, const miVector& v) {
 	mi_warning("%s %f, %f, %f", s, v.x, v.y, v.z);
 }

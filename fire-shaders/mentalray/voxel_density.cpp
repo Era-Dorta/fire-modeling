@@ -59,32 +59,27 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		struct voxel_density *params) {
 	switch ((Voxel_Return) state->type) {
 	case WIDTH: {
-		mi_warning("width");
 		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
 		*result = voxels->width;
 		break;
 	}
 	case HEIGHT: {
-		mi_warning("height");
 		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
 		*result = voxels->height;
 		break;
 	}
 	case DEPTH: {
-		mi_warning("depth");
 		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
 		*result = voxels->depth;
 		break;
 	}
 	case DENSITY_RAW: {
-		mi_warning("DENSITY_RAW");
 		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
 		*result = voxel_value_raw(voxels, state->point.x, state->point.y,
 				state->point.z);
 		break;
 	}
 	default: {
-		//mi_warning("density");
 		miVector *min_point = mi_eval_vector(&params->min_point);
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;

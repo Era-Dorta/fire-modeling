@@ -37,23 +37,9 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 		miVector original_point = state->point;
 		miRay_type ray_type = state->type;
 
-		// Get the dimensions of the voxel data
-		miScalar width_s, height_s, depth_s;
-		state->type = (miRay_type) WIDTH;
-		mi_call_shader_x((miColor*) &width_s, miSHADER_MATERIAL, state,
-				density_shader, NULL);
-
-		state->type = (miRay_type) HEIGHT;
-		mi_call_shader_x((miColor*) &height_s, miSHADER_MATERIAL, state,
-				density_shader, NULL);
-
-		state->type = (miRay_type) DEPTH;
-		mi_call_shader_x((miColor*) &depth_s, miSHADER_MATERIAL, state,
-				density_shader, NULL);
-
-		int width = (int) width_s;
-		int height = (int) height_s;
-		int depth = (int) depth_s;
+		int width, height, depth;
+		miaux_get_voxel_data_dims(state, density_shader, &width, &height,
+				&depth);
 
 		// Restore previous state
 		state->point = original_point;
