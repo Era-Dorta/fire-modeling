@@ -1,0 +1,123 @@
+/*
+ * VoxelDataset.cpp
+ *
+ *  Created on: 26 Jun 2015
+ *      Author: gdp24
+ */
+
+
+
+template <typename T>
+VoxelDataset<T>::VoxelDataset() {
+	clear();
+}
+
+template <typename T>
+VoxelDataset<T>::VoxelDataset(unsigned width, unsigned height, unsigned depth) {
+	resize(width, height, depth);
+}
+
+template <typename T>
+VoxelDataset<T>::VoxelDataset(const VoxelDataset& other) {
+	width = other.width;
+	height = other.height;
+	depth = other.depth;
+
+	unsigned total = width * height * depth;
+	for (unsigned i = 0; i < total; i++) {
+		block[i] = other.block[i];
+	}
+}
+
+template <typename T>
+VoxelDataset<T>& VoxelDataset<T>::operator =(
+		const VoxelDataset<T>& other) {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	width = other.width;
+	height = other.height;
+	depth = other.depth;
+
+	unsigned total = width * height * depth;
+	for (unsigned i = 0; i < total; i++) {
+		block[i] = other.block[i];
+	}
+
+	return *this;
+}
+
+template <typename T>
+void VoxelDataset<T>::clear() {
+	width = 0;
+	height = 0;
+	depth = 0;
+}
+
+template <typename T>
+void VoxelDataset<T>::resize(unsigned width, unsigned height, unsigned depth) {
+	this->width = width;
+	this->height = height;
+	this->depth = depth;
+	if (width * height * depth > MAX_DATASET_SIZE) {
+		mi_fatal(
+				"Voxel dataset, max size is %d but tried to initialise with %d",
+				MAX_DATASET_SIZE, width * height * depth);
+	}
+}
+
+template <typename T>
+T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
+	return block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
+			+ ((int) (x + .5))];
+}
+
+template <typename T>
+void VoxelDataset<T>::set_voxel_value(float x, float y, float z, T val) {
+	block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
+			+ ((int) (x + .5))] = val;
+}
+
+template <typename T>
+T VoxelDataset<T>::get_fitted_voxel_value(miVector *p, miVector *min_point,
+		miVector *max_point) const {
+	float x, y, z;
+	x = (float) fit(p->x, min_point->x, max_point->x, 0, width - 1);
+	y = (float) fit(p->y, min_point->y, max_point->y, 0, height - 1);
+	z = (float) fit(p->z, min_point->z, max_point->z, 0, depth - 1);
+	return get_voxel_value(x, y, z);
+}
+
+template <typename T>
+T VoxelDataset<T>::get_voxel_value(unsigned x, unsigned y, unsigned z) const {
+	return block[z * depth * height + y * height + x];
+}
+
+template <typename T>
+void VoxelDataset<T>::set_voxel_value(unsigned x, unsigned y, unsigned z,
+		T val) {
+	block[z * depth * height + y * height + x] = val;
+}
+
+template <typename T>
+int VoxelDataset<T>::getWidth() const {
+	return width;
+}
+
+template <typename T>
+int VoxelDataset<T>::getDepth() const {
+	return depth;
+}
+
+template <typename T>
+int VoxelDataset<T>::getHeight() const {
+	return height;
+}
+
+template <typename T>
+double VoxelDataset<T>::fit(double v, double oldmin, double oldmax, double newmin,
+		double newmax) const {
+	return newmin + ((v - oldmin) / (oldmax - oldmin)) * (newmax - newmin);
+}

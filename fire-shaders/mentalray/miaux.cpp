@@ -224,19 +224,20 @@ void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
 }
 
 void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
-		VoxelDataset *voxels, unsigned width, unsigned height, unsigned depth) {
+		VoxelDatasetColor *voxels, unsigned width, unsigned height,
+		unsigned depth) {
 
 	state->type = (miRay_type) DENSITY_RAW;
 	voxels->resize(width, height, depth);
-	miScalar density;
+	miColor density = { 0, 0, 0, 0 };
 	for (unsigned i = 0; i < width; i++) {
 		for (unsigned j = 0; j < height; j++) {
 			for (unsigned k = 0; k < depth; k++) {
 				state->point.x = i;
 				state->point.y = j;
 				state->point.z = k;
-				mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
-						density_shader, NULL);
+				mi_call_shader_x((miColor*) &density.r, miSHADER_MATERIAL,
+						state, density_shader, NULL);
 				voxels->set_voxel_value(i, j, k, density);
 			}
 		}

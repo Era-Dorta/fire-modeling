@@ -4,7 +4,7 @@
 #include "mayaapi.h"
 
 #include "miaux.h"
-#include "VoxelDataset.h"
+#include "VoxelDatasetFloat.h"
 
 // TODO Min and max point should come from the transformation of the object
 // this material is applied to
@@ -30,8 +30,9 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 				NULL);
 		if (filename) {
 			mi_warning("\tReading voxel datase filename %s", filename);
-			VoxelDataset *voxels = (VoxelDataset *) miaux_user_memory_pointer(
-					state, sizeof(VoxelDataset));
+			VoxelDatasetFloat *voxels =
+					(VoxelDatasetFloat *) miaux_user_memory_pointer(state,
+							sizeof(VoxelDatasetFloat));
 
 			voxels->initialize_with_file(filename);
 
@@ -52,26 +53,26 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		struct voxel_density *params) {
 	switch ((Voxel_Return) state->type) {
 	case WIDTH: {
-		VoxelDataset *voxels = (VoxelDataset *) miaux_user_memory_pointer(state,
-				0);
+		VoxelDatasetFloat *voxels =
+				(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
 		*result = voxels->getWidth();
 		break;
 	}
 	case HEIGHT: {
-		VoxelDataset *voxels = (VoxelDataset *) miaux_user_memory_pointer(state,
-				0);
+		VoxelDatasetFloat *voxels =
+				(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
 		*result = voxels->getHeight();
 		break;
 	}
 	case DEPTH: {
-		VoxelDataset *voxels = (VoxelDataset *) miaux_user_memory_pointer(state,
-				0);
+		VoxelDatasetFloat *voxels =
+				(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
 		*result = voxels->getDepth();
 		break;
 	}
 	case DENSITY_RAW: {
-		VoxelDataset *voxels = (VoxelDataset *) miaux_user_memory_pointer(state,
-				0);
+		VoxelDatasetFloat *voxels =
+				(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
 		*result = voxels->get_voxel_value((unsigned) state->point.x,
 				(unsigned) state->point.y, (unsigned) state->point.z);
 		break;
@@ -81,8 +82,8 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;
 		if (miaux_point_inside(p, min_point, max_point)) {
-			VoxelDataset *voxels = (VoxelDataset *) miaux_user_memory_pointer(
-					state, 0);
+			VoxelDatasetFloat *voxels =
+					(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
 			*result = voxels->get_fitted_voxel_value(p, min_point, max_point);
 		} else {
 			*result = 0.0;

@@ -9,7 +9,7 @@
 #define SRC_MIAUX_H_
 
 #include "shader.h"
-#include "VoxelDataset.h"
+#include "VoxelDatasetColor.h"
 
 // Standard Maya return struct for volumetric shaders
 typedef struct VolumeShader_R {
@@ -81,7 +81,8 @@ void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
 		unsigned *width, unsigned *height, unsigned *depth);
 
 void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
-		VoxelDataset *voxels, unsigned width, unsigned height, unsigned depth);
+		VoxelDatasetColor *voxels, unsigned width, unsigned height,
+		unsigned depth);
 
 void miaux_vector_warning(const char* s, const miVector& v);
 

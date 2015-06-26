@@ -12,28 +12,24 @@
 
 #define MAX_DATASET_SIZE 128*128*128
 
+template<typename T>
 class VoxelDataset {
 public:
 	VoxelDataset();
 	VoxelDataset(unsigned width, unsigned height, unsigned depth);
 	VoxelDataset(const VoxelDataset &other);
-	VoxelDataset(const char* filename);
 
-	VoxelDataset& operator=(const VoxelDataset &other);
-
-	void initialize_with_file(const char* filename);
+	VoxelDataset<T>& operator=(const VoxelDataset<T> &other);
 
 	void clear();
 	void resize(unsigned width, unsigned height, unsigned depth);
 
-	void compute_sigma_a_threaded();
-
-	float get_voxel_value(float x, float y, float z) const;
-	void set_voxel_value(float x, float y, float z, float val);
-	float get_fitted_voxel_value(miVector *p, miVector *min_point,
+	T get_voxel_value(float x, float y, float z) const;
+	void set_voxel_value(float x, float y, float z, T val);
+	T get_fitted_voxel_value(miVector *p, miVector *min_point,
 			miVector *max_point) const;
-	float get_voxel_value(unsigned x, unsigned y, unsigned z) const;
-	void set_voxel_value(unsigned x, unsigned y, unsigned z, float val);
+	T get_voxel_value(unsigned x, unsigned y, unsigned z) const;
+	void set_voxel_value(unsigned x, unsigned y, unsigned z, T val);
 
 	int getWidth() const;
 	int getHeight() const;
@@ -41,11 +37,14 @@ public:
 private:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
-	void compute_sigma_a(unsigned i_width, unsigned i_height, unsigned i_depth,
-			unsigned e_width, unsigned e_height, unsigned e_depth);
-private:
+protected:
 	unsigned width, height, depth;
-	float block[MAX_DATASET_SIZE];
+	T block[MAX_DATASET_SIZE];
 };
+
+// The compiler needs direct access to the template class implementation or
+// it will give symbol lookup errors. The solution is to have the code in an
+// impl file and include such file in the .h
+#include "VoxelDataset.impl"
 
 #endif /* VOXELDATASET_H_ */
