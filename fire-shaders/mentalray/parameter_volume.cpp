@@ -45,8 +45,7 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 		miaux_copy_voxel_dataset(state, density_shader, voxels, width, height,
 				depth);
 
-		miaux_threaded_compute_sigma_a(state, density_shader, voxels, width,
-				height, depth);
+		voxels->compute_sigma_a_threaded();
 
 		// Restore previous state
 		state->point = original_point;

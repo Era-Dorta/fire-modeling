@@ -7,10 +7,6 @@
 
 #include "miaux.h"
 
-#include <fstream>
-#include <thread>
-#include <vector>
-
 #include "shader.h"
 
 char* miaux_tag_to_string(miTag tag, char *default_value) {
@@ -52,37 +48,6 @@ void* miaux_user_memory_pointer(miState *state, int allocation_size) {
 miBoolean miaux_point_inside(miVector *p, miVector *min_p, miVector *max_p) {
 	return p->x >= min_p->x && p->y >= min_p->y && p->z >= min_p->z
 			&& p->x <= max_p->x && p->y <= max_p->y && p->z <= max_p->z;
-}
-
-void miaux_read_volume_block(char* filename, int *width, int *height,
-		int *depth, float* block) {
-	int count;
-	std::fstream fp(filename, std::ios_base::in);
-	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename);
-	}
-	// Read width heifht and depth
-	fp >> *width;
-	fp >> *height;
-	fp >> *depth;
-
-	count = (*width) * (*height) * (*depth);
-
-	for (int i = 0; i < count; i++) {
-		if (fp.eof()) {
-			mi_fatal("Error, file \"%s\" has less data that declared.",
-					filename);
-		}
-		fp >> block[i];
-		block[i] = block[i] * 4.15;
-	}
-}
-
-void miaux_light_array(miTag **lights, int *light_count, miState *state,
-		int *offset_param, int *count_param, miTag *lights_param) {
-	int array_offset = *mi_eval_integer(offset_param);
-	*light_count = *mi_eval_integer(count_param);
-	*lights = mi_eval_tag(lights_param) + array_offset;
 }
 
 void miaux_add_color(miColor *result, miColor *c) {
@@ -275,57 +240,6 @@ void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 				voxels->set_voxel_value(i, j, k, density);
 			}
 		}
-	}
-}
-
-void miaux_compute_sigma_a(VoxelDataset *voxels, miState *state,
-		miTag density_shader, unsigned i_width, unsigned i_height,
-		unsigned i_depth, unsigned e_width, unsigned e_height,
-		unsigned e_depth) {
-	float density = 0.0;
-	for (unsigned i = i_width; i <= e_width; i++) {
-		for (unsigned j = i_height; j <= e_height; j++) {
-			for (unsigned k = i_depth; k <= e_depth; k++) {
-				density = voxels->get_voxel_value(i, j, k);
-				if (density > 0.0) {
-					voxels->set_voxel_value(i, j, k, density + 0.5);
-				}
-			}
-		}
-	}
-}
-
-void miaux_threaded_compute_sigma_a(miState* state, miTag density_shader,
-		VoxelDataset* voxels, unsigned width, unsigned height, unsigned depth) {
-
-	// Get thread hint, i.e. number of cores
-	unsigned num_threads = std::thread::hardware_concurrency();
-	// Get are at least able to run one thread
-	if (num_threads == 0) {
-		num_threads = 1;
-	}
-	// Cap the number of threads if there is not enough work for each one
-	if ((unsigned) (depth) < num_threads) {
-		num_threads = depth;
-	}
-	mi_warning("\tStart computation with %d threads", num_threads);
-	unsigned thread_chunk = depth / num_threads;
-	std::vector<std::thread> threads;
-	unsigned i_depth = 0, e_depth = thread_chunk;
-	// Launch each thread with its chunk of work
-	for (unsigned i = 0; i < num_threads - 1; i++) {
-		threads.push_back(
-				std::thread(miaux_compute_sigma_a, voxels, state,
-						density_shader, 0, 0, i_depth, width, height, e_depth));
-		i_depth = e_depth + 1;
-		e_depth = e_depth + thread_chunk;
-	}
-	// The remaining will be handled by the current thread
-	miaux_compute_sigma_a(voxels, state, density_shader, 0, 0, i_depth, width,
-			height, depth - 1);
-	// Wait for the other threads to finish
-	for (auto& thread : threads) {
-		thread.join();
 	}
 }
 

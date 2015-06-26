@@ -26,6 +26,8 @@ public:
 	void clear();
 	void resize(unsigned width, unsigned height, unsigned depth);
 
+	void compute_sigma_a_threaded();
+
 	float get_voxel_value(float x, float y, float z) const;
 	void set_voxel_value(float x, float y, float z, float val);
 	float get_fitted_voxel_value(miVector *p, miVector *min_point,
@@ -37,8 +39,10 @@ public:
 	int getHeight() const;
 	int getDepth() const;
 private:
-	double miaux_fit(double v, double oldmin, double oldmax, double newmin,
+	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
+	void compute_sigma_a(unsigned i_width, unsigned i_height, unsigned i_depth,
+			unsigned e_width, unsigned e_height, unsigned e_depth);
 private:
 	unsigned width, height, depth;
 	float block[MAX_DATASET_SIZE];

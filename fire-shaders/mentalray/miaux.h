@@ -35,12 +35,6 @@ void* miaux_user_memory_pointer(miState *state, int allocation_size);
 
 miBoolean miaux_point_inside(miVector *p, miVector *min_p, miVector *max_p);
 
-void miaux_read_volume_block(char* filename, int *width, int *height,
-		int *depth, float* block);
-
-void miaux_light_array(miTag **lights, int *light_count, miState *state,
-		int *offset_param, int *count_param, miTag *lights_param);
-
 void miaux_add_color(miColor *result, miColor *c);
 
 void miaux_point_along_vector(miVector *result, miVector *point,
@@ -88,14 +82,6 @@ void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
 
 void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 		VoxelDataset *voxels, unsigned width, unsigned height, unsigned depth);
-
-void miaux_compute_sigma_a(VoxelDataset *voxels, miState *state,
-		miTag density_shader, unsigned i_width, unsigned i_height,
-		unsigned i_depth, unsigned e_width, unsigned e_height,
-		unsigned e_depth);
-
-void miaux_threaded_compute_sigma_a(miState* state, miTag density_shader,
-		VoxelDataset* voxels, unsigned width, unsigned height, unsigned depth);
 
 void miaux_vector_warning(const char* s, const miVector& v);
 
