@@ -21,6 +21,54 @@ struct parameter_volume {
 extern "C" DLLEXPORT int parameter_volume_version(void) {
 	return 1;
 }
+
+extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
+		struct parameter_volume *params, miBoolean *instance_init_required) {
+	if (!params) { /* Main shader init (not an instance): */
+		*instance_init_required = miTRUE;
+	} else {
+		/* Instance initialization: */
+		mi_warning("precomputing sigma_a");
+		miTag density_shader = *mi_eval_tag(&params->density_shader);
+		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state,
+				sizeof(voxel_data));
+
+		// Save previous state
+		miVector original_point = state->point;
+		miRay_type ray_type = state->type;
+
+		// Get the dimensions of the voxel data
+		miScalar width_s, height_s, depth_s;
+		state->type = (miRay_type) WIDTH;
+		mi_call_shader_x((miColor*) &width_s, miSHADER_MATERIAL, state,
+				density_shader, NULL);
+
+		state->type = (miRay_type) HEIGHT;
+		mi_call_shader_x((miColor*) &height_s, miSHADER_MATERIAL, state,
+				density_shader, NULL);
+
+		state->type = (miRay_type) DEPTH;
+		mi_call_shader_x((miColor*) &depth_s, miSHADER_MATERIAL, state,
+				density_shader, NULL);
+
+		int width = (int) width_s;
+		int height = (int) height_s;
+		int depth = (int) depth_s;
+
+		// Restore previous state
+		state->point = original_point;
+		state->type = ray_type;
+		mi_warning("done precomputing sigma_a %d, %d, %d", width, height,
+				depth);
+	}
+	return miTRUE;
+}
+
+extern "C" DLLEXPORT miBoolean parameter_volume_exit(miState *state,
+		void *params) {
+	return miaux_release_user_memory("parameter_volume", state, params);
+}
+
 extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result,
 		miState *state, struct parameter_volume *params) {
 

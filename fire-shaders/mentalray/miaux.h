@@ -18,6 +18,17 @@ typedef struct VolumeShader_R {
 	miColor transparency;
 } VolumeShader_R;
 
+#define MAX_DATASET_SIZE 128*128*128
+
+typedef struct {
+	int width, height, depth;
+	float block[MAX_DATASET_SIZE];
+} voxel_data;
+
+enum Voxel_Return {
+	DENSITY, WIDTH, HEIGHT, DEPTH, DENSITY_RAW
+};
+
 char* miaux_tag_to_string(miTag tag, char *default_value);
 
 double miaux_fit(double v, double oldmin, double oldmax, double newmin,

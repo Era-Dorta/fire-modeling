@@ -5,16 +5,14 @@
 
 #include "miaux.h"
 
-#define MAX_DATASET_SIZE 128*128*128
-
-typedef struct {
-	int width, height, depth;
-	float block[MAX_DATASET_SIZE];
-} voxel_data;
-
 float voxel_value(voxel_data *voxels, float x, float y, float z) {
 	return voxels->block[((int) (z + .5)) * voxels->depth * voxels->height
 			+ ((int) (y + .5)) * voxels->height + ((int) (x + .5))];
+}
+
+float voxel_value_raw(voxel_data *voxels, float x, float y, float z) {
+	return voxels->block[((int) z) * voxels->depth * voxels->height
+			+ ((int) y) * voxels->height + ((int) x)];
 }
 
 // TODO Min and max point should come from the transformation of the object
@@ -59,21 +57,53 @@ extern "C" DLLEXPORT miBoolean voxel_density_exit(miState *state,
 
 extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		struct voxel_density *params) {
-	miVector *min_point = mi_eval_vector(&params->min_point);
-	miVector *max_point = mi_eval_vector(&params->max_point);
-	miVector *p = &state->point;
-	if (miaux_point_inside(p, min_point, max_point)) {
-		float x, y, z;
+	switch ((Voxel_Return) state->type) {
+	case WIDTH: {
+		mi_warning("width");
 		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
-		x = (float) miaux_fit(p->x, min_point->x, max_point->x, 0,
-				voxels->width - 1);
-		y = (float) miaux_fit(p->y, min_point->y, max_point->y, 0,
-				voxels->height - 1);
-		z = (float) miaux_fit(p->z, min_point->z, max_point->z, 0,
-				voxels->depth - 1);
-		*result = voxel_value(voxels, x, y, z);
-	} else {
-		*result = 0.0;
+		*result = voxels->width;
+		break;
+	}
+	case HEIGHT: {
+		mi_warning("height");
+		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
+		*result = voxels->height;
+		break;
+	}
+	case DEPTH: {
+		mi_warning("depth");
+		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
+		*result = voxels->depth;
+		break;
+	}
+	case DENSITY_RAW: {
+		mi_warning("DENSITY_RAW");
+		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state, 0);
+		*result = voxel_value_raw(voxels, state->point.x, state->point.y,
+				state->point.z);
+		break;
+	}
+	default: {
+		//mi_warning("density");
+		miVector *min_point = mi_eval_vector(&params->min_point);
+		miVector *max_point = mi_eval_vector(&params->max_point);
+		miVector *p = &state->point;
+		if (miaux_point_inside(p, min_point, max_point)) {
+			float x, y, z;
+			voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state,
+					0);
+			x = (float) miaux_fit(p->x, min_point->x, max_point->x, 0,
+					voxels->width - 1);
+			y = (float) miaux_fit(p->y, min_point->y, max_point->y, 0,
+					voxels->height - 1);
+			z = (float) miaux_fit(p->z, min_point->z, max_point->z, 0,
+					voxels->depth - 1);
+			*result = voxel_value(voxels, x, y, z);
+		} else {
+			*result = 0.0;
+		}
+		break;
+	}
 	}
 	return miTRUE;
 }
