@@ -89,8 +89,19 @@ miBoolean miaux_all_channels_equal(miColor *c, miScalar v);
 
 void miaux_initialize_volume_output(VolumeShader_R* result);
 
-void miaux_get_voxel_data_dims(miState *state, miTag density_shader, int *width,
-		int *height, int *depth);
+void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
+		int *width, int *height, int *depth);
+
+void set_voxel_val(voxel_data *voxels, int x, int y, int z, float val);
+
+float get_voxel_val(voxel_data *voxels, int x, int y, int z);
+
+void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
+		voxel_data *voxels, int width, int height, int depth);
+
+void miaux_compute_sigma_a(voxel_data *voxels, miState *state,
+		miTag density_shader, int i_width, int i_height, int i_depth,
+		int e_width, int e_height, int e_depth);
 
 void miaux_vector_warning(const char* s, const miVector& v);
 

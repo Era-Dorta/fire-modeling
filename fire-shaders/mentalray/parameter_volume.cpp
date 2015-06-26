@@ -1,4 +1,6 @@
 #include <iostream>
+#include <thread>
+#include <vector>
 
 #include "shader.h"
 #include "mayaapi.h"
@@ -28,7 +30,7 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 		*instance_init_required = miTRUE;
 	} else {
 		/* Instance initialization: */
-		mi_warning("precomputing sigma_a");
+		mi_warning("Precomputing sigma_a");
 		miTag density_shader = *mi_eval_tag(&params->density_shader);
 		voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state,
 				sizeof(voxel_data));
@@ -38,14 +40,54 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 		miRay_type ray_type = state->type;
 
 		int width, height, depth;
-		miaux_get_voxel_data_dims(state, density_shader, &width, &height,
+		miaux_get_voxel_dataset_dims(state, density_shader, &width, &height,
 				&depth);
+
+		miaux_copy_voxel_dataset(state, density_shader, voxels, width, height,
+				depth);
+
+		// Get thread hint, i.e. number of cores
+		unsigned num_threads = std::thread::hardware_concurrency();
+
+		// Get are at least able to run one thread
+		if (num_threads == 0) {
+			num_threads = 1;
+		}
+
+		// Cap the number of threads if there is not enough work for each one
+		if ((unsigned) depth < num_threads) {
+			num_threads = depth;
+		}
+
+		mi_warning("\tStart computation with %d threads", num_threads);
+		unsigned thread_chunk = depth / num_threads;
+		std::vector<std::thread> threads;
+		unsigned i_depth = 0, e_depth = thread_chunk;
+
+		// Launch each thread with its chunk of work
+		for (unsigned i = 0; i < num_threads - 1; i++) {
+			threads.push_back(
+					std::thread(miaux_compute_sigma_a, voxels, state,
+							density_shader, 0, 0, i_depth, width, height,
+							e_depth));
+			i_depth = e_depth + 1;
+			e_depth = e_depth + thread_chunk;
+		}
+
+		// The remaining will be handled by the current thread
+		miaux_compute_sigma_a(voxels, state, density_shader, 0, 0, i_depth,
+				width, height, depth - 1);
+
+		// Wait for the other threads to finish
+		for (auto& thread : threads) {
+			thread.join();
+		}
 
 		// Restore previous state
 		state->point = original_point;
 		state->type = ray_type;
-		mi_warning("done precomputing sigma_a %d, %d, %d", width, height,
-				depth);
+		mi_warning("Done precomputing sigma_a with dataset size %dx%dx%d",
+				width, height, depth);
 	}
 	return miTRUE;
 }

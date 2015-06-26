@@ -235,8 +235,8 @@ void miaux_initialize_volume_output(VolumeShader_R* result) {
 	miaux_set_rgb(&result->transparency, 1);
 }
 
-void miaux_get_voxel_data_dims(miState *state, miTag density_shader, int *width,
-		int *height, int *depth) {
+void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
+		int *width, int *height, int *depth) {
 	// Get the dimensions of the voxel data
 	miScalar width_s, height_s, depth_s;
 	state->type = (miRay_type) WIDTH;
@@ -254,6 +254,48 @@ void miaux_get_voxel_data_dims(miState *state, miTag density_shader, int *width,
 	*width = (int) width_s;
 	*height = (int) height_s;
 	*depth = (int) depth_s;
+}
+
+void set_voxel_val(voxel_data *voxels, int x, int y, int z, float val) {
+	voxels->block[z * voxels->depth * voxels->height + y * voxels->height + x] =
+			val;
+}
+
+float get_voxel_val(voxel_data *voxels, int x, int y, int z) {
+	return voxels->block[z * voxels->depth * voxels->height + y * voxels->height
+			+ x];
+}
+
+void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
+		voxel_data *voxels, int width, int height, int depth) {
+
+	miScalar density;
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			for (int k = 0; k < depth; k++) {
+				state->point.x = i;
+				state->point.y = j;
+				state->point.z = k;
+				mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
+						density_shader, NULL);
+				set_voxel_val(voxels, i, j, k, density);
+			}
+		}
+	}
+}
+
+void miaux_compute_sigma_a(voxel_data *voxels, miState *state,
+		miTag density_shader, int i_width, int i_height, int i_depth,
+		int e_width, int e_height, int e_depth) {
+
+	for (int i = i_width; i <= e_width; i++) {
+		for (int j = i_height; j <= e_height; j++) {
+			for (int k = i_depth; k <= e_depth; k++) {
+				set_voxel_val(voxels, i, j, k,
+						get_voxel_val(voxels, i, j, k) + 0.5);
+			}
+		}
+	}
 }
 
 void miaux_vector_warning(const char* s, const miVector& v) {

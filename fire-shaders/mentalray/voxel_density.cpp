@@ -38,12 +38,12 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 				*mi_eval_tag(&params->filename_tag),
 				NULL);
 		if (filename) {
-			mi_warning("Reading voxel datase filename %s", filename);
+			mi_warning("\tReading voxel datase filename %s", filename);
 			voxel_data *voxels = (voxel_data *) miaux_user_memory_pointer(state,
 					sizeof(voxel_data));
 			miaux_read_volume_block(filename, &voxels->width, &voxels->height,
 					&voxels->depth, voxels->block);
-			mi_warning("Done with Voxel dataset: %dx%dx%d %s", voxels->width,
+			mi_warning("\tDone with Voxel dataset: %dx%dx%d %s", voxels->width,
 					voxels->height, voxels->depth, filename);
 		}
 	}
