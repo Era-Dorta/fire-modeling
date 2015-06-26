@@ -244,6 +244,21 @@ void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 	}
 }
 
+void miaux_get_sigma_a_density(miState *state, miScalar *density) {
+	miColor aux;
+	miVector min_point = { -1, -1, -1 };
+	miVector max_point = { 1, 1, 1 };
+	if (miaux_point_inside(&state->point, &min_point, &max_point)) {
+		VoxelDatasetColor *voxels =
+				(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
+		aux = voxels->get_fitted_voxel_value(&state->point, &min_point,
+				&max_point);
+	} else {
+		aux.r = 0.0;
+	}
+	*density = aux.r;
+}
+
 void miaux_vector_warning(const char* s, const miVector& v) {
 	mi_warning("%s %f, %f, %f", s, v.x, v.y, v.z);
 }

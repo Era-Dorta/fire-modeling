@@ -84,6 +84,8 @@ void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 		VoxelDatasetColor *voxels, unsigned width, unsigned height,
 		unsigned depth);
 
+void miaux_get_sigma_a_density(miState *state, miScalar *density);
+
 void miaux_vector_warning(const char* s, const miVector& v);
 
 void miaux_vector_warning(const char* s, const miGeoVector& v);

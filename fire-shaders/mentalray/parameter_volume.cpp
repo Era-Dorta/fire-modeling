@@ -6,6 +6,8 @@
 #include "miaux.h"
 #include "VoxelDatasetColor.h"
 
+//#define DEBUG_SIGMA_A
+
 // Go to SphereFogSG and add this as its volume shader in the mental ray tab
 // in custom shaders
 
@@ -110,6 +112,9 @@ extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result,
 			state->point = march_point;
 			mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 					density_shader, NULL);
+#ifdef DEBUG_SIGMA_A
+			miaux_get_sigma_a_density(state, &density);
+#endif
 			//density = 1;
 			if (density > 0) {
 				// Here is where the equation is solved
