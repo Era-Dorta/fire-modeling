@@ -1,6 +1,4 @@
 #include <iostream>
-#include <thread>
-#include <vector>
 
 #include "shader.h"
 #include "mayaapi.h"
@@ -46,42 +44,8 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 		miaux_copy_voxel_dataset(state, density_shader, voxels, width, height,
 				depth);
 
-		// Get thread hint, i.e. number of cores
-		unsigned num_threads = std::thread::hardware_concurrency();
-
-		// Get are at least able to run one thread
-		if (num_threads == 0) {
-			num_threads = 1;
-		}
-
-		// Cap the number of threads if there is not enough work for each one
-		if ((unsigned) depth < num_threads) {
-			num_threads = depth;
-		}
-
-		mi_warning("\tStart computation with %d threads", num_threads);
-		unsigned thread_chunk = depth / num_threads;
-		std::vector<std::thread> threads;
-		unsigned i_depth = 0, e_depth = thread_chunk;
-
-		// Launch each thread with its chunk of work
-		for (unsigned i = 0; i < num_threads - 1; i++) {
-			threads.push_back(
-					std::thread(miaux_compute_sigma_a, voxels, state,
-							density_shader, 0, 0, i_depth, width, height,
-							e_depth));
-			i_depth = e_depth + 1;
-			e_depth = e_depth + thread_chunk;
-		}
-
-		// The remaining will be handled by the current thread
-		miaux_compute_sigma_a(voxels, state, density_shader, 0, 0, i_depth,
-				width, height, depth - 1);
-
-		// Wait for the other threads to finish
-		for (auto& thread : threads) {
-			thread.join();
-		}
+		miaux_threaded_compute_sigma_a(state, density_shader, voxels, width,
+				height, depth);
 
 		// Restore previous state
 		state->point = original_point;

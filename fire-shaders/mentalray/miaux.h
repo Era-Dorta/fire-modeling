@@ -103,6 +103,9 @@ void miaux_compute_sigma_a(voxel_data *voxels, miState *state,
 		miTag density_shader, int i_width, int i_height, int i_depth,
 		int e_width, int e_height, int e_depth);
 
+void miaux_threaded_compute_sigma_a(miState* state, miTag density_shader,
+		voxel_data* voxels, int width, int height, int depth);
+
 void miaux_vector_warning(const char* s, const miVector& v);
 
 void miaux_vector_warning(const char* s, const miGeoVector& v);
