@@ -57,6 +57,29 @@ void miaux_add_color(miColor *result, miColor *c) {
 	result->a += c->a;
 }
 
+void miaux_add_inv_rgb_color(miColor *result, miColor *c) {
+	result->r += 1.0 - c->r;
+	result->g += 1.0 - c->g;
+	result->b += 1.0 - c->b;
+}
+
+void miaux_clamp(miScalar *result, miScalar min, miScalar max) {
+	if (*result < min) {
+		*result = min;
+		return;
+	}
+	if (*result > max) {
+		*result = max;
+	}
+}
+
+void miaux_clamp_color(miColor *c, miScalar min, miScalar max) {
+	miaux_clamp(&c->r, min, max);
+	miaux_clamp(&c->g, min, max);
+	miaux_clamp(&c->b, min, max);
+	miaux_clamp(&c->a, min, max);
+}
+
 void miaux_point_along_vector(miVector *result, miVector *point,
 		miVector *direction, miScalar distance) {
 	result->x = point->x + distance * direction->x;
@@ -88,26 +111,30 @@ void miaux_scale_color(miColor *result, miScalar scale) {
 	result->b *= scale;
 }
 
-miScalar miaux_fractional_shader_occlusion_at_point(miState *state,
+void miaux_fractional_shader_occlusion_at_point(miState *state,
 		miVector *start_point, miVector *direction, miScalar total_distance,
-		miTag density_shader, miScalar unit_density, miScalar march_increment) {
-	miScalar density, dist, occlusion = 0.0;
+		miScalar march_increment, miColor *transparency) {
+	miScalar dist;
+	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
 	miVector original_point = state->point;
 	mi_vector_normalize(direction);
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
 		miaux_point_along_vector(&march_point, start_point, direction, dist);
 		state->point = march_point;
-		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
-				density_shader, NULL);
-		occlusion += density * unit_density * march_increment;
-		if (occlusion >= 1.0) {
-			occlusion = 1.0;
-			break;
-		}
+		//mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
+		//		density_shader, NULL);
+		miaux_get_sigma_a(state, &current_sigma);
+		miaux_add_color(&total_sigma, &current_sigma);
 	}
+	miaux_scale_color(&total_sigma, march_increment * 20);
+	// Bigger coefficient, small exp
+	total_sigma.r = exp(-total_sigma.r);
+	total_sigma.g = exp(-total_sigma.g);
+	total_sigma.b = exp(-total_sigma.b);
+	// 0 is completely transparent
+	miaux_add_color(transparency, &total_sigma);
 	state->point = original_point;
-	return occlusion;
 }
 
 void miaux_multiply_colors(miColor *result, miColor *x, miColor *y) {
@@ -244,19 +271,17 @@ void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 	}
 }
 
-void miaux_get_sigma_a_density(miState *state, miScalar *density) {
-	miColor aux;
+void miaux_get_sigma_a(miState *state, miColor *sigma_a) {
 	miVector min_point = { -1, -1, -1 };
 	miVector max_point = { 1, 1, 1 };
 	if (miaux_point_inside(&state->point, &min_point, &max_point)) {
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
-		aux = voxels->get_fitted_voxel_value(&state->point, &min_point,
+		*sigma_a = voxels->get_fitted_voxel_value(&state->point, &min_point,
 				&max_point);
 	} else {
-		aux.r = 0.0;
+		miaux_set_rgb(sigma_a, 0.0);
 	}
-	*density = aux.r;
 }
 
 void miaux_vector_warning(const char* s, const miVector& v) {

@@ -42,7 +42,7 @@
 // Spectrum Utility Declarations
 static const int sampledLambdaStart = 400;
 static const int sampledLambdaEnd = 700;
-static const int nSpectralSamples = 13;
+static const int nSpectralSamples = 30;
 extern bool SpectrumSamplesSorted(const float *lambda, const float *vals,
 		int n);
 extern void SortSpectrumSamples(float *lambda, float *vals, int n);

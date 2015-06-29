@@ -6,7 +6,7 @@
 #include "miaux.h"
 #include "VoxelDatasetColor.h"
 
-//#define DEBUG_SIGMA_A
+#define DEBUG_SIGMA_A
 
 // Go to SphereFogSG and add this as its volume shader in the mental ray tab
 // in custom shaders
@@ -86,10 +86,11 @@ extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result,
 		 * shadows (default) effect, 1 to let that colour pass
 		 * result->transparency.r = 1; // Red shadow
 		 */
-		miScalar occlusion = miaux_fractional_shader_occlusion_at_point(state,
-				&state->org, &state->dir, state->dist, density_shader,
-				unit_density, march_increment);
-		miaux_set_rgb(&result->transparency, 1.0 - occlusion);
+		//miaux_vector_warning("transparency is ", result->transparency);
+		miaux_fractional_shader_occlusion_at_point(state, &state->org,
+				&state->dir, state->dist, march_increment,
+				&result->transparency);
+		//result->transparency.r = 1;
 		return miTRUE;
 	} else {
 		if (state->dist == 0.0) /* infinite dist: outside volume */
@@ -113,7 +114,9 @@ extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result,
 			mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 					density_shader, NULL);
 #ifdef DEBUG_SIGMA_A
-			miaux_get_sigma_a_density(state, &density);
+			miColor sigma_a;
+			miaux_get_sigma_a(state, &sigma_a);
+			density = sigma_a.r;
 #endif
 			//density = 1;
 			if (density > 0) {

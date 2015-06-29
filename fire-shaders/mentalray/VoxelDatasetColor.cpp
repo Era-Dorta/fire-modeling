@@ -22,6 +22,7 @@ void VoxelDatasetColor::compute_sigma_a_threaded() {
 	if (num_threads == 0) {
 		num_threads = 1;
 	}
+
 	// Cap the number of threads if there is not enough work for each one
 	if ((unsigned) (depth) < num_threads) {
 		num_threads = depth;
@@ -47,6 +48,10 @@ void VoxelDatasetColor::compute_sigma_a_threaded() {
 }
 
 void VoxelDatasetColor::compute_soot_coefficients() {
+	// TODO Spectrum static initialisation, ideally should only be called once
+	// move it from here to a proper initialisation context
+	Spectrum::Init();
+
 	// TODO If we wanted to sample more from the spectrum, we could not compute
 	// lambda^alpha_lambda here and do it in compute_sigma_a
 	sootCoefficients = std::vector<miScalar>(Soot::sampleSize, 0);
@@ -75,13 +80,16 @@ void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 						sigma_a.at(l) = density.r * sootCoefficients[l];
 					}
 					// Create a Spectrum representation with the computed values
-					Spectrum sigma_a_spec = Spectrum::FromSampled(Soot::lambda,
-							&sigma_a[0], Soot::sampleSize);
+					// Spectrum expects the wavelengths to be in nanometres
+					Spectrum sigma_a_spec = Spectrum::FromSampled(
+							Soot::lambda_nano, &sigma_a[0], Soot::sampleSize);
+
 					// Transform the spectrum to RGB coefficients
 					sigma_a_spec.ToRGB(rgbCoefficients);
 					density.r = rgbCoefficients[0];
 					density.g = rgbCoefficients[1];
 					density.b = rgbCoefficients[2];
+
 					set_voxel_value(i, j, k, density);
 				}
 			}

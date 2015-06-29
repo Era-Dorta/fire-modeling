@@ -13,10 +13,12 @@
 // Data from Optical Constants of Soot and Their Application to Heat-Flux
 // Calculations, 1969
 namespace Soot {
-const static miScalar sampleSize = 13;
+const static miScalar sampleSize = 4;
 const static miScalar lambda[] = { 0.4358e-6, 0.4500e-6, 0.5500e-6, 0.6500e-6,
 		0.8065e-6, 2.5e-6, 3.0e-6, 4.0e-6, 5.0e-6, 6.0e-6, 7.0e-6, 8.5e-6,
 		10.0e-6 };
+const static miScalar lambda_nano[] = { 0.4358e3, 0.4500e3, 0.5500e3, 0.6500e3,
+		0.8065e3, 2.5e3, 3.0e3, 4.0e3, 5.0e3, 6.0e3, 7.0e3, 8.5e3, 10.0e3 };
 const static miScalar n[] = { 1.57, 1.56, 1.57, 1.56, 1.57, 2.04, 2.21, 2.38,
 		2.07, 2.62, 3.05, 3.26, 3.48 };
 const static miScalar nk[] = { 0.46, 0.50, 0.53, 0.52, 0.49, 1.15, 1.23, 1.44,
