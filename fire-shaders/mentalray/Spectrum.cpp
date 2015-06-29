@@ -30,12 +30,11 @@
 
 // core/spectrum.cpp*
 //#include "stdafx.h"
-#include "spectrum.h"
-
 #include <algorithm>
+#include "Spectrum.h"
 
 // Spectrum Method Definitions
-bool SpectrumSamplesSorted(const float *lambda, const float *vals, int n) {
+bool SpectrumSamplesSorted(const float *lambda, const float *, int n) {
 	for (int i = 0; i < n - 1; ++i)
 		if (lambda[i] > lambda[i + 1])
 			return false;

@@ -14,7 +14,7 @@
 
 class RGBSpectrum;
 class SampledSpectrum;
-typedef RGBSpectrum Spectrum;
+typedef SampledSpectrum Spectrum;
 typedef unsigned int uint32_t;
 
 inline float Lerp(float t, float v1, float v2) {

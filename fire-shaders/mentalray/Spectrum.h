@@ -42,7 +42,7 @@
 // Spectrum Utility Declarations
 static const int sampledLambdaStart = 400;
 static const int sampledLambdaEnd = 700;
-static const int nSpectralSamples = 30;
+static const int nSpectralSamples = 13;
 extern bool SpectrumSamplesSorted(const float *lambda, const float *vals,
 		int n);
 extern void SortSpectrumSamples(float *lambda, float *vals, int n);
@@ -404,11 +404,10 @@ public:
 			CoefficientSpectrum<3>(v) {
 	}
 	RGBSpectrum(const RGBSpectrum &s,
-			SpectrumType type = SPECTRUM_REFLECTANCE) {
+			SpectrumType) {
 		*this = s;
 	}
-	static RGBSpectrum FromRGB(const float rgb[3], SpectrumType type =
-			SPECTRUM_REFLECTANCE) {
+	static RGBSpectrum FromRGB(const float rgb[3]) {
 		RGBSpectrum s;
 		s.c[0] = rgb[0];
 		s.c[1] = rgb[1];
@@ -427,8 +426,7 @@ public:
 	void ToXYZ(float xyz[3]) const {
 		RGBToXYZ(c, xyz);
 	}
-	static RGBSpectrum FromXYZ(const float xyz[3], SpectrumType type =
-			SPECTRUM_REFLECTANCE) {
+	static RGBSpectrum FromXYZ(const float xyz[3]) {
 		RGBSpectrum r;
 		XYZToRGB(xyz, r.c);
 		return r;
