@@ -403,8 +403,7 @@ public:
 	RGBSpectrum(const CoefficientSpectrum<3> &v) :
 			CoefficientSpectrum<3>(v) {
 	}
-	RGBSpectrum(const RGBSpectrum &s,
-			SpectrumType) {
+	RGBSpectrum(const RGBSpectrum &s, SpectrumType) {
 		*this = s;
 	}
 	static RGBSpectrum FromRGB(const float rgb[3]) {
