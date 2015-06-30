@@ -57,7 +57,8 @@ void miaux_scale_color(miColor *result, miScalar scale);
 
 void miaux_fractional_shader_occlusion_at_point(miState *state,
 		miVector *start_point, miVector *direction, miScalar total_distance,
-		miScalar march_increment, miColor *transparency);
+		miScalar march_increment, miScalar shadow_density,
+		miColor *transparency);
 
 void miaux_multiply_colors(miColor *result, miColor *x, miColor *y);
 
@@ -88,7 +89,7 @@ void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
 
 void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 		VoxelDatasetColor *voxels, unsigned width, unsigned height,
-		unsigned depth);
+		unsigned depth, miScalar unit_density);
 
 void miaux_get_sigma_a(miState *state, miColor *sigma_a);
 

@@ -18,6 +18,7 @@ struct parameter_volume {
 	miColor transparency;
 	miTag density_shader;
 	miScalar unit_density;
+	miScalar shadow_density;
 	miScalar march_increment;
 };
 
@@ -32,6 +33,7 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 	} else {
 		/* Instance initialization: */
 		mi_warning("Precomputing sigma_a");
+		miScalar unit_density = *mi_eval_scalar(&params->unit_density);
 		miTag density_shader = *mi_eval_tag(&params->density_shader);
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_user_memory_pointer(state,
@@ -46,7 +48,7 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 				&depth);
 
 		miaux_copy_voxel_dataset(state, density_shader, voxels, width, height,
-				depth);
+				depth, unit_density);
 
 		voxels->compute_sigma_a_threaded();
 
@@ -81,16 +83,15 @@ extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result,
 	miTag density_shader = *mi_eval_tag(&params->density_shader);
 
 	if (state->type == miRAY_SHADOW) {
+		miScalar shadow_density = *mi_eval_scalar(&params->shadow_density);
 		/*
 		 * Seems to be affected only by transparency, 0 to not produce hard
 		 * shadows (default) effect, 1 to let that colour pass
 		 * result->transparency.r = 1; // Red shadow
 		 */
-		//miaux_vector_warning("transparency is ", result->transparency);
 		miaux_fractional_shader_occlusion_at_point(state, &state->org,
-				&state->dir, state->dist, march_increment,
+				&state->dir, state->dist, march_increment, shadow_density,
 				&result->transparency);
-		//result->transparency.r = 1;
 		return miTRUE;
 	} else {
 		if (state->dist == 0.0) /* infinite dist: outside volume */

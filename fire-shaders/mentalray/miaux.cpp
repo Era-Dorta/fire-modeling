@@ -113,7 +113,8 @@ void miaux_scale_color(miColor *result, miScalar scale) {
 
 void miaux_fractional_shader_occlusion_at_point(miState *state,
 		miVector *start_point, miVector *direction, miScalar total_distance,
-		miScalar march_increment, miColor *transparency) {
+		miScalar march_increment, miScalar shadow_density,
+		miColor *transparency) {
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
@@ -127,7 +128,10 @@ void miaux_fractional_shader_occlusion_at_point(miState *state,
 		miaux_get_sigma_a(state, &current_sigma);
 		miaux_add_color(&total_sigma, &current_sigma);
 	}
-	miaux_scale_color(&total_sigma, march_increment * 20);
+	// TODO Set shadow density in appropriate scale, in sigma_a we do R^3 since
+	// R is 10e-10, that leaves a final result in the order of 10e-30 so a good
+	// shadow density value should be around 10e30, empirically 10e12
+	miaux_scale_color(&total_sigma, march_increment * pow(10, shadow_density));
 	// Bigger coefficient, small exp
 	total_sigma.r = exp(-total_sigma.r);
 	total_sigma.g = exp(-total_sigma.g);
@@ -252,7 +256,7 @@ void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
 
 void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 		VoxelDatasetColor *voxels, unsigned width, unsigned height,
-		unsigned depth) {
+		unsigned depth, miScalar unit_density) {
 
 	state->type = (miRay_type) DENSITY_RAW;
 	voxels->resize(width, height, depth);
@@ -265,6 +269,7 @@ void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 				state->point.z = k;
 				mi_call_shader_x((miColor*) &density.r, miSHADER_MATERIAL,
 						state, density_shader, NULL);
+				density.r *= unit_density;
 				voxels->set_voxel_value(i, j, k, density);
 			}
 		}

@@ -24,10 +24,12 @@ declare shader
 			color "matteOpacity",
 				#: default 1 1 1
 			color "transparency",
-				#: default 0 0 0
+				#: default 0.5 0.5 0.5
 			shader "density_shader",
 			scalar "unit_density", 
-				#: default 1
+				#: default 1e1
+			scalar "shadow_density", 
+				#: default 12
 			scalar "march_increment", 
 				#: default 0.05 
 				)
