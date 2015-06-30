@@ -6,7 +6,7 @@
 #include "miaux.h"
 #include "VoxelDatasetColor.h"
 
-#define DEBUG_SIGMA_A
+//#define DEBUG_SIGMA_A
 
 // Go to SphereFogSG and add this as its volume shader in the mental ray tab
 // in custom shaders
