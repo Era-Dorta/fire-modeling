@@ -26,10 +26,8 @@ const static miScalar nk[] = { 0.46, 0.50, 0.53, 0.52, 0.49, 1.15, 1.23, 1.44,
 // k = nk / n
 const static miScalar k[] = { 0.2930, 0.3205, 0.3376, 0.3333, 0.3121, 0.5637,
 		0.5566, 0.6050, 0.8309, 0.6374, 0.6262, 0.6442, 0.7069 };
-// Paper says it ranges from 50 to 800, so take the mean
-// According to http://hypertextbook.com/facts/2003/MarinaBolotovsky.shtml
-// the units should be micrometer too
-const static miScalar R = 425e-6;
+// Paper says it ranges from 50 to 800 Angstroms, so take the mean
+const static miScalar R = 425e-10;
 const static miScalar alpha_lambda = 1.39;
 const static miScalar PI_R3_36 = (4.0 / 3.0) * M_PI * R * R * R * 36 * M_PI;
 }
