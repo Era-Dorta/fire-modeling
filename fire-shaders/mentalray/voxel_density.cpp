@@ -10,6 +10,7 @@
 // this material is applied to
 struct voxel_density {
 	miTag filename_tag;
+	miInteger read_mode; // 0 ascii, 1 binary red, 2 binary max
 	miVector min_point;
 	miVector max_point;
 	miColor color;
@@ -29,12 +30,15 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 				*mi_eval_tag(&params->filename_tag),
 				NULL);
 		if (filename) {
-			mi_warning("\tReading voxel datase filename %s", filename);
+			int mode = *mi_eval_integer(&params->read_mode);
+			mi_warning("\tReading voxel datase mode %d, filename %s", mode,
+					filename);
 			VoxelDatasetFloat *voxels =
 					(VoxelDatasetFloat *) miaux_user_memory_pointer(state,
 							sizeof(VoxelDatasetFloat));
 
-			voxels->initialize_with_file(filename);
+			voxels->initialize_with_file(filename,
+					(VoxelDatasetFloat::FILE_FORMAT) mode);
 
 			mi_warning("\tDone with Voxel dataset: %dx%dx%d %s",
 					voxels->getWidth(), voxels->getHeight(), voxels->getDepth(),

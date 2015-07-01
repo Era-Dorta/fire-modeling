@@ -1,6 +1,9 @@
 declare shader
 	scalar "voxel_density" (
 		string "filename",
+		integer "read_mode",
+			#:default 1
+			#: min 0 max 2
 		vector "min_point", 
 			#: default -1 -1 -1
 		vector "max_point", 
@@ -33,5 +36,6 @@ declare shader
 			scalar "march_increment", 
 				#: default 0.05 
 				)
+	apply volume
 	version 1
 end declare

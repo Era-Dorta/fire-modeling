@@ -13,6 +13,10 @@
 #include "Spectrum.h"
 
 void VoxelDatasetColor::compute_sigma_a_threaded() {
+	if (depth <= 0) {
+		return;
+	}
+
 	// Precompute all the constant soot coefficients
 	compute_soot_coefficients();
 
