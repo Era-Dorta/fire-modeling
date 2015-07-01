@@ -17,7 +17,6 @@ struct fire_volume_shader {
 	miColor matteOpacity;
 	miColor transparency;
 	miTag density_shader;
-	miTag temperature_shader;
 	miScalar unit_density;
 	miScalar shadow_density;
 	miScalar march_increment;

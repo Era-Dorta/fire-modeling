@@ -1,6 +1,6 @@
 # guard against multiple inclusions
-$ifndef "mental_ray_fire_shader"
-set "mental_ray_fire_shader" "true"
+$ifndef "mental_ray_fire_shader_included"
+set "mental_ray_fire_shader_included" "true"
 
 # Voxel density shader, reads voxelized data from a given file
 
@@ -38,7 +38,6 @@ declare shader
 			color "transparency",
 				#: default 0.5 0.5 0.5
 			shader "density_shader",
-			shader "temperature_shader",
 			scalar "unit_density", 
 				#: default 1e1
 			scalar "shadow_density", 
@@ -65,4 +64,4 @@ declare shader
 	apply light
 end declare
 
-$endif # if not "mental_ray_fire_shader"
+$endif # if not "mental_ray_fire_shader_included"
