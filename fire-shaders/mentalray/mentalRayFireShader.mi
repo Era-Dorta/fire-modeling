@@ -29,6 +29,7 @@ declare shader
 			color "transparency",
 				#: default 0.5 0.5 0.5
 			shader "density_shader",
+			shader "temperature_shader",
 			scalar "unit_density", 
 				#: default 1e1
 			scalar "shadow_density", 
