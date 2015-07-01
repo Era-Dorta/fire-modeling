@@ -13,7 +13,7 @@
 // Data from Optical Constants of Soot and Their Application to Heat-Flux
 // Calculations, 1969
 namespace Soot {
-const static miScalar sampleSize = 4;
+const static miScalar num_samples = 4;
 const static miScalar lambda[] = { 0.4358e-6, 0.4500e-6, 0.5500e-6, 0.6500e-6,
 		0.8065e-6, 2.5e-6, 3.0e-6, 4.0e-6, 5.0e-6, 6.0e-6, 7.0e-6, 8.5e-6,
 		10.0e-6 };
@@ -35,13 +35,13 @@ const static miScalar PI_R3_36 = (4.0 / 3.0) * M_PI * R * R * R * 36 * M_PI;
 // Data from Optical Constants of Soot and Their Application to Heat-Flux
 // Calculations, 1969
 namespace BB {
+const static unsigned num_samples = 30;
 const static miScalar k = 1.3806488e-23; // Bolztmann constant in J/K
 //const static miScalar k = 8.6173324e-5; // Bolztmann constant in eV/K
 //const static miScalar k = 1.3806488e-16; // Bolztmann constant in erg/K
 const static miScalar h = 6.62606957e-34; // Planck constant in J/s
-const static miScalar c = 299792458; // Speed of light m/s
-const static miScalar twohc2 = 2 * h * c * c;
-const static miScalar hc_over_k = (h * c) / k;
+const static miScalar c0 = 299792458; // Speed of light m/s
+const static miScalar two_h = 2 * h;
 }
 
 #endif /* RENDERINGCONSTANTS_H_ */

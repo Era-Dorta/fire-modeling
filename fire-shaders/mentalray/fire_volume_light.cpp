@@ -29,8 +29,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 	} else {
 		/* Instance initialization: */
 		mi_warning("Precomputing bb radiation");
-		miScalar unit_temperature = *mi_eval_scalar(
-				&params->temperature_shader);
+		miScalar unit_temperature = *mi_eval_scalar(&params->unit_temperature);
 		miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
 
 		VoxelDatasetColor *voxels =
@@ -48,7 +47,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_copy_voxel_dataset(voxels, state, temperature_shader, width,
 				height, depth, unit_temperature);
 
-		//voxels->compute_sigma_a_threaded();
+		voxels->compute_bb_radiation_threaded();
 
 		// Restore previous state
 		state->point = original_point;
@@ -67,7 +66,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		miState *state, struct fire_volume_light *params) {
 
-	miScalar unit_temperature = *mi_eval_scalar(&params->temperature_shader);
+	miScalar unit_temperature = *mi_eval_scalar(&params->unit_temperature);
 	miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
 
 	miaux_set_rgb(result, 1);

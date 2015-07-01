@@ -56,7 +56,7 @@ declare shader
 	color "fire_volume_light" (
 		shader "temperature_shader",
 		scalar "unit_temperature", 
-			#: default 1
+			#: default 1e1
 		scalar "march_increment", 
 			#: default 0.05
 	)
