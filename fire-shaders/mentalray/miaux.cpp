@@ -118,14 +118,12 @@ void miaux_fractional_shader_occlusion_at_point(miState *state,
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
-	miVector original_point = state->point;
-	mi_vector_normalize(direction);
+	miVector normalized_dir = *direction;
+	mi_vector_normalize(&normalized_dir);
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
-		miaux_point_along_vector(&march_point, start_point, direction, dist);
-		state->point = march_point;
-		//mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
-		//		density_shader, NULL);
-		miaux_get_sigma_a(state, &current_sigma);
+		miaux_point_along_vector(&march_point, start_point, &normalized_dir,
+				dist);
+		miaux_get_sigma_a(state, &march_point, &current_sigma);
 		miaux_add_color(&total_sigma, &current_sigma);
 	}
 	// TODO Set shadow density in appropriate scale, in sigma_a we do R^3 since
@@ -138,7 +136,6 @@ void miaux_fractional_shader_occlusion_at_point(miState *state,
 	total_sigma.b = exp(-total_sigma.b);
 	// 0 is completely transparent
 	miaux_add_color(transparency, &total_sigma);
-	state->point = original_point;
 }
 
 void miaux_multiply_colors(miColor *result, miColor *x, miColor *y) {
@@ -276,13 +273,13 @@ void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 	}
 }
 
-void miaux_get_sigma_a(miState *state, miColor *sigma_a) {
+void miaux_get_sigma_a(miState *state, miVector *point, miColor *sigma_a) {
 	miVector min_point = { -1, -1, -1 };
 	miVector max_point = { 1, 1, 1 };
-	if (miaux_point_inside(&state->point, &min_point, &max_point)) {
+	if (miaux_point_inside(point, &min_point, &max_point)) {
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
-		*sigma_a = voxels->get_fitted_voxel_value(&state->point, &min_point,
+		*sigma_a = voxels->get_fitted_voxel_value(point, &min_point,
 				&max_point);
 	} else {
 		miaux_set_rgb(sigma_a, 0.0);

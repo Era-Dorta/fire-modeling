@@ -91,7 +91,7 @@ void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 		VoxelDatasetColor *voxels, unsigned width, unsigned height,
 		unsigned depth, miScalar unit_density);
 
-void miaux_get_sigma_a(miState *state, miColor *sigma_a);
+void miaux_get_sigma_a(miState *state, miVector *point, miColor *sigma_a);
 
 void miaux_vector_warning(const char* s, const miVector& v);
 
