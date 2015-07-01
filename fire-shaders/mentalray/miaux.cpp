@@ -9,10 +9,10 @@
 
 #include "shader.h"
 
-char* miaux_tag_to_string(miTag tag, char *default_value) {
-	char *result = default_value;
+const char* miaux_tag_to_string(miTag tag, const char *default_value) {
+	const char *result = default_value;
 	if (tag != 0) {
-		result = (char*) mi_db_access(tag);
+		result = (const char*) mi_db_access(tag);
 		mi_db_unpin(tag);
 	}
 	return result;
@@ -45,19 +45,20 @@ void* miaux_user_memory_pointer(miState *state, int allocation_size) {
 	return *user_pointer;
 }
 
-miBoolean miaux_point_inside(miVector *p, miVector *min_p, miVector *max_p) {
+miBoolean miaux_point_inside(const miVector *p, const miVector *min_p,
+		const miVector *max_p) {
 	return p->x >= min_p->x && p->y >= min_p->y && p->z >= min_p->z
 			&& p->x <= max_p->x && p->y <= max_p->y && p->z <= max_p->z;
 }
 
-void miaux_add_color(miColor *result, miColor *c) {
+void miaux_add_color(miColor *result, const miColor *c) {
 	result->r += c->r;
 	result->g += c->g;
 	result->b += c->b;
 	result->a += c->a;
 }
 
-void miaux_add_inv_rgb_color(miColor *result, miColor *c) {
+void miaux_add_inv_rgb_color(miColor *result, const miColor *c) {
 	result->r += 1.0 - c->r;
 	result->g += 1.0 - c->g;
 	result->b += 1.0 - c->b;
@@ -80,26 +81,27 @@ void miaux_clamp_color(miColor *c, miScalar min, miScalar max) {
 	miaux_clamp(&c->a, min, max);
 }
 
-void miaux_point_along_vector(miVector *result, miVector *point,
-		miVector *direction, miScalar distance) {
+void miaux_point_along_vector(miVector *result, const miVector *point,
+		const miVector *direction, miScalar distance) {
 	result->x = point->x + distance * direction->x;
 	result->y = point->y + distance * direction->y;
 	result->z = point->z + distance * direction->z;
 }
 
-void miaux_march_point(miVector *result, miState *state, miScalar distance) {
+void miaux_march_point(miVector *result,const  miState *state, miScalar distance) {
 	miaux_point_along_vector(result, &state->org, &state->dir, distance);
 }
 
-void miaux_alpha_blend_colors(miColor *result, miColor *foreground,
-		miColor *background) {
+void miaux_alpha_blend_colors(miColor *result, const miColor *foreground,
+		const miColor *background) {
 	double bg_fraction = 1.0 - foreground->a;
 	result->r = foreground->r + background->r * bg_fraction;
 	result->g = foreground->g + background->g * bg_fraction;
 	result->b = foreground->b + background->b * bg_fraction;
 }
 
-void miaux_add_scaled_color(miColor *result, miColor *color, miScalar scale) {
+void miaux_add_scaled_color(miColor *result, const miColor *color,
+		miScalar scale) {
 	result->r += color->r * scale;
 	result->g += color->g * scale;
 	result->b += color->b * scale;
@@ -112,9 +114,9 @@ void miaux_scale_color(miColor *result, miScalar scale) {
 }
 
 void miaux_fractional_shader_occlusion_at_point(miState *state,
-		miVector *start_point, miVector *direction, miScalar total_distance,
-		miScalar march_increment, miScalar shadow_density,
-		miColor *transparency) {
+		const miVector *start_point, const miVector *direction,
+		miScalar total_distance, miScalar march_increment,
+		miScalar shadow_density, miColor *transparency) {
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
@@ -138,7 +140,8 @@ void miaux_fractional_shader_occlusion_at_point(miState *state,
 	miaux_add_color(transparency, &total_sigma);
 }
 
-void miaux_multiply_colors(miColor *result, miColor *x, miColor *y) {
+void miaux_multiply_colors(miColor *result, const miColor *x,
+		const miColor *y) {
 	result->r = x->r * y->r;
 	result->g = x->g * y->g;
 	result->b = x->b * y->b;
@@ -152,7 +155,7 @@ void miaux_set_rgb(miColor *c, miScalar new_value) {
 	c->r = c->g = c->b = new_value;
 }
 
-void miaux_add_transparent_color(miColor *result, miColor *color,
+void miaux_add_transparent_color(miColor *result, const miColor *color,
 		miScalar transparency) {
 	miScalar new_alpha = result->a + transparency;
 	if (new_alpha > 1.0) {
@@ -164,7 +167,7 @@ void miaux_add_transparent_color(miColor *result, miColor *color,
 	result->a += transparency;
 }
 
-void miaux_total_light_at_point(miColor *result, miVector *point,
+void miaux_total_light_at_point(miColor *result, const miVector *point,
 		miState *state) {
 	miColor sum, light_color;
 	int light_sample_count;
@@ -190,7 +193,7 @@ void miaux_total_light_at_point(miColor *result, miVector *point,
 	state->point = original_point;
 }
 
-miScalar miaux_threshold_density(miVector *point, miVector *center,
+miScalar miaux_threshold_density(const miVector *point, const miVector *center,
 		miScalar radius, miScalar unit_density, miScalar march_increment) {
 	miScalar distance = mi_vector_dist(center, point);
 	if (distance <= radius) {
@@ -200,7 +203,7 @@ miScalar miaux_threshold_density(miVector *point, miVector *center,
 	}
 }
 
-void miaux_copy_color(miColor *result, miColor *color) {
+void miaux_copy_color(miColor *result, const miColor *color) {
 	result->r = color->r;
 	result->g = color->g;
 	result->b = color->b;
@@ -216,7 +219,7 @@ double miaux_shadow_breakpoint(double color, double transparency,
 	}
 }
 
-miBoolean miaux_all_channels_equal(miColor *c, miScalar v) {
+miBoolean miaux_all_channels_equal(const miColor *c, miScalar v) {
 	if (c->r == v && c->g == v && c->b == v && c->a == v) {
 		return miTRUE;
 	} else {

@@ -26,7 +26,7 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 		*instance_init_required = miTRUE;
 	} else {
 		/* Instance initialization: */
-		char* filename = miaux_tag_to_string(
+		const char* filename = miaux_tag_to_string(
 				*mi_eval_tag(&params->filename_tag),
 				NULL);
 		if (filename) {
