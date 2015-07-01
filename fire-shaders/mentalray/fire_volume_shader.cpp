@@ -11,7 +11,7 @@
 // Go to SphereFogSG and add this as its volume shader in the mental ray tab
 // in custom shaders
 
-struct parameter_volume {
+struct fire_volume_shader {
 	miColor color;
 	miColor glowColor;
 	miColor matteOpacity;
@@ -23,12 +23,12 @@ struct parameter_volume {
 	miScalar march_increment;
 };
 
-extern "C" DLLEXPORT int parameter_volume_version(void) {
+extern "C" DLLEXPORT int fire_volume_shader_version(void) {
 	return 1;
 }
 
-extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
-		struct parameter_volume *params, miBoolean *instance_init_required) {
+extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
+		struct fire_volume_shader *params, miBoolean *instance_init_required) {
 	if (!params) { /* Main shader init (not an instance): */
 		*instance_init_required = miTRUE;
 	} else {
@@ -62,13 +62,13 @@ extern "C" DLLEXPORT miBoolean parameter_volume_init(miState *state,
 	return miTRUE;
 }
 
-extern "C" DLLEXPORT miBoolean parameter_volume_exit(miState *state,
+extern "C" DLLEXPORT miBoolean fire_volume_shader_exit(miState *state,
 		void *params) {
-	return miaux_release_user_memory("parameter_volume", state, params);
+	return miaux_release_user_memory("fire_volume_shader", state, params);
 }
 
-extern "C" DLLEXPORT miBoolean parameter_volume(VolumeShader_R *result,
-		miState *state, struct parameter_volume *params) {
+extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
+		miState *state, struct fire_volume_shader *params) {
 
 	// Early return with ray lights to avoid infinite recursion
 	if (state->type == miRAY_LIGHT) {

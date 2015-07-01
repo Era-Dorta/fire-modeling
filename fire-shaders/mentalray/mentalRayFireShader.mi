@@ -19,7 +19,7 @@ declare shader
 			color "glowColor",
 			color "matteOpacity",
 			color "transparency"
-		} "parameter_volume" (
+		} "fire_volume_shader" (
 			color "color", 
 				#: default 0.9 0.2 0
 			color "glowColor",
