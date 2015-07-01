@@ -1,3 +1,9 @@
+# guard against multiple inclusions
+$ifndef "mental_ray_fire_shader"
+set "mental_ray_fire_shader" "true"
+
+# Voxel density shader, reads voxelized data from a given file
+
 declare shader
 	scalar "voxel_density" (
 		string "filename",
@@ -13,6 +19,9 @@ declare shader
 			)
 	version 1
 end declare
+
+# Volumetric fire renderer
+
 declare shader
 		struct { 
 			color "color",
@@ -40,3 +49,20 @@ declare shader
 	apply volume
 	version 1
 end declare
+
+
+# Volumetric fire light
+
+declare shader
+	color "fire_volume_light" (
+		shader "temperature_shader",
+		scalar "unit_temperature", 
+			#: default 1
+		scalar "march_increment", 
+			#: default 0.05
+	)
+	version 1
+	apply light
+end declare
+
+$endif # if not "mental_ray_fire_shader"
