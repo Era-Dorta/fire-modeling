@@ -9,7 +9,7 @@
 
 #include <thread>
 
-#include "SootOpticalConstants.h"
+#include "RenderingConstants.h"
 #include "Spectrum.h"
 
 void VoxelDatasetColor::compute_sigma_a_threaded() {

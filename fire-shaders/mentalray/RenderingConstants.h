@@ -1,12 +1,12 @@
 /*
- * SootOpticalConstants.h
+ * RenderingConstants.h
  *
  *  Created on: 29 Jun 2015
  *      Author: gdp24
  */
 
-#ifndef SOOTOPTICALCONSTANTS_H_
-#define SOOTOPTICALCONSTANTS_H_
+#ifndef RENDERINGCONSTANTS_H_
+#define RENDERINGCONSTANTS_H_
 
 #include <cmath>
 
@@ -32,4 +32,16 @@ const static miScalar alpha_lambda = 1.39;
 const static miScalar PI_R3_36 = (4.0 / 3.0) * M_PI * R * R * R * 36 * M_PI;
 }
 
-#endif /* SOOTOPTICALCONSTANTS_H_ */
+// Data from Optical Constants of Soot and Their Application to Heat-Flux
+// Calculations, 1969
+namespace BB {
+const static miScalar k = 1.3806488e-23; // Bolztmann constant in J/K
+//const static miScalar k = 8.6173324e-5; // Bolztmann constant in eV/K
+//const static miScalar k = 1.3806488e-16; // Bolztmann constant in erg/K
+const static miScalar h = 6.62606957e-34; // Planck constant in J/s
+const static miScalar c = 299792458; // Speed of light m/s
+const static miScalar twohc2 = 2 * h * c * c;
+const static miScalar hc_over_k = (h * c) / k;
+}
+
+#endif /* RENDERINGCONSTANTS_H_ */
