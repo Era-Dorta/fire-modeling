@@ -28,7 +28,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		*instance_init_required = miTRUE;
 	} else {
 		/* Instance initialization: */
-		mi_warning("Precomputing sigma_a");
+		mi_warning("Precomputing bb radiation");
 		miScalar unit_temperature = *mi_eval_scalar(
 				&params->temperature_shader);
 		miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
@@ -53,7 +53,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		// Restore previous state
 		state->point = original_point;
 		state->type = ray_type;
-		mi_warning("Done precomputing sigma_a with dataset size %dx%dx%d",
+		mi_warning("Done precomputing bb radiation with dataset size %dx%dx%d",
 				width, height, depth);
 	}
 	return miTRUE;

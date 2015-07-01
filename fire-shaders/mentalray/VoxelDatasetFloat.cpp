@@ -27,7 +27,7 @@ void VoxelDatasetFloat::initialize_with_file(const char* filename,
 		break;
 	}
 	case BIN_MAX: {
-		initialize_with_file_acii_single(filename);
+		initialize_with_file_bin_max(filename);
 		break;
 	}
 	}
