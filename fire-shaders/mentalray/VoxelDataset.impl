@@ -5,19 +5,17 @@
  *      Author: gdp24
  */
 
-
-
-template <typename T>
+template<typename T>
 VoxelDataset<T>::VoxelDataset() {
 	clear();
 }
 
-template <typename T>
+template<typename T>
 VoxelDataset<T>::VoxelDataset(unsigned width, unsigned height, unsigned depth) {
 	resize(width, height, depth);
 }
 
-template <typename T>
+template<typename T>
 VoxelDataset<T>::VoxelDataset(const VoxelDataset& other) {
 	width = other.width;
 	height = other.height;
@@ -29,9 +27,8 @@ VoxelDataset<T>::VoxelDataset(const VoxelDataset& other) {
 	}
 }
 
-template <typename T>
-VoxelDataset<T>& VoxelDataset<T>::operator =(
-		const VoxelDataset<T>& other) {
+template<typename T>
+VoxelDataset<T>& VoxelDataset<T>::operator =(const VoxelDataset<T>& other) {
 
 	if (this == &other) {
 		return *this;
@@ -49,14 +46,14 @@ VoxelDataset<T>& VoxelDataset<T>::operator =(
 	return *this;
 }
 
-template <typename T>
+template<typename T>
 void VoxelDataset<T>::clear() {
 	width = 0;
 	height = 0;
 	depth = 0;
 }
 
-template <typename T>
+template<typename T>
 void VoxelDataset<T>::resize(unsigned width, unsigned height, unsigned depth) {
 	this->width = width;
 	this->height = height;
@@ -68,19 +65,19 @@ void VoxelDataset<T>::resize(unsigned width, unsigned height, unsigned depth) {
 	}
 }
 
-template <typename T>
+template<typename T>
 T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
 	return block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
 			+ ((int) (x + .5))];
 }
 
-template <typename T>
+template<typename T>
 void VoxelDataset<T>::set_voxel_value(float x, float y, float z, T val) {
 	block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
 			+ ((int) (x + .5))] = val;
 }
 
-template <typename T>
+template<typename T>
 T VoxelDataset<T>::get_fitted_voxel_value(miVector *p, miVector *min_point,
 		miVector *max_point) const {
 	float x, y, z;
@@ -90,34 +87,34 @@ T VoxelDataset<T>::get_fitted_voxel_value(miVector *p, miVector *min_point,
 	return get_voxel_value(x, y, z);
 }
 
-template <typename T>
+template<typename T>
 T VoxelDataset<T>::get_voxel_value(unsigned x, unsigned y, unsigned z) const {
 	return block[z * depth * height + y * height + x];
 }
 
-template <typename T>
+template<typename T>
 void VoxelDataset<T>::set_voxel_value(unsigned x, unsigned y, unsigned z,
 		T val) {
 	block[z * depth * height + y * height + x] = val;
 }
 
-template <typename T>
+template<typename T>
 int VoxelDataset<T>::getWidth() const {
 	return width;
 }
 
-template <typename T>
+template<typename T>
 int VoxelDataset<T>::getDepth() const {
 	return depth;
 }
 
-template <typename T>
+template<typename T>
 int VoxelDataset<T>::getHeight() const {
 	return height;
 }
 
-template <typename T>
-double VoxelDataset<T>::fit(double v, double oldmin, double oldmax, double newmin,
-		double newmax) const {
+template<typename T>
+double VoxelDataset<T>::fit(double v, double oldmin, double oldmax,
+		double newmin, double newmax) const {
 	return newmin + ((v - oldmin) / (oldmax - oldmin)) * (newmax - newmin);
 }
