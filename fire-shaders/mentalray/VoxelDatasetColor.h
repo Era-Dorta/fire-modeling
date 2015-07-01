@@ -16,10 +16,17 @@ template class VoxelDataset<miColor> ;
 class VoxelDatasetColor: public VoxelDataset<miColor> {
 public:
 	void compute_sigma_a_threaded();
+	void compute_bb_radiation_threaded();
 private:
+	void compute_function_threaded(
+			void (VoxelDatasetColor::*foo)(unsigned, unsigned, unsigned,
+					unsigned, unsigned, unsigned));
 	void compute_soot_coefficients();
 	void compute_sigma_a(unsigned i_width, unsigned i_height, unsigned i_depth,
 			unsigned e_width, unsigned e_height, unsigned e_depth);
+	void compute_bb_radiation(unsigned i_width, unsigned i_height,
+			unsigned i_depth, unsigned e_width, unsigned e_height,
+			unsigned e_depth);
 	std::vector<miScalar> sootCoefficients;
 };
 
