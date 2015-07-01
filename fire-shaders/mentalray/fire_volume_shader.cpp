@@ -44,10 +44,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
 		miRay_type ray_type = state->type;
 
 		unsigned width, height, depth;
-		miaux_get_voxel_dataset_dims(state, density_shader, &width, &height,
-				&depth);
+		miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
+				density_shader);
 
-		miaux_copy_voxel_dataset(state, density_shader, voxels, width, height,
+		miaux_copy_voxel_dataset(voxels, state, density_shader, width, height,
 				depth, unit_density);
 
 		voxels->compute_sigma_a_threaded();
@@ -89,9 +89,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 		 * shadows (default) effect, 1 to let that colour pass
 		 * result->transparency.r = 1; // Red shadow
 		 */
-		miaux_fractional_shader_occlusion_at_point(state, &state->org,
-				&state->dir, state->dist, march_increment, shadow_density,
-				&result->transparency);
+		miaux_fractional_shader_occlusion_at_point(&result->transparency, state,
+				&state->org, &state->dir, state->dist, march_increment,
+				shadow_density);
 		return miTRUE;
 	} else {
 		if (state->dist == 0.0) /* infinite dist: outside volume */

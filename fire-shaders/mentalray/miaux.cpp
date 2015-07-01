@@ -88,7 +88,8 @@ void miaux_point_along_vector(miVector *result, const miVector *point,
 	result->z = point->z + distance * direction->z;
 }
 
-void miaux_march_point(miVector *result,const  miState *state, miScalar distance) {
+void miaux_march_point(miVector *result, const miState *state,
+		miScalar distance) {
 	miaux_point_along_vector(result, &state->org, &state->dir, distance);
 }
 
@@ -113,10 +114,10 @@ void miaux_scale_color(miColor *result, miScalar scale) {
 	result->b *= scale;
 }
 
-void miaux_fractional_shader_occlusion_at_point(miState *state,
-		const miVector *start_point, const miVector *direction,
+void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
+		miState *state, const miVector *start_point, const miVector *direction,
 		miScalar total_distance, miScalar march_increment,
-		miScalar shadow_density, miColor *transparency) {
+		miScalar shadow_density) {
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
@@ -125,7 +126,7 @@ void miaux_fractional_shader_occlusion_at_point(miState *state,
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
 		miaux_point_along_vector(&march_point, start_point, &normalized_dir,
 				dist);
-		miaux_get_sigma_a(state, &march_point, &current_sigma);
+		miaux_get_sigma_a(&current_sigma, state, &march_point);
 		miaux_add_color(&total_sigma, &current_sigma);
 	}
 	// TODO Set shadow density in appropriate scale, in sigma_a we do R^3 since
@@ -233,8 +234,8 @@ void miaux_initialize_volume_output(VolumeShader_R* result) {
 	miaux_set_rgb(&result->transparency, 1);
 }
 
-void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
-		unsigned *width, unsigned *height, unsigned *depth) {
+void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
+		unsigned *depth, miState *state, miTag density_shader) {
 	// Get the dimensions of the voxel data
 	miScalar width_s, height_s, depth_s;
 	state->type = (miRay_type) WIDTH;
@@ -254,9 +255,9 @@ void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
 	*depth = (unsigned) depth_s;
 }
 
-void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
-		VoxelDatasetColor *voxels, unsigned width, unsigned height,
-		unsigned depth, miScalar unit_density) {
+void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
+		miTag density_shader, unsigned width, unsigned height, unsigned depth,
+		miScalar unit_density) {
 
 	state->type = (miRay_type) DENSITY_RAW;
 	voxels->resize(width, height, depth);
@@ -276,7 +277,8 @@ void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
 	}
 }
 
-void miaux_get_sigma_a(miState *state, miVector *point, miColor *sigma_a) {
+void miaux_get_sigma_a(miColor *sigma_a, miState *state,
+		const miVector *point) {
 	miVector min_point = { -1, -1, -1 };
 	miVector max_point = { 1, 1, 1 };
 	if (miaux_point_inside(point, &min_point, &max_point)) {

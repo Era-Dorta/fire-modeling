@@ -26,8 +26,8 @@ public:
 
 	T get_voxel_value(float x, float y, float z) const;
 	void set_voxel_value(float x, float y, float z, T val);
-	T get_fitted_voxel_value(miVector *p, miVector *min_point,
-			miVector *max_point) const;
+	T get_fitted_voxel_value(const miVector *p, const miVector *min_point,
+			const miVector *max_point) const;
 	T get_voxel_value(unsigned x, unsigned y, unsigned z) const;
 	void set_voxel_value(unsigned x, unsigned y, unsigned z, T val);
 

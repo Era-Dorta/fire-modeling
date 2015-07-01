@@ -47,7 +47,8 @@ void miaux_clamp_color(miColor *c, miScalar min, miScalar max);
 void miaux_point_along_vector(miVector *result, const miVector *point,
 		const miVector *direction, miScalar distance);
 
-void miaux_march_point(miVector *result,const miState *state, miScalar distance);
+void miaux_march_point(miVector *result, const miState *state,
+		miScalar distance);
 
 void miaux_alpha_blend_colors(miColor *result, const miColor *foreground,
 		const miColor *background);
@@ -57,10 +58,10 @@ void miaux_add_scaled_color(miColor *result, const miColor *color,
 
 void miaux_scale_color(miColor *result, miScalar scale);
 
-void miaux_fractional_shader_occlusion_at_point(miState *state,
-		const miVector *start_point, const miVector *direction,
+void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
+		miState *state, const miVector *start_point, const miVector *direction,
 		miScalar total_distance, miScalar march_increment,
-		miScalar shadow_density, miColor *transparency);
+		miScalar shadow_density);
 
 void miaux_multiply_colors(miColor *result, const miColor *x, const miColor *y);
 
@@ -86,14 +87,14 @@ miBoolean miaux_all_channels_equal(const miColor *c, miScalar v);
 
 void miaux_initialize_volume_output(VolumeShader_R* result);
 
-void miaux_get_voxel_dataset_dims(miState *state, miTag density_shader,
-		unsigned *width, unsigned *height, unsigned *depth);
+void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
+		unsigned *depth, miState *state, miTag density_shader);
 
-void miaux_copy_voxel_dataset(miState *state, miTag density_shader,
-		VoxelDatasetColor *voxels, unsigned width, unsigned height,
-		unsigned depth, miScalar unit_density);
+void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
+		miTag density_shader, unsigned width, unsigned height, unsigned depth,
+		miScalar unit_density);
 
-void miaux_get_sigma_a(miState *state, const miVector *point, miColor *sigma_a);
+void miaux_get_sigma_a(miColor *sigma_a, miState *state, const miVector *point);
 
 void miaux_vector_warning(const char* s, const miVector& v);
 

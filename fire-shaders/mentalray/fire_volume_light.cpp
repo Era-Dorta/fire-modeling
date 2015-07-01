@@ -42,10 +42,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miRay_type ray_type = state->type;
 
 		unsigned width, height, depth;
-		miaux_get_voxel_dataset_dims(state, temperature_shader, &width, &height,
-				&depth);
+		miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
+				temperature_shader);
 
-		miaux_copy_voxel_dataset(state, temperature_shader, voxels, width,
+		miaux_copy_voxel_dataset(voxels, state, temperature_shader, width,
 				height, depth, unit_temperature);
 
 		//voxels->compute_sigma_a_threaded();

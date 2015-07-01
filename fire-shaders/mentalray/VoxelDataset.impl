@@ -78,8 +78,8 @@ void VoxelDataset<T>::set_voxel_value(float x, float y, float z, T val) {
 }
 
 template<typename T>
-T VoxelDataset<T>::get_fitted_voxel_value(miVector *p, miVector *min_point,
-		miVector *max_point) const {
+T VoxelDataset<T>::get_fitted_voxel_value(const miVector *p,
+		const miVector *min_point, const miVector *max_point) const {
 	float x, y, z;
 	x = (float) fit(p->x, min_point->x, max_point->x, 0, width - 1);
 	y = (float) fit(p->y, min_point->y, max_point->y, 0, height - 1);
