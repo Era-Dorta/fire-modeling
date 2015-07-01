@@ -539,6 +539,7 @@ SampledSpectrum SampledSpectrum::rgbIllum2SpectYellow;
 SampledSpectrum SampledSpectrum::rgbIllum2SpectRed;
 SampledSpectrum SampledSpectrum::rgbIllum2SpectGreen;
 SampledSpectrum SampledSpectrum::rgbIllum2SpectBlue;
+bool SampledSpectrum::initialised = false;
 const float RGB2SpectLambda[nRGB2SpectSamples] = { 380.000000, 390.967743,
 		401.935486, 412.903229, 423.870972, 434.838715, 445.806458, 456.774200,
 		467.741943, 478.709686, 489.677429, 500.645172, 511.612915, 522.580627,

@@ -293,6 +293,10 @@ public:
 		return r;
 	}
 	static void Init() {
+		if (initialised) {
+			return;
+		}
+		initialised = true;
 		// Compute XYZ matching functions for _SampledSpectrum_
 		for (int i = 0; i < nSpectralSamples; ++i) {
 			float wl0 = Lerp(float(i) / float(nSpectralSamples),
@@ -391,6 +395,7 @@ private:
 	static SampledSpectrum rgbIllum2SpectMagenta, rgbIllum2SpectYellow;
 	static SampledSpectrum rgbIllum2SpectRed, rgbIllum2SpectGreen;
 	static SampledSpectrum rgbIllum2SpectBlue;
+	static bool initialised;
 };
 
 class RGBSpectrum: public CoefficientSpectrum<3> {
