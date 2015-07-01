@@ -34,18 +34,17 @@ void VoxelDatasetFloat::initialize_with_file(const char* filename,
 }
 
 void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
-	int count;
 	std::fstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
 	}
 
-	// Read width heifht and depth
+	// Read width height and depth
 	fp >> width;
 	fp >> height;
 	fp >> depth;
 
-	count = width * height * depth;
+	int count = width * height * depth;
 
 	for (int i = 0; i < count; i++) {
 		if (fp.eof()) {
@@ -56,25 +55,40 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 	}
 
 }
+
+void VoxelDatasetFloat::set_all_voxels_to(float val) {
+	// Initialise all densities to 0, because the data comes in as a sparse
+	// matrix
+	unsigned count = width * height * depth;
+	for (unsigned i = 0; i < count; i++) {
+		block[i] = val;
+	}
+}
+
+void VoxelDatasetFloat::read_bin_xyz(std::fstream& fp, int& x, int& y, int& z) {
+	// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+	fp.read(reinterpret_cast<char*>(&x), 4);
+	fp.read(reinterpret_cast<char*>(&y), 4);
+	fp.read(reinterpret_cast<char*>(&z), 4);
+}
+
 void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 		const char* filename) {
-	int count;
 	std::fstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
 	}
-
-	// Number of points in the file, integer, 4 bytes
-	fp.read(reinterpret_cast<char*>(&count), 4);
 
 	// Voxel is 128x128x128
 	height = depth = width = 128;
 
 	// Initialise all densities to 0, because the data comes in as a sparse
 	// matrix
-	for (unsigned i = 0; i < height * depth * width; i++) {
-		block[i] = 0;
-	}
+	set_all_voxels_to(0);
+
+	int count;
+	// Number of points in the file, integer, 4 bytes
+	fp.read(reinterpret_cast<char*>(&count), 4);
 
 	int x, y, z;
 	double r, g, b, a;
@@ -84,39 +98,41 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 					filename);
 		}
 		// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-		fp.read(reinterpret_cast<char*>(&x), 4);
-		fp.read(reinterpret_cast<char*>(&z), 4);
-		fp.read(reinterpret_cast<char*>(&y), 4);
+		read_bin_xyz(fp, x, z, y);
 
 		// RGBA components, double, 8 bytes
-		fp.read(reinterpret_cast<char*>(&r), 8);
-		fp.read(reinterpret_cast<char*>(&g), 8);
-		fp.read(reinterpret_cast<char*>(&b), 8);
-		fp.read(reinterpret_cast<char*>(&a), 8);
-
+		read_bin_rgba(fp, r, g, b, a);
 		// For the moment assume the red component is the density
 		set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z, r);
 	}
 
 }
+
+void VoxelDatasetFloat::read_bin_rgba(std::fstream& fp, double& r, double& g,
+		double& b, double& a) {
+	// RGBA components, double, 8 bytes
+	fp.read(reinterpret_cast<char*>(&r), 8);
+	fp.read(reinterpret_cast<char*>(&g), 8);
+	fp.read(reinterpret_cast<char*>(&b), 8);
+	fp.read(reinterpret_cast<char*>(&a), 8);
+}
+
 void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
-	int count;
 	std::fstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
 	}
-
-	// Number of points in the file, integer, 4 bytes
-	fp.read(reinterpret_cast<char*>(&count), 4);
 
 	// Voxel is 128x128x128
 	height = depth = width = 128;
 
 	// Initialise all densities to 0, because the data comes in as a sparse
 	// matrix
-	for (unsigned i = 0; i < height * depth * width; i++) {
-		block[i] = 0;
-	}
+	set_all_voxels_to(0);
+
+	int count;
+	// Number of points in the file, integer, 4 bytes
+	fp.read(reinterpret_cast<char*>(&count), 4);
 
 	int x, y, z;
 	double r, g, b, a;
@@ -126,17 +142,12 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 					filename);
 		}
 		// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-		fp.read(reinterpret_cast<char*>(&x), 4);
-		fp.read(reinterpret_cast<char*>(&z), 4);
-		fp.read(reinterpret_cast<char*>(&y), 4);
+		read_bin_xyz(fp, x, z, y);
 
 		// RGBA components, double, 8 bytes
-		fp.read(reinterpret_cast<char*>(&r), 8);
-		fp.read(reinterpret_cast<char*>(&g), 8);
-		fp.read(reinterpret_cast<char*>(&b), 8);
-		fp.read(reinterpret_cast<char*>(&a), 8);
+		read_bin_rgba(fp, r, g, b, a);
 
-		// For the moment assume the red component is the density
+		// For the temperature, use the channel with maximum intensity
 		set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z,
 				std::max(std::max(r, g), b));
 	}
