@@ -15,6 +15,7 @@
 void VoxelDatasetColor::compute_sigma_a_threaded() {
 	// Precompute all the constant soot coefficients
 	compute_soot_coefficients();
+
 	compute_function_threaded(&VoxelDatasetColor::compute_sigma_a);
 }
 
@@ -28,6 +29,10 @@ void VoxelDatasetColor::compute_bb_radiation_threaded() {
 	compute_function_threaded(&VoxelDatasetColor::compute_bb_radiation);
 
 	normalize_bb_radiation();
+}
+
+miColor VoxelDatasetColor::get_max_voxel_value() {
+	return block[get_maximum_voxel_index()];
 }
 
 void VoxelDatasetColor::compute_function_threaded(
