@@ -98,8 +98,11 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 		 * result->transparency.r = 1; // Red shadow
 		 */
 		InstData *inst_data = (InstData *) miaux_user_memory_pointer(state, 0);
+		miVector origin, direction;
+		mi_point_to_object(state, &origin, &state->org);
+		mi_point_to_object(state, &direction, &state->dir);
 		miaux_fractional_shader_occlusion_at_point(&result->transparency,
-				&state->org, &state->dir, state->dist, march_increment,
+				&origin, &direction, state->dist, march_increment,
 				shadow_density, &inst_data->voxels);
 		return miTRUE;
 	} else {
@@ -111,7 +114,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 		miScalar distance, density;
 		miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
 		miVector original_point = state->point;
-		InstData *inst_data = (InstData *) miaux_user_memory_pointer(state, 0);
+		//InstData *inst_data = (InstData *) miaux_user_memory_pointer(state, 0);
 		// Primitive intersection is the bounding box, set to null to be able
 		// to do the ray marching
 		struct miRc_intersection* original_state_pri = state->pri;
@@ -121,7 +124,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 				march_increment) {
 			miVector march_point;
 			miaux_march_point(&march_point, state, distance);
-			state->point = march_point;
+			// TODO Make transform org and dist once outside the loop
+			mi_point_to_object(state, &state->point, &march_point);
 			mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 					density_shader, NULL);
 #ifdef DEBUG_SIGMA_A
