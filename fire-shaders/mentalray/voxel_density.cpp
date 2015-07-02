@@ -14,7 +14,7 @@ struct voxel_density {
 	miVector min_point;
 	miVector max_point;
 	miColor color;
-	miMatrix object_trans;
+	miMatrix object_m;
 };
 
 extern "C" DLLEXPORT int voxel_density_version(void) {
@@ -56,6 +56,7 @@ extern "C" DLLEXPORT miBoolean voxel_density_exit(miState *state,
 
 extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		struct voxel_density *params) {
+
 	switch ((Voxel_Return) state->type) {
 	case WIDTH: {
 		VoxelDatasetFloat *voxels =

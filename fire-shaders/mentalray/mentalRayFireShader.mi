@@ -16,7 +16,7 @@ declare shader
 			#: default 1 1 1
 		color "color", 
 			#: default 1 1 1 
-		transform "object_trans",
+		transform "object_m",
 			#: hidden true
 			)
 	version 1
