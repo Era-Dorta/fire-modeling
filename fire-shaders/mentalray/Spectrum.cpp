@@ -31,6 +31,7 @@
 // core/spectrum.cpp*
 //#include "stdafx.h"
 #include <algorithm>
+
 #include "Spectrum.h"
 
 // Spectrum Method Definitions
@@ -187,7 +188,7 @@ void Blackbody(const float *wl, int n, float temp, float *vals) {
 		return;
 	}
 	const double C2 = 1.4388e7;
-	double norm = pow(555.0, 5.0) * (exp(C2 / (555.0 * temp)) - 1.);
+	const double norm = pow(555.0, 5.0) * (exp(C2 / (555.0 * temp)) - 1.);
 	for (int i = 0; i < n; ++i)
 		vals[i] = float(
 				norm
@@ -217,13 +218,25 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 			vals[i] = 0.f;
 		return;
 	}
-	const double C2 = 1.4388e7;
-	double norm = pow(555.0, 5.0) * (exp(C2 / (555.0 * temp)) - 1.);
-	for (int i = 0; i < n; ++i)
-		vals[i] = float(
-				norm
-						/ (pow(double(wl[i]), 5.0)
-								* (exp(C2 / (wl[i] * temp)) - 1.)));
+
+	const double c = BB::c0 / r_index;
+	//const double C1 = 2.0 * BB::h * c * c;
+	const double C2 = (BB::h * c) / BB::k;
+
+	double norm = pow(555.0, 5) * (exp(C2 / (555.0 * temp)) - 1.0);
+
+	for (int i = 0; i < n; ++i) {
+		vals[i] = norm / (pow(wl[i], 5.0) * (exp(C2 / (wl[i] * temp)) - 1.0));
+	}
+
+	// Code from Mitsuba renderer, lambdas and constants should be in metres
+	/* Watts per unit surface area (m^-2) per unit wavelength (nm^-1) per
+	 steradian (sr^-1) */
+	/*for (int i = 0; i < n; ++i) {
+	 vals[i] = (2 * BB::h * c * c) * std::pow(wl[i] * 1e-9, -5.0)
+	 / ((exp((BB::h / BB::k) * c / (wl[i] * 1e-9 * temp)) - 1.0)
+	 * 1e9);
+	 }*/
 }
 
 float InterpolateSpectrumSamples(const float *lambda, const float *vals, int n,
