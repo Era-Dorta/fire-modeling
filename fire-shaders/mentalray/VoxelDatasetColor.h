@@ -27,7 +27,12 @@ private:
 	void compute_bb_radiation(unsigned i_width, unsigned i_height,
 			unsigned i_depth, unsigned e_width, unsigned e_height,
 			unsigned e_depth);
+	void normalize_bb_radiation();
+	unsigned get_maximum_voxel_index();
+	void compute_wavelengths();
+
 	std::vector<miScalar> sootCoefficients;
+	std::vector<float> lambdas;
 };
 
 #endif /* VOXELDATASETCOLOR_H_ */

@@ -22,7 +22,12 @@ void VoxelDatasetColor::compute_bb_radiation_threaded() {
 	// Spectrum static initialisation, ideally should only be called once
 	// move it from here to a proper initialisation context
 	Spectrum::Init();
+
+	compute_wavelengths();
+
 	compute_function_threaded(&VoxelDatasetColor::compute_bb_radiation);
+
+	normalize_bb_radiation();
 }
 
 void VoxelDatasetColor::compute_function_threaded(
@@ -34,7 +39,7 @@ void VoxelDatasetColor::compute_function_threaded(
 
 	// Get thread hint, i.e. number of cores
 	unsigned num_threads = std::thread::hardware_concurrency();
-	// Get are at least able to run one thread
+	// At least we are able to run the current thread
 	if (num_threads == 0) {
 		num_threads = 1;
 	}
@@ -43,10 +48,12 @@ void VoxelDatasetColor::compute_function_threaded(
 	if ((unsigned) (depth) < num_threads) {
 		num_threads = depth;
 	}
+
 	mi_warning("\tStart computation with %d threads", num_threads);
 	unsigned thread_chunk = depth / num_threads;
 	std::vector<std::thread> threads;
 	unsigned i_depth = 0, e_depth = thread_chunk;
+
 	// Launch each thread with its chunk of work
 	for (unsigned i = 0; i < num_threads - 1; i++) {
 		threads.push_back(
@@ -54,9 +61,11 @@ void VoxelDatasetColor::compute_function_threaded(
 		i_depth = e_depth + 1;
 		e_depth = e_depth + thread_chunk;
 	}
-	// The remaining will be handled by the current thread
+
+	// The remaining work will be handled by the current thread
 	auto foo_member = std::mem_fn(foo);
 	foo_member(this, 0, 0, i_depth, width, height, depth - 1);
+
 	// Wait for the other threads to finish
 	for (auto& thread : threads) {
 		thread.join();
@@ -68,8 +77,9 @@ void VoxelDatasetColor::compute_soot_coefficients() {
 	// move it from here to a proper initialisation context
 	Spectrum::Init();
 
-	// TODO If we wanted to sample more from the spectrum, we could not compute
-	// lambda^alpha_lambda here and do it in compute_sigma_a
+	// TODO If we wanted to sample more from the spectrum, we would have to
+	// compute lambda^alpha_lambda in compute_sigma_a, in any case I don't think
+	// it makes sense, as we do not have more n or k data
 	sootCoefficients = std::vector<miScalar>(Soot::num_samples, 0);
 	for (unsigned i = 0; i < sootCoefficients.size(); i++) {
 		miScalar n2_k2_2 = Soot::n[i] * Soot::n[i] - Soot::k[i] * Soot::k[i]
@@ -123,33 +133,22 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 		unsigned e_height, unsigned e_depth) {
 	miColor t;
 	float rgbCoefficients[3];
-	std::vector<float> b(BB::num_samples);
-	std::vector<float> lambdas(BB::num_samples);
+	float b[nSpectralSamples];
 	for (unsigned i = i_width; i <= e_width; i++) {
 		for (unsigned j = i_height; j <= e_height; j++) {
 			for (unsigned k = i_depth; k <= e_depth; k++) {
 				t = get_voxel_value(i, j, k);
-				if (t.r > 0.1) {
-					unsigned l;
-					float lambda;
-					float lambda_inc = (sampledLambdaEnd - sampledLambdaStart)
-							/ (float) BB::num_samples;
+				// Anything below 0 degrees Celsius or 400 Kelvin will not glow
+				// TODO Add as a parameter
+				if (t.r > 400) {
+					// TODO Pass a real refraction index, not 1
+					// Get the blackbody values
+					Blackbody(&lambdas[0], nSpectralSamples, t.r, 1, b);
 
-					for (l = 0, lambda = sampledLambdaStart; l < b.size();
-							l++, lambda += lambda_inc) {
-						// TODO Change the one for current
-						// refraction in the voxel
-						double c = BB::c0 / 1;
-						double exp_1 = exp((BB::h * c) / (lambda * BB::k * t.r))
-								- 1;
-						b.at(l) = (BB::two_h * c * c)
-								/ (std::pow(lambda, 5) * exp_1);
-						lambdas.at(l) = lambda;
-					}
 					// Create a Spectrum representation with the computed values
 					// Spectrum expects the wavelengths to be in nanometres
-					Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], &b[0],
-							BB::num_samples);
+					Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
+							nSpectralSamples);
 
 					// Transform the spectrum to RGB coefficients
 					b_spec.ToRGB(rgbCoefficients);
@@ -162,5 +161,57 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 				}
 			}
 		}
+	}
+}
+
+void VoxelDatasetColor::normalize_bb_radiation() {
+	auto max_ind = get_maximum_voxel_index();
+	miColor inv_norm_factor = block[max_ind];
+
+	if (inv_norm_factor.r > 0) {
+		inv_norm_factor.r = 1.0 / inv_norm_factor.r;
+	}
+	if (inv_norm_factor.g > 0) {
+		inv_norm_factor.g = 1.0 / inv_norm_factor.g;
+	}
+	if (inv_norm_factor.b > 0) {
+		inv_norm_factor.b = 1.0 / inv_norm_factor.b;
+	}
+
+	// TODO This normalisation is assuming the fire is the main light in the
+	// scene, it should pick the brightest object and normalise with that
+	unsigned count = width * height * depth;
+	for (unsigned i = 0; i < count; i++) {
+		block[i].r *= inv_norm_factor.r;
+		block[i].g *= inv_norm_factor.g;
+		block[i].b *= inv_norm_factor.b;
+	}
+}
+
+unsigned VoxelDatasetColor::get_maximum_voxel_index() {
+	unsigned count = width * height * depth;
+	auto max_ind = 0;
+	float current_val, max_val = 0;
+	for (unsigned i = 0; i < count; i++) {
+		current_val = block[i].r + block[i].g + block[i].b;
+		if (current_val > max_val) {
+			max_val = current_val;
+			max_ind = i;
+		}
+	}
+	return max_ind;
+}
+
+void VoxelDatasetColor::compute_wavelengths() {
+	unsigned l;
+	float lambda;
+	lambdas.resize(nSpectralSamples);
+	// Convert lambad start/end from nanometres to metres
+	float lambda_inc = (sampledLambdaEnd - sampledLambdaStart)
+			/ (float) (nSpectralSamples);
+	// Put all the wavelengths in a vector
+	for (l = 0, lambda = sampledLambdaStart; l < lambdas.size(); l++, lambda +=
+			lambda_inc) {
+		lambdas.at(l) = lambda;
 	}
 }
