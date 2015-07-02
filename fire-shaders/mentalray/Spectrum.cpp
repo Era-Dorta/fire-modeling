@@ -195,6 +195,22 @@ void Blackbody(const float *wl, int n, float temp, float *vals) {
 								* (exp(C2 / (wl[i] * temp)) - 1.)));
 }
 
+extern void Blackbody(const float *wl, int n, float temp, float r_index,
+		float *vals) {
+	if (temp <= 0) {
+		for (int i = 0; i < n; ++i)
+			vals[i] = 0.f;
+		return;
+	}
+	const double C2 = 1.4388e7;
+	double norm = pow(555.0, 5.0) * (exp(C2 / (555.0 * temp)) - 1.);
+	for (int i = 0; i < n; ++i)
+		vals[i] = float(
+				norm
+						/ (pow(double(wl[i]), 5.0)
+								* (exp(C2 / (wl[i] * temp)) - 1.)));
+}
+
 float InterpolateSpectrumSamples(const float *lambda, const float *vals, int n,
 		float l) {
 	for (int i = 0; i < n - 1; ++i)

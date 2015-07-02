@@ -64,6 +64,8 @@ enum SpectrumType {
 	SPECTRUM_REFLECTANCE, SPECTRUM_ILLUMINANT
 };
 extern void Blackbody(const float *wl, int n, float temp, float *vals);
+extern void Blackbody(const float *wl, int n, float temp, float r_index,
+		float *vals);
 extern float InterpolateSpectrumSamples(const float *lambda, const float *vals,
 		int n, float l);
 
