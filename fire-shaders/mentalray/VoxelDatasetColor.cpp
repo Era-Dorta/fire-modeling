@@ -55,7 +55,8 @@ void VoxelDatasetColor::compute_function_threaded(
 		e_depth = e_depth + thread_chunk;
 	}
 	// The remaining will be handled by the current thread
-	(*this.*foo)(0, 0, i_depth, width, height, depth - 1);
+	auto foo_member = std::mem_fn(foo);
+	foo_member(this, 0, 0, i_depth, width, height, depth - 1);
 	// Wait for the other threads to finish
 	for (auto& thread : threads) {
 		thread.join();
