@@ -24,6 +24,7 @@ public:
 	void clear();
 	void resize(unsigned width, unsigned height, unsigned depth);
 
+	// TODO Implement getters and setters with references
 	T get_voxel_value(float x, float y, float z) const;
 	void set_voxel_value(float x, float y, float z, T val);
 	T get_fitted_voxel_value(const miVector *p, const miVector *min_point,

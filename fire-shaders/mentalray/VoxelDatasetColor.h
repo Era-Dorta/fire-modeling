@@ -34,6 +34,7 @@ private:
 
 	std::vector<miScalar> sootCoefficients;
 	std::vector<float> lambdas;
+	miColor max_color;
 };
 
 #endif /* VOXELDATASETCOLOR_H_ */

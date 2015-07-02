@@ -32,7 +32,7 @@ void VoxelDatasetColor::compute_bb_radiation_threaded() {
 }
 
 miColor VoxelDatasetColor::get_max_voxel_value() {
-	return block[get_maximum_voxel_index()];
+	return max_color;
 }
 
 void VoxelDatasetColor::compute_function_threaded(
@@ -191,6 +191,8 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 		block[i].g *= inv_norm_factor.g;
 		block[i].b *= inv_norm_factor.b;
 	}
+
+	max_color = block[max_ind];
 }
 
 unsigned VoxelDatasetColor::get_maximum_voxel_index() {

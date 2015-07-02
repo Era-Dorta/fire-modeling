@@ -211,6 +211,12 @@ void miaux_copy_color(miColor *result, const miColor *color) {
 	result->a = color->a;
 }
 
+void miaux_copy_color_rgb(miColor *result, const miColor *color) {
+	result->r = color->r;
+	result->g = color->g;
+	result->b = color->b;
+}
+
 double miaux_shadow_breakpoint(double color, double transparency,
 		double breakpoint) {
 	if (transparency < breakpoint) {

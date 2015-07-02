@@ -69,6 +69,13 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 
 extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		miState *state, struct fire_volume_light *params) {
-	miaux_set_rgb(result, 1);
+
+	VoxelDatasetColor *voxels = (VoxelDatasetColor *) miaux_user_memory_pointer(
+			state, 0);
+
+	// Get the maximum value and say this light has that colour
+	miColor max_color = voxels->get_max_voxel_value();
+	miaux_copy_color_rgb(result, &max_color);
+
 	return mi_trace_shadow(result, state);
 }
