@@ -17,7 +17,7 @@ struct fire_volume_shader {
 	miColor matteOpacity;
 	miColor transparency;
 	miTag density_shader;
-	miScalar unit_density;
+	miScalar density_scale;
 	miScalar shadow_density;
 	miScalar march_increment;
 };
@@ -33,7 +33,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
 	} else {
 		/* Instance initialization: */
 		mi_warning("Precomputing sigma_a");
-		miScalar unit_density = *mi_eval_scalar(&params->unit_density);
+		miScalar density_scale = *mi_eval_scalar(&params->density_scale);
 		miTag density_shader = *mi_eval_tag(&params->density_shader);
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_user_memory_pointer(state,
@@ -48,7 +48,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
 				density_shader);
 
 		miaux_copy_voxel_dataset(voxels, state, density_shader, width, height,
-				depth, unit_density);
+				depth, density_scale, 0);
 
 		voxels->compute_sigma_a_threaded();
 
@@ -78,7 +78,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 	//miColor *glowColor = mi_eval_color(&params->glowColor);
 	//miColor *matteOpacity = mi_eval_color(&params->matteOpacity);
 	//miColor *transparency = mi_eval_color(&params->transparency);
-	miScalar unit_density = *mi_eval_scalar(&params->unit_density);
+	miScalar density_scale = *mi_eval_scalar(&params->density_scale);
 	miScalar march_increment = *mi_eval_scalar(&params->march_increment);
 	miTag density_shader = *mi_eval_tag(&params->density_shader);
 
@@ -123,7 +123,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 			if (density > 0) {
 				// Here is where the equation is solved
 				// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
-				density *= unit_density * march_increment;
+				density *= density_scale * march_increment;
 				miaux_total_light_at_point(&light_color, &march_point, state);
 				miaux_multiply_colors(&point_color, color, &light_color);
 				miaux_add_transparent_color(&volume_color, &point_color,

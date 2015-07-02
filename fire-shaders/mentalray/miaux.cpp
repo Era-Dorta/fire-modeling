@@ -195,10 +195,10 @@ void miaux_total_light_at_point(miColor *result, const miVector *point,
 }
 
 miScalar miaux_threshold_density(const miVector *point, const miVector *center,
-		miScalar radius, miScalar unit_density, miScalar march_increment) {
+		miScalar radius, miScalar scale, miScalar march_increment) {
 	miScalar distance = mi_vector_dist(center, point);
 	if (distance <= radius) {
-		return unit_density * march_increment;
+		return scale * march_increment;
 	} else {
 		return 0.0;
 	}
@@ -257,7 +257,7 @@ void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
 
 void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
-		miScalar unit_density) {
+		miScalar scale, miScalar offset) {
 
 	state->type = (miRay_type) DENSITY_RAW;
 	voxels->resize(width, height, depth);
@@ -270,7 +270,7 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 				state->point.z = k;
 				mi_call_shader_x((miColor*) &density.r, miSHADER_MATERIAL,
 						state, density_shader, NULL);
-				density.r *= unit_density;
+				density.r = density.r * scale + offset;
 				voxels->set_voxel_value(i, j, k, density);
 			}
 		}

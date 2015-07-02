@@ -76,7 +76,7 @@ void miaux_total_light_at_point(miColor *result, const miVector *point,
 		miState *state);
 
 miScalar miaux_threshold_density(const miVector *point, const miVector *center,
-		miScalar radius, miScalar unit_density, miScalar march_increment);
+		miScalar radius, miScalar scale, miScalar march_increment);
 
 double miaux_shadow_breakpoint(double color, double transparency,
 		double breakpoint);
@@ -92,7 +92,7 @@ void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
 
 void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
-		miScalar unit_density);
+		miScalar scale, miScalar offset);
 
 void miaux_get_sigma_a(miColor *sigma_a, miState *state, const miVector *point);
 
