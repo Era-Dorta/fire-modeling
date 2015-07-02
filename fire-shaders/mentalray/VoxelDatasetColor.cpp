@@ -100,11 +100,16 @@ void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 					Spectrum sigma_a_spec = Spectrum::FromSampled(
 							Soot::lambda_nano, &sigma_a[0], Soot::num_samples);
 
-					// Transform the spectrum to RGB coefficients
+					// Transform the spectrum to RGB coefficients, since CIE is
+					// not fully represented by RGB clamp negative intensities
+					// to zero
 					sigma_a_spec.ToRGB(rgbCoefficients);
-					density.r = rgbCoefficients[0];
-					density.g = rgbCoefficients[1];
-					density.b = rgbCoefficients[2];
+					density.r =
+							(rgbCoefficients[0] > 0) ? rgbCoefficients[0] : 0;
+					density.g =
+							(rgbCoefficients[1] > 0) ? rgbCoefficients[1] : 0;
+					density.b =
+							(rgbCoefficients[2] > 0) ? rgbCoefficients[2] : 0;
 
 					set_voxel_value(i, j, k, density);
 				}
@@ -148,9 +153,10 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 
 					// Transform the spectrum to RGB coefficients
 					b_spec.ToRGB(rgbCoefficients);
-					t.r = rgbCoefficients[0];
-					t.g = rgbCoefficients[1];
-					t.b = rgbCoefficients[2];
+
+					t.r = (rgbCoefficients[0] > 0) ? rgbCoefficients[0] : 0;
+					t.g = (rgbCoefficients[1] > 0) ? rgbCoefficients[1] : 0;
+					t.b = (rgbCoefficients[2] > 0) ? rgbCoefficients[2] : 0;
 
 					set_voxel_value(i, j, k, t);
 				}
