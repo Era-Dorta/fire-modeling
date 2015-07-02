@@ -36,21 +36,4 @@ const static miScalar alpha_lambda = 1.39;
 const static miScalar PI_R3_36 = (4.0 / 3.0) * M_PI * R * R * R * 36 * M_PI;
 }
 
-// Data from Optical Constants of Soot and Their Application to Heat-Flux
-// Calculations, 1969
-namespace BB {
-const static unsigned num_samples = 30;
-#ifdef BB_IN_NANOMETRES
-const static miScalar k = 1.3806488e-5; // Bolztmann constant in (kg nm^2)/s^2
-const static miScalar h = 6.62606957e-16; // Planck constant in (kg nm^2)/s^2
-const static miScalar c0 = 299792458e9; // Speed of light in nm/s
-const static miScalar two_h = 2 * h;
-#else
-const static miScalar k = 1.3806488e-23; // Bolztmann constant in J/K
-const static miScalar h = 6.62606957e-34;// Planck constant in J/s
-const static miScalar c0 = 299792458;// Speed of light m/s
-const static miScalar two_h = 2 * h;
-#endif
-}
-
 #endif /* RENDERINGCONSTANTS_H_ */

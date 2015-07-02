@@ -195,6 +195,21 @@ void Blackbody(const float *wl, int n, float temp, float *vals) {
 								* (exp(C2 / (wl[i] * temp)) - 1.)));
 }
 
+#define BB_IN_NANOMETRES
+// Data from Optical Constants of Soot and Their Application to Heat-Flux
+// Calculations, 1969
+namespace BB {
+#ifdef BB_IN_NANOMETRES
+const static double k = 1.3806488e-5; // Bolztmann constant in (kg nm^2)/s^2
+const static double h = 6.62606957e-16; // Planck constant in (kg nm^2)/s^2
+const static double c0 = 299792458e9; // Speed of light in nm/s
+#else
+const static double k = 1.3806488e-23; // Bolztmann constant in J/K
+const static double h = 6.62606957e-34;// Planck constant in J/s
+const static double c0 = 299792458;// Speed of light m/s
+#endif
+}
+
 extern void Blackbody(const float *wl, int n, float temp, float r_index,
 		float *vals) {
 	if (temp <= 0) {
