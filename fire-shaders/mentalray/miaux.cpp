@@ -115,9 +115,9 @@ void miaux_scale_color(miColor *result, miScalar scale) {
 }
 
 void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
-		miState *state, const miVector *start_point, const miVector *direction,
+		const miVector *start_point, const miVector *direction,
 		miScalar total_distance, miScalar march_increment,
-		miScalar shadow_density) {
+		miScalar shadow_density, const VoxelDatasetColor *voxels) {
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
@@ -126,7 +126,7 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
 		miaux_point_along_vector(&march_point, start_point, &normalized_dir,
 				dist);
-		miaux_get_sigma_a(&current_sigma, state, &march_point);
+		miaux_get_sigma_a(&current_sigma, &march_point, voxels);
 		miaux_add_color(&total_sigma, &current_sigma);
 	}
 	// TODO Set shadow density in appropriate scale, in sigma_a we do R^3 since
@@ -283,18 +283,49 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 	}
 }
 
-void miaux_get_sigma_a(miColor *sigma_a, miState *state,
-		const miVector *point) {
+void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
+		const VoxelDatasetColor *voxels) {
 	miVector min_point = { -1, -1, -1 };
 	miVector max_point = { 1, 1, 1 };
 	if (miaux_point_inside(point, &min_point, &max_point)) {
-		VoxelDatasetColor *voxels =
-				(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
 		*sigma_a = voxels->get_fitted_voxel_value(point, &min_point,
 				&max_point);
 	} else {
 		miaux_set_rgb(sigma_a, 0.0);
 	}
+}
+
+void miaux_compute_object_matrix(miState *state, miMatrix matrix) {
+	miVector x_0 = { 1, 0, 0 };
+	miVector y_0 = { 0, 1, 0 };
+	miVector z_0 = { 0, 0, 1 };
+	miVector origin0 = { 0, 0, 0 };
+	miVector x, y, z, origin;
+
+	mi_vector_from_object(state, &x, &x_0);
+	mi_vector_from_object(state, &y, &y_0);
+	mi_vector_from_object(state, &z, &z_0);
+	mi_point_from_object(state, &origin, &origin0);
+
+	miMatrix object_rot, object_trans;
+	mi_matrix_ident(object_rot);
+	mi_matrix_ident(object_trans);
+
+	object_trans[12] = -origin.x;
+	object_trans[13] = -origin.y;
+	object_trans[14] = -origin.z;
+
+	object_rot[0] = x.x;
+	object_rot[4] = x.y;
+	object_rot[8] = x.z;
+	object_rot[1] = y.x;
+	object_rot[5] = y.y;
+	object_rot[9] = y.z;
+	object_rot[2] = z.x;
+	object_rot[6] = z.y;
+	object_rot[10] = z.z;
+
+	mi_matrix_prod(matrix, object_trans, object_rot);
 }
 
 void miaux_vector_warning(const char* s, const miVector& v) {
