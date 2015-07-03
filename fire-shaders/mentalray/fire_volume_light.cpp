@@ -76,18 +76,31 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		miState *state, struct fire_volume_light *params) {
 
-	miaux_set_rgb(result, 1);
+	VoxelDatasetColorSorted *voxels =
+			(VoxelDatasetColorSorted *) miaux_user_memory_pointer(state, 0);
+
+	// Get the maximum value and say this light has that colour
+	miaux_copy_color_rgb(result, &voxels->get_max_voxel_value());
 
 	if (state->type != miRAY_LIGHT) { /* visible area light set */
 		return (miTRUE);
 	}
 
-	//VoxelDatasetColor *voxels = (VoxelDatasetColor *) miaux_user_memory_pointer(
-	//		state, 0);
-
 	// Set light position from the handler
 	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
 
+	if (state->count > 0) {
+		miaux_copy_color_rgb(result,
+				&voxels->get_sorted_voxel_value(state->count));
+
+		miVector offset, minus_half = { -0.5, -0.5, -0.5 };
+		mi_vector_add(&state->org, &state->org, &minus_half);
+
+		voxels->get_i_j_k_from_sorted(offset, state->count);
+		miScalar inv_n = 1 / 128.0;
+		mi_vector_mul(&offset, inv_n);
+		mi_vector_add(&state->org, &state->org, &offset);
+	}
 	// dir is vector from light origin to primitive intersection point
 	mi_vector_sub(&state->dir, &state->point, &state->org);
 
@@ -105,10 +118,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	miVector aux;
 	miaux_copy_vector_neg(&aux, &state->dir);
 	state->dot_nd = mi_vector_dot(&aux, &state->normal);
-
-	// Get the maximum value and say this light has that colour
-	//miColor max_color = voxels->get_max_voxel_value();
-	//miaux_copy_color_rgb(result, &max_color);
 
 	return mi_trace_shadow(result, state);
 }

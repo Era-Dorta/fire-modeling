@@ -14,6 +14,16 @@ void VoxelDatasetColorSorted::compute_bb_radiation_threaded() {
 	sort();
 }
 
+void VoxelDatasetColorSorted::get_i_j_k_from_sorted(miVector &ijk,
+		const unsigned &index) const {
+	unsigned index_block = sorted_ind[index];
+
+	ijk.x = index_block % height;
+	ijk.y = ((index_block - (unsigned) ijk.x) / height) % depth;
+	ijk.z = ((index_block - (unsigned) ijk.x) / height - (unsigned) ijk.y)
+			/ depth;
+}
+
 void VoxelDatasetColorSorted::sort() {
 
 	unsigned count = width * height * depth;
