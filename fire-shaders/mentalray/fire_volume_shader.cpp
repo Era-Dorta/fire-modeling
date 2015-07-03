@@ -22,11 +22,6 @@ struct fire_volume_shader {
 	miScalar march_increment;
 };
 
-typedef struct {
-	VoxelDatasetColor voxels;
-	miMatrix object_m;
-} InstData;
-
 extern "C" DLLEXPORT int fire_volume_shader_version(void) {
 	return 1;
 }
@@ -39,10 +34,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
 		/* Instance initialization: */
 		mi_warning("Precomputing sigma_a");
 
-		InstData *inst_data = (InstData *) miaux_user_memory_pointer(state,
-				sizeof(InstData));
-
-		miaux_compute_object_matrix(state, inst_data->object_m);
+		VoxelDatasetColor *voxels =
+				(VoxelDatasetColor *) miaux_user_memory_pointer(state,
+						sizeof(VoxelDatasetColor));
 
 		miScalar density_scale = *mi_eval_scalar(&params->density_scale);
 		miTag density_shader = *mi_eval_tag(&params->density_shader);
@@ -55,10 +49,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
 		miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 				density_shader);
 
-		miaux_copy_voxel_dataset(&inst_data->voxels, state, density_shader,
-				width, height, depth, density_scale, 0);
+		miaux_copy_voxel_dataset(voxels, state, density_shader, width, height,
+				depth, density_scale, 0);
 
-		inst_data->voxels.compute_sigma_a_threaded();
+		voxels->compute_sigma_a_threaded();
 
 		// Restore previous state
 		state->point = original_point;
@@ -97,13 +91,14 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 		 * shadows (default) effect, 1 to let that colour pass
 		 * result->transparency.r = 1; // Red shadow
 		 */
-		InstData *inst_data = (InstData *) miaux_user_memory_pointer(state, 0);
+		VoxelDatasetColor *voxels =
+				(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
 		miVector origin, direction;
 		mi_point_to_object(state, &origin, &state->org);
 		mi_point_to_object(state, &direction, &state->dir);
 		miaux_fractional_shader_occlusion_at_point(&result->transparency,
 				&origin, &direction, state->dist, march_increment,
-				shadow_density, &inst_data->voxels);
+				shadow_density, voxels);
 		return miTRUE;
 	} else {
 		if (state->dist == 0.0) /* infinite dist: outside volume */
@@ -129,10 +124,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 			mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 					density_shader, NULL);
 #ifdef DEBUG_SIGMA_A
-			InstData *inst_data = (InstData *) miaux_user_memory_pointer(state,
-					0);
+			VoxelDatasetColor *voxels =
+			(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
 			miColor sigma_a;
-			miaux_get_sigma_a(&sigma_a, &state->point, &inst_data->voxels);
+			miaux_get_sigma_a(&sigma_a, &state->point, voxels);
 			density = sigma_a.r;
 #endif
 			//density = 1;
