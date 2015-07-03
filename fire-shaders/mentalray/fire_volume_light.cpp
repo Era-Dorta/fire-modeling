@@ -73,8 +73,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 	return miaux_release_user_memory("fire_volume_light", state, params);
 }
 
-//#define IS_AREA_LIGHT
-
 extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		miState *state, struct fire_volume_light *params) {
 
@@ -87,21 +85,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	//VoxelDatasetColor *voxels = (VoxelDatasetColor *) miaux_user_memory_pointer(
 	//		state, 0);
 
-	miVector aux;
-	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &aux);
-
 	// Set light position from the handler
-	miaux_copy_vector(&state->org, &aux);
-
-#ifdef IS_AREA_LIGHT
-	//mi_warning("count is %d ", state->count);
-	miVector offset = {-0.5, -0.5, -0.5};
-	mi_vector_add(&state->org, &aux, &offset);
-
-	state->org.x += mi_random();
-	state->org.y += mi_random();
-	state->org.z += mi_random();
-#endif
+	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
 
 	// dir is vector from light origin to primitive intersection point
 	mi_vector_sub(&state->dir, &state->point, &state->org);
@@ -117,6 +102,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	// origin -> point, but for the shaders to work, it has to be
 	// point -> origin, options include switching the normal or changing the
 	// direction again after calling mi_trace_shadow
+	miVector aux;
 	miaux_copy_vector_neg(&aux, &state->dir);
 	state->dot_nd = mi_vector_dot(&aux, &state->normal);
 
