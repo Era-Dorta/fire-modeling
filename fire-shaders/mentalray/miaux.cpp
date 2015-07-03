@@ -129,7 +129,7 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 	// TODO Set shadow density in appropriate scale, in sigma_a we do R^3 since
 	// R is 10e-10, that leaves a final result in the order of 10e-30 so a good
 	// shadow density value should be around 10e30, empirically 10e12
-	miaux_scale_color(&total_sigma, march_increment * pow(10, shadow_density));
+	miaux_scale_color(&total_sigma, march_increment * shadow_density);
 	// Bigger coefficient, small exp
 	total_sigma.r = exp(-total_sigma.r);
 	total_sigma.g = exp(-total_sigma.g);

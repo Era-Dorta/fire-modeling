@@ -92,6 +92,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 
 	if (state->type == miRAY_SHADOW) {
 		miScalar shadow_density = *mi_eval_scalar(&params->shadow_density);
+		shadow_density = pow(10, shadow_density);
 		/*
 		 * Seems to be affected only by transparency, 0 to not produce hard
 		 * shadows (default) effect, 1 to let that colour pass
@@ -100,10 +101,14 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
 
+#ifndef DEBUG_SIGMA_A
 		miaux_fractional_shader_occlusion_at_point(&result->transparency,
 				&origin, &direction, state->dist, march_increment,
 				shadow_density, voxels);
 		return miTRUE;
+#else
+		return miFALSE;
+#endif
 	} else {
 		if (state->dist == 0.0) /* infinite dist: outside volume */
 			return (miTRUE);
@@ -129,9 +134,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 			(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
 			miColor sigma_a;
 			miaux_get_sigma_a(&sigma_a, &state->point, voxels);
-			density = sigma_a.r;
+			density = std::max(std::max(sigma_a.r, sigma_a.g), sigma_a.b)
+			* pow(10, 12);
 #endif
-			//density = 1;
 			if (density > 0) {
 				// Here is where the equation is solved
 				// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
