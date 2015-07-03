@@ -120,9 +120,11 @@ void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 					// to zero
 					sigma_a_spec.ToRGB(&density.r);
 					miaux_clamp_color(&density, 0, 1);
-
-					set_voxel_value(i, j, k, density);
+				} else {
+					// Safe check for negative densities
+					miaux_set_rgb(&density, 0);
 				}
+				set_voxel_value(i, j, k, density);
 			}
 		}
 	}
@@ -132,7 +134,7 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 		unsigned i_height, unsigned i_depth, unsigned e_width,
 		unsigned e_height, unsigned e_depth) {
 	miColor t;
-	float rgbCoefficients[3];
+	float xyz_norm;
 	float b[nSpectralSamples];
 	for (unsigned i = i_width; i < e_width; i++) {
 		for (unsigned j = i_height; j < e_height; j++) {
@@ -150,15 +152,18 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 					Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
 							nSpectralSamples);
 
-					// Transform the spectrum to RGB coefficients
-					b_spec.ToRGB(rgbCoefficients);
+					// Transform the spectrum to XYZ coefficients
+					b_spec.ToXYZ(&t.r);
 
-					t.r = (rgbCoefficients[0] > 0) ? rgbCoefficients[0] : 0;
-					t.g = (rgbCoefficients[1] > 0) ? rgbCoefficients[1] : 0;
-					t.b = (rgbCoefficients[2] > 0) ? rgbCoefficients[2] : 0;
+					// Normalise the XYZ coefficients
+					xyz_norm = 1.0 / std::max(std::max(t.r, t.g), t.b);
+					miaux_scale_color(&t, xyz_norm);
 
-					set_voxel_value(i, j, k, t);
+				} else {
+					// If the temperature is low, just set the colour to 0
+					miaux_set_rgb(&t, 0);
 				}
+				set_voxel_value(i, j, k, t);
 			}
 		}
 	}
@@ -181,10 +186,15 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 	// TODO This normalisation is assuming the fire is the main light in the
 	// scene, it should pick the brightest object and normalise with that
 	unsigned count = width * height * depth;
+	miColor aux;
 	for (unsigned i = 0; i < count; i++) {
-		block[i].r *= inv_norm_factor.r;
-		block[i].g *= inv_norm_factor.g;
-		block[i].b *= inv_norm_factor.b;
+		if (!miaux_color_is_black(&block[i])) {
+			miaux_multiply_colors(&aux, &block[i], &inv_norm_factor);
+			// Uncomment to ignore eye adaptation
+			//miaux_copy_color(&aux, &block[i]);
+			XYZToRGB(&aux.r, &block[i].r);
+			miaux_clamp_color(&block[i], 0, 1);
+		}
 	}
 
 	max_color = block[max_ind];

@@ -227,6 +227,10 @@ miBoolean miaux_all_channels_equal(const miColor *c, miScalar v) {
 	}
 }
 
+miBoolean miaux_color_is_black(const miColor *c) {
+	return (c->r == 0 && c->g == 0 && c->b == 0);
+}
+
 void miaux_initialize_volume_output(VolumeShader_R* result) {
 	miaux_set_rgb(&result->color, 0);
 	miaux_set_rgb(&result->glowColor, 0);

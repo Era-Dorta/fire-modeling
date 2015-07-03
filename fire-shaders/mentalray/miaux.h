@@ -86,6 +86,8 @@ void miaux_copy_color_rgb(miColor *result, const miColor *color);
 
 miBoolean miaux_all_channels_equal(const miColor *c, miScalar v);
 
+miBoolean miaux_color_is_black(const miColor *c);
+
 void miaux_initialize_volume_output(VolumeShader_R* result);
 
 void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
