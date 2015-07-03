@@ -88,9 +88,9 @@ void miaux_point_along_vector(miVector *result, const miVector *point,
 	result->z = point->z + distance * direction->z;
 }
 
-void miaux_march_point(miVector *result, const miState *state,
-		miScalar distance) {
-	miaux_point_along_vector(result, &state->org, &state->dir, distance);
+void miaux_march_point(miVector *result, const miVector *org,
+		const miVector *dir, miScalar distance) {
+	miaux_point_along_vector(result, org, dir, distance);
 }
 
 void miaux_alpha_blend_colors(miColor *result, const miColor *foreground,
@@ -121,11 +121,8 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
-	miVector normalized_dir = *direction;
-	mi_vector_normalize(&normalized_dir);
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
-		miaux_point_along_vector(&march_point, start_point, &normalized_dir,
-				dist);
+		miaux_point_along_vector(&march_point, start_point, direction, dist);
 		miaux_get_sigma_a(&current_sigma, &march_point, voxels);
 		miaux_add_color(&total_sigma, &current_sigma);
 	}
@@ -168,12 +165,9 @@ void miaux_add_transparent_color(miColor *result, const miColor *color,
 	result->a += transparency;
 }
 
-void miaux_total_light_at_point(miColor *result, const miVector *point,
-		miState *state) {
+void miaux_total_light_at_point(miColor *result, miState *state) {
 	miColor sum, light_color;
 	int light_sample_count;
-	miVector original_point = state->point;
-	state->point = *point;
 
 	miaux_set_channels(result, 0.0);
 	for (mi::shader::LightIterator iter(state); !iter.at_end(); ++iter) {
@@ -191,7 +185,6 @@ void miaux_total_light_at_point(miColor *result, const miVector *point,
 			miaux_add_scaled_color(result, &sum, 1.0 / light_sample_count);
 		}
 	}
-	state->point = original_point;
 }
 
 miScalar miaux_threshold_density(const miVector *point, const miVector *center,

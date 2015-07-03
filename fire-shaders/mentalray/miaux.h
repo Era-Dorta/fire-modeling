@@ -47,8 +47,8 @@ void miaux_clamp_color(miColor *c, miScalar min, miScalar max);
 void miaux_point_along_vector(miVector *result, const miVector *point,
 		const miVector *direction, miScalar distance);
 
-void miaux_march_point(miVector *result, const miState *state,
-		miScalar distance);
+void miaux_march_point(miVector *result, const miVector *org,
+		const miVector *dir, miScalar distance);
 
 void miaux_alpha_blend_colors(miColor *result, const miColor *foreground,
 		const miColor *background);
@@ -72,8 +72,7 @@ void miaux_set_rgb(miColor *c, miScalar new_value);
 void miaux_add_transparent_color(miColor *result, const miColor *color,
 		miScalar transparency);
 
-void miaux_total_light_at_point(miColor *result, const miVector *point,
-		miState *state);
+void miaux_total_light_at_point(miColor *result, miState *state);
 
 miScalar miaux_threshold_density(const miVector *point, const miVector *center,
 		miScalar radius, miScalar scale, miScalar march_increment);

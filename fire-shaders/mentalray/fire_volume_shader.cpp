@@ -84,6 +84,12 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 	miScalar march_increment = *mi_eval_scalar(&params->march_increment);
 	miTag density_shader = *mi_eval_tag(&params->density_shader);
 
+	// Transform to object space, as voxel_shader and the voxel object assume
+	// a cube centred at origin of unit width, height and depth
+	miVector origin, direction;
+	mi_point_to_object(state, &origin, &state->org);
+	mi_vector_to_object(state, &direction, &state->dir);
+
 	if (state->type == miRAY_SHADOW) {
 		miScalar shadow_density = *mi_eval_scalar(&params->shadow_density);
 		/*
@@ -93,9 +99,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 		 */
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
-		miVector origin, direction;
-		mi_point_to_object(state, &origin, &state->org);
-		mi_point_to_object(state, &direction, &state->dir);
+
 		miaux_fractional_shader_occlusion_at_point(&result->transparency,
 				&origin, &direction, state->dist, march_increment,
 				shadow_density, voxels);
@@ -108,8 +112,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 
 		miScalar distance, density;
 		miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
+
 		miVector original_point = state->point;
-		//InstData *inst_data = (InstData *) miaux_user_memory_pointer(state, 0);
 		// Primitive intersection is the bounding box, set to null to be able
 		// to do the ray marching
 		struct miRc_intersection* original_state_pri = state->pri;
@@ -117,10 +121,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 
 		for (distance = state->dist; distance >= 0; distance -=
 				march_increment) {
-			miVector march_point;
-			miaux_march_point(&march_point, state, distance);
-			// TODO Make transform org and dist once outside the loop
-			mi_point_to_object(state, &state->point, &march_point);
+			miaux_march_point(&state->point, &origin, &direction, distance);
 			mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 					density_shader, NULL);
 #ifdef DEBUG_SIGMA_A
@@ -135,7 +136,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 				// Here is where the equation is solved
 				// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
 				density *= density_scale * march_increment;
-				miaux_total_light_at_point(&light_color, &march_point, state);
+				miaux_total_light_at_point(&light_color, state);
 				miaux_multiply_colors(&point_color, color, &light_color);
 				miaux_add_transparent_color(&volume_color, &point_color,
 						density);
