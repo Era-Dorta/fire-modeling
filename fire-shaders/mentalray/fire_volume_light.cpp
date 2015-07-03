@@ -4,7 +4,7 @@
 #include "mayaapi.h"
 
 #include "miaux.h"
-#include "VoxelDatasetColor.h"
+#include "VoxelDatasetColorSorted.h"
 
 //#define DEBUG_SIGMA_A
 
@@ -42,9 +42,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 				&params->temperature_offset);
 		miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
 
-		VoxelDatasetColor *voxels =
-				(VoxelDatasetColor *) miaux_user_memory_pointer(state,
-						sizeof(VoxelDatasetColor));
+		VoxelDatasetColorSorted *voxels =
+				(VoxelDatasetColorSorted *) miaux_user_memory_pointer(state,
+						sizeof(VoxelDatasetColorSorted));
 
 		// Save previous state
 		miVector original_point = state->point;

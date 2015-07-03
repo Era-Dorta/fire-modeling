@@ -8,6 +8,8 @@
 #ifndef VOXELDATASET_H_
 #define VOXELDATASET_H_
 
+#include <array>
+
 #include "shader.h"
 
 #define MAX_DATASET_SIZE 128*128*128
@@ -40,7 +42,7 @@ private:
 			double newmax) const;
 protected:
 	unsigned width, height, depth;
-	T block[MAX_DATASET_SIZE];
+	std::array<T, MAX_DATASET_SIZE> block;
 };
 
 // The compiler needs direct access to the template class implementation or
