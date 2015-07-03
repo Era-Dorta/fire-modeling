@@ -102,6 +102,10 @@ void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
 
 void miaux_compute_object_matrix(miState *state, miMatrix matrix);
 
+void miaux_copy_vector(miVector *result, const miVector *vector);
+
+void miaux_copy_vector_neg(miVector *result, const miVector *vector);
+
 void miaux_vector_warning(const char* s, const miVector& v);
 
 void miaux_vector_warning(const char* s, const miGeoVector& v);

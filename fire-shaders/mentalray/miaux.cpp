@@ -325,6 +325,18 @@ void miaux_compute_object_matrix(miState *state, miMatrix matrix) {
 	mi_matrix_prod(matrix, object_trans, object_rot);
 }
 
+void miaux_copy_vector(miVector *result, const miVector *vector) {
+	result->x = vector->x;
+	result->y = vector->y;
+	result->z = vector->z;
+}
+
+void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
+	result->x = -vector->x;
+	result->y = -vector->y;
+	result->z = -vector->z;
+}
+
 void miaux_vector_warning(const char* s, const miVector& v) {
 	mi_warning("%s %f, %f, %f", s, v.x, v.y, v.z);
 }
