@@ -8,8 +8,14 @@
 
 //#define DEBUG_SIGMA_A
 
-// Create a point light, then in pointLightShape -> mental ray -> Custom Shaders
-// -> Ligh Shader, select this node
+// Create an area light, then in areaLightShape -> mental ray
+// Tick Use Light Shape
+// On type select Custom
+// Scroll down to Custom Shaders
+// Add this shader as Light Shader
+
+// setAttr "areaLightShape1.areaLight" 1;
+// setAttr "areaLightShape1.areaType" 4;
 // connectAttr -f fire_volume_light1.message pointLightShape1.miLightShader;
 
 struct fire_volume_light {
