@@ -9,6 +9,7 @@ declare shader
 		string "filename",
 		integer "read_mode",
 			#:default 1
+			#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB"
 			#: min 0 max 2
 		vector "min_point", 
 			#: default -1 -1 -1
