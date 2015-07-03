@@ -11,6 +11,7 @@
 
 #include "RenderingConstants.h"
 #include "Spectrum.h"
+#include "miaux.h"
 
 void VoxelDatasetColor::compute_sigma_a_threaded() {
 	// Precompute all the constant soot coefficients
@@ -101,7 +102,6 @@ void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 		unsigned e_depth) {
 	miColor density;
 	std::vector<float> sigma_a(Soot::num_samples);
-	float rgbCoefficients[3];
 	for (unsigned i = i_width; i <= e_width; i++) {
 		for (unsigned j = i_height; j <= e_height; j++) {
 			for (unsigned k = i_depth; k <= e_depth; k++) {
@@ -118,13 +118,8 @@ void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 					// Transform the spectrum to RGB coefficients, since CIE is
 					// not fully represented by RGB clamp negative intensities
 					// to zero
-					sigma_a_spec.ToRGB(rgbCoefficients);
-					density.r =
-							(rgbCoefficients[0] > 0) ? rgbCoefficients[0] : 0;
-					density.g =
-							(rgbCoefficients[1] > 0) ? rgbCoefficients[1] : 0;
-					density.b =
-							(rgbCoefficients[2] > 0) ? rgbCoefficients[2] : 0;
+					sigma_a_spec.ToRGB(&density.r);
+					miaux_clamp_color(&density, 0, 1);
 
 					set_voxel_value(i, j, k, density);
 				}
