@@ -14,8 +14,6 @@ declare shader
 			#: default -1 -1 -1
 		vector "max_point", 
 			#: default 1 1 1
-		color "color", 
-			#: default 1 1 1
 			)
 	version 1
 end declare

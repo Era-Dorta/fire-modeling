@@ -13,7 +13,6 @@ struct voxel_density {
 	miInteger read_mode; // 0 ascii, 1 binary red, 2 binary max
 	miVector min_point;
 	miVector max_point;
-	miColor color;
 };
 
 extern "C" DLLEXPORT int voxel_density_version(void) {
