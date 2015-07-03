@@ -14,7 +14,6 @@ struct voxel_density {
 	miVector min_point;
 	miVector max_point;
 	miColor color;
-	miMatrix object_m;
 };
 
 extern "C" DLLEXPORT int voxel_density_version(void) {

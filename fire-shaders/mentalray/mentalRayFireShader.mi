@@ -15,9 +15,7 @@ declare shader
 		vector "max_point", 
 			#: default 1 1 1
 		color "color", 
-			#: default 1 1 1 
-		transform "object_m",
-			#: hidden true
+			#: default 1 1 1
 			)
 	version 1
 end declare
