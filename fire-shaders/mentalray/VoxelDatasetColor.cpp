@@ -32,7 +32,7 @@ void VoxelDatasetColor::compute_bb_radiation_threaded() {
 	normalize_bb_radiation();
 }
 
-miColor VoxelDatasetColor::get_max_voxel_value() {
+const miColor& VoxelDatasetColor::get_max_voxel_value() {
 	return max_color;
 }
 

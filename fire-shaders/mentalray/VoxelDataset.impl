@@ -66,19 +66,19 @@ void VoxelDataset<T>::resize(unsigned width, unsigned height, unsigned depth) {
 }
 
 template<typename T>
-T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
+const T& VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
 	return block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
 			+ ((int) (x + .5))];
 }
 
 template<typename T>
-void VoxelDataset<T>::set_voxel_value(float x, float y, float z, T val) {
+void VoxelDataset<T>::set_voxel_value(float x, float y, float z, const T& val) {
 	block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
 			+ ((int) (x + .5))] = val;
 }
 
 template<typename T>
-T VoxelDataset<T>::get_fitted_voxel_value(const miVector *p,
+const T& VoxelDataset<T>::get_fitted_voxel_value(const miVector *p,
 		const miVector *min_point, const miVector *max_point) const {
 	float x, y, z;
 	x = (float) fit(p->x, min_point->x, max_point->x, 0, width - 1);
@@ -88,13 +88,14 @@ T VoxelDataset<T>::get_fitted_voxel_value(const miVector *p,
 }
 
 template<typename T>
-T VoxelDataset<T>::get_voxel_value(unsigned x, unsigned y, unsigned z) const {
+const T& VoxelDataset<T>::get_voxel_value(unsigned x, unsigned y,
+		unsigned z) const {
 	return block[z * depth * height + y * height + x];
 }
 
 template<typename T>
 void VoxelDataset<T>::set_voxel_value(unsigned x, unsigned y, unsigned z,
-		T val) {
+		const T& val) {
 	block[z * depth * height + y * height + x] = val;
 }
 

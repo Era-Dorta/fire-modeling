@@ -17,7 +17,7 @@ class VoxelDatasetColor: public VoxelDataset<miColor> {
 public:
 	void compute_sigma_a_threaded();
 	void compute_bb_radiation_threaded();
-	miColor get_max_voxel_value();
+	const miColor& get_max_voxel_value();
 private:
 	void compute_function_threaded(
 			void (VoxelDatasetColor::*foo)(unsigned, unsigned, unsigned,
