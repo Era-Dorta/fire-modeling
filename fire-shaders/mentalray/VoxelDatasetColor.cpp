@@ -64,13 +64,13 @@ void VoxelDatasetColor::compute_function_threaded(
 	for (unsigned i = 0; i < num_threads - 1; i++) {
 		threads.push_back(
 				std::thread(foo, this, 0, 0, i_depth, width, height, e_depth));
-		i_depth = e_depth + 1;
+		i_depth = e_depth;
 		e_depth = e_depth + thread_chunk;
 	}
 
 	// The remaining work will be handled by the current thread
 	auto foo_member = std::mem_fn(foo);
-	foo_member(this, 0, 0, i_depth, width, height, depth - 1);
+	foo_member(this, 0, 0, i_depth, width, height, depth);
 
 	// Wait for the other threads to finish
 	for (auto& thread : threads) {
@@ -102,9 +102,9 @@ void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 		unsigned e_depth) {
 	miColor density;
 	std::vector<float> sigma_a(Soot::num_samples);
-	for (unsigned i = i_width; i <= e_width; i++) {
-		for (unsigned j = i_height; j <= e_height; j++) {
-			for (unsigned k = i_depth; k <= e_depth; k++) {
+	for (unsigned i = i_width; i < e_width; i++) {
+		for (unsigned j = i_height; j < e_height; j++) {
+			for (unsigned k = i_depth; k < e_depth; k++) {
 				density = get_voxel_value(i, j, k);
 				if (density.r > 0.0) {
 					for (unsigned l = 0; l < sigma_a.size(); l++) {
@@ -134,9 +134,9 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 	miColor t;
 	float rgbCoefficients[3];
 	float b[nSpectralSamples];
-	for (unsigned i = i_width; i <= e_width; i++) {
-		for (unsigned j = i_height; j <= e_height; j++) {
-			for (unsigned k = i_depth; k <= e_depth; k++) {
+	for (unsigned i = i_width; i < e_width; i++) {
+		for (unsigned j = i_height; j < e_height; j++) {
+			for (unsigned k = i_depth; k < e_depth; k++) {
 				t = get_voxel_value(i, j, k);
 				// Anything below 0 degrees Celsius or 400 Kelvin will not glow
 				// TODO Add as a parameter
