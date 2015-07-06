@@ -61,7 +61,7 @@ void miaux_scale_color(miColor *result, miScalar scale);
 void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 		const miVector *start_point, const miVector *direction,
 		miScalar total_distance, miScalar march_increment,
-		miScalar shadow_density, const VoxelDatasetColor *voxels);
+		miScalar shadow_scale, const VoxelDatasetColor *voxels);
 
 void miaux_multiply_colors(miColor *result, const miColor *x, const miColor *y);
 

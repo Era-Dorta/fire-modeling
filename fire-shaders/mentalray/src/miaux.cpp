@@ -117,7 +117,7 @@ void miaux_scale_color(miColor *result, miScalar scale) {
 void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 		const miVector *start_point, const miVector *direction,
 		miScalar total_distance, miScalar march_increment,
-		miScalar shadow_density, const VoxelDatasetColor *voxels) {
+		miScalar shadow_scale, const VoxelDatasetColor *voxels) {
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
@@ -129,7 +129,7 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 	// In sigma_a we do R^3 since R is 10e-10, that leaves a final result in
 	// the order of 10e-30 so a good shadow density value should be around
 	// 10e30, empirically 10e12
-	miaux_scale_color(&total_sigma, march_increment * shadow_density);
+	miaux_scale_color(&total_sigma, march_increment * shadow_scale);
 	// Bigger coefficient, small exp
 	total_sigma.r = exp(-total_sigma.r);
 	total_sigma.g = exp(-total_sigma.g);

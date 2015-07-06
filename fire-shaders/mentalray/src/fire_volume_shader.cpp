@@ -15,8 +15,9 @@ struct fire_volume_shader {
 	miColor transparency;
 	miTag density_shader;
 	miScalar density_scale;
-	miScalar shadow_density;
+	miScalar shadow_scale;
 	miScalar march_increment;
+	miBoolean cast_shadows;
 };
 
 extern "C" DLLEXPORT int fire_volume_shader_version(void) {
@@ -88,8 +89,12 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 	mi_vector_to_object(state, &direction, &state->dir);
 
 	if (state->type == miRAY_SHADOW) {
-		miScalar shadow_density = *mi_eval_scalar(&params->shadow_density);
-		shadow_density = pow(10, shadow_density);
+		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
+		if (!cast_shadows) { // Object is fully transparent, do nothing
+			return miFALSE;
+		}
+		miScalar shadow_scale = *mi_eval_scalar(&params->shadow_scale);
+		shadow_scale = pow(10, shadow_scale);
 		/*
 		 * Seems to be affected only by transparency, 0 to not produce hard
 		 * shadows (default) effect, 1 to let that colour pass
@@ -100,8 +105,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
 
 #ifndef DEBUG_SIGMA_A
 		miaux_fractional_shader_occlusion_at_point(&result->transparency,
-				&origin, &direction, state->dist, march_increment,
-				shadow_density, voxels);
+				&origin, &direction, state->dist, march_increment, shadow_scale,
+				voxels);
 		return miTRUE;
 #else
 		return miFALSE;

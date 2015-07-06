@@ -41,10 +41,12 @@ declare shader
 			shader "density_shader",
 			scalar "density_scale", 
 				#: default 1e1
-			scalar "shadow_density", 
+			scalar "shadow_scale", 
 				#: default 1e1 # This scale is an exponential parameter
 			scalar "march_increment", 
-				#: default 0.05 
+				#: default 0.05
+			boolean "cast_shadows",
+				#: default false
 				)
 	apply volume
 	version 1
