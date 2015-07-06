@@ -8,34 +8,6 @@
 
 //#define DEBUG_SIGMA_A
 
-/*
- * Create an area light, then in areaLightShape -> mental ray
- * Tick Use Light Shape
- * On type select Custom
- * Scroll down to Custom Shaders
- * Add this shader as Light Shader
- *
- setAttr "areaLightShape1.areaLight" 1;
- setAttr "areaLightShape1.areaType" 4;
- connectAttr -f fire_volume_light1.message pointLightShape1.miLightShader;
- */
-
-/*
- * An easy way to move everything together is to set the cube as parent
- * of the light, select the cube, then sift select the light then execute
- parent -s -r;
- *
- select -r areaLight1 box1 ;
- parent -s -r;
- *
- * Additionally, lock all transformations in the light shape
- *
- setAttr -l true { "areaLight1.t" };
- setAttr -l true { "areaLight1.r" };
- setAttr -l true { "areaLight1.s" };
- setAttr -l true { "areaLight1.sh" };
- */
-
 #define INV_SIZE (1.0 / 127.0) * 2
 
 struct fire_volume_light {

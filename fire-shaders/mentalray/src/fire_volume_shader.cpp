@@ -8,9 +8,6 @@
 
 //#define DEBUG_SIGMA_A
 
-// Go to SphereFogSG and add this as its volume shader in the mental ray tab
-// in custom shaders
-
 struct fire_volume_shader {
 	miColor color;
 	miColor glowColor;
