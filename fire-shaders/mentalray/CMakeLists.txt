@@ -30,9 +30,9 @@ FIND_PACKAGE (Maya REQUIRED)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -fPIC -pthread -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
 
 FILE(GLOB mentalRayFireShader_SRC
-    "*.h"
-    "*.cpp"
-    "*.impl"
+    "src/*.h"
+    "src/*.cpp"
+    "src/*.impl"
 )
 
 ADD_LIBRARY(mentalRayFireShader
