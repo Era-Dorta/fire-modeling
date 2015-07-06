@@ -8,7 +8,7 @@ declare shader
 	scalar "voxel_density" (
 		string "filename",
 		integer "read_mode",
-			#:default 1
+			#: default 1
 			#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB"
 			#: min 0 max 2
 		vector "min_point", 
@@ -29,7 +29,7 @@ declare shader
 			color "transparency"
 		} "fire_volume_shader" (
 			color "color", 
-				#: default 1 1 1
+				#: default 1 1 1 # For fake orange 0.9 0.2 0
 			color "glowColor",
 				#: default 0 0 0
 			color "matteOpacity",
