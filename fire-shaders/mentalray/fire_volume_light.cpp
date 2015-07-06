@@ -93,7 +93,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 	return miaux_release_user_memory("fire_volume_light", state, params);
 }
 
-
 //TODO Add check for small contribution and return (miBoolean)2
 extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		miState *state, struct fire_volume_light *params) {
