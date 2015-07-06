@@ -6,8 +6,6 @@
 #include "miaux.h"
 #include "VoxelDatasetFloat.h"
 
-// TODO Min and max point should come from the transformation of the object
-// this material is applied to
 struct voxel_density {
 	miTag filename_tag;
 	miInteger read_mode; // 0 ascii, 1 binary red, 2 binary max

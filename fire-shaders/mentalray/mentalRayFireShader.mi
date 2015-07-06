@@ -13,8 +13,10 @@ declare shader
 			#: min 0 max 2
 		vector "min_point", 
 			#: default -1 -1 -1
+			#: hidden true
 		vector "max_point", 
 			#: default 1 1 1
+			#: hidden true
 			)
 	version 1
 end declare
@@ -40,7 +42,7 @@ declare shader
 			scalar "density_scale", 
 				#: default 1e1
 			scalar "shadow_density", 
-				#: default 12 # This scale is an exponential parameter
+				#: default 1e1 # This scale is an exponential parameter
 			scalar "march_increment", 
 				#: default 0.05 
 				)

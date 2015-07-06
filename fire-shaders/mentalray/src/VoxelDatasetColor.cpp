@@ -191,7 +191,7 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 		if (!miaux_color_is_black(&block[i])) {
 			miaux_multiply_colors(&aux, &block[i], &inv_norm_factor);
 			// Uncomment to ignore eye adaptation
-			//miaux_copy_color(&aux, &block[i]);
+			miaux_copy_color(&aux, &block[i]);
 			XYZToRGB(&aux.r, &block[i].r);
 			miaux_clamp_color(&block[i], 0, 1);
 		}
