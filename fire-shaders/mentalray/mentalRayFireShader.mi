@@ -40,7 +40,7 @@ declare shader
 				#: default 0.5 0.5 0.5
 			shader "density_shader",
 			scalar "density_scale", 
-				#: default 1e1
+				#: default 5
 			scalar "shadow_scale", 
 				#: default 1e1 # This scale is an exponential parameter
 			scalar "march_increment", 
@@ -59,9 +59,9 @@ declare shader
 	color "fire_volume_light" (
 		shader "temperature_shader",
 		scalar "temperature_scale", 
-			#: default 2e3 # Usually temperatures are from 0 to 10000K
+			#: default 2500 # Usually temperatures are from 0 to 10000K
 		scalar "temperature_offset",
-			#: default 300 # Additional displacement in the temperature
+			#: default 500 # Additional displacement in the temperature
 		scalar "march_increment", 
 			#: default 0.05
 		scalar "shadow_threshold",
