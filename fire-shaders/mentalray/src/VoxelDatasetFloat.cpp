@@ -44,7 +44,7 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 	fp >> height;
 	fp >> depth;
 
-	int count = width * height * depth;
+	count = width * height * depth;
 
 	for (int i = 0; i < count; i++) {
 		if (fp.eof()) {
@@ -59,7 +59,6 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 void VoxelDatasetFloat::set_all_voxels_to(float val) {
 	// Initialise all densities to 0, because the data comes in as a sparse
 	// matrix
-	unsigned count = width * height * depth;
 	for (unsigned i = 0; i < count; i++) {
 		block[i] = val;
 	}
@@ -80,7 +79,7 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 	}
 
 	// Voxel is 128x128x128
-	height = depth = width = 128;
+	resize(128, 128, 128);
 
 	// Initialise all densities to 0, because the data comes in as a sparse
 	// matrix
@@ -124,7 +123,7 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 	}
 
 	// Voxel is 128x128x128
-	height = depth = width = 128;
+	resize(128, 128, 128);
 
 	// Initialise all densities to 0, because the data comes in as a sparse
 	// matrix

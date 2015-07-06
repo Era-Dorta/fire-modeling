@@ -185,7 +185,6 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 
 	// TODO This normalisation is assuming the fire is the main light in the
 	// scene, it should pick the brightest object and normalise with that
-	unsigned count = width * height * depth;
 	miColor aux;
 	for (unsigned i = 0; i < count; i++) {
 		if (!miaux_color_is_black(&block[i])) {
@@ -201,7 +200,6 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 }
 
 unsigned VoxelDatasetColor::get_maximum_voxel_index() {
-	unsigned count = width * height * depth;
 	auto max_ind = 0;
 	float current_val, max_val = 0;
 	for (unsigned i = 0; i < count; i++) {

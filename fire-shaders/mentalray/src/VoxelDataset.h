@@ -36,11 +36,12 @@ public:
 	int getWidth() const;
 	int getHeight() const;
 	int getDepth() const;
+	int getTotal() const;
 private:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
 protected:
-	unsigned width, height, depth;
+	unsigned width, height, depth, count;
 	std::array<T, MAX_DATASET_SIZE> block;
 };
 

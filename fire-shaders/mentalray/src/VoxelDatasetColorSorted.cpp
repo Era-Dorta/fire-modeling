@@ -25,8 +25,6 @@ void VoxelDatasetColorSorted::get_i_j_k_from_sorted(miVector &ijk,
 }
 
 void VoxelDatasetColorSorted::sort() {
-
-	unsigned count = width * height * depth;
 	// initialise original index locations
 	for (unsigned i = 0; i < count; i++) {
 		sorted_ind[i] = i;

@@ -17,12 +17,9 @@ VoxelDataset<T>::VoxelDataset(unsigned width, unsigned height, unsigned depth) {
 
 template<typename T>
 VoxelDataset<T>::VoxelDataset(const VoxelDataset& other) {
-	width = other.width;
-	height = other.height;
-	depth = other.depth;
+	resize(other.width, other.height, other.depth);
 
-	unsigned total = width * height * depth;
-	for (unsigned i = 0; i < total; i++) {
+	for (unsigned i = 0; i < count; i++) {
 		block[i] = other.block[i];
 	}
 }
@@ -34,12 +31,9 @@ VoxelDataset<T>& VoxelDataset<T>::operator =(const VoxelDataset<T>& other) {
 		return *this;
 	}
 
-	width = other.width;
-	height = other.height;
-	depth = other.depth;
+	resize(other.width, other.height, other.depth);
 
-	unsigned total = width * height * depth;
-	for (unsigned i = 0; i < total; i++) {
+	for (unsigned i = 0; i < count; i++) {
 		block[i] = other.block[i];
 	}
 
@@ -48,9 +42,7 @@ VoxelDataset<T>& VoxelDataset<T>::operator =(const VoxelDataset<T>& other) {
 
 template<typename T>
 void VoxelDataset<T>::clear() {
-	width = 0;
-	height = 0;
-	depth = 0;
+	resize(0, 0, 0);
 }
 
 template<typename T>
@@ -58,10 +50,11 @@ void VoxelDataset<T>::resize(unsigned width, unsigned height, unsigned depth) {
 	this->width = width;
 	this->height = height;
 	this->depth = depth;
-	if (width * height * depth > MAX_DATASET_SIZE) {
+	count = width * height * depth;
+	if (count > MAX_DATASET_SIZE) {
 		mi_fatal(
 				"Voxel dataset, max size is %d but tried to initialise with %d",
-				MAX_DATASET_SIZE, width * height * depth);
+				MAX_DATASET_SIZE, count);
 	}
 }
 
@@ -112,6 +105,11 @@ int VoxelDataset<T>::getDepth() const {
 template<typename T>
 int VoxelDataset<T>::getHeight() const {
 	return height;
+}
+
+template<typename T>
+int VoxelDataset<T>::getTotal() const {
+	return count;
 }
 
 template<typename T>

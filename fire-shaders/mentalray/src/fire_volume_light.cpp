@@ -147,7 +147,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 
 	if (result->r < shadow_threshold && result->g < shadow_threshold
 			&& result->b < shadow_threshold) {
-		mi_warning("early reaturn yuju");
+		// If the contribution is too small return early
 		return ((miBoolean) 2);
 	} else {
 		return mi_trace_shadow(result, state);
