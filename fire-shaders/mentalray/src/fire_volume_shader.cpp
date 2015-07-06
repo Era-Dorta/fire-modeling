@@ -29,34 +29,37 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
 	if (!params) { /* Main shader init (not an instance): */
 		*instance_init_required = miTRUE;
 	} else {
-		/* Instance initialization: */
-		mi_warning("Precomputing sigma_a");
+		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
+		if (cast_shadows) { // If the object is transparent then do not compute
+			/* Instance initialization: */
+			mi_warning("Precomputing sigma_a");
 
-		VoxelDatasetColor *voxels =
-				(VoxelDatasetColor *) miaux_user_memory_pointer(state,
-						sizeof(VoxelDatasetColor));
+			VoxelDatasetColor *voxels =
+					(VoxelDatasetColor *) miaux_user_memory_pointer(state,
+							sizeof(VoxelDatasetColor));
 
-		miScalar density_scale = *mi_eval_scalar(&params->density_scale);
-		miTag density_shader = *mi_eval_tag(&params->density_shader);
+			miScalar density_scale = *mi_eval_scalar(&params->density_scale);
+			miTag density_shader = *mi_eval_tag(&params->density_shader);
 
-		// Save previous state
-		miVector original_point = state->point;
-		miRay_type ray_type = state->type;
+			// Save previous state
+			miVector original_point = state->point;
+			miRay_type ray_type = state->type;
 
-		unsigned width, height, depth;
-		miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
-				density_shader);
+			unsigned width, height, depth;
+			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
+					density_shader);
 
-		miaux_copy_voxel_dataset(voxels, state, density_shader, width, height,
-				depth, density_scale, 0);
+			miaux_copy_voxel_dataset(voxels, state, density_shader, width,
+					height, depth, density_scale, 0);
 
-		voxels->compute_sigma_a_threaded();
+			voxels->compute_sigma_a_threaded();
 
-		// Restore previous state
-		state->point = original_point;
-		state->type = ray_type;
-		mi_warning("Done precomputing sigma_a with dataset size %dx%dx%d",
-				width, height, depth);
+			// Restore previous state
+			state->point = original_point;
+			state->type = ray_type;
+			mi_warning("Done precomputing sigma_a with dataset size %dx%dx%d",
+					width, height, depth);
+		}
 	}
 	return miTRUE;
 }
