@@ -1,0 +1,90 @@
+\documentclass[11pt]{report}
+% packages
+% Fran Burstall's Bath thesis package
+\usepackage{baththesis}
+\usepackage{amssymb} %for Blackboard bold etc \usepackage{graphicx} %for including eps graphics % front matter
+\usepackage[pdftex]{graphicx} % To include pictures
+\usepackage{caption}
+\usepackage{subcaption} % To use subfigures with subcaptions
+\usepackage{url}
+\usepackage{amsmath} % Equations
+\usepackage{txfonts}
+%\setlength{\parskip}{0.9em} %Paragraph spacing
+\usepackage{pgfgantt}
+\usepackage{cite}
+\usepackage{csquotes}
+\usepackage[ruled]{algorithm2e} % Algorithms 
+\renewcommand*{\mkcitation}[1]{ #1}
+\usepackage{listings} % For C++ code
+\lstset{language=C++,
+                basicstyle=\scriptsize,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#},
+                showstringspaces=false
+}
+
+\newcommand{\phim}{\mathbf{\phi}}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\Y}{\mathbf{Y}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\w}{\mathbf{w}}
+\newcommand{\Z}{\mathbf{Z}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\h}{\mathbf{h}}
+\newcommand{\Maya}{Maya\textsuperscript\textregistered}
+
+%\usepackage[hidelinks]{hyperref} % Adds references links without color
+\usepackage{hyperref} % Adds references links with color
+\usepackage{xcolor}
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\title{Realistic fire rendering} \author{Garoe Dorta-Perez}
+%\degree{Doctor of Philosophy}
+\unit{ CM50170 - Research project }
+\department{} 
+\degreemonthyear{August 2015}
+\norestrictions
+
+% Write here the section you are working on to compile only that one
+% You can write more than one section separated by comma
+% Comment to compile all
+% \includeonly{conclusions} 
+
+
+\begin{document}
+
+\maketitle
+
+{\hypersetup{linkcolor=black} % Set color back to black
+\tableofcontents
+}
+
+\include{introduction}
+
+\include{previous_work}
+
+\include{methodology}
+
+\include{implementation_details}
+
+\include{results}
+
+\include{conclusions}
+
+\newpage
+\bibliographystyle{eg-alpha}
+\bibliography{fire_rendering}
+
+\end{document}
+

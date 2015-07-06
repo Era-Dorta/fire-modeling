@@ -1,3 +1,6 @@
+# Gedit backup files
+*~
+
 # Build folder
 build
 
@@ -29,3 +32,13 @@ build
 *.exe
 *.out
 *.app
+
+# Latex
+*.aux
+*.log
+*.blg
+*.dvi
+*.synctex.gz
+*.bbl
+*.toc
+*.pdf
