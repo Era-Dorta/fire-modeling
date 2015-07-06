@@ -64,6 +64,8 @@ declare shader
 			#: default 300 # Additional displacement in the temperature
 		scalar "march_increment", 
 			#: default 0.05
+		scalar "shadow_threshold",
+			#: default 0.005
 	)
 	version 1
 	apply light

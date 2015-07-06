@@ -15,6 +15,7 @@ struct fire_volume_light {
 	miScalar temperature_scale;
 	miScalar temperature_offset;
 	miScalar march_increment;
+	miScalar shadow_threshold;
 };
 
 extern "C" DLLEXPORT int fire_volume_light_version(void) {
@@ -79,15 +80,28 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		return (miTRUE);
 	}
 
+	miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
+
 	// Set light position from the handler, this comes in internal space
 	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
 
 	// If this is not the first sample then next data from the voxel dataset
 	// set the light to be that colour and in that position
 	if (state->count > 0) {
+		// If no more voxel data then return early
+		if (state->count >= voxels->getTotal()) {
+			return ((miBoolean) 2);
+		}
+		miColor voxel_c = voxels->get_sorted_voxel_value(state->count);
+
+		// If the contribution is too small return early
+		if (voxel_c.r < shadow_threshold && voxel_c.g < shadow_threshold
+				&& voxel_c.b < shadow_threshold) {
+			return ((miBoolean) 2);
+		}
+
 		// Set the colour using the next value
-		miaux_copy_color_rgb(result,
-				&voxels->get_sorted_voxel_value(state->count));
+		miaux_copy_color_rgb(result, &voxel_c);
 
 		// Move the light origin to the voxel position
 		const miVector minus_one = { -1, -1, -1 };
@@ -126,5 +140,16 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	miaux_copy_vector_neg(&aux, &state->dir);
 	state->dot_nd = mi_vector_dot(&aux, &state->normal);
 
-	return mi_trace_shadow(result, state);
+	// Distance falloff, not sure but looks like 2.2 is the real value
+	miScalar exponent;
+	mi_query(miQ_LIGHT_EXPONENT, state, state->light_instance, &exponent);
+	miaux_scale_color(result, 1.0 / pow(state->dist, exponent));
+
+	if (result->r < shadow_threshold && result->g < shadow_threshold
+			&& result->b < shadow_threshold) {
+		mi_warning("early reaturn yuju");
+		return ((miBoolean) 2);
+	} else {
+		return mi_trace_shadow(result, state);
+	}
 }
