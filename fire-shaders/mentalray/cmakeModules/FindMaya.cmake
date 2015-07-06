@@ -45,7 +45,7 @@ FIND_PATH( MENTALRAY_LOCATION include/mi_version.h
   "${MAYA_LOCATION}/devkit/mentalray/"
   "${MAYA_LOCATION}/mentalray/devkit/"
   "${MAYA_LOCATION}/../../devkit/mentalray/"
-  HINTS "/usr/autodesk/mentalrayForMaya2015/devkit"
+  HINTS "/usr/autodesk/mentalrayForMaya2015/devkit/"
   DOC "Root directory of Mental Ray headers"
   )
   

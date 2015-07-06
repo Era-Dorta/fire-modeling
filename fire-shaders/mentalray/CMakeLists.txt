@@ -7,7 +7,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(mentalRayFireShader)
 
-SET(LIBRARY_OUTPUT_PATH /home/gdp24/maya/shaders/)
+#SET(CMAKE_INSTALL_PREFIX "/home/gdp24/maya/")
 
 SET(CMAKE_CXX_COMPILER g++)
 
@@ -27,7 +27,7 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmakeModules")
 SET(MAYA_VERSION "2015")
 FIND_PACKAGE (Maya REQUIRED)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -fPIC -pthread -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
 
 FILE(GLOB mentalRayFireShader_SRC
     "src/*.h"
@@ -41,4 +41,8 @@ ADD_LIBRARY(mentalRayFireShader
 )
 
 SET_TARGET_PROPERTIES(mentalRayFireShader PROPERTIES PREFIX "")
+
+MESSAGE(STATUS "REMEMBER TO SET THE INSTALLATION DIRECTORY WITH cmake -DCMAKE_INSTALL_PREFIX=\"path\"")
+MESSAGE(STATUS "CURRENT INSTALL_PREFIX IS ${CMAKE_INSTALL_PREFIX}")
+INSTALL(TARGETS mentalRayFireShader LIBRARY DESTINATION shaders)
 
