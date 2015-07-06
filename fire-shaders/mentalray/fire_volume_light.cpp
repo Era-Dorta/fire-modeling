@@ -36,6 +36,8 @@
  setAttr -l true { "areaLight1.sh" };
  */
 
+#define INV_SIZE (1.0 / 127.0) * 2
+
 struct fire_volume_light {
 	miTag temperature_shader;
 	miScalar temperature_scale;
@@ -104,20 +106,34 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		return (miTRUE);
 	}
 
-	// Set light position from the handler
+	// Set light position from the handler, this comes in internal space
 	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
 
+	// If this is not the first sample then next data from the voxel dataset
+	// set the light to be that colour and in that position
 	if (state->count > 0) {
+		// Set the colour using the next value
 		miaux_copy_color_rgb(result,
 				&voxels->get_sorted_voxel_value(state->count));
 
-		miVector offset, minus_half = { -0.5, -0.5, -0.5 };
-		mi_vector_add(&state->org, &state->org, &minus_half);
+		// Move the light origin to the voxel position
+		const miVector minus_one = { -1, -1, -1 };
+		miVector offset_light, offset_internal;
 
-		voxels->get_i_j_k_from_sorted(offset, state->count);
-		miScalar inv_n = 1 / 128.0;
-		mi_vector_mul(&offset, inv_n);
-		mi_vector_add(&state->org, &state->org, &offset);
+		voxels->get_i_j_k_from_sorted(offset_light, state->count);
+
+		// The voxel data set goes from {-1,-1,-1} to {1,1,1}, so with
+		// i,j,k = (127 / 2) it should be 1, to cancel the offset and
+		// with i,j,k = 127, then it should be 2, to be 1 above the offset
+		mi_vector_mul(&offset_light, INV_SIZE);
+
+		mi_vector_add(&offset_light, &offset_light, &minus_one);
+
+		// {-1,-,1,-1} is for a light at origin without rotation, so transform
+		// from light space to internal, to account for that
+		mi_vector_from_light(state, &offset_internal, &offset_light);
+
+		mi_vector_add(&state->org, &state->org, &offset_internal);
 	}
 	// dir is vector from light origin to primitive intersection point
 	mi_vector_sub(&state->dir, &state->point, &state->org);
