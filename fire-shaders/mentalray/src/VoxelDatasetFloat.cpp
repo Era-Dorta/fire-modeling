@@ -46,14 +46,18 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 
 	count = width * height * depth;
 
-	for (int i = 0; i < count; i++) {
-		if (fp.eof()) {
-			mi_fatal("Error, file \"%s\" has less data that declared.",
-					filename);
+	try {
+		for (unsigned i = 0; i < count; i++) {
+			if (fp.eof()) {
+				mi_fatal("Error, file \"%s\" has less data that declared.",
+						filename);
+			}
+			fp >> block[i];
 		}
-		fp >> block[i];
+	} catch (int e) {
+		fp.close();
+		throw;
 	}
-
 }
 
 void VoxelDatasetFloat::set_all_voxels_to(float val) {
@@ -91,18 +95,23 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 
 	int x, y, z;
 	double r, g, b, a;
-	for (int i = 0; i < count; i++) {
-		if (fp.eof()) {
-			mi_fatal("Error, file \"%s\" has less data that declared.",
-					filename);
-		}
-		// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-		read_bin_xyz(fp, x, z, y);
+	try {
+		for (int i = 0; i < count; i++) {
+			if (fp.eof()) {
+				mi_fatal("Error, file \"%s\" has less data that declared.",
+						filename);
+			}
+			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+			read_bin_xyz(fp, x, z, y);
 
-		// RGBA components, double, 8 bytes
-		read_bin_rgba(fp, r, g, b, a);
-		// For the moment assume the red component is the density
-		set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z, r);
+			// RGBA components, double, 8 bytes
+			read_bin_rgba(fp, r, g, b, a);
+			// For the moment assume the red component is the density
+			set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z, r);
+		}
+	} catch (int e) {
+		fp.close();
+		throw;
 	}
 
 }
@@ -135,19 +144,24 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 
 	int x, y, z;
 	double r, g, b, a;
-	for (int i = 0; i < count; i++) {
-		if (fp.eof()) {
-			mi_fatal("Error, file \"%s\" has less data that declared.",
-					filename);
+	try {
+		for (int i = 0; i < count; i++) {
+			if (fp.eof()) {
+				mi_fatal("Error, file \"%s\" has less data that declared.",
+						filename);
+			}
+			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+			read_bin_xyz(fp, x, z, y);
+
+			// RGBA components, double, 8 bytes
+			read_bin_rgba(fp, r, g, b, a);
+
+			// For the temperature, use the channel with maximum intensity
+			set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z,
+					std::max(std::max(r, g), b));
 		}
-		// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-		read_bin_xyz(fp, x, z, y);
-
-		// RGBA components, double, 8 bytes
-		read_bin_rgba(fp, r, g, b, a);
-
-		// For the temperature, use the channel with maximum intensity
-		set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z,
-				std::max(std::max(r, g), b));
+	} catch (int e) {
+		fp.close();
+		throw;
 	}
 }

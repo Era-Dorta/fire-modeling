@@ -64,8 +64,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 	return miTRUE;
 }
 
-extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
-		void *params) {
+extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state, void *params) {
 	return miaux_release_user_memory("fire_volume", state, params);
 }
 
