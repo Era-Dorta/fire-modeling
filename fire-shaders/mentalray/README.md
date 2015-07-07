@@ -6,8 +6,13 @@ Installation
 * make
 * make install
 
-
 Running
+-----------
+* Copy createFireVolume.mel file into the scripts folder in your maya project
+* Run createFireVolume("\path-to-temperature-file.raw", "\path-to-density-file.raw");
+* Create new instances with ```instance -smartTransform;```
+
+Running (Deprecated)
 -----------
 * Create -> Volume primitive -> Cube
 * Open Hypershader 
@@ -35,7 +40,7 @@ Running
 * With middle mouse hold, drag and drop one of the other voxel density nodes into temperature shader
 * Select the voxel density node, choose a input filename and a read mode
 
-### Extra
+### Extra (Deprecated)
 
 * An easy way to move everything together is to set the cube as parent of the light, 
 select the cube, then sift select the light then execute "parent -s -r;", which is 
