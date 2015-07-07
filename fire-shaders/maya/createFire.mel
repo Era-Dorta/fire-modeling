@@ -13,30 +13,33 @@ if($fireSG == ""){
     $fireSG = `sets -renderable true -noSurfaceShader true -empty -name "fire1SG"`;
 }
 
+
 // Create all the shading nodes
 $fire_shader = `shadingNode -asShader "fire_volume_shader"`;
 $temp_voxel = `shadingNode -asUtility "voxel_density"`;
 $density_voxel = `shadingNode -asUtility "voxel_density"`;
-$fire_light = `shadingNode -asLight "fire_volume_light"`;
-defaultAreaLight(1, 1,1,1, 0, 0, 0,0,0, 1, 0);
+$fire_light_shader = `shadingNode -asUtility "fire_volume_light"`;
+
+// Create the cube volume
+createImplicitVolume "cube";
+string $select_list[] = `ls -selection`;
+string $cube = $select_list[0];
+
+// Create an area light
+defaultAreaLight(1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0);
 string $select_list[] = `ls -selection`;
 string $area_light = $select_list[0];
 
 // Conect the voxel readers with the shading nodes
 connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
 connectAttr -f ($density_voxel + ".message") ($fire_shader + ".density_shader");
-connectAttr -f ($temp_voxel + ".message") ($fire_light + ".temperature_shader");
+connectAttr -f ($temp_voxel + ".message") ($fire_light_shader + ".temperature_shader");
+connectAttr -f ($fire_light_shader + ".message") ($area_light + ".miLightShader");
 
-select -cl;
-//proc createCube(){
-	// Needs to be in a function or it won't work
- //   createImplicitVolume "cube";
-//}
-//createCube();
-
-createImplicitVolume "cube";
 // Set the material of the cube to be the Shading Group 
-string $select_list[] = `ls -selection`;
-string $cube = $select_list[0];
+select -r $cube;
 sets -forceElement $fireSG;
 
+// Activate mental ray light type and custom light shader
+setAttr ($area_light + ".areaLight") 1;
+setAttr ($area_light + ".areaType") 4;
