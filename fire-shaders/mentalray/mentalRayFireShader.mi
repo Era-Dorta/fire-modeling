@@ -21,7 +21,7 @@ declare shader
 	version 1
 end declare
 
-# Volumetric fire renderer
+# Volumetric fire material
 
 declare shader
 		struct { 
@@ -29,7 +29,7 @@ declare shader
 			color "glowColor",
 			color "matteOpacity",
 			color "transparency"
-		} "fire_volume_shader" (
+		} "fire_volume" (
 			color "color", 
 				#: default 1 1 1 # For fake orange 0.9 0.2 0
 			color "glowColor",

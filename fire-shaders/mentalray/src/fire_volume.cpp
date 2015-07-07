@@ -8,7 +8,7 @@
 
 //#define DEBUG_SIGMA_A
 
-struct fire_volume_shader {
+struct fire_volume {
 	miColor color;
 	miColor glowColor;
 	miColor matteOpacity;
@@ -20,12 +20,12 @@ struct fire_volume_shader {
 	miBoolean cast_shadows;
 };
 
-extern "C" DLLEXPORT int fire_volume_shader_version(void) {
+extern "C" DLLEXPORT int fire_volume_version(void) {
 	return 1;
 }
 
-extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
-		struct fire_volume_shader *params, miBoolean *instance_init_required) {
+extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
+		struct fire_volume *params, miBoolean *instance_init_required) {
 	if (!params) { /* Main shader init (not an instance): */
 		*instance_init_required = miTRUE;
 	} else {
@@ -64,13 +64,13 @@ extern "C" DLLEXPORT miBoolean fire_volume_shader_init(miState *state,
 	return miTRUE;
 }
 
-extern "C" DLLEXPORT miBoolean fire_volume_shader_exit(miState *state,
+extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
 		void *params) {
-	return miaux_release_user_memory("fire_volume_shader", state, params);
+	return miaux_release_user_memory("fire_volume", state, params);
 }
 
-extern "C" DLLEXPORT miBoolean fire_volume_shader(VolumeShader_R *result,
-		miState *state, struct fire_volume_shader *params) {
+extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
+		miState *state, struct fire_volume *params) {
 
 	// Early return with ray lights to avoid infinite recursion
 	if (state->type == miRAY_LIGHT) {

@@ -16,7 +16,7 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 
 
 	// Create all the shading nodes
-	$fire_shader = `shadingNode -asShader "fire_volume_shader"`;
+	$fire_shader = `shadingNode -asShader "fire_volume"`;
 	$temp_voxel = `shadingNode -asUtility "voxel_density"`;
 	$density_voxel = `shadingNode -asUtility "voxel_density"`;
 	$fire_light_shader = `shadingNode -asUtility "fire_volume_light"`;
