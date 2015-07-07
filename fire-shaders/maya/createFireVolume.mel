@@ -1,22 +1,9 @@
 global proc string createFireVolume( string $temperature_file, string $density_file){
 	select -cl; // Clear selection
 
-	// Get a Fire Shading Group or create one
-	string $fireSG = "";
-	$allObjects = `ls -l`;
-	for ( $obj in $allObjects ) {
-		if ( `longNameOf $obj` == "fire1SG" ) {
-		    $fireSG = $obj;
-	   }
-	}
-
-	if($fireSG == ""){
-		$fireSG = `sets -renderable true -noSurfaceShader true -empty -name "fire1SG"`;
-	}
-
-
 	// Create all the shading nodes
 	$fire_shader = `shadingNode -asShader "fire_volume"`;
+	$fireSG = `sets -renderable true -noSurfaceShader true -empty -name ($fire_shader + "SG")`;
 	$temp_voxel = `shadingNode -asUtility "voxel_density"`;
 	$density_voxel = `shadingNode -asUtility "voxel_density"`;
 	$fire_light_shader = `shadingNode -asUtility "fire_volume_light"`;
