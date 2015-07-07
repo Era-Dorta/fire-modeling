@@ -40,6 +40,10 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	connectAttr -f ($density_voxel + ".message") ($fire_shader + ".density_shader");
 	connectAttr -f ($temp_voxel + ".message") ($fire_light_shader + ".temperature_shader");
 	connectAttr -f ($fire_light_shader + ".message") ($area_light + ".miLightShader");
+	
+	// Set the read modes for the voxel data
+	setAttr ($temp_voxel + ".read_mode") 2; // Max rgb value
+	setAttr ($density_voxel + ".read_mode") 1; // Red channel only
 
 	// Set the material of the cube to be the Shading Group 
 	select -r $cube;
