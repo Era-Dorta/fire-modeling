@@ -1,16 +1,20 @@
 Installation
 -----------
 
+#### Mental Ray Shaders
 * Create build folder
-* cmake -DCMAKE_INSTALL_PREFIX="path to shaders installation folder" ../
+* cmake -DCMAKE_INSTALL_PREFIX="/path-to-shaders-installation-folder" ../
 * make
 * make install
 
+#### Maya commands
+* Copy createFireVolume.mel file into the scripts folder in your maya project
+
 Running
 -----------
-* Copy createFireVolume.mel file into the scripts folder in your maya project
-* Run createFireVolume("\path-to-temperature-file.raw", "\path-to-density-file.raw");
-* Create new instances with ```instance -smartTransform;```
+* Select Render Settings -> Render Using -> Mental Ray
+* Run createFireVolume("/path-to-temperature-file.raw", "/path-to-density-file.raw");
+* Additionally create new instances with ```instance -smartTransform;```
 
 Running (Deprecated)
 -----------
