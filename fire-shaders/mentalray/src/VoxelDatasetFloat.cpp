@@ -34,30 +34,23 @@ void VoxelDatasetFloat::initialize_with_file(const char* filename,
 }
 
 void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
-	std::fstream fp(filename, std::ios_base::in);
+	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
 	}
 
 	// Read width height and depth
-	fp >> width;
-	fp >> height;
-	fp >> depth;
+	safe_ascii_read(fp, width);
+	safe_ascii_read(fp, height);
+	safe_ascii_read(fp, depth);
 
-	count = width * height * depth;
+	resize(width, height, depth);
 
-	try {
-		for (unsigned i = 0; i < count; i++) {
-			if (fp.eof()) {
-				mi_fatal("Error, file \"%s\" has less data that declared.",
-						filename);
-			}
-			fp >> block[i];
-		}
-	} catch (int e) {
-		fp.close();
-		throw;
+	for (unsigned i = 0; i < count; i++) {
+		safe_ascii_read(fp, block[i]);
 	}
+
+	fp.close();
 }
 
 void VoxelDatasetFloat::set_all_voxels_to(float val) {
@@ -68,22 +61,16 @@ void VoxelDatasetFloat::set_all_voxels_to(float val) {
 	}
 }
 
-void VoxelDatasetFloat::read_bin_xyz(std::fstream& fp, int& x, int& y, int& z) {
-	// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-	fp.read(reinterpret_cast<char*>(&x), 4);
-	fp.read(reinterpret_cast<char*>(&y), 4);
-	fp.read(reinterpret_cast<char*>(&z), 4);
-}
-
 void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 		const char* filename) {
-	std::fstream fp(filename, std::ios::in | std::ios::binary);
+
+	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
 	}
 
-	// Voxel is 128x128x128
-	resize(128, 128, 128);
+	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
+	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
 
 	// Initialise all densities to 0, because the data comes in as a sparse
 	// matrix
@@ -91,48 +78,36 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 
 	int count;
 	// Number of points in the file, integer, 4 bytes
-	fp.read(reinterpret_cast<char*>(&count), 4);
+	safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
 
 	int x, y, z;
 	double r, g, b, a;
-	try {
-		for (int i = 0; i < count; i++) {
-			if (fp.eof()) {
-				mi_fatal("Error, file \"%s\" has less data that declared.",
-						filename);
-			}
-			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-			read_bin_xyz(fp, x, z, y);
 
-			// RGBA components, double, 8 bytes
-			read_bin_rgba(fp, r, g, b, a);
-			// For the moment assume the red component is the density
-			set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z, r);
-		}
-	} catch (int e) {
-		fp.close();
-		throw;
+	for (int i = 0; i < count; i++) {
+		// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+		read_bin_xyz(fp, x, z, y);
+
+		// RGBA components, double, 8 bytes
+		read_bin_rgba(fp, r, g, b, a);
+
+		// Make sure the indices are in a valid range
+		check_index_range(x, y, z, fp, filename);
+
+		// For the moment assume the red component is the density
+		set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z, r);
 	}
 
-}
-
-void VoxelDatasetFloat::read_bin_rgba(std::fstream& fp, double& r, double& g,
-		double& b, double& a) {
-	// RGBA components, double, 8 bytes
-	fp.read(reinterpret_cast<char*>(&r), 8);
-	fp.read(reinterpret_cast<char*>(&g), 8);
-	fp.read(reinterpret_cast<char*>(&b), 8);
-	fp.read(reinterpret_cast<char*>(&a), 8);
+	fp.close();
 }
 
 void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
-	std::fstream fp(filename, std::ios::in | std::ios::binary);
+	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
 	}
 
-	// Voxel is 128x128x128
-	resize(128, 128, 128);
+	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
+	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
 
 	// Initialise all densities to 0, because the data comes in as a sparse
 	// matrix
@@ -140,28 +115,75 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 
 	int count;
 	// Number of points in the file, integer, 4 bytes
-	fp.read(reinterpret_cast<char*>(&count), 4);
+	safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
 
 	int x, y, z;
 	double r, g, b, a;
-	try {
-		for (int i = 0; i < count; i++) {
-			if (fp.eof()) {
-				mi_fatal("Error, file \"%s\" has less data that declared.",
-						filename);
-			}
-			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-			read_bin_xyz(fp, x, z, y);
 
-			// RGBA components, double, 8 bytes
-			read_bin_rgba(fp, r, g, b, a);
+	for (int i = 0; i < count; i++) {
+		// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+		read_bin_xyz(fp, x, z, y);
 
-			// For the temperature, use the channel with maximum intensity
-			set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z,
-					std::max(std::max(r, g), b));
-		}
-	} catch (int e) {
+		// RGBA components, double, 8 bytes
+		read_bin_rgba(fp, r, g, b, a);
+
+		// Make sure the indices are in a valid range
+		check_index_range(x, y, z, fp, filename);
+
+		// For the temperature, use the channel with maximum intensity
+		set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z,
+				std::max(std::max(r, g), b));
+	}
+
+	fp.close();
+}
+
+void VoxelDatasetFloat::read_bin_xyz(std::ifstream& fp, int& x, int& y,
+		int& z) {
+	// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+	safe_binary_read(fp, reinterpret_cast<char*>(&x), 4);
+	safe_binary_read(fp, reinterpret_cast<char*>(&y), 4);
+	safe_binary_read(fp, reinterpret_cast<char*>(&z), 4);
+}
+
+void VoxelDatasetFloat::read_bin_rgba(std::ifstream& fp, double& r, double& g,
+		double& b, double& a) {
+	// RGBA components, double, 8 bytes
+	safe_binary_read(fp, reinterpret_cast<char*>(&r), 8);
+	safe_binary_read(fp, reinterpret_cast<char*>(&g), 8);
+	safe_binary_read(fp, reinterpret_cast<char*>(&b), 8);
+	safe_binary_read(fp, reinterpret_cast<char*>(&a), 8);
+}
+
+void VoxelDatasetFloat::safe_binary_read(std::ifstream& fp, char *output,
+		long int byte_size) {
+	fp.read(output, byte_size);
+	if (!fp) {
 		fp.close();
-		throw;
+		mi_fatal("Error reading file");
+	}
+}
+
+void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, float &output) {
+	fp >> output;
+	if (!fp) {
+		fp.close();
+		mi_fatal("Error reading file");
+	}
+}
+void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, unsigned &output) {
+	fp >> output;
+	if (!fp) {
+		fp.close();
+		mi_fatal("Error reading file");
+	}
+}
+
+void VoxelDatasetFloat::check_index_range(int x, int y, int z,
+		std::ifstream& fp, const char* filename) {
+	if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth) {
+		fp.close();
+		mi_fatal("Invalid voxel index %d, %d, %d when reading file %s", x, y, z,
+				filename);
 	}
 }

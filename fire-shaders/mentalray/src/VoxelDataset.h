@@ -12,7 +12,8 @@
 
 #include "shader.h"
 
-#define MAX_DATASET_SIZE 128*128*128
+#define MAX_DATASET_DIM 200
+#define MAX_DATASET_SIZE (MAX_DATASET_DIM * MAX_DATASET_DIM * MAX_DATASET_DIM)
 
 template<typename T>
 class VoxelDataset {
