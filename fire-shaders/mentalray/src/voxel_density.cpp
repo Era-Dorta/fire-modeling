@@ -30,6 +30,10 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 		VoxelDatasetFloat *voxels =
 				(VoxelDatasetFloat *) miaux_user_memory_pointer(state,
 						sizeof(VoxelDatasetFloat));
+
+		// Placement new, initialisation of malloc memory block
+		new (voxels) VoxelDatasetFloat();
+
 		if (filename) {
 			int mode = *mi_eval_integer(&params->read_mode);
 			mi_warning("\tReading voxel datase mode %d, filename %s", mode,

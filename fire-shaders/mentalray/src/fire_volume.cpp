@@ -38,6 +38,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 					(VoxelDatasetColor *) miaux_user_memory_pointer(state,
 							sizeof(VoxelDatasetColor));
 
+			// Placement new, initialisation of malloc memory block
+			new (voxels) VoxelDatasetColor();
+
 			miScalar density_scale = *mi_eval_scalar(&params->density_scale);
 			miTag density_shader = *mi_eval_tag(&params->density_shader);
 

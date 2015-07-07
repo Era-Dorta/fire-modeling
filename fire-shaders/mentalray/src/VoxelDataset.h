@@ -27,10 +27,9 @@ public:
 	void clear();
 	void resize(unsigned width, unsigned height, unsigned depth);
 
-	const T& get_voxel_value(float x, float y, float z) const;
-	void set_voxel_value(float x, float y, float z, const T& val);
-	const T& get_fitted_voxel_value(const miVector *p,
-			const miVector *min_point, const miVector *max_point) const;
+	T get_voxel_value(float x, float y, float z) const;
+	T get_fitted_voxel_value(const miVector *p, const miVector *min_point,
+			const miVector *max_point) const;
 	const T& get_voxel_value(unsigned x, unsigned y, unsigned z) const;
 	void set_voxel_value(unsigned x, unsigned y, unsigned z, const T& val);
 
@@ -38,6 +37,10 @@ public:
 	int getHeight() const;
 	int getDepth() const;
 	int getTotal() const;
+protected:
+	virtual T bilinear_interp(float tx, float ty, const T&c00, const T&c01,
+			const T&c10, const T&c11) const = 0;
+	virtual T linear_interp(float t, const T&c0, const T&c1) const = 0;
 private:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;

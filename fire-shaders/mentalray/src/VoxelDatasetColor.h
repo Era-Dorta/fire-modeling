@@ -18,6 +18,11 @@ public:
 	void compute_sigma_a_threaded();
 	void compute_bb_radiation_threaded();
 	const miColor& get_max_voxel_value();
+protected:
+	virtual miColor bilinear_interp(float tx, float ty, const miColor& c00,
+			const miColor&c01, const miColor& c10, const miColor& c11) const;
+	virtual miColor linear_interp(float t, const miColor& c0,
+			const miColor& c1) const;
 private:
 	void compute_function_threaded(
 			void (VoxelDatasetColor::*foo)(unsigned, unsigned, unsigned,

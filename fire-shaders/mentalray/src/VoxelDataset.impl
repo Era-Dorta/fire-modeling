@@ -6,6 +6,7 @@
  */
 
 #include <cassert>
+#include <cmath>
 
 template<typename T>
 VoxelDataset<T>::VoxelDataset() {
@@ -61,22 +62,52 @@ void VoxelDataset<T>::resize(unsigned width, unsigned height, unsigned depth) {
 }
 
 template<typename T>
-const T& VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
+T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
 	assert(
 			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
 					+ ((int ) (x + .5)) < MAX_DATASET_SIZE);
-	return block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
-			+ ((int) (x + .5))];
+	// Floor of the indices
+	int x0, y0, z0;
+	x0 = int(x);
+	y0 = int(y);
+	z0 = int(z);
+	// Got enough voxels around to interpolate
+	// Do simple triliniear interpolation
+	// https://en.wikipedia.org/wiki/Trilinear_interpolation
+	if (x0 > 0 && x0 < width - 2 && y0 > 0 && y0 < height - 2 && z0 > 0
+			&& z0 < depth - 2) {
+		int x1, y1, z1, tx, ty, tz;
+
+		x1 = x0 + 1;
+		y1 = y0 + 1;
+		z1 = z0 + 1;
+
+		// [0..1] interpolation value
+		tx = x - x0;
+		ty = y - y0;
+		tz = z - z0;
+
+		const T& c000 = block[x0 + height * (y0 + z0 * depth)];
+		const T& c001 = block[x0 + height * (y0 + z1 * depth)];
+		const T& c010 = block[x0 + height * (y1 + z0 * depth)];
+		const T& c011 = block[x0 + height * (y1 + z1 * depth)];
+		const T& c100 = block[x1 + height * (y0 + z0 * depth)];
+		const T& c101 = block[x1 + height * (y0 + z1 * depth)];
+		const T& c110 = block[x1 + height * (y1 + z0 * depth)];
+		const T& c111 = block[x1 + height * (y1 + z1 * depth)];
+
+		T c0 = bilinear_interp(tx, ty, c000, c100, c010, c110);
+		T c1 = bilinear_interp(tx, ty, c001, c101, c011, c111);
+
+		return linear_interp(tz, c0, c1);
+	} else {
+		return block[((int) (z + .5)) * depth * height
+				+ ((int) (y + .5)) * height + ((int) (x + .5))];
+	}
 }
 
 template<typename T>
-void VoxelDataset<T>::set_voxel_value(float x, float y, float z, const T& val) {
-	block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
-			+ ((int) (x + .5))] = val;
-}
-
-template<typename T>
-const T& VoxelDataset<T>::get_fitted_voxel_value(const miVector *p,
+T VoxelDataset<T>::get_fitted_voxel_value(const miVector *p,
 		const miVector *min_point, const miVector *max_point) const {
 	float x, y, z;
 	x = (float) fit(p->x, min_point->x, max_point->x, 0, width - 1);

@@ -36,6 +36,22 @@ const miColor& VoxelDatasetColor::get_max_voxel_value() {
 	return max_color;
 }
 
+miColor VoxelDatasetColor::bilinear_interp(float tx, float ty,
+		const miColor& c00, const miColor&c01, const miColor& c10,
+		const miColor& c11) const {
+	miColor c0 = linear_interp(tx, c00, c10);
+	miColor c1 = linear_interp(tx, c01, c11);
+	return linear_interp(ty, c0, c1);
+}
+miColor VoxelDatasetColor::linear_interp(float t, const miColor& c0,
+		const miColor& c1) const {
+	miColor res;
+	miaux_copy_color(&res, &c1);
+	miaux_scale_color(&res, t);
+	miaux_add_scaled_color(&res, &c0, 1 - t);
+	return res;
+}
+
 void VoxelDatasetColor::compute_function_threaded(
 		void (VoxelDatasetColor::*foo)(unsigned, unsigned, unsigned, unsigned,
 				unsigned, unsigned)) {

@@ -39,6 +39,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 				(VoxelDatasetColorSorted *) miaux_user_memory_pointer(state,
 						sizeof(VoxelDatasetColorSorted));
 
+		// Placement new, initialisation of malloc memory block
+		new (voxels) VoxelDatasetColorSorted();
+
 		// Save previous state
 		miVector original_point = state->point;
 		miRay_type ray_type = state->type;
@@ -66,7 +69,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 	return miaux_release_user_memory("fire_volume_light", state, params);
 }
 
-//TODO Add check for small contribution and return (miBoolean)2
 extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		miState *state, struct fire_volume_light *params) {
 
