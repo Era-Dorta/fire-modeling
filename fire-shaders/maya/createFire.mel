@@ -19,6 +19,8 @@ $temp_voxel = `shadingNode -asUtility "voxel_density"`;
 $density_voxel = `shadingNode -asUtility "voxel_density"`;
 $fire_light = `shadingNode -asLight "fire_volume_light"`;
 defaultAreaLight(1, 1,1,1, 0, 0, 0,0,0, 1, 0);
+string $select_list[] = `ls -selection`;
+string $area_light = $select_list[0];
 
 // Conect the voxel readers with the shading nodes
 connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
@@ -26,14 +28,15 @@ connectAttr -f ($density_voxel + ".message") ($fire_shader + ".density_shader");
 connectAttr -f ($temp_voxel + ".message") ($fire_light + ".temperature_shader");
 
 select -cl;
-proc createCube(){
+//proc createCube(){
 	// Needs to be in a function or it won't work
-    createImplicitVolume "cube";
-}
-createCube();
+ //   createImplicitVolume "cube";
+//}
+//createCube();
 
+createImplicitVolume "cube";
 // Set the material of the cube to be the Shading Group 
 string $select_list[] = `ls -selection`;
-$cube = $select_list[0];
+string $cube = $select_list[0];
 sets -forceElement $fireSG;
 
