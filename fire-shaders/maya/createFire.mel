@@ -43,3 +43,14 @@ sets -forceElement $fireSG;
 // Activate mental ray light type and custom light shader
 setAttr ($area_light + ".areaLight") 1;
 setAttr ($area_light + ".areaType") 4;
+
+// Make the cube and the light to be one object
+string $cube_transform = `firstParentOf $cube`;
+select -r $area_light $cube_transform;
+parent -s -r;
+
+// Lock all the transformations in the light
+setAttr -l true { ($area_light + ".t") };
+setAttr -l true { ($area_light + ".r") };
+setAttr -l true { ($area_light + ".s") };
+setAttr -l true { ($area_light + ".sh") };
