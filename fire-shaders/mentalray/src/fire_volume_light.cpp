@@ -87,6 +87,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	// Set light position from the handler, this comes in internal space
 	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
 
+	// TODO If asked for more samples than we have in the voxel, we could start
+	// interpolating between the value the interpolation code is there, what is
+	// needed is to decide where to place the points
+
 	// If this is not the first sample then next data from the voxel dataset
 	// set the light to be that colour and in that position
 	if (state->count > 0) {

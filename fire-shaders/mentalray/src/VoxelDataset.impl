@@ -66,16 +66,20 @@ T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
 	assert(
 			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
 					+ ((int ) (x + .5)) < MAX_DATASET_SIZE);
-	// Floor of the indices
+	// Round down the indices
 	int x0, y0, z0;
 	x0 = int(x);
 	y0 = int(y);
 	z0 = int(z);
+
+	// TODO Tricubic interpolation would yield better results at a higher
+	// computational expense
+	// https://en.wikipedia.org/wiki/Tricubic_interpolation
+
 	// Got enough voxels around to interpolate
 	// Do simple triliniear interpolation
-	// https://en.wikipedia.org/wiki/Trilinear_interpolation
-	if (x0 > 0 && x0 < width - 2 && y0 > 0 && y0 < height - 2 && z0 > 0
-			&& z0 < depth - 2) {
+	// http://www.scratchapixel.com/old/lessons/3d-advanced-lessons/interpolation/trilinear-interpolation/
+	if (x0 < width - 2 && y0 < height - 2 && z0 < depth - 2) {
 		int x1, y1, z1;
 		float tx, ty, tz;
 
