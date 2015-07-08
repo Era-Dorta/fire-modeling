@@ -33,14 +33,14 @@ private:
 	void initialize_with_file_bin_only_red(const char* filename);
 	void initialize_with_file_bin_max(const char* filename);
 	void set_all_voxels_to(float val);
-	void read_bin_xyz(std::ifstream& fp, int& x, int& y, int& z);
+	void read_bin_xyz(std::ifstream& fp, unsigned& x, unsigned& y, unsigned& z);
 	void read_bin_rgba(std::ifstream& fp, double& r, double& g, double& b,
 			double& a);
 	void safe_binary_read(std::ifstream& fp, char *output, long int byte_size);
 	void safe_ascii_read(std::ifstream& fp, float &output);
 	void safe_ascii_read(std::ifstream& fp, unsigned &output);
-	void check_index_range(int x, int y, int z, std::ifstream& fp,
-			const char* filename);
+	void check_index_range(unsigned x, unsigned y, unsigned z,
+			std::ifstream& fp, const char* filename);
 	float bilinear_interp(float tx, float ty, float c00, float c01, float c10,
 			float c11) const;
 };

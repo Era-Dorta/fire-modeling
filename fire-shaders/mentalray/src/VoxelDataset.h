@@ -21,6 +21,7 @@ public:
 	VoxelDataset();
 	VoxelDataset(unsigned width, unsigned height, unsigned depth);
 	VoxelDataset(const VoxelDataset &other);
+	virtual ~VoxelDataset() = default;
 
 	VoxelDataset<T>& operator=(const VoxelDataset<T> &other);
 

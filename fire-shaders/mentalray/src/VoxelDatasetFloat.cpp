@@ -96,7 +96,7 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 	// Number of points in the file, integer, 4 bytes
 	safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
 
-	int x, y, z;
+	unsigned x, y, z;
 	double r, g, b, a;
 
 	for (int i = 0; i < count; i++) {
@@ -110,7 +110,7 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 		check_index_range(x, y, z, fp, filename);
 
 		// For the moment assume the red component is the density
-		set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z, r);
+		set_voxel_value(x, y, z, r);
 	}
 
 	fp.close();
@@ -133,7 +133,7 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 	// Number of points in the file, integer, 4 bytes
 	safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
 
-	int x, y, z;
+	unsigned x, y, z;
 	double r, g, b, a;
 
 	for (int i = 0; i < count; i++) {
@@ -147,15 +147,14 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 		check_index_range(x, y, z, fp, filename);
 
 		// For the temperature, use the channel with maximum intensity
-		set_voxel_value((unsigned) x, (unsigned) y, (unsigned) z,
-				std::max(std::max(r, g), b));
+		set_voxel_value(x, y, z, std::max(std::max(r, g), b));
 	}
 
 	fp.close();
 }
 
-void VoxelDatasetFloat::read_bin_xyz(std::ifstream& fp, int& x, int& y,
-		int& z) {
+void VoxelDatasetFloat::read_bin_xyz(std::ifstream& fp, unsigned& x,
+		unsigned& y, unsigned& z) {
 	// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
 	safe_binary_read(fp, reinterpret_cast<char*>(&x), 4);
 	safe_binary_read(fp, reinterpret_cast<char*>(&y), 4);
@@ -195,9 +194,9 @@ void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, unsigned &output) {
 	}
 }
 
-void VoxelDatasetFloat::check_index_range(int x, int y, int z,
+void VoxelDatasetFloat::check_index_range(unsigned x, unsigned y, unsigned z,
 		std::ifstream& fp, const char* filename) {
-	if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth) {
+	if (x >= width || y >= height || z >= depth) {
 		fp.close();
 		mi_fatal("Invalid voxel index %d, %d, %d when reading file %s", x, y, z,
 				filename);
