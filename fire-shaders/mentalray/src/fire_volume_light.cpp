@@ -41,7 +41,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 						sizeof(VoxelDatasetColorSorted));
 
 		// Placement new, initialisation of malloc memory block
-		new (voxels) VoxelDatasetColorSorted();
+		voxels = new (voxels) VoxelDatasetColorSorted();
 
 		// Save previous state
 		miVector original_point = state->point;
@@ -66,7 +66,11 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 }
 
 extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
-		void *params) {
+		struct fire_volume_light *params) {
+	if (params != NULL) {
+		// Call the destructor manually because we had to use placement new
+		((VoxelDatasetColorSorted *) miaux_user_memory_pointer(state, 0))->~VoxelDatasetColorSorted();
+	}
 	return miaux_release_user_memory("fire_volume_light", state, params);
 }
 

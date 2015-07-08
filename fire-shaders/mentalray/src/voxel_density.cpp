@@ -32,7 +32,7 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 						sizeof(VoxelDatasetFloat));
 
 		// Placement new, initialisation of malloc memory block
-		new (voxels) VoxelDatasetFloat();
+		voxels = new (voxels) VoxelDatasetFloat();
 
 		if (filename) {
 			int mode = *mi_eval_integer(&params->read_mode);
@@ -53,6 +53,10 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 
 extern "C" DLLEXPORT miBoolean voxel_density_exit(miState *state,
 		void *params) {
+	if (params != NULL) {
+		// Call the destructor manually because we had to use placement new
+		((VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0))->~VoxelDatasetFloat();
+	}
 	return miaux_release_user_memory("voxel_density", state, params);
 }
 

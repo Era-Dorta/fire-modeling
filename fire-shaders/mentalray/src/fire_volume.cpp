@@ -39,7 +39,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 							sizeof(VoxelDatasetColor));
 
 			// Placement new, initialisation of malloc memory block
-			new (voxels) VoxelDatasetColor();
+			voxels = new (voxels) VoxelDatasetColor();
 
 			miScalar density_scale = *mi_eval_scalar(&params->density_scale);
 			miTag density_shader = *mi_eval_tag(&params->density_shader);
@@ -67,7 +67,15 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 	return miTRUE;
 }
 
-extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state, void *params) {
+extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
+		struct fire_volume *params) {
+	if (params != NULL) {
+		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
+		if (cast_shadows) {
+			// Call the destructor manually because we had to use placement new
+			((VoxelDatasetColor *) miaux_user_memory_pointer(state, 0))->~VoxelDatasetColor();
+		}
+	}
 	return miaux_release_user_memory("fire_volume", state, params);
 }
 
