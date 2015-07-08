@@ -62,12 +62,15 @@ declare shader
 			#: default 2500 # Usually temperatures are from 0 to 10000K
 		scalar "temperature_offset",
 			#: default 500 # Additional displacement in the temperature
-		scalar "march_increment", 
-			#: default 0.05
 		scalar "shadow_threshold",
 			#: default 0.005
 		scalar "intensity",
 			#: default 1.0
+		scalar "decay",
+			#: default 2.0
+			#: softmin 0.0
+			#: softmax 3.0
+			#: min 0.0
 	)
 	version 1
 	apply light

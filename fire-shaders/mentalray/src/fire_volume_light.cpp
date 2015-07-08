@@ -14,9 +14,9 @@ struct fire_volume_light {
 	miTag temperature_shader;
 	miScalar temperature_scale;
 	miScalar temperature_offset;
-	miScalar march_increment;
 	miScalar shadow_threshold;
 	miScalar intensity;
+	miScalar decay;
 };
 
 extern "C" DLLEXPORT int fire_volume_light_version(void) {
@@ -149,10 +149,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	miaux_copy_vector_neg(&aux, &state->dir);
 	state->dot_nd = mi_vector_dot(&aux, &state->normal);
 
-	// Distance falloff, not sure but looks like 2.2 is the real value
-	miScalar exponent;
-	mi_query(miQ_LIGHT_EXPONENT, state, state->light_instance, &exponent);
-	miaux_scale_color(result, 1.0 / pow(state->dist, exponent));
+	// Distance falloff
+	miScalar decay = *mi_eval_scalar(&params->decay);
+	miaux_scale_color(result, 1.0 / (4 * M_PI * pow(state->dist, decay)));
 
 	if (result->r < shadow_threshold && result->g < shadow_threshold
 			&& result->b < shadow_threshold) {
