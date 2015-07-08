@@ -35,7 +35,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 			mi_info("Precomputing sigma_a");
 
 			VoxelDatasetColor *voxels =
-					(VoxelDatasetColor *) miaux_user_memory_pointer(state,
+					(VoxelDatasetColor *) miaux_alloc_user_memory(state,
 							sizeof(VoxelDatasetColor));
 
 			// Placement new, initialisation of malloc memory block
@@ -73,10 +73,12 @@ extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
 		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
 		if (cast_shadows) {
 			// Call the destructor manually because we had to use placement new
-			((VoxelDatasetColor *) miaux_user_memory_pointer(state, 0))->~VoxelDatasetColor();
+			void * user_pointer = miaux_get_user_memory_pointer(state);
+			((VoxelDatasetColor *) user_pointer)->~VoxelDatasetColor();
+			mi_mem_release(user_pointer);
 		}
 	}
-	return miaux_release_user_memory("fire_volume", state, params);
+	return miTRUE;
 }
 
 extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
@@ -114,7 +116,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		 * result->transparency.r = 1; // Red shadow
 		 */
 		VoxelDatasetColor *voxels =
-				(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
+				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 
 #ifndef DEBUG_SIGMA_A
 		miaux_fractional_shader_occlusion_at_point(&result->transparency,
@@ -146,7 +148,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 					density_shader, NULL);
 #ifdef DEBUG_SIGMA_A
 			VoxelDatasetColor *voxels =
-			(VoxelDatasetColor *) miaux_user_memory_pointer(state, 0);
+			(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 			miColor sigma_a;
 			miaux_get_sigma_a(&sigma_a, &state->point, voxels);
 			density = std::max(std::max(sigma_a.r, sigma_a.g), sigma_a.b)

@@ -28,7 +28,7 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 				NULL);
 
 		VoxelDatasetFloat *voxels =
-				(VoxelDatasetFloat *) miaux_user_memory_pointer(state,
+				(VoxelDatasetFloat *) miaux_alloc_user_memory(state,
 						sizeof(VoxelDatasetFloat));
 
 		// Placement new, initialisation of malloc memory block
@@ -55,9 +55,11 @@ extern "C" DLLEXPORT miBoolean voxel_density_exit(miState *state,
 		void *params) {
 	if (params != NULL) {
 		// Call the destructor manually because we had to use placement new
-		((VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0))->~VoxelDatasetFloat();
+		void *user_pointer = miaux_get_user_memory_pointer(state);
+		((VoxelDatasetFloat *) user_pointer)->~VoxelDatasetFloat();
+		mi_mem_release(user_pointer);
 	}
-	return miaux_release_user_memory("voxel_density", state, params);
+	return miTRUE;
 }
 
 extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
@@ -66,25 +68,25 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 	switch ((Voxel_Return) state->type) {
 	case WIDTH: {
 		VoxelDatasetFloat *voxels =
-				(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
+				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
 		*result = voxels->getWidth();
 		break;
 	}
 	case HEIGHT: {
 		VoxelDatasetFloat *voxels =
-				(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
+				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
 		*result = voxels->getHeight();
 		break;
 	}
 	case DEPTH: {
 		VoxelDatasetFloat *voxels =
-				(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
+				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
 		*result = voxels->getDepth();
 		break;
 	}
 	case DENSITY_RAW: {
 		VoxelDatasetFloat *voxels =
-				(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
+				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
 		*result = voxels->get_voxel_value((unsigned) state->point.x,
 				(unsigned) state->point.y, (unsigned) state->point.z);
 		break;
@@ -95,7 +97,7 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		miVector *p = &state->point;
 		if (miaux_point_inside(p, min_point, max_point)) {
 			VoxelDatasetFloat *voxels =
-					(VoxelDatasetFloat *) miaux_user_memory_pointer(state, 0);
+					(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
 			*result = voxels->get_fitted_voxel_value(p, min_point, max_point);
 		} else {
 			*result = 0.0;

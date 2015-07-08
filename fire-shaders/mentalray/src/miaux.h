@@ -28,10 +28,9 @@ const char* miaux_tag_to_string(miTag tag, const char *default_value);
 double miaux_fit(double v, double oldmin, double oldmax, double newmin,
 		double newmax);
 
-miBoolean miaux_release_user_memory(const char* shader_name, miState *state,
-		void *params);
+void* miaux_get_user_memory_pointer(miState *state);
 
-void* miaux_user_memory_pointer(miState *state, int allocation_size);
+void* miaux_alloc_user_memory(miState *state, int allocation_size);
 
 miBoolean miaux_point_inside(const miVector *p, const miVector *min_p,
 		const miVector *max_p);

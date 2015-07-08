@@ -23,25 +23,17 @@ double miaux_fit(double v, double oldmin, double oldmax, double newmin,
 	return newmin + ((v - oldmin) / (oldmax - oldmin)) * (newmax - newmin);
 }
 
-miBoolean miaux_release_user_memory(const char* shader_name, miState *state,
-		void *params) {
-	if (params != NULL) { /* Shader instance exit */
-		void **user_pointer;
-		if (!mi_query(miQ_FUNC_USERPTR, state, 0, &user_pointer))
-			mi_fatal(
-					"Could not get user pointer in shader exit function %s_exit",
-					shader_name);
-		mi_mem_release(*user_pointer);
-	}
-	return miTRUE;
-}
-
-void* miaux_user_memory_pointer(miState *state, int allocation_size) {
+void* miaux_get_user_memory_pointer(miState *state) {
 	void **user_pointer;
 	mi_query(miQ_FUNC_USERPTR, state, 0, &user_pointer);
-	if (allocation_size > 0) {
-		*user_pointer = mi_mem_allocate(allocation_size);
-	}
+	return *user_pointer;
+}
+
+void* miaux_alloc_user_memory(miState *state, int allocation_size) {
+	void **user_pointer;
+	mi_query(miQ_FUNC_USERPTR, state, 0, &user_pointer);
+	assert(allocation_size > 0);
+	*user_pointer = mi_mem_allocate(allocation_size);
 	return *user_pointer;
 }
 
