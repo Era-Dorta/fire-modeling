@@ -91,7 +91,7 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 				(unsigned) state->point.y, (unsigned) state->point.z);
 		break;
 	}
-	default: {
+	case DENSITY: {
 		miVector *min_point = mi_eval_vector(&params->min_point);
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;
