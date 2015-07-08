@@ -16,6 +16,7 @@ struct fire_volume_light {
 	miScalar temperature_offset;
 	miScalar march_increment;
 	miScalar shadow_threshold;
+	miScalar intensity;
 };
 
 extern "C" DLLEXPORT int fire_volume_light_version(void) {
@@ -75,8 +76,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	VoxelDatasetColorSorted *voxels =
 			(VoxelDatasetColorSorted *) miaux_user_memory_pointer(state, 0);
 
+	miScalar intensity = *mi_eval_scalar(&params->intensity);
+
 	// Get the maximum value and say this light has that colour
-	miaux_copy_color_rgb(result, &voxels->get_max_voxel_value());
+	miaux_copy_color_scaled(result, &voxels->get_max_voxel_value(), intensity);
 
 	if (state->type != miRAY_LIGHT) { /* visible area light set */
 		return (miTRUE);
@@ -107,7 +110,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		}
 
 		// Set the colour using the next value
-		miaux_copy_color_rgb(result, &voxel_c);
+		miaux_copy_color_scaled(result, &voxel_c, intensity);
 
 		// Move the light origin to the voxel position
 		const miVector minus_one = { -1, -1, -1 };

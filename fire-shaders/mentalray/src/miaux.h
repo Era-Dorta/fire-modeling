@@ -82,6 +82,9 @@ double miaux_shadow_breakpoint(double color, double transparency,
 
 void miaux_copy_color(miColor *result, const miColor *color);
 
+void miaux_copy_color_scaled(miColor *result, const miColor *color,
+		miScalar scale);
+
 void miaux_copy_color_rgb(miColor *result, const miColor *color);
 
 miBoolean miaux_all_channels_equal(const miColor *c, miScalar v);
