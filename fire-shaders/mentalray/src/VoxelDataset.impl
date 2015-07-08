@@ -76,7 +76,8 @@ T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
 	// https://en.wikipedia.org/wiki/Trilinear_interpolation
 	if (x0 > 0 && x0 < width - 2 && y0 > 0 && y0 < height - 2 && z0 > 0
 			&& z0 < depth - 2) {
-		int x1, y1, z1, tx, ty, tz;
+		int x1, y1, z1;
+		float tx, ty, tz;
 
 		x1 = x0 + 1;
 		y1 = y0 + 1;
