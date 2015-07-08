@@ -36,12 +36,12 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 
 		if (filename) {
 			int mode = *mi_eval_integer(&params->read_mode);
-			mi_warning("\tReading voxel datase mode %d, filename %s", mode,
+			mi_info("\tReading voxel datase mode %d, filename %s", mode,
 					filename);
 			voxels->initialize_with_file(filename,
 					(VoxelDatasetFloat::FILE_FORMAT) mode);
 
-			mi_warning("\tDone with Voxel dataset: %dx%dx%d %s",
+			mi_info("\tDone with Voxel dataset: %dx%dx%d %s",
 					voxels->getWidth(), voxels->getHeight(), voxels->getDepth(),
 					filename);
 		} else {

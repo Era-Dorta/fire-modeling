@@ -109,12 +109,12 @@ void miaux_copy_vector(miVector *result, const miVector *vector);
 
 void miaux_copy_vector_neg(miVector *result, const miVector *vector);
 
-void miaux_vector_warning(const char* s, const miVector& v);
+void miaux_vector_info(const char* s, const miVector& v);
 
-void miaux_vector_warning(const char* s, const miGeoVector& v);
+void miaux_vector_info(const char* s, const miGeoVector& v);
 
-void miaux_vector_warning(const char* s, const miColor& v);
+void miaux_vector_info(const char* s, const miColor& v);
 
-void miaux_matrix_warning(const char* s, const miMatrix& v);
+void miaux_matrix_info(const char* s, const miMatrix& v);
 
 #endif /* SRC_MIAUX_H_ */

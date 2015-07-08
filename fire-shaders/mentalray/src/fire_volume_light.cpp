@@ -29,7 +29,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		*instance_init_required = miTRUE;
 	} else {
 		/* Instance initialization: */
-		mi_warning("Precomputing bb radiation");
+		mi_info("Precomputing bb radiation");
 		miScalar temperature_scale = *mi_eval_scalar(
 				&params->temperature_scale);
 		miScalar temperature_offset = *mi_eval_scalar(
@@ -59,7 +59,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		// Restore previous state
 		state->point = original_point;
 		state->type = ray_type;
-		mi_warning("Done precomputing bb radiation with dataset size %dx%dx%d",
+		mi_info("Done precomputing bb radiation with dataset size %dx%dx%d",
 				width, height, depth);
 	}
 	return miTRUE;

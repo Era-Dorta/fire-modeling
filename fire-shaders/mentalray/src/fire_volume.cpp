@@ -32,7 +32,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
 		if (cast_shadows) { // If the object is transparent then do not compute
 			/* Instance initialization: */
-			mi_warning("Precomputing sigma_a");
+			mi_info("Precomputing sigma_a");
 
 			VoxelDatasetColor *voxels =
 					(VoxelDatasetColor *) miaux_user_memory_pointer(state,
@@ -60,7 +60,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 			// Restore previous state
 			state->point = original_point;
 			state->type = ray_type;
-			mi_warning("Done precomputing sigma_a with dataset size %dx%dx%d",
+			mi_info("Done precomputing sigma_a with dataset size %dx%dx%d",
 					width, height, depth);
 		}
 	}

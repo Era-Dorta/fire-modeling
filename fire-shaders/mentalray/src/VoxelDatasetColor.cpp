@@ -71,7 +71,7 @@ void VoxelDatasetColor::compute_function_threaded(
 		num_threads = depth;
 	}
 
-	mi_warning("\tStart computation with %d threads", num_threads);
+	mi_info("\tStart computation with %d threads", num_threads);
 	unsigned thread_chunk = depth / num_threads;
 	std::vector<std::thread> threads;
 	unsigned i_depth = 0, e_depth = thread_chunk;
