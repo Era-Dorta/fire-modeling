@@ -15,8 +15,8 @@
 template class VoxelDataset<miColor> ;
 class VoxelDatasetColor: public VoxelDataset<miColor> {
 public:
-	void compute_sigma_a_threaded();
-	void compute_bb_radiation_threaded();
+	virtual void compute_sigma_a_threaded();
+	virtual void compute_bb_radiation_threaded();
 	const miColor& get_max_voxel_value();
 protected:
 	virtual miColor bilinear_interp(float tx, float ty, const miColor& c00,
