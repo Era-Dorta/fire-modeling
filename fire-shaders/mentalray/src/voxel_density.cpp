@@ -9,6 +9,7 @@
 struct voxel_density {
 	miTag filename_tag;
 	miInteger read_mode; // 0 ascii, 1 binary red, 2 binary max
+	miInteger interpolation_mode; // 0 none, 1 trilinear
 	miVector min_point;
 	miVector max_point;
 };
@@ -27,12 +28,18 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 				*mi_eval_tag(&params->filename_tag),
 				NULL);
 
+		miInteger interpolation_mode = *mi_eval_integer(
+				&params->interpolation_mode);
+
 		VoxelDatasetFloat *voxels =
 				(VoxelDatasetFloat *) miaux_alloc_user_memory(state,
 						sizeof(VoxelDatasetFloat));
 
 		// Placement new, initialisation of malloc memory block
 		voxels = new (voxels) VoxelDatasetFloat();
+
+		voxels->setInterpolationMode(
+				(VoxelDatasetFloat::InterpolationMode) interpolation_mode);
 
 		if (filename) {
 			int mode = *mi_eval_integer(&params->read_mode);
