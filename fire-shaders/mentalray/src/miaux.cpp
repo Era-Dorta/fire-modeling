@@ -100,6 +100,12 @@ void miaux_add_scaled_color(miColor *result, const miColor *color,
 	result->b += color->b * scale;
 }
 
+void miaux_invert_rgb_color(miColor *result) {
+	result->r = 1.0 - result->r;
+	result->g = 1.0 - result->g;
+	result->b = 1.0 - result->b;
+}
+
 void miaux_scale_color(miColor *result, miScalar scale) {
 	result->r *= scale;
 	result->g *= scale;

@@ -32,44 +32,43 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 	if (!params) { /* Main shader init (not an instance): */
 		*instance_init_required = miTRUE;
 	} else {
-		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
-		if (cast_shadows) { // If the object is transparent then do not compute
-			/* Instance initialization: */
-			mi_info("Precomputing sigma_a");
 
-			miScalar density_scale = *mi_eval_scalar(&params->density_scale);
-			miTag density_shader = *mi_eval_tag(&params->density_shader);
+		/* Instance initialization: */
+		mi_info("Precomputing sigma_a");
 
-			VoxelDatasetColor *voxels =
-					(VoxelDatasetColor *) miaux_alloc_user_memory(state,
-							sizeof(VoxelDatasetColor));
+		miScalar density_scale = *mi_eval_scalar(&params->density_scale);
+		miTag density_shader = *mi_eval_tag(&params->density_shader);
 
-			openvdb::initialize();
-			// Placement new, initialisation of malloc memory block
-			voxels = new (voxels) VoxelDatasetColor();
+		VoxelDatasetColor *voxels =
+				(VoxelDatasetColor *) miaux_alloc_user_memory(state,
+						sizeof(VoxelDatasetColor));
 
-			// Save previous state
-			miVector original_point = state->point;
-			miRay_type ray_type = state->type;
+		openvdb::initialize();
+		// Placement new, initialisation of malloc memory block
+		voxels = new (voxels) VoxelDatasetColor();
 
-			unsigned width, height, depth;
-			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
-					density_shader);
+		// Save previous state
+		miVector original_point = state->point;
+		miRay_type ray_type = state->type;
 
-			miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
-					width, height, depth, density_scale, 0);
+		unsigned width, height, depth;
+		miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
+				density_shader);
 
-			// TODO Not sure were this should go here or what to do
-			std::string data_file(LIBRARY_DATA_PATH);
-			data_file = data_file + "/Propane.optconst";
-			voxels->compute_soot_absorption_threaded(data_file.c_str());
+		miaux_copy_sparse_voxel_dataset(voxels, state, density_shader, width,
+				height, depth, density_scale, 0);
 
-			// Restore previous state
-			state->point = original_point;
-			state->type = ray_type;
-			mi_info("Done precomputing sigma_a with dataset size %dx%dx%d",
-					width, height, depth);
-		}
+		// TODO Not sure were this should go here or what to do
+		std::string data_file(LIBRARY_DATA_PATH);
+		data_file = data_file + "/Propane.optconst";
+		voxels->compute_soot_absorption_threaded(data_file.c_str());
+
+		// Restore previous state
+		state->point = original_point;
+		state->type = ray_type;
+
+		mi_info("Done precomputing sigma_a with dataset size %dx%dx%d", width,
+				height, depth);
 	}
 	return miTRUE;
 }
@@ -77,13 +76,12 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
 		struct fire_volume *params) {
 	if (params != NULL) {
-		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
-		if (cast_shadows) {
-			// Call the destructor manually because we had to use placement new
-			void * user_pointer = miaux_get_user_memory_pointer(state);
-			((VoxelDatasetColor *) user_pointer)->~VoxelDatasetColor();
-			mi_mem_release(user_pointer);
-		}
+
+		// Call the destructor manually because we had to use placement new
+		void * user_pointer = miaux_get_user_memory_pointer(state);
+		((VoxelDatasetColor *) user_pointer)->~VoxelDatasetColor();
+		mi_mem_release(user_pointer);
+
 	}
 	return miTRUE;
 }
@@ -146,8 +144,12 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		// Only the light specified in the light list will be used
 		mi_inclusive_lightlist(&n_light, &light, state);
 
+		VoxelDatasetColor *voxels =
+				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+		miColor sigma_a;
+
 		miScalar distance, density;
-		miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
+		miColor volume_color = { 0, 0, 0, 0 }, light_color, l_e;
 
 		miVector original_point = state->point;
 		miRay_type ray_type = state->type;
@@ -181,12 +183,31 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 #endif
 			if (density > 0) {
 				// Here is where the equation is solved
-				// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
+				// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
+				miaux_get_sigma_a(&sigma_a, &state->point, voxels);
 				density *= density_scale * march_increment;
 				miaux_total_light_at_point(&light_color, state, light, n_light);
-				miaux_multiply_colors(&point_color, color, &light_color);
-				miaux_add_transparent_color(&volume_color, &point_color,
-						density);
+				miaux_multiply_colors(&l_e, color, &light_color);
+
+				//sigma_a * L_e
+				l_e.r *= sigma_a.r;
+				l_e.g *= sigma_a.g;
+				l_e.b *= sigma_a.b;
+
+				// e^(- sigma_a * dx)*L(x + dx)
+				volume_color.r *= exp(-sigma_a.r * march_increment);
+				volume_color.g *= exp(-sigma_a.g * march_increment);
+				volume_color.b *= exp(-sigma_a.b * march_increment);
+
+				// L_x = e^(- sigma_a * dx)*L(x + dx) + sigma_a * L_e
+				miScalar new_alpha = volume_color.a + density;
+				if (new_alpha > 1.0) {
+					density = 1.0 - volume_color.a;
+				}
+				volume_color.r += l_e.r * density;
+				volume_color.g += l_e.g * density;
+				volume_color.b += l_e.b * density;
+				volume_color.a += density;
 			}
 			if (volume_color.a == 1.0) {
 				break;

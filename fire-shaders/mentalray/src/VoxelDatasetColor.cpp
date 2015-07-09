@@ -179,11 +179,14 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 			// to zero
 			sigma_a_spec.ToRGB(&density.x());
 			clamp_0_1(density);
+
+			// Since this is an absorption coefficient, inverse it, so
+			// we just multiply by it
+			density = openvdb::Vec3f(1.0f, 1.0f, 1.0f) - density;
 		} else {
-			// Safe check for negative densities
-			density.setZero();
+			// Negative and zero densities
+			density.init(1.0f, 1.0f, 1.0f);
 		}
-		iter.setValue(density);
 	}
 }
 

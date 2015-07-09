@@ -62,6 +62,8 @@ void miaux_alpha_blend_colors(miColor *result, const miColor *foreground,
 void miaux_add_scaled_color(miColor *result, const miColor *color,
 		miScalar scale);
 
+void miaux_invert_rgb_color(miColor *result);
+
 void miaux_scale_color(miColor *result, miScalar scale);
 
 void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
