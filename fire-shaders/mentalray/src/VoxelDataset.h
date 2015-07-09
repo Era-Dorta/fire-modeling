@@ -9,6 +9,7 @@
 #define VOXELDATASET_H_
 
 #include <array>
+#include <functional>
 
 #include "shader.h"
 
@@ -18,6 +19,10 @@
 template<typename T>
 class VoxelDataset {
 public:
+	enum InterpolationMode {
+		TRUNCATE, TRILINEAR
+	};
+
 	VoxelDataset();
 	VoxelDataset(unsigned width, unsigned height, unsigned depth);
 	VoxelDataset(const VoxelDataset &other);
@@ -38,6 +43,9 @@ public:
 	int getHeight() const;
 	int getDepth() const;
 	int getTotal() const;
+
+	InterpolationMode getInterpolationMode() const;
+	void setInterpolationMode(InterpolationMode interpolation_mode);
 protected:
 	virtual T bilinear_interp(float tx, float ty, const T&c00, const T&c01,
 			const T&c10, const T&c11) const = 0;
@@ -45,9 +53,14 @@ protected:
 private:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
+	T trilinear_interpolation(float x, float y, float z) const;
+	T no_interpolation(float x, float y, float z) const;
 protected:
 	unsigned width, height, depth, count;
 	std::array<T, MAX_DATASET_SIZE> block;
+private:
+	InterpolationMode interpolation_mode;
+	T (VoxelDataset::*interpolate_method)(float, float, float) const;
 };
 
 // The compiler needs direct access to the template class implementation or

@@ -11,6 +11,7 @@
 template<typename T>
 VoxelDataset<T>::VoxelDataset() {
 	clear();
+	setInterpolationMode(TRILINEAR);
 }
 
 template<typename T>
@@ -21,6 +22,7 @@ VoxelDataset<T>::VoxelDataset(unsigned width, unsigned height, unsigned depth) {
 template<typename T>
 VoxelDataset<T>::VoxelDataset(const VoxelDataset& other) {
 	resize(other.width, other.height, other.depth);
+	setInterpolationMode(other.interpolation_mode);
 
 	for (unsigned i = 0; i < count; i++) {
 		block[i] = other.block[i];
@@ -35,6 +37,7 @@ VoxelDataset<T>& VoxelDataset<T>::operator =(const VoxelDataset<T>& other) {
 	}
 
 	resize(other.width, other.height, other.depth);
+	setInterpolationMode(other.interpolation_mode);
 
 	for (unsigned i = 0; i < count; i++) {
 		block[i] = other.block[i];
@@ -66,49 +69,8 @@ T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
 	assert(
 			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
 					+ ((int ) (x + .5)) < MAX_DATASET_SIZE);
-	// Round down the indices
-	int x0, y0, z0;
-	x0 = int(x);
-	y0 = int(y);
-	z0 = int(z);
-
-	// TODO Tricubic interpolation would yield better results at a higher
-	// computational expense
-	// https://en.wikipedia.org/wiki/Tricubic_interpolation
-
-	// Got enough voxels around to interpolate
-	// Do simple triliniear interpolation
-	// http://www.scratchapixel.com/old/lessons/3d-advanced-lessons/interpolation/trilinear-interpolation/
-	if (x0 < width - 2 && y0 < height - 2 && z0 < depth - 2) {
-		int x1, y1, z1;
-		float tx, ty, tz;
-
-		x1 = x0 + 1;
-		y1 = y0 + 1;
-		z1 = z0 + 1;
-
-		// [0..1] interpolation value
-		tx = x - x0;
-		ty = y - y0;
-		tz = z - z0;
-
-		const T& c000 = block[x0 + height * (y0 + z0 * depth)];
-		const T& c001 = block[x0 + height * (y0 + z1 * depth)];
-		const T& c010 = block[x0 + height * (y1 + z0 * depth)];
-		const T& c011 = block[x0 + height * (y1 + z1 * depth)];
-		const T& c100 = block[x1 + height * (y0 + z0 * depth)];
-		const T& c101 = block[x1 + height * (y0 + z1 * depth)];
-		const T& c110 = block[x1 + height * (y1 + z0 * depth)];
-		const T& c111 = block[x1 + height * (y1 + z1 * depth)];
-
-		T c0 = bilinear_interp(tx, ty, c000, c100, c010, c110);
-		T c1 = bilinear_interp(tx, ty, c001, c101, c011, c111);
-
-		return linear_interp(tz, c0, c1);
-	} else {
-		return block[((int) (z + .5)) * depth * height
-				+ ((int) (y + .5)) * height + ((int) (x + .5))];
-	}
+	auto foo_member = std::mem_fn(interpolate_method);
+	return foo_member(this, x, y, z);
 }
 
 template<typename T>
@@ -157,7 +119,84 @@ int VoxelDataset<T>::getTotal() const {
 }
 
 template<typename T>
+typename VoxelDataset<T>::InterpolationMode VoxelDataset<T>::getInterpolationMode() const {
+	return interpolation_mode;
+}
+
+template<typename T>
+void VoxelDataset<T>::setInterpolationMode(
+		InterpolationMode interpolation_mode) {
+	if (this->interpolation_mode == interpolation_mode) {
+		return;
+	}
+	this->interpolation_mode = interpolation_mode;
+	switch (interpolation_mode) {
+	case TRUNCATE: {
+		interpolate_method = &VoxelDataset<T>::no_interpolation;
+		break;
+	}
+	case TRILINEAR: {
+		interpolate_method = &VoxelDataset<T>::trilinear_interpolation;
+		break;
+	}
+	}
+}
+
+template<typename T>
 double VoxelDataset<T>::fit(double v, double oldmin, double oldmax,
 		double newmin, double newmax) const {
 	return newmin + ((v - oldmin) / (oldmax - oldmin)) * (newmax - newmin);
+}
+
+template<typename T>
+T VoxelDataset<T>::trilinear_interpolation(float x, float y, float z) const {
+	// Round down the indices
+	int x0, y0, z0;
+	x0 = int(x);
+	y0 = int(y);
+	z0 = int(z);
+
+	// TODO Tricubic interpolation would yield better results at a higher
+	// computational expense
+	// https://en.wikipedia.org/wiki/Tricubic_interpolation
+
+	// Got enough voxels around to interpolate
+	// Do simple triliniear interpolation
+	// http://www.scratchapixel.com/old/lessons/3d-advanced-lessons/interpolation/trilinear-interpolation/
+	if (x0 < width - 2 && y0 < height - 2 && z0 < depth - 2) {
+		int x1, y1, z1;
+		float tx, ty, tz;
+
+		x1 = x0 + 1;
+		y1 = y0 + 1;
+		z1 = z0 + 1;
+
+		// [0..1] interpolation value
+		tx = x - x0;
+		ty = y - y0;
+		tz = z - z0;
+
+		const T& c000 = block[x0 + height * (y0 + z0 * depth)];
+		const T& c001 = block[x0 + height * (y0 + z1 * depth)];
+		const T& c010 = block[x0 + height * (y1 + z0 * depth)];
+		const T& c011 = block[x0 + height * (y1 + z1 * depth)];
+		const T& c100 = block[x1 + height * (y0 + z0 * depth)];
+		const T& c101 = block[x1 + height * (y0 + z1 * depth)];
+		const T& c110 = block[x1 + height * (y1 + z0 * depth)];
+		const T& c111 = block[x1 + height * (y1 + z1 * depth)];
+
+		T c0 = bilinear_interp(tx, ty, c000, c100, c010, c110);
+		T c1 = bilinear_interp(tx, ty, c001, c101, c011, c111);
+
+		return linear_interp(tz, c0, c1);
+	} else {
+		return block[((int) (z + .5)) * depth * height
+				+ ((int) (y + .5)) * height + ((int) (x + .5))];
+	}
+}
+
+template<typename T>
+T VoxelDataset<T>::no_interpolation(float x, float y, float z) const {
+	return block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
+			+ ((int) (x + .5))];
 }
