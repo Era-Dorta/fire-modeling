@@ -13,6 +13,11 @@
 #include "Spectrum.h"
 #include "miaux.h"
 
+VoxelDatasetColor::VoxelDatasetColor() :
+		VoxelDataset<miColor>() {
+	miaux_set_rgb(&max_color, 0);
+}
+
 void VoxelDatasetColor::compute_sigma_a_threaded() {
 	// Precompute all the constant soot coefficients
 	compute_soot_coefficients();
