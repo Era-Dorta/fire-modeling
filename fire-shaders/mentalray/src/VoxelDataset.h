@@ -60,7 +60,7 @@ protected:
 	std::array<T, MAX_DATASET_SIZE> block;
 private:
 	InterpolationMode interpolation_mode;
-	T (VoxelDataset::*interpolate_method)(float, float, float) const;
+	std::_Mem_fn<T (VoxelDataset<T>::*)(float, float, float) const> interpolate_function;
 };
 
 // The compiler needs direct access to the template class implementation or

@@ -9,18 +9,23 @@
 #include <cmath>
 
 template<typename T>
-VoxelDataset<T>::VoxelDataset() {
+VoxelDataset<T>::VoxelDataset() :
+		interpolation_mode(TRILINEAR), interpolate_function(
+				std::mem_fn(&VoxelDataset<T>::trilinear_interpolation)) {
 	clear();
-	setInterpolationMode(TRILINEAR);
 }
 
 template<typename T>
-VoxelDataset<T>::VoxelDataset(unsigned width, unsigned height, unsigned depth) {
+VoxelDataset<T>::VoxelDataset(unsigned width, unsigned height, unsigned depth) :
+		interpolation_mode(TRILINEAR), interpolate_function(
+				std::mem_fn(&VoxelDataset<T>::trilinear_interpolation)) {
 	resize(width, height, depth);
 }
 
 template<typename T>
-VoxelDataset<T>::VoxelDataset(const VoxelDataset& other) {
+VoxelDataset<T>::VoxelDataset(const VoxelDataset& other) :
+		interpolation_mode(TRILINEAR), interpolate_function(
+				std::mem_fn(&VoxelDataset<T>::trilinear_interpolation)) {
 	resize(other.width, other.height, other.depth);
 	setInterpolationMode(other.interpolation_mode);
 
@@ -69,8 +74,7 @@ T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
 	assert(
 			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
 					+ ((int ) (x + .5)) < MAX_DATASET_SIZE);
-	auto foo_member = std::mem_fn(interpolate_method);
-	return foo_member(this, x, y, z);
+	return interpolate_function(this, x, y, z);
 }
 
 template<typename T>
@@ -132,11 +136,12 @@ void VoxelDataset<T>::setInterpolationMode(
 	this->interpolation_mode = interpolation_mode;
 	switch (interpolation_mode) {
 	case TRUNCATE: {
-		interpolate_method = &VoxelDataset<T>::no_interpolation;
+		interpolate_function = std::mem_fn(&VoxelDataset<T>::no_interpolation);
 		break;
 	}
 	case TRILINEAR: {
-		interpolate_method = &VoxelDataset<T>::trilinear_interpolation;
+		interpolate_function = std::mem_fn(
+				&VoxelDataset<T>::trilinear_interpolation);
 		break;
 	}
 	}
