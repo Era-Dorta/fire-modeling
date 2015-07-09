@@ -196,18 +196,17 @@ void Blackbody(const float *wl, int n, float temp, float *vals) {
 								* (exp(C2 / (wl[i] * temp)) - 1.)));
 }
 
-#define BB_IN_NANOMETRES
-// Data from Optical Constants of Soot and Their Application to Heat-Flux
-// Calculations, 1969
+//#define BB_IN_NANOMETRES
+// Constants needed to compute black body radiation
 namespace BB {
 #ifdef BB_IN_NANOMETRES
 const static double k = 1.3806488e-5; // Bolztmann constant in (kg nm^2)/s^2
-const static double h = 6.62606957e-16; // Planck constant in (kg nm^2)/s^2
-const static double c0 = 299792458e9; // Speed of light in nm/s
+const static double h = 6.62606957e-16;// Planck constant in (kg nm^2)/s^2
+const static double c0 = 299792458e9;// Speed of light in nm/s
 #else
 const static double k = 1.3806488e-23; // Bolztmann constant in J/K
-const static double h = 6.62606957e-34;// Planck constant in J/s
-const static double c0 = 299792458;// Speed of light m/s
+const static double h = 6.62606957e-34; // Planck constant in J/s
+const static double c0 = 299792458; // Speed of light m/s
 #endif
 }
 
@@ -220,23 +219,23 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 	}
 
 	const double c = BB::c0 / r_index;
-	//const double C1 = 2.0 * BB::h * c * c;
-	const double C2 = (BB::h * c) / BB::k;
+	const double C1 = 2.0 * BB::h * c * c;
+	const double C2 = (BB::h * c) / (BB::k * temp);
 
-	double norm = pow(555.0, 5) * (exp(C2 / (555.0 * temp)) - 1.0);
+	// PBRT code adapted to take a variable refraction index
+	/*double norm = pow(555.0, 5) * (exp(C2 / (555.0 * temp)) - 1.0);
 
-	for (int i = 0; i < n; ++i) {
-		vals[i] = norm / (pow(wl[i], 5.0) * (exp(C2 / (wl[i] * temp)) - 1.0));
-	}
-
-	// Code from Mitsuba renderer, lambdas and constants should be in metres
-	/* Watts per unit surface area (m^-2) per unit wavelength (nm^-1) per
-	 steradian (sr^-1) */
-	/*for (int i = 0; i < n; ++i) {
-	 vals[i] = (2 * BB::h * c * c) * std::pow(wl[i] * 1e-9, -5.0)
-	 / ((exp((BB::h / BB::k) * c / (wl[i] * 1e-9 * temp)) - 1.0)
-	 * 1e9);
+	 for (int i = 0; i < n; ++i) {
+	 vals[i] = norm / (pow(wl[i], 5.0) * (exp(C2 / (wl[i] * temp)) - 1.0));
 	 }*/
+
+	 // Code from Mitsuba renderer, lambdas and constants should be in metres
+	 /* Watts per unit surface area (m^-2) per unit wavelength (nm^-1) per
+	 steradian (sr^-1) */
+	for (int i = 0; i < n; ++i) {
+		vals[i] = C1 * std::pow(wl[i] * 1e-9, -5.0)
+				/ ((exp(C2 / (wl[i] * 1e-9)) - 1.0) * 1e9);
+	}
 }
 
 float InterpolateSpectrumSamples(const float *lambda, const float *vals, int n,
