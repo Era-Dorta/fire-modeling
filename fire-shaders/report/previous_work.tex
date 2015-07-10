@@ -5,15 +5,13 @@
 In order to display a realistic fire scene in a computer generated world two differentiated stages are needed.
 Firstly, the fire dynamics have to be collected, this can either be done through a data capture session or simulated using a fluid solvers.
 Secondly, the previously gathered data is to be visualized on the screen using some rendering technique.
+We refer the readers to the more detailed survey on the topic, which has been recently presented by~\cite{Huang:2014}.
 
 \section{Simulation}
 \label{sec:simulation}
 
-Since fire is a multiphase fluid phenomena, it is worthwhile to do a short overview on the main fluid simulation techniques.
-Standard fluid simulation has been traditionally geared towards water, nevertheless fire solvers are directly based on such methods.
-
-\section{Fire Simulation}
-\label{sec:fire_simulation}
+%\section{Fire Simulation}
+%\label{sec:fire_simulation}
 
 \textbf{Particle-based methods} were the first approach to simulate the visual animation of fire.
 A number of particles are emitted from certain locations, each particle has a set of attributes such as shape, velocity, color or lifetime.
@@ -29,16 +27,19 @@ Using a variation of Perlin noise, ~\cite{Perlin:1985} presented images of a cor
 However, the method is limited to 2D, where the color is a combination of non-linear arbitrary functions.
 This work was extended by~\cite{Perlin:1989} to 3D, where they use volumetric rendering to achieve improved results.
 
-\subsection{Geometry skeleton}
+\textbf{Geometry skeleton}
 
-\subsection{Data driven}
+\textbf{Data driven}
 
-\subsection{Physically based}
+\textbf{Physically based} simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products.  
+Incompressible flow equations were used by~\cite{Stam:1995} to drive a fire simulation.
+Given initial fuel conditions, the fire spread is advected on a grid using an advection-diffusion type equation.
+Building on the work on a semi-Lagrangian fluid solver of~\cite{Stam:1999}, a model which includes gaseous fuel and gaseous byproducts was proposed by~\cite{Nguyen:2002}. \cite{Horvath:2009}
 
-\subsection{High-speed combustions}
+\textbf{High-speed combustions}
+\cite{Feldman:2003} \cite{Hong:2007}
 
-\subsection{Other}
-	Erosion and sound paper
+\textbf{Erosion} and sound paper
 
 
 %\subsection{Smoke Simulation}
