@@ -76,6 +76,10 @@ Some form of texture mapping is usually practised, usually only the surface of t
 \subsection{Ray-Tracing-Based}
 \label{sec:ray_tracing_based}
 
+Volume ray-tracing techniques offer astonishing results, however the associated computational costs are considerable.
+Rays are shot from the view plane and evaluated at small increments; the total radiance at origin of the ray is computed by integrating the radiance at each step size.
+A further drawback for ray tracing techniques, in comparison to raster-based methods, is the lack of a standard ray-tracing pipeline.
+
 \cite{Nguyen:2002}
 \cite{Feldman:2003}
 \cite{Pegoraro:2006} says ...
