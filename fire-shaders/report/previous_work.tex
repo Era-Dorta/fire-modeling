@@ -15,17 +15,19 @@ Standard fluid simulation has been traditionally geared towards water, neverthel
 \section{Fire Simulation}
 \label{sec:fire_simulation}
 
-\subsection{Particle-based methods}
-
-Particle-based methods were the first approach to simulate the visual animation of fire.
+\textbf{Particle-based methods} were the first approach to simulate the visual animation of fire.
 A number of particles are emitted from certain locations, each particle has a set of attributes such as shape, velocity, color or lifetime.
-
 The first model with particle systems was presented by~\cite{Reeves:1983}, the particles speed and colour were perturbed with a Gaussian noise at each time step, and the colour was subject to an additional linear perturbation on its lifetime.
 Two particle systems were used in a hierarchy, one would control fire spread and the other a single explosion effect.
 An extension was proposed by~\cite{Perry:1994}, the authors modified the particle system such that each particle shape would be defined by a series of non-overlapping coplanar triangles.
 The transparency of would increase towards the outer vertices, thus providing an improved visual effect.
 
-\subsection{Noise shyntesis}
+
+\textbf{Noise-based methods} focus on synthesizing the high fluctuation present in fire procedurally.
+The objective is to approximate the turbulence present in fire with an appropriate statistical model.
+Using a variation of Perlin noise, ~\cite{Perlin:1985} presented images of a corona of flames.
+However, the method is limited to 2D, where the color is a combination of non-linear arbitrary functions.
+This work was extended by~\cite{Perlin:1989} to 3D, where they use volumetric rendering to achieve improved results.
 
 \subsection{Geometry skeleton}
 
