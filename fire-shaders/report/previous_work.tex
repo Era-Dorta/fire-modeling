@@ -9,21 +9,42 @@ Secondly, the previously gathered data is to be visualized on the screen using s
 \section{Simulation}
 \label{sec:simulation}
 
+Since fire is a multiphase fluid phenomena, it is worthwhile to do a short overview on the main fluid simulation techniques.
+Standard fluid simulation has been traditionally geared towards water, nevertheless fire solvers are directly based on such methods.
 
-\subsection{Fluid Simulation}
-\label{sec:fluid_simulation}
-
-
-\subsection{Fire Simulation}
+\section{Fire Simulation}
 \label{sec:fire_simulation}
 
+\subsection{Particle-based methods}
 
-\subsection{Smoke Simulation}
-\label{sec:smoke_simulation}
+Particle-based methods were the first approach to simulate the visual animation of fire.
+A number of particles are emitted from certain locations, each particle has a set of attributes such as shape, velocity, color or lifetime.
+
+The first model with particle systems was presented by~\cite{Reeves:1983}, the particles speed and colour were perturbed with a Gaussian noise at each time step, and the colour was subject to an additional linear perturbation on its lifetime.
+Two particle systems were used in a hierarchy, one would control fire spread and the other a single explosion effect.
+An extension was proposed by~\cite{Perry:1994}, the authors modified the particle system such that each particle shape would be defined by a series of non-overlapping coplanar triangles.
+The transparency of would increase towards the outer vertices, thus providing an improved visual effect.
+
+\subsection{Noise shyntesis}
+
+\subsection{Geometry skeleton}
+
+\subsection{Data driven}
+
+\subsection{Physically based}
+
+\subsection{High-speed combustions}
+
+\subsection{Other}
+	Erosion and sound paper
 
 
-\section{Fire Rendering}
-\label{sec:fire_rendering}
+%\subsection{Smoke Simulation}
+%\label{sec:smoke_simulation}
+
+
+\section{Rendering}
+\label{sec:rendering}
 
 
 \subsection{Raster-Based}
