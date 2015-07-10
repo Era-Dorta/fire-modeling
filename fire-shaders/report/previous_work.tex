@@ -34,12 +34,22 @@ This work was extended by~\cite{Perlin:1989} to 3D, where they use volumetric re
 \textbf{Physically based} simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products.  
 Incompressible flow equations were used by~\cite{Stam:1995} to drive a fire simulation.
 Given initial fuel conditions, the fire spread is advected on a grid using an advection-diffusion type equation.
-Building on the work on a semi-Lagrangian fluid solver of~\cite{Stam:1999}, a model which includes gaseous fuel and gaseous byproducts was proposed by~\cite{Nguyen:2002}. \cite{Horvath:2009}
+Building on the work on a semi-Lagrangian fluid solver of~\cite{Stam:1999}, a model which includes gaseous fuel and gaseous byproducts was proposed by~\cite{Nguyen:2002}.
+In order to include the characteristics of the noise-based methods, \cite{Hong:2007} combined the previous model with a set of third-order equations from detonation shock dynamics presented by~\cite{Yao:1996}.
+As with the noise-based methods, this addition is visually attractive, yet it is not physically based. 
+Capitalizing on the recent advances in GPUs parallel processing power, \cite{Horvath:2009} proposed a fixed camera model.
+Particle properties are computed on a three-dimensional coarse grid, which are then projected into several view dependant two-dimensional slices.
+The authors' model is based on the assumption that fine variations, which are perpendicular to the projection plane, are not individually visible and, they do not affect significantly the overall flow.
+ 
+\textbf{Other effects} directly related to fire have also been explored.
+\cite{Feldman:2003} presented a model to simulate suspended particles during explosions.
+An incompressible fluid model drives the motion of air and hot gases, and the suspended particles follow the their movements.
+Sound is a important factor to increase the believability of a finished fire animation.
+\cite{Chadwick:2011} proposed a method to automatically generate plausible noise given for a given fire simulation.
+Low frequency sound is estimated using a physical model whose inputs are the flame front and heat release.
+A data driven sound synthesis approach, based on the work by~\cite{Wei:2000}, is applied to generate the high frequency content.
 
-\textbf{High-speed combustions}
-\cite{Feldman:2003} \cite{Hong:2007}
-
-\textbf{Erosion} and sound paper
+\textbf{Erosion}???
 
 
 %\subsection{Smoke Simulation}
