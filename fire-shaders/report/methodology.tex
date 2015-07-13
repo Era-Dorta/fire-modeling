@@ -18,13 +18,13 @@ The RTE is defined as
 \end{split}
 \end{equation}
 
-where $L_i$ is defined as
+where $L_i$ is defined by
 
 \begin{equation}
 L_i(\lxo) = \int_{4 \pi} L(\lxo_i) \Phi (\lambda, \omegam, \omegam_i) d \omegam_i,
 \end{equation}
 
-where $\sigma_a$ is an absorption coefficient, $\sigma_s$ is a scattering coefficient, $L_e$ is the emitted spectral radiance at the point, $L_i$ is the in-scattering radiance and $\Phi$ is a scattering function.
+where $\sigma_a$ is an absorption coefficient, $\sigma_s$ is a scattering coefficient, $L_e$ is the emitted spectral radiance at the point, $L_i$ is the in-scattering radiance, $\Phi$ is a scattering phase function and $\omega_i$ is a scattering sampling direction.
 In order to get an analytical solution to the aforementioned equation, the properties of the medium are assumed to be homogeneous over a small segment $\deltax$ in space,
 
 \begin{equation}
@@ -39,14 +39,36 @@ where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient.
 \section{Scattering}
 \label{sec:scattering}
 
+The scattering phase function is defined by
+
+\begin{equation}
+\Phi (\lambda, \omegam, \omegam_i) = \frac{1 - g(\lambda)^2}{4 \pi(1 + g(\lambda)^2 - 2 g(\lambda) \omegam \omegam_i)^{\frac{3}{2}}},
+\end{equation}
+
+where $g$ can be a function of the wavelength, although in most cases is chosen to be constant.
+The value of $g$ must be in the range $(-1, 1)$, where $g < 0$ corresponds to backwards scattering, $g = 0$ to isotropic scattering, and $g > 0$ to forwards scattering.
 
 \section{Soot Absorption}
 \label{sec:soot_absorption}
 
+The spectral absorption coefficient of soot is defined as
+
+\begin{equation}
+\sigma_a(\lambda, \x) = \frac{48 N(\x) \pi R^3 n m}{\lambda^{\alpha(\lambda)} ((n^2 - m^2 +2)^2 + 4 n^2 m^2)},
+\end{equation}
+
+where $N(\x)$ is the number density, density per unit volume, $R$ is the radius of a soot particle, $n$, $m$ and $\alpha(\lambda)$ are optical constants for different types of soot.
 
 \section{Black Body Radiation}
 \label{sec:black_body_radiation}
 
+Planck's equation for black body radiation characterizes the electromagnetic radiation emitted by a black body in thermal equilibrium at a definite temperature $T$, is defined by
+
+\begin{equation}
+B_\lambda(T, \lambda, n) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k T} - 1)},
+\end{equation}
+
+where $h$ is Planck's constant, $k$ is Boltzmann constant and $c = \frac{c_0}{n_r}$ is the speed of light in the current medium, where $c_0$ is the speed of light in a vacuum and $n_r$ is the refraction index of the medium.
 
 \section{Emission From Chemical Species}
 \label{sec:emission_from_chemical_species}
@@ -56,9 +78,24 @@ where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient.
 \section{Refraction}
 \label{sec:refraction}
 
+Add Ciddor's equation
 
+Assuming a negligible reflection index, the refraction angles for the rays can be easily computed using Snell's law
+
+\begin{equation}
+\frac{\sin \theta_1}{\sin \theta_2} = \frac{\eta_2}{\eta_1},
+\end{equation}
+
+where $\theta_1$ is the incident angle, $\theta_2$ is the refracted angle, $\eta_1$ is the index of refraction of the media which the ray is coming from and $\eta_2$ is the index of refraction of the media which the ray is going to.
 
 \section{Visual Adaptation}
 \label{sec:visual_adaptation}
 
+The human eye presents a non-linear response to incident radiance $L$, the reaction has been modelled  with certain success with the simple function 
 
+\begin{equation}
+R(L, \tau) = \frac{L}{L + \tau},
+\end{equation}
+
+where $\tau$ is a non-linear adaptation state.
+This state is determined by the visual system to maximize the perception of features for a given scene.
