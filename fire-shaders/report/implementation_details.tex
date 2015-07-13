@@ -13,13 +13,17 @@ Explain how to use the shaders and the commands
 \label{sec:mental_ray_shading_approach}
 
 How mental ray shoots rays around and what is its paradigm.
-Add pretty pictures of ray shooting.
+
+\MentalRay approach to solving the rendering equation is based on path tracing, as shown in Figure~\ref{fig:mental_ray_model}, for each pixel in the camera view, an eye ray will be shot in the scene.
+On an intersection with an object in the scene, its material shader will be called, this shader will shoot a light ray for each light in the scene, which in effects calls the light shader of the given light.
+In order to compute the irradiance at the intersection point, the light shader will probably trace a shadow ray from the light to the intersection point.
+Eventually, the material shader will compute the final colour with the information received from the light shader. 
 
 \begin{figure}[htbp!]
 \centering
 \includegraphics[width=0.8\textwidth]{img/mental_ray_model}
 	\caption{\MentalRay simple ray casting example.}
-	\label{fig:voxel_dataset_threaded}
+	\label{fig:mental_ray_model}
 \end{figure}
 
 Equation~\ref{eq:rte_solution_paper} provides a radiance value for the next march increment, however we want to compute the value at the ray intersection with the volume, i.e. at the ray origin.
