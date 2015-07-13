@@ -3,10 +3,38 @@
 \label{ch:methodology}
 
 Not only explain in more detail every equation, what it means, comparison with other papers and ideally improvements or were it fails at least.
+Should I explain what is and how to do ray marching? What is the spectrum? How to integrate it to RGB coefficients?
 
-\section{Radiative Transfer Equation}
-\label{sec:radiative_transfer_equation}
+\section{Radiative Transport Equation}
+\label{sec:radiative_transport_equation}
 
+The Radiative Transport Equation (RTE) models the variation of spectral radiance in the medium $L(\lxo)$, where $\lambda$ is a given wavelength in $m$, $\x$ is the point of interest in space, and $\omegam$ is a vector that points towards the viewing direction.
+The RTE is defined as
+
+\begin{equation}
+\begin{split}
+(\omega \nabla) L(\lxo) = &- \sigma_a(\lambda, \x) L(\lxo) + \sigma_a(\lambda, \x) L_e(\lxo) \\
+&- \sigma_s(\lambda, \x) L(\lxo) + \sigma_s(\lambda, \x) L_i(\lxo),
+\end{split}
+\end{equation}
+
+where $L_i$ is defined as
+
+\begin{equation}
+L_i(\lxo) = \int_{4 \pi} L(\lxo_i) \Phi (\lambda, \omegam, \omegam_i) d \omegam_i,
+\end{equation}
+
+where $\sigma_a$ is an absorption coefficient, $\sigma_s$ is a scattering coefficient, $L_e$ is the emitted spectral radiance at the point, $L_i$ is the in-scattering radiance and $\Phi$ is a scattering function.
+In order to get an analytical solution to the aforementioned equation, the properties of the medium are assumed to be homogeneous over a small segment $\deltax$ in space,
+
+\begin{equation}
+\begin{split}
+L(\lambda, \x + \Delta\x, \omegam) &= e^{-\sigma_t(\lambda, \x) \deltax} L(\lxo) +  \\
+& (1 - e^{-\sigma_t(\lambda, \x) \deltax} ) \frac{\sigma_a(\lambda, \x) L_e(\lxo) + \sigma_s(\lambda, \x) L_i(\lxo)}{\sigma_t(\lambda, \x)},
+\end{split}
+\end{equation}
+
+where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient.
 
 \section{Scattering}
 \label{sec:scattering}
