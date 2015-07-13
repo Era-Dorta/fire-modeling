@@ -69,8 +69,12 @@ In order to render fire realistically, light absorption and scattering in the me
 Raster-based techniques sacrifice quality in the interest of interactive frame rates.
 Some form of texture mapping is usually practised, usually only the surface of the flame is considered, and the illumination of the scene is approximated base on some parameter which can be easily computed such as a as well, e.g. the fire height.
 
-
-\cite{Lamorlette:2002}
+\cite{Reeves:1983} applied a linear colour assignment to each particle in their simulation based on their lifetime.
+\cite{Lee:2001} applied the same technique to render fires on mesh surfaces, where a particle would begin with a light yellow colour, evolve to red and finish in black at the end of their lifetime.
+\cite{Lamorlette:2002} presented a technique were a based flame picture is mapped onto the two-dimensional flame profile with a base colour.
+For each particle an intermediate emitting value is computed, and the final colour is super-sampled profile from an approximation of the cross-sectional area of the flame, as it would appear from the camera.
+\cite{Zhang:2011} proposed a method were fire particles and their attributes are first projected onto a set of slicing planes, which are orthogonal to the camera direction. 
+The planes are then blended to the screen in back-to-front order, and a one-dimensional colour texture is used as transfer function to convert flow attributes to colours and opacities.
 
 
 \subsection{Ray-Tracing-Based}
