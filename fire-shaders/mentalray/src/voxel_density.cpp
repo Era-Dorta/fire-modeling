@@ -48,6 +48,8 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 			voxels->initialize_with_file(filename,
 					(VoxelDatasetFloat::FILE_FORMAT) mode);
 
+			//voxels->apply_sin_perturbation();
+
 			mi_info("\tDone with Voxel dataset: %dx%dx%d %s",
 					voxels->getWidth(), voxels->getHeight(), voxels->getDepth(),
 					filename);

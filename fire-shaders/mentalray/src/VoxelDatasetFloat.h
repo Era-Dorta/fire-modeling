@@ -24,6 +24,7 @@ public:
 			BIN_ONLY_RED);
 	void initialize_with_file(const char* filename, FILE_FORMAT file_format =
 			BIN_ONLY_RED);
+	void apply_sin_perturbation();
 protected:
 	virtual float bilinear_interp(float tx, float ty, const float&c00,
 			const float&c01, const float&c10, const float&c11) const;

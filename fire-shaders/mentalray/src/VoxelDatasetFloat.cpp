@@ -37,6 +37,28 @@ void VoxelDatasetFloat::initialize_with_file(const char* filename,
 	}
 }
 
+void VoxelDatasetFloat::apply_sin_perturbation() {
+	float density;
+	float chunks_w = 20;
+	const float scale_w = (chunks_w * 2.0 * M_PI) / width;
+	float chunks_h = 20;
+	const float scale_h = (chunks_h * 2.0 * M_PI) / height;
+	for (unsigned k = 0; k < depth; k++) {
+		for (unsigned j = 0; j < height; j++) {
+			for (unsigned i = 0; i < width; i++) {
+				density = get_voxel_value(i, j, k);
+				if (density > 0) {
+					density += sin(j * scale_h) + sin(i * scale_w);
+					if (density < 0) {
+						density = 0;
+					}
+					set_voxel_value(i, j, k, density);
+				}
+			}
+		}
+	}
+}
+
 float VoxelDatasetFloat::bilinear_interp(float tx, float ty, const float&c00,
 		const float&c01, const float&c10, const float&c11) const {
 	float c0 = linear_interp(tx, c00, c10);
