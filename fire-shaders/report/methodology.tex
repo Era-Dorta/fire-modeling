@@ -68,12 +68,20 @@ Planck's equation for black body radiation characterizes the electromagnetic rad
 B_\lambda(T, \lambda, n) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k T} - 1)},
 \end{equation}
 
-where $h$ is Planck's constant, $k$ is Boltzmann constant and $c = \frac{c_0}{n_r}$ is the speed of light in the current medium, where $c_0$ is the speed of light in a vacuum and $n_r$ is the refraction index of the medium.
+where $h$ is Planck's constant, $k$ is Boltzmann constant and $c =  c_0 / n_r$ is the speed of light in the current medium, where $c_0$ is the speed of light in a vacuum and $n_r$ is the refraction index of the medium.
 
 \section{Emission From Chemical Species}
 \label{sec:emission_from_chemical_species}
 
+The emission and absorption coefficients associated with a given spectral frequency can be computed as
 
+
+\begin{align}
+\sigma_a &= \frac{\phi(\lambda) N_2 A_{21} \lambda^4 (e ^\frac{h c}{\lambda k T} - 1)}{8 \pi c}, \\
+j_\lambda &= \sigma_a B_\lambda (T, \lambda, n), 
+\end{align}
+
+where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density of elements, $A_{21}$ are Einstein coefficients measuring the transition probabilities of spontaneous emission, and $j_\lambda$ is the emitted radiance for the current chemical component.
 
 \section{Refraction}
 \label{sec:refraction}
