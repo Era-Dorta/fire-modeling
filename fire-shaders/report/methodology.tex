@@ -4,6 +4,7 @@
 
 Not only explain in more detail every equation, what it means, comparison with other papers and ideally improvements or were it fails at least.
 Should I explain what is and how to do ray marching? What is the spectrum? How to integrate it to RGB coefficients?
+Add all the values for the constants here or in implementation details??
 
 \section{Radiative Transport Equation}
 \label{sec:radiative_transport_equation}
@@ -28,6 +29,7 @@ where $\sigma_a$ is an absorption coefficient, $\sigma_s$ is a scattering coeffi
 In order to get an analytical solution to the aforementioned equation, the properties of the medium are assumed to be homogeneous over a small segment $\deltax$ in space,
 
 \begin{equation}
+\label{eq:rte_solution_paper}
 \begin{split}
 L(\lambda, \x + \Delta\x, \omegam) &= e^{-\sigma_t(\lambda, \x) \deltax} L(\lxo) +  \\
 & (1 - e^{-\sigma_t(\lambda, \x) \deltax} ) \frac{\sigma_a(\lambda, \x) L_e(\lxo) + \sigma_s(\lambda, \x) L_i(\lxo)}{\sigma_t(\lambda, \x)},
