@@ -90,6 +90,55 @@ where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number densi
 
 Add Ciddor's equation
 
+REAL CITE Cidor proposed a method to compute the refractive indices of air 
+
+\begin{equation}
+n_{air} = 1 + \frac{\rho_a( n_{axs} - 1)}{\rho_{axs}} + \frac{\rho_w( n_{ws} - 1)}{\rho_{ws}},
+\end{equation}
+
+where $\rho_{axs}$ is the density of dry air, $\rho_{ws}$ is the density of pure water vapour, $\rho_{a}$ and $\rho_{w}$ are the equivalent quantities for dry air, $n_{axs}$ is the refractive index for $CO_2$ and $n_{ws}$ is the refractive index for water vapour. 
+
+\begin{align}
+n_{axs} &= 1 + (n_{as} - 1)(1 + 0.534 \times 10^{-6} (x_c - 450)), \\
+n_{as} &= 10^{-8} \left( 1 + \frac{k_1}{k_0 - \lambda^2} + \frac{k_3}{k_2 - \lambda^2} \right),
+\end{align}
+
+where $x_c \in \lbrace 300 \ldots 450 \rbrace $ is the proportion in ppm of $CO_2$, in our case $x_c = 450$, $k_0 = 238.0185~\mu m^{-2}$, $k_1 = 5792105~\mu m^{-2}$, $k_2 = 57.362~\mu m^{-2}$, $k_3 = 167917~\mu m^{-2}$ and $\lambda$ is the wave number (reciprocal of the vacuum wavelength).
+
+\begin{equation}
+n_{ws} = 10^{-8} \left( 1 + cf(w_0 + w_1 \lambda^2 + w_1 \lambda^4 + w_3 \lambda^6) \right),
+\end{equation}
+
+where $cf = 1.022$, $w_0 = 295.235~\mu m^{-2}$, $w_1 = 2.6422~\mu m^{-2}$, $w_2 = -0.03238~\mu m^{-2}$ and $w_3 = 0.004028~\mu m^{-2}$
+
+The $\rho$ densities are computed as follows
+
+\begin{equation}
+\rho =  \frac{p m_a}{zrT} \left( 1 - x_w \left(1 - \frac{m_w}{m_a} \right) \right), 
+\end{equation}
+
+where $p$ is the pressure in pascals, $1~atm$ in our case, $m_a = 10^{-3}(28.9635 + 12.011 \times 10^{-6}(x_c - 400))$ molar mass of dry air, $r = 8.31451~J mol^{-1} K^{-1}$, $m_w = 0.018015~kg/mol$, 
+
+\begin{equation}
+z = 1 - \frac{p}{T} \left(a_0 + a_1 t + a_2 t^2 + \left(b_0 + b_1 t \right) x_w + \left(c_0 + c_1 t \right) x_w^2 \right) + \left( \frac{p}{T} \right)^2 \left( d + ex_w^2 \right),
+\end{equation}
+
+where $a_0 = 1.58123~\times 10 ^{-6} K Pa^{-1}$,  $a_1 =-2.9331 ~\times 10 ^{-8} Pa^{-1}$,  $b_0 = 5.707~\times 10 ^{-6} K Pa^{-1}$,  $b_1 = -2.051~\times 10 ^{-8} Pa^{-1}$,  $c_0 = 1.9898~\times 10 ^{-4} K Pa^{-1}$,  $c_1 = -2.376~\times 10 ^{-6} K Pa^{-1}$,  $d = 1.83~\times 10 ^{-11} K^2 Pa^{-2}$ and  $e = -0.765~\times 10 ^{-8} K^2 Pa^{-2}$.
+
+$x_w = \frac{f h v}{ p}$
+
+$f = \alpha + \beta p + \gamma t^2$,
+
+where $\alpha = 1.00062$, $\beta = 3.14 \times 10^{-8} Pa^{-1}$, $\gamma = 5.6 \times 10^{-7} C^{-2}$ and $t = T - 273.15$.
+
+$v = e^{AT^2 + BT + C + D/T}$,
+
+where $A = 1.2378847 \times 10^{-5} K^{-2}$, $B = -1.9121316 \times 10^{-2} K^{-1}$, $C = 33.93711047$ and $D = -6.3431645 \times 10^3 K$, and $h \in \lbrace 0 \ldots 1 \rbrace$ is the fractional humidity, $0$ for dry air and ??? for moist air.
+
+The pressure $p$ can be computed using Boyle law of ideal gasses ...
+
+Write it ?????
+
 Assuming a negligible reflection index, the refraction angles for the rays can be easily computed using Snell's law
 
 \begin{equation}
