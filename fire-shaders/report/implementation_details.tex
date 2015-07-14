@@ -49,6 +49,37 @@ Talk about things like which parts are written in parallel code, instance suppor
 	\label{fig:voxel_dataset_threaded}
 \end{figure}
 
+In order to speed up the render time, all spectrum related computations are integrated to RGB coefficients.
+Our spectrum class has a number of samples that can be set a compile time, in general it is set to 30 samples.
+However, in certain cases a lower number is used, e.g. when computing the soot absorption coefficients, since we have values for the constants for only four wavelengths, using more than four samples in the spectrum would not improve the results.
+The integration is performed first to the XYZ colour space using a Rienmann sum
+
+\begin{equation}
+x \approx \frac{1}{\int Y(\lambda) d\lambda} \sum_i X_i c_i,
+\end{equation}
+
+where $x$ is the first coefficient in XYZ, $Y(\lambda)$ is the .....s
+The conversion from XYZ to RGB is performed using precomputed integrals
+
+\begin{equation}
+\begin{bmatrix}
+r \\
+g \\
+b
+\end{bmatrix}
+ = 
+\begin{bmatrix}
+\int R(\lambda) X(\lambda) d\lambda & \int R(\lambda) Y(\lambda) d\lambda & \int R(\lambda) Z(\lambda) d\lambda \\
+\int G(\lambda) X(\lambda) d\lambda & \int G(\lambda) Y(\lambda) d\lambda & \int G(\lambda) Z(\lambda) d\lambda \\
+\int B(\lambda) X(\lambda) d\lambda & \int B(\lambda) Y(\lambda) d\lambda & \int B(\lambda) Z(\lambda) d\lambda
+\end{bmatrix}
+\begin{bmatrix}
+x \\
+y \\
+z
+\end{bmatrix}
+\end{equation}
+
 \subsection{Fire Volume Shader}
 \label{sec:fire_volume_shader}
 
