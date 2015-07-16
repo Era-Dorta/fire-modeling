@@ -67,10 +67,10 @@ where $N(\x)$ is the number density, density per unit volume, $R$ is the radius 
 Planck's equation for black body radiation characterizes the electromagnetic radiation emitted by a black body in thermal equilibrium at a definite temperature $T$, is defined by
 
 \begin{equation}
-B_\lambda(T, \lambda, n) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k T} - 1)},
+B_\lambda(T, \lambda, \eta) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k T} - 1)},
 \end{equation}
 
-where $h$ is Planck's constant, $k$ is Boltzmann constant and $c =  c_0 / n_r$ is the speed of light in the current medium, where $c_0$ is the speed of light in a vacuum and $n_r$ is the refraction index of the medium.
+where $h$ is Planck's constant, $k$ is Boltzmann constant and $c =  c_0 / \eta$ is the speed of light in the current medium, where $c_0$ is the speed of light in a vacuum and $\eta$ is the refraction index of the medium.
 
 \section{Emission From Chemical Species}
 \label{sec:emission_from_chemical_species}
@@ -92,23 +92,23 @@ where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number densi
 
 \begin{equation}
 \label{eq:ciddor_eta_air}
-\eta_{air} = 1 + \frac{\rho_a n_{axs}}{\rho_{axs}} + \frac{\rho_w n_{ws}}{\rho_{ws}},
+\eta_{air} = 1 + \frac{\rho_a \eta_{axs}}{\rho_{axs}} + \frac{\rho_w \eta_{ws}}{\rho_{ws}},
 \end{equation}
 
-where $\rho_{axs}$ is the density of dry air, $\rho_{ws} = 0.00985938$ is the density of pure water vapour, $\rho_{a}$ and $\rho_{w}$ are the equivalent quantities for dry air, $n_{axs}$ is the refractive index for $CO_2$ and $n_{ws}$ is the refractive index for water vapour. 
+where $\rho_{axs}$ is the density of dry air, $\rho_{ws} = 0.00985938$ is the density of pure water vapour, $\rho_{a}$ and $\rho_{w}$ are the equivalent quantities for dry air, $\eta_{axs}$ is the refractive index for $CO_2$ and $\eta_{ws}$ is the refractive index for water vapour. 
 
 \begin{align}
-\label{eq:ciddor_n_axs}
-n_{axs} &= n_{as} \left(1 + 0.534 \times 10^{-6} \left(x_c - 450 \right) \right), \\
-\label{eq:ciddor_n_as}
-n_{as} &= 10^{-8} \left( \frac{k_1}{k_0 - \lambda} + \frac{k_3}{k_2 - \lambda} \right),
+\label{eq:ciddor_eta_axs}
+\eta_{axs} &= \eta_{as} \left(1 + 0.534 \times 10^{-6} \left(x_c - 450 \right) \right), \\
+\label{eq:ciddor_eta_as}
+\eta_{as} &= 10^{-8} \left( \frac{k_1}{k_0 - \lambda} + \frac{k_3}{k_2 - \lambda} \right),
 \end{align}
 
 where $x_c \in \lbrace 300 \ldots 450 \rbrace $ is the proportion in ppm of $CO_2$, in our case $x_c = 450$, $k_0 = 238.0185~\mu m^{-2}$, $k_1 = 5792105~\mu m^{-2}$, $k_2 = 57.362~\mu m^{-2}$, $k_3 = 167917~\mu m^{-2}$ and $\lambda$ is the wave number (reciprocal of the vacuum wavelength).
 
 \begin{equation}
-\label{eq:ciddor_n_ws}
-n_{ws} = 1.022 \times 10^{-8} \left( w_0 + w_1 \lambda + w_1 \lambda^2 + w_3 \lambda^3 \right),
+\label{eq:ciddor_eta_ws}
+\eta_{ws} = 1.022 \times 10^{-8} \left( w_0 + w_1 \lambda + w_1 \lambda^2 + w_3 \lambda^3 \right),
 \end{equation}
 
 where $w_0 = 295.235~\mu m^{-2}$, $w_1 = 2.6422~\mu m^{-2}$, $w_2 = -0.03238~\mu m^{-2}$ and $w_3 = 0.004028~\mu m^{-2}$
@@ -165,14 +165,14 @@ In \textbf{summary} given a wavelength $\lambda_0$, a temperature $t$, a pressur
 \item Precompute $z_a = 0.9995922115$, from Equation~\ref{eq:ciddor_z} with $t = 20~\C$, $p = 101.325~Pa$ and $x_w=0$.
 \item Compute $\lambda = \frac{1}{\lambda_0^2}$, and $T$ with Equation~\ref{eq:ciddor_t}.
 \item Find $x_w$ using Equations~\ref{eq:ciddor_v},~\ref{eq:ciddor_f} and~\ref{eq:ciddor_x_w}. 
-\item Find $n_{as}$ using Equation~\ref{eq:ciddor_n_as}
-\item Find $n_{ws}$ using Equation~\ref{eq:ciddor_n_ws}
+\item Find $\eta_{as}$ using Equation~\ref{eq:ciddor_eta_as}
+\item Find $\eta_{ws}$ using Equation~\ref{eq:ciddor_eta_ws}
 \item Find $m_a$ using Equation~\ref{eq:ciddor_m_a}
-\item Find $n_{axs}$ using Equation~\ref{eq:ciddor_n_axs}
+\item Find $\eta_{axs}$ using Equation~\ref{eq:ciddor_eta_axs}
 \item Find $z_m$ using Equation~\ref{eq:ciddor_z}
-\item Find $\rho_{axs} = \frac{p_0 m_a}{z_a r T_0}$, where $p_0 = 101325$, and $T_0 = 288.15$, using Equation~\ref{eq:ciddor_rho}
-\item Find $\rho_{w} = \frac{x_w p m_a}{z_m r T}$ using Equation~\ref{eq:ciddor_rho}
-\item Find $\rho_{a} = \frac{(1 - x_w) p m_a}{z_m r T}$ using Equation~\ref{eq:ciddor_rho}
+\item Find $\rho_{axs} = (p_0 m_a)/(z_a r T_0)$, where $p_0 = 101325$, and $T_0 = 288.15$, using Equation~\ref{eq:ciddor_rho}
+\item Find $\rho_{w} = (x_w p m_w)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}
+\item Find $\rho_{a} = ((1 - x_w) p m_a)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}
 \item Find the index of refraction $\eta_{air}$ using Equation~\ref{eq:ciddor_eta_air}
 \end{enumerate} 
 
