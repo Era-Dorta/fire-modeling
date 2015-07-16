@@ -51,14 +51,30 @@ Talk about things like which parts are written in parallel code, instance suppor
 In order to speed up the render time, all spectrum related computations are integrated to RGB coefficients.
 Our spectrum class has a number of samples that can be set a compile time, in general it is set to 30 samples.
 However, in certain cases a lower number is used, e.g. when computing the soot absorption coefficients, since we have values for the constants for only four wavelengths, using more than four samples in the spectrum would not improve the results.
-The integration is performed first to the XYZ colour space using a Rienmann sum
+The integration is performed first to the XYZ colour space using a Rienmann sum.
+Given a Spectral Power Distribution (SPD) $S(\lambda)$, the $x$, $y$, $z$ coefficients for $S(\lambda)$ in the XYZ space are defined with respect to spectral matching curves $X(\lambda)$, $Y(\lambda)$ and $Z(\lambda)$, such that
 
 \begin{equation}
-x \approx \frac{1}{\int Y(\lambda) d\lambda} \sum_i X_i c_i,
+\begin{split}
+x &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) X(\lambda) d\lambda, \\
+y &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) Y(\lambda) d\lambda, \\
+z &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) Z(\lambda) d\lambda.
+\end{split}
 \end{equation}
 
-where $x$ is the first coefficient in XYZ, $Y(\lambda)$ is the .....s
-The conversion from XYZ to RGB is performed using precomputed integrals
+The Rienmann sum for each coefficient is computed as
+\begin{equation}
+\begin{split}
+x &\approx \frac{1}{\int Y(\lambda) d\lambda} \sum_i X_i c_i, \\
+y &\approx \frac{1}{\int Y(\lambda) d\lambda} \sum_i Y_i c_i, \\
+z &\approx \frac{1}{\int Y(\lambda) d\lambda} \sum_i Z_i c_i,
+\end{split}
+\end{equation}
+
+where $c_i$ is the $i^{th}$ coefficient in the SPD, $X_i$ is area for the the corresponding sample range the $X(\lambda)$ curve and equivalently for $Y_i$ and $Z_i$.
+Note that $1 / \left(\int Y(\lambda) d\lambda \right)$, $X_i$, $Y_i$ and $Z_i$ are constants and they can be precomputed for efficiency.
+For the Rienmann sum, the area under the samples is approximated using piecewise linear interpolation.
+The conversion from XYZ to RGB space is performed using
 
 \begin{equation}
 \begin{bmatrix}
@@ -76,8 +92,11 @@ b
 x \\
 y \\
 z
-\end{bmatrix}
+\end{bmatrix},
 \end{equation}
+
+where $R(\lambda)$, $G(\lambda)$, $B(\lambda)$ are the spectral curves for the red, green and blue colours respectively.
+Note that all the factors in the transformation matrix are constants and they can be precomputed for efficiency.
 
 \subsection{Fire Volume Shader}
 \label{sec:fire_volume_shader}
