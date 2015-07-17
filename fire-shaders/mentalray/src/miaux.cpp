@@ -157,14 +157,15 @@ void miaux_add_transparent_color(miColor *result, const miColor *color,
 	result->a += transparency;
 }
 
-void miaux_total_light_at_point(miColor *result, miState *state) {
+void miaux_total_light_at_point(miColor *result, miState *state, miTag *light,
+		miInteger n_light) {
 	miColor sum, light_color;
 	int light_sample_count;
 
 	miaux_set_channels(result, 0.0);
-	for (mi::shader::LightIterator iter(state); !iter.at_end(); ++iter) {
+	for (mi::shader::LightIterator iter(state, light, n_light); !iter.at_end();
+			++iter) {
 		miaux_set_channels(&sum, 0.0);
-
 		while (iter->sample()) {
 			iter->get_contribution(&light_color);
 			// Do not change to miaux_add_color, since add_color also changes

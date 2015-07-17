@@ -71,7 +71,8 @@ void miaux_set_rgb(miColor *c, miScalar new_value);
 void miaux_add_transparent_color(miColor *result, const miColor *color,
 		miScalar transparency);
 
-void miaux_total_light_at_point(miColor *result, miState *state);
+void miaux_total_light_at_point(miColor *result, miState *state, miTag *light,
+		miInteger n_light);
 
 miScalar miaux_threshold_density(const miVector *point, const miVector *center,
 		miScalar radius, miScalar scale, miScalar march_increment);

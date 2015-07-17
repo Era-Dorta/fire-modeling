@@ -59,6 +59,7 @@ declare shader
 				#: min 0.0
 			boolean "cast_shadows",
 				#: default false
+			array light "lights",
 				)
 	apply volume
 	version 1

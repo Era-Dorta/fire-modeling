@@ -18,6 +18,9 @@ struct fire_volume {
 	miScalar shadow_scale;
 	miScalar march_increment;
 	miBoolean cast_shadows;
+	miInteger i_light;	// index of first light
+	miInteger n_light;	// number of lights
+	miTag light[1];	// list of lights
 };
 
 extern "C" DLLEXPORT int fire_volume_version(void) {
@@ -132,6 +135,13 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 
 		miaux_initialize_volume_output(result);
 
+		miInteger i_light = *mi_eval_integer(&params->i_light);
+		miInteger n_light = *mi_eval_integer(&params->n_light);
+		miTag *light = mi_eval_tag(&params->light) + i_light;
+
+		// Only the light specified in the light list will be used
+		mi_inclusive_lightlist(&n_light, &light, state);
+
 		miScalar distance, density;
 		miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
 
@@ -158,7 +168,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 				// Here is where the equation is solved
 				// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
 				density *= density_scale * march_increment;
-				miaux_total_light_at_point(&light_color, state);
+				miaux_total_light_at_point(&light_color, state, light, n_light);
 				miaux_multiply_colors(&point_color, color, &light_color);
 				miaux_add_transparent_color(&volume_color, &point_color,
 						density);

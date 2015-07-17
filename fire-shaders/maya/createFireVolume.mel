@@ -22,11 +22,18 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -type "string" ($temp_voxel + ".filename") $temperature_file;
 	setAttr -type "string" ($density_voxel + ".filename") $density_file;
 
-	// Conect the voxel readers with the shading nodes
+	// Fire shader as volume shader for the shading group 
 	connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
+	
+	// Conect the voxel readers with the shading nodes
 	connectAttr -f ($density_voxel + ".message") ($fire_shader + ".density_shader");
 	connectAttr -f ($temp_voxel + ".message") ($fire_light_shader + ".temperature_shader");
+	
+	// Fire light shader as light shader of the light
 	connectAttr -f ($fire_light_shader + ".message") ($area_light + ".miLightShader");
+	
+	// Fire volume will only be illuminated by its own light
+	connectAttr ($area_light + ".message") ($fire_shader + ".lights[0]");
 	
 	// Set the read modes for the voxel data
 	setAttr ($temp_voxel + ".read_mode") 2; // Max rgb value
