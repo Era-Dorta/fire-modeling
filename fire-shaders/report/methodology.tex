@@ -60,8 +60,9 @@ The spectral absorption coefficient of soot is defined as
 \end{equation}
 
 where $N(\x)$ is the number density, density per unit volume, $R$ is the radius of a soot particle, $n$, $m$ and $\alpha(\lambda) = 1.39$ are optical constants for different types of soot.
-In Table~\ref{tb:soot_absorption_coefficients}, values for the optical constants $n$ and $m$ are provided for several materials, the data was provided by~\cite{Dalzell:1969}.
-For the radius of the soot particles, \cite{Dalzell:1969} states that their size is in the range $R \in \lbrace 50 \ldots 800 \rbrace \AA$, taking the mean value $R = 425 \times 10^{-10}$ metres in our case.
+In Table~\ref{tb:soot_absorption_coefficients}, values for the optical constants $n$ and $m$ are provided for several materials, the data was obtained from~\cite{Dalzell:1969}.
+The radius of soot particles was determined in the range $R \in \lbrace 50\mbox{~\AA} \ldots 800\mbox{~\AA} \rbrace $ by~\cite{Dalzell:1969}.
+Since our data is defined with soot densities, we have chosen the radius to be the mean value $R = 425 \times 10^{-10}$ metres.
 
 \begin{table}[htbp!]
 \centering
@@ -88,7 +89,7 @@ B_\lambda(T, \lambda, \eta) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k
 \end{equation}
 
 where $h = 6.62606957 \times 10^{-34}~J/s$ is Planck's constant, $k = 1.3806488 \times 10^{-23}~J/K$ is Boltzmann constant and $c =  c_0 / \eta$ is the speed of light in the current medium, where $c_0 = 299792458~m/s$ is the speed of light in a vacuum and $\eta$ is the refraction index of the medium.
-The refraction index $\eta$ varies across the medium, the procedure to compute it is described in Section~\ref{sec:refraction}.
+The refraction index $\eta$ varies across the medium, the procedure to compute will be described in Section~\ref{sec:refraction}.
 
 \section{Emission From Chemical Species}
 \label{sec:emission_from_chemical_species}
