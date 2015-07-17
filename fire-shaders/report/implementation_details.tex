@@ -6,7 +6,20 @@
 \section{Application Overview}
 \label{sec:application_overview}
 
-Explain how to use the shaders and the commands
+Explain how to use the shaders and the commands, add images of the scenes in Maya
+
+The model chosen for our data is that of a three-dimensional voxel dataset, a cube in space is be uniformly divided and we have a data value for each voxel.
+This data is either a soot density estimate for the \textit{fire volume shader} or a temperature estimate for the \textit{fire light shader}.
+Two file formats are supported, dense float voxel data is ASCII or sparse binary RGBA values, as shown in Figure~\ref{fig:file_format}.
+In the ASCII format, the file first line are three integers, separated by spaces, declaring the width, height and depth of the data, and $whd$ lines with a single floating point value.
+The binary sparse format starts with a 4 byte integer declaring how many data points are in the file, each voxel has its coordinates $x,y,z$ as 4 bytes integers and a rgb alpha colour, where each channel is an 8 bytes floating point double value. 
+
+\begin{figure}[htbp!]
+\centering
+\includegraphics[width=0.5\textwidth]{img/file_format}
+	\caption{Suported file formats.}
+	\label{fig:file_format}
+\end{figure}
 
 
 \section{\MentalRay Shading Approach}
@@ -101,6 +114,7 @@ Note that all the factors in the transformation matrix are constants and they ca
 \subsection{Fire Volume Shader}
 \label{sec:fire_volume_shader}
 
+In order to achieve smoother rendering results, a trilinear interpolation is computed for each step in the ray-marching algorithm. 
 
 
 \subsection{Fire Light Shader}
