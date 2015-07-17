@@ -60,6 +60,22 @@ The spectral absorption coefficient of soot is defined as
 \end{equation}
 
 where $N(\x)$ is the number density, density per unit volume, $R$ is the radius of a soot particle, $n$, $m$ and $\alpha(\lambda)$ are optical constants for different types of soot.
+In Table~\ref{tb:soot_absorption_coefficients}, values for the optical constants $n$ and $m$ are provided for several materials, the data was provided by~\cite{Dalzell:1969}
+
+\begin{table}[htbp!]
+\centering
+\caption{Absorption constants for propane and acetylene, wavelengths are in nanometres.}
+\label{tb:soot_absorption_coefficients}
+\begin{tabular}{cc|c|c|c|c|}
+\cline{3-6}
+                                                 &    & \multicolumn{4}{c|}{Wavelengths} \\ \cline{3-6} 
+                                                 &    & 435.8   & 450    & 550   & 650   \\ \hhline{--|=|=|=|=|}
+\multicolumn{1}{|c|}{\multirow{2}{*}{Propane}}   & \multicolumn{1}{c||}{n}  & 1.57    & 1.56   & 1.57  & 1.56  \\ \cline{2-6} 
+\multicolumn{1}{|c|}{}                           & \multicolumn{1}{c||}{nm} & 0.46    & 0.5    & 0.53  & 0.52  \\ \hline
+\multicolumn{1}{|c|}{\multirow{2}{*}{Acetylene}} & \multicolumn{1}{c||}{n}  & 1.56    & 1.56   & 1.56  & 1.57  \\ \cline{2-6} 
+\multicolumn{1}{|c|}{}                           & \multicolumn{1}{c||}{nm} & 0.46    & 0.48   & 0.46  & 0.44  \\ \hline
+\end{tabular}
+\end{table}
 
 \section{Black Body Radiation}
 \label{sec:black_body_radiation}
