@@ -178,7 +178,11 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			}
 		}
 
+		// Note changing result->color or result->transparecy alpha channel
+		// has no effect, the transparency is controlled with the transparency
+		// rgb channels
 		miaux_copy_color(&result->color, &volume_color);
+
 		// In RGBA, 0 alpha is transparent, but in in transparency for maya
 		// volumetric 1 is transparent
 		miaux_set_rgb(&result->transparency, 1 - volume_color.a);
