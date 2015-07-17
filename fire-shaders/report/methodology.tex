@@ -59,8 +59,9 @@ The spectral absorption coefficient of soot is defined as
 \sigma_a(\lambda, \x) = \frac{48 N(\x) \pi R^3 n m}{\lambda^{\alpha(\lambda)} ((n^2 - m^2 +2)^2 + 4 n^2 m^2)},
 \end{equation}
 
-where $N(\x)$ is the number density, density per unit volume, $R$ is the radius of a soot particle, $n$, $m$ and $\alpha(\lambda)$ are optical constants for different types of soot.
-In Table~\ref{tb:soot_absorption_coefficients}, values for the optical constants $n$ and $m$ are provided for several materials, the data was provided by~\cite{Dalzell:1969}
+where $N(\x)$ is the number density, density per unit volume, $R$ is the radius of a soot particle, $n$, $m$ and $\alpha(\lambda) = 1.39$ are optical constants for different types of soot.
+In Table~\ref{tb:soot_absorption_coefficients}, values for the optical constants $n$ and $m$ are provided for several materials, the data was provided by~\cite{Dalzell:1969}.
+For the radius of the soot particles, \cite{Dalzell:1969} states that their size is in the range $R \in \lbrace 50 \ldots 800 \rbrace \AA$, taking the mean value $R = 425 \times 10^{-10}$ metres in our case.
 
 \begin{table}[htbp!]
 \centering
@@ -86,7 +87,8 @@ Planck's equation for black body radiation characterizes the electromagnetic rad
 B_\lambda(T, \lambda, \eta) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k T} - 1)},
 \end{equation}
 
-where $h$ is Planck's constant, $k$ is Boltzmann constant and $c =  c_0 / \eta$ is the speed of light in the current medium, where $c_0$ is the speed of light in a vacuum and $\eta$ is the refraction index of the medium.
+where $h = 6.62606957 \times 10^{-34}~J/s$ is Planck's constant, $k = 1.3806488 \times 10^{-23}~J/K$ is Boltzmann constant and $c =  c_0 / \eta$ is the speed of light in the current medium, where $c_0 = 299792458~m/s$ is the speed of light in a vacuum and $\eta$ is the refraction index of the medium.
+The refraction index $\eta$ varies across the medium, the procedure to compute it is described in Section~\ref{sec:refraction}.
 
 \section{Emission From Chemical Species}
 \label{sec:emission_from_chemical_species}
@@ -99,10 +101,18 @@ The emission and absorption coefficients associated with a given spectral freque
 j_\lambda &= \sigma_a B_\lambda (T, \lambda, n), 
 \end{align}
 
-where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density of elements, $A_{21}$ are Einstein coefficients measuring the transition probabilities of spontaneous emission, and $j_\lambda$ is the emitted radiance for the current chemical component.
+where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density of elements, $A_{21}$ is an Einstein coefficient measuring the transition probabilities of an spontaneous emission, and $j_\lambda$ is the emitted radiance for the current chemical component.
 
 \section{Refraction}
 \label{sec:refraction}
+
+Assuming a negligible reflection index, the refraction angles for the rays can be easily computed using Snell's law
+
+\begin{equation}
+\frac{\sin \theta_1}{\sin \theta_2} = \frac{\eta_2}{\eta_1},
+\end{equation}
+
+where $\theta_1$ is the incident angle, $\theta_2$ is the refracted angle, $\eta_1$ is the index of refraction of the media which the ray is coming from and $\eta_2$ is the index of refraction of the media which the ray is going to.
 
 \cite{Ciddor:1996} proposed a method to compute the refractive indices of air 
 
@@ -156,18 +166,9 @@ x_w &= \frac{f h v}{ p}, \\
 f &= \alpha + \beta p + \gamma t^2,
 \end{align}
 
-where $\alpha = 1.00062$, $\beta = 3.14 \times 10^{-8} Pa^{-1}$ and $\gamma = 5.6 \times 10^{-7} \C^{-2}$.
-
-\begin{equation}
-\label{eq:ciddor_v}
-v = e^{AT^2 + BT + C + D/T},
-\end{equation}
-
-where $A = 1.2378847 \times 10^{-5} K^{-2}$, $B = -1.9121316 \times 10^{-2} K^{-1}$, $C = 33.93711047$ and $D = -6.3431645 \times 10^3 K$, and $h \in \lbrace 0 \ldots 1 \rbrace$ is the air relative fractional humidity, $0$ for dry air and $0.7$ for moist air.
-This method to compute $x_w$ was presented by~\cite{Davis:1992}, the International Association for the Properties of Water and Steam (IAPWS) adopted an alternative technique proposed by~\cite{Huang:1998}, which works for temperatures below $0\C$.
+where $\alpha = 1.00062$, $\beta = 3.14 \times 10^{-8} Pa^{-1}$ and $\gamma = 5.6 \times 10^{-7} \C^{-2}$, and $h \in \lbrace 0 \ldots 1 \rbrace$ is the air relative fractional humidity, $0$ for dry air and given by the user for moist air.
 
 The pressure $p$ can also be computed using the ideal gas law
-
 \begin{equation}
 \label{eq:ciddor_p}
 pV=\frac{NRT}{V} = n T,
@@ -175,30 +176,69 @@ pV=\frac{NRT}{V} = n T,
 
 where $N$ is the number of molecules, $V$ is the total volume of the gas, $T$ is the temperature of the gas, $n$ is the number density, $R = k N_a$, where $k = 1.3806488 \times 10^{-23}~J/K$ is the Boltzmann constant and $N_a = 6.02214129 \times 10^{23}~mol^{-1}$ is Avogadro constant.
 
-In \textbf{summary} given a wavelength $\lambda_0$, a temperature $t$, a pressure $p$, an relative humidity value $h$ and a $CO_2$ concentration $x_c$, the steps to compute the air index of refraction are,
+\subsection{Davis' Saturation Vapour Pressure}
+\label{subsec:davis_v}
+
+In \cite{Ciddor:1996} paper, the author used the method proposed by~\cite{Davis:1992} to compute the saturation of vapour pressure
+
+\begin{equation}
+\label{eq:davis_v}
+v = e^{AT^2 + BT + C + D/T},
+\end{equation}
+
+where $A = 1.2378847 \times 10^{-5} K^{-2}$, $B = -1.9121316 \times 10^{-2} K^{-1}$, $C = 33.93711047$ and $D = -6.3431645 \times 10^3 K$.
+This equation is relatively easy to compute, however incorrect results will be obtained for temperatures below $0\C$.
+As we are concerned with fire rendering, which entails high temperatures, this method was chosen for its simplicity.
+
+\subsection{Huang's Saturation Vapour Pressure}
+\label{subsec:huang_v}
+
+The International Association for the Properties of Water and Steam (IAPWS) adopted an alternative technique to~\cite{Davis:1992}, which was proposed by~\cite{Huang:1998}.
+The more recent method will address the drawbacks of the previous one, giving reasonable results for temperatures below $0\C$, nevertheless, the generality comes with increased complexity in the equations.
+
+\begin{align}
+\label{eq:huang_v}
+v &= 10^{6} \left( \frac{2C}{X} \right)^4, \\
+X &= -B + \left( B^2 - 4AC \right)^{\frac{1}{2}}, \\
+\begin{bmatrix}
+A \\
+B \\
+C
+\end{bmatrix} &=
+\begin{bmatrix}
+1 & K_1 & K_2 \\
+K_3 & K_4 & K_5 \\
+K_6 & K_7 & K_8 \\
+\end{bmatrix} 
+\begin{bmatrix}
+~\Omega^2 \\
+\Omega \\
+1
+\end{bmatrix}, \\
+\Omega &= T + \frac{K_9}{T - K_{10}},
+\end{align}
+
+where $K_1 = 1.16705214528 \times 10^{3}$, $K_2 = -7.24213167032 \times 10^{5}$, $K_3 = -1.70738469401 \times 10$, $K_4 = 1.20208247025 \times 10^{4}$, $K_5 = -3.23255503223 \times 10^{6}$, $K_6 = 1.49151086135 \times 10$, $K_7 = -4.82326573616 \times 10^{3}$, $K_8 = 4.05113405421 \times 10^{5}$, $K_9 = -2.38555575678 \times 10^{-1}$, and $K_{10} = 6.50175348448 \times 10^{2}$.
+
+\subsection{Ciddor's Method Summary}
+
+The inputs of Ciddor's technique are a wavelength $\lambda_0$, a temperature $t$, a pressure $p$, an relative humidity value $h$ and a $CO_2$ concentration $x_c$, the steps to compute the air index of refraction are,
 
 \begin{enumerate}
 \item Precompute $z_a = 0.9995922115$, from Equation~\ref{eq:ciddor_z} with $t = 20~\C$, $p = 101.325~Pa$ and $x_w=0$.
-\item Compute $\lambda = \frac{1}{\lambda_0^2}$, and $T$ with Equation~\ref{eq:ciddor_t}.
-\item Find $x_w$ using Equations~\ref{eq:ciddor_v},~\ref{eq:ciddor_f} and~\ref{eq:ciddor_x_w}. 
-\item Find $\eta_{as}$ using Equation~\ref{eq:ciddor_eta_as}
-\item Find $\eta_{ws}$ using Equation~\ref{eq:ciddor_eta_ws}
-\item Find $m_a$ using Equation~\ref{eq:ciddor_m_a}
-\item Find $\eta_{axs}$ using Equation~\ref{eq:ciddor_eta_axs}
-\item Find $z_m$ using Equation~\ref{eq:ciddor_z}
-\item Find $\rho_{axs} = (p_0 m_a)/(z_a r T_0)$, where $p_0 = 101325$, and $T_0 = 288.15$, using Equation~\ref{eq:ciddor_rho}
-\item Find $\rho_{w} = (x_w p m_w)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}
-\item Find $\rho_{a} = ((1 - x_w) p m_a)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}
-\item Find the index of refraction $\eta_{air}$ using Equation~\ref{eq:ciddor_eta_air}
+\item Find $\lambda = 1 / \lambda_0^2$, and $T$ with Equation~\ref{eq:ciddor_t}.
+\item Find $v$ with the method described in Section~\ref{subsec:davis_v} or in Section~\ref{subsec:huang_v}.
+\item Find $x_w$ using Equations~\ref{eq:ciddor_f} and~\ref{eq:ciddor_x_w}.
+\item Find $\eta_{as}$ using Equation~\ref{eq:ciddor_eta_as}.
+\item Find $\eta_{ws}$ using Equation~\ref{eq:ciddor_eta_ws}.
+\item Find $m_a$ using Equation~\ref{eq:ciddor_m_a}.
+\item Find $\eta_{axs}$ using Equation~\ref{eq:ciddor_eta_axs}.
+\item Find $z_m$ using Equation~\ref{eq:ciddor_z}.
+\item Find $\rho_{axs} = (p_0 m_a)/(z_a r T_0)$, where $p_0 = 101325$, and $T_0 = 288.15$, using Equation~\ref{eq:ciddor_rho}.
+\item Find $\rho_{w} = (x_w p m_w)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}.
+\item Find $\rho_{a} = ((1 - x_w) p m_a)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}.
+\item Find the index of refraction $\eta_{air}$ using Equation~\ref{eq:ciddor_eta_air}.
 \end{enumerate} 
-
-Assuming a negligible reflection index, the refraction angles for the rays can be easily computed using Snell's law
-
-\begin{equation}
-\frac{\sin \theta_1}{\sin \theta_2} = \frac{\eta_2}{\eta_1},
-\end{equation}
-
-where $\theta_1$ is the incident angle, $\theta_2$ is the refracted angle, $\eta_1$ is the index of refraction of the media which the ray is coming from and $\eta_2$ is the index of refraction of the media which the ray is going to.
 
 \section{Visual Adaptation}
 \label{sec:visual_adaptation}
