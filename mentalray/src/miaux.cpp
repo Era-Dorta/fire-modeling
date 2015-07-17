@@ -476,6 +476,9 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 	// In RGBA, 0 alpha is transparent, but in in transparency for maya
 	// volumetric 1 is transparent
+	if (volume_color.a > 0.1) {
+		volume_color.a *= (1 - volume_color.a);
+	}
 	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
 
 	state->type = ray_type;
