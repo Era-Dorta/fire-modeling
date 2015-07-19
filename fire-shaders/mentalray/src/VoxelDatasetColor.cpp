@@ -203,6 +203,15 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 	if (inv_norm_factor.b > 0) {
 		inv_norm_factor.b = 1.0 / inv_norm_factor.b;
 	}
+	// Nguyen normalization in Matlab would be
+	/*
+	 *  m = [0.4, 0.708, -0.081; -0.226, 1.165, 0.046; 0, 0, 0.918];
+	 * invm = inv(m);
+	 * lmslw = m * maxxyz;
+	 * lmslw = 1 ./ lmslw;
+	 * mLW = diag(lms);
+	 * newxyz = invm * mLw * m * oldxyz; % For all the points
+	 */
 
 	// TODO This normalisation is assuming the fire is the main light in the
 	// scene, it should pick the brightest object and normalise with that
