@@ -65,6 +65,8 @@ In order to speed up the render time, all spectrum related computations are inte
 Our spectrum class has a number of samples that can be set a compile time, in general it is set to 30 samples.
 However, in certain cases a lower number is used, e.g. when computing the soot absorption coefficients, since we have values for the constants for only four wavelengths, using more than four samples in the spectrum would not improve the results.
 The integration is performed first to the XYZ colour space using a Rienmann sum.
+DEFINE XYZ COLOUR SPACE????
+NOTE ON XYZ, the advantages of XYZ are that they are constructed so that to achieve any colour perceived by a human the curve sum is always on positive factors and the luminance is encoded on the Y channel only.
 Given a Spectral Power Distribution (SPD) $S(\lambda)$, the $x$, $y$, $z$ coefficients for $S(\lambda)$ in the XYZ space are defined with respect to spectral matching curves $X(\lambda)$, $Y(\lambda)$ and $Z(\lambda)$, such that
 
 \begin{equation}
