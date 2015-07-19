@@ -60,6 +60,22 @@ inline void RGBToXYZ(const float rgb[3], float xyz[3]) {
 	xyz[2] = 0.019334f * rgb[0] + 0.119193f * rgb[1] + 0.950227f * rgb[2];
 }
 
+// Fairchild 2005, Chapter 9, Figure 9.1
+inline void XYZtoLMS(const float xyz[3], float lms[3]) {
+	lms[0] = 0.4f * xyz[0] + 0.708f * xyz[1] - 0.081f * xyz[2];
+	lms[1] = -0.226f * xyz[0] + 1.165f * xyz[1] + 0.046f * xyz[2];
+	lms[2] = 0.918f * xyz[2];
+}
+
+// Inverse of the XYZtoLMS matrix
+inline void LMStoXYZ(const float lms[3], float xyz[3]) {
+	xyz[0] = 1.860998581487777f * lms[0] - 1.130975961968537f * lms[1]
+			+ 0.220877755284382f * lms[2];
+	xyz[1] = 0.361017750571878f * lms[0] + 0.638969470038722 * lms[1]
+			- 1.635706159685126e-04f * lms[2];
+	xyz[2] = 1.089324618736383f * lms[2];
+}
+
 enum SpectrumType {
 	SPECTRUM_REFLECTANCE, SPECTRUM_ILLUMINANT
 };
