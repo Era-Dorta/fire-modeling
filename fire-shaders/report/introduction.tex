@@ -9,10 +9,11 @@ Understanding and simulating combustion phenomena has many applications, such as
 Computer generated examples include a particle-based technique by~\cite{Reeves:1983} which was used in the Star Trek II film, parametric curves were used to drive the flames~\cite{Lamorlette:2002} in the film Shrek and, the more recent work of~\cite{Horvath:2009} based on 2D screen projection for the film Harry Potter and the Deathly Hallows.
 In these and in many other applications, using real flames is an expensive and hazardous endeavour.
 
-Fire can be modelled as a fluid, however its behaviour more complex, due to its multiphase flow, chemical reactions and radiative heat transport, than other fluids, such as water or smoke, which the computer graphics community have intensively researched.
+The computer graphics community have intensively researched the fluid behaviour of water and smoke.
+Fire can be also be modelled as a fluid, however due to its multiphase flow, chemical reactions and radiative heat transport, the techniques used for water or smoke cannot be directly applied to flames.
 As a result of the aforementioned complexity and the interdisciplinary nature of the problem, fire simulation is still an open problem in computer graphics.
 
-A great deal of work done in the area has sacrificed complexity for interactiveness, therefore producing simplified models which hope to deceit the observer by exploiting the chaotic essence in fire motion.
+A great deal of work done in the area has sacrificed complexity for interactiveness, therefore producing simplified models which hope to deceit the observer by exploiting the chaotic behaviour present in fire motion.
 Nevertheless, physically-based simulations incorporate the intrinsic processes that occur in a combustion scenario:
 
 \begin{description}
@@ -21,7 +22,7 @@ Nevertheless, physically-based simulations incorporate the intrinsic processes t
 \item[Black body radiation:] the chemical species present in the fuel and the byproducts of the combustions emit energy in various wavelengths.
 \end{description}
 
-In order to be able to produce a realistic result, all of the preceding characteristics have to be taken into consideration.
+In order to be able to produce a realistic result, the preceding factors have to be taken into consideration.
 In this report a short review in the field of fire simulation and rendering is presented, a state of the art physically based rendering model by ~\cite{Pegoraro:2006} is discussed in detail, and an implementation of the given model in \Maya is outlined.
 
 TODO Add some fancy pictures from real, film and videogames flames and explosions
