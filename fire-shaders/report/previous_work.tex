@@ -34,7 +34,12 @@ Merging and separating of multiple fronts is achieved, however there is not cont
 The authors' technique supports a range of flame behaviour, such as spreading, flickering, and flame separation and merging.
 In order to achieve real time simulations,~\cite{Bridault:2006} modelled the flame shape on NURBS surfaces on which a transparent 2D texture were mapped.
 
-\textbf{Data driven}
+\textbf{Data driven} methods are use to simulate fire with data from real flames.
+The quality of the animation is depends directly on the data, and by avoiding the simulation stage the computation overhead is reduced significantly.
+However, there are severe limitations when producing new animations and interactions with other objects.
+\cite{Rushmeier:1995} captured a heptane pool fire with water-cooled nitrogen-purged probes.
+Using two images from orographic camera views,~\cite{Hasinoff:2003} reconstructed 3D volumetric fire using tomographic techniques.
+\cite{Ihrke:2004} extended the work by~\cite{Hasinoff:2003}, the authors presented a method to reconstruct fire volumes using trilinear basis functions in scenes recorded with eight cameras.
 
 \textbf{Physically based} simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products.  
 Incompressible flow equations were used by~\cite{Stam:1995} to drive a fire simulation.
