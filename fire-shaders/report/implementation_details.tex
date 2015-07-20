@@ -118,6 +118,30 @@ Note that all the factors in the transformation matrix are constants and they ca
 
 In order to achieve smoother rendering results, a trilinear interpolation is computed for each step in the ray-marching algorithm. 
 
+The implementation of the eye visual adaptation to the colours in fire, described in Equation~\ref{eq:visual_adaptation} is performed as described in~\cite{Nguyen:2002}, which uses Von Kries model~\cite{Fairchild:2005} 
+
+\begin{equation}
+\begin{split}
+\x_a &= \mathbf{M}^{-1} \mathbf{T}_w \mathbf{M} \x_i, \\
+\mathbf{l}_{max} &= \mathbf{M} \mathbf{x}_{max}, \\
+\mathbf{T}_w &= 
+\begin{bmatrix}
+1 / l_{max} & 0 & 0\\
+0 & 1 / m_{max} & 0\\
+0 & 0 & 1 / s_{max}\\
+\end{bmatrix}, \\
+\mathbf{M} &= 
+\begin{bmatrix}
+0.4002 & 0.7076 & -0.0808\\
+-0.2263 & 1.1653 & 0.0457\\
+0 & 0 & 0.9182\\
+\end{bmatrix},
+\end{split}
+\end{equation}
+
+where $\x_a = \left[ x_a, y_a, z_a \right]^{T}$ is a column vector with the XYZ adapted coefficients, $\mathbf{T}_w$ is the Von Kries transformation, $x_{max}$ are the coefficients for the maximum temperature present in the fire,  $\mathbf{l}_{max} = \left[ l_{max}, m_{max}, s_{max} \right]^{T}$ are the LMS coefficients of $x_{max}$, $\mathbf{M}$ is a XYZ to LMS transformation matrix and, $\x_i = \left[ x_i, y_i, z_i \right]^{T}$ is a column vector with the XYZ input coefficients.
+The XYZ to LMS $\mathbf{M}$ matrix is a Hunt-Pointer-Estevez transformation, proposed by~\cite{Hunt:1985}, which has been normalized to the CIE Standard Illuminant D65.
+Since $M$ is a small $3 \times 3$ matrix, the inversion can be performed with any of the standard methods, in our case we used \Matlab default's algorithm and the values were hard-coded in the shader.
 
 \subsection{Fire Light Shader}
 \label{sec:fire_light_shader}
