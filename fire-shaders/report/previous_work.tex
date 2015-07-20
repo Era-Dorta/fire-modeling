@@ -27,7 +27,12 @@ Using a variation of Perlin noise, ~\cite{Perlin:1985} presented images of a cor
 However, the method is limited to 2D, where the color is a combination of non-linear arbitrary functions.
 This work was extended by~\cite{Perlin:1989} to 3D, where they use volumetric rendering to achieve improved results.
 
-\textbf{Geometry skeleton}
+\textbf{Geometry skeleton} are driven by rendering primitives that represent the fire main features, the high frequency details are built on top of the geometry structure.
+\cite{Lee:2001} presented a technique to animate fire on meshes, the flame front propagation is based on a geodesic flow field on the surface.
+Merging and separating of multiple fronts is achieved, however there is not control for animators over the fire evolution. 
+\cite{Lamorlette:2002} proposed a B-Spline curves interpolation method, details are added from a library of images which are then cast onto the profile of the flame.
+The authors' technique supports a range of flame behaviour, such as spreading, flickering, and flame separation and merging.
+In order to achieve real time simulations,~\cite{Bridault:2006} modelled the flame shape on NURBS surfaces on which a transparent 2D texture were mapped.
 
 \textbf{Data driven}
 
@@ -73,6 +78,8 @@ Some form of texture mapping is usually practised, usually only the surface of t
 \cite{Lee:2001} applied the same technique to render fires on mesh surfaces, where a particle would begin with a light yellow colour, evolve to red and finish in black at the end of their lifetime.
 \cite{Lamorlette:2002} presented a technique were a based flame picture is mapped onto the two-dimensional flame profile with a base colour.
 For each particle an intermediate emitting value is computed, and the final colour is super-sampled profile from an approximation of the cross-sectional area of the flame, as it would appear from the camera.
+~\cite{Bridault:2006} used a spectrophotometer to capture photometric distributions of candles.
+The intensities are stored on a texture and changes in illumination over time are introduced with an attenuation factor which is computed based on the size of the flame.
 \cite{Zhang:2011} proposed a method were fire particles and their attributes are first projected onto a set of slicing planes, which are orthogonal to the camera direction. 
 The planes are then blended to the screen in back-to-front order, and a one-dimensional colour texture is used as transfer function to convert flow attributes to colours and opacities.
 
