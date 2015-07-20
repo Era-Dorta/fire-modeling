@@ -205,7 +205,7 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 	}
 	// Nguyen normalization in Matlab would be
 	/*
-	 *  m = [0.4, 0.708, -0.081; -0.226, 1.165, 0.046; 0, 0, 0.918];
+	 *  m = [0.4002, 0.7076, -0.0808; -0.2263, 1.1653, 0.0457; 0, 0, 0.9182];
 	 * invm = inv(m);
 	 * lmslw = m * maxxyz;
 	 * lmslw = 1 ./ lmslw;
