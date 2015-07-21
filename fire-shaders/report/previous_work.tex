@@ -3,15 +3,23 @@
 \label{ch:previous_work}
 
 In order to display a realistic fire scene in a computer generated world two differentiated stages are needed.
-Firstly, the fire dynamics have to be collected, this can either be done through a data capture session or simulated using a fluid solvers.
-Secondly, the previously gathered data is to be visualized on the screen using some rendering technique.
+Firstly, the fire dynamics have to be collected, this can either be done through a data capture session or simulated using fluid-based solvers.
+Present techniques in the area are discussed below. 
+Secondly, the previously gathered data will be visualized on the screen using some rendering method, a brief state-of-the-art review of fire rendering procedures is presented in Section~\ref{sec:rendering}.
 We refer the interested readers to the more detailed survey on the topic, which has been recently presented by~\cite{Huang:2014}.
+
+Fire simulation has significantly received more attention from the computer graphics community than fire rendering.
+As the output data of the simulation methods is used by the rendering stage, an outline of the different simulation techniques is given below. 
+Still, the main focus of this report lies in the rendering phase of the combustion simulation pipeline.
 
 \section{Simulation}
 \label{sec:simulation}
 
 %\section{Fire Simulation}
 %\label{sec:fire_simulation}
+
+The techniques presented in this section are divided adopting the same criteria that was used by~\cite{Huang:2014}.
+Since the categories are roughly chronological, the evolution of the field is easier to follow.
 
 \textbf{Particle-based methods} were the first approach to simulate the visual animation of fire.
 A number of particles are emitted from certain locations, each particle has a set of attributes such as shape, velocity, color or lifetime.
