@@ -34,6 +34,7 @@ The integro-differential Radiative Transport Equation is defined as
 where $L_i$ is defined by
 
 \begin{equation}
+\label{eq:li}
 L_i(\lxo) = \int_{4 \pi} L(\lxo_i) \Phi (\lambda, \omegam, \omegam_i) d \omegam_i,
 \end{equation}
 
@@ -49,6 +50,17 @@ L(\lambda, \x + \Delta\x, \omegam) &= e^{-\sigma_t(\lambda, \x) \deltax} L(\lxo)
 \end{equation}
 
 where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient, a visual depiction on this solution is shown in Figure~\ref{fig:ray_marching1}.
+Examining each individual term in Equations~\ref{eq:li} and ~\ref{eq:rte_solution_paper}, the following factors will demand a more detailed definition
+
+\begin{itemize}
+\item Light \textbf{scattering} in the media, $\Phi(\lambda, \omegam, \omegam_i)$
+\item Emitted light by \textbf{black body radiation}, $L_e(\lxo)$
+\item Electromagnetic \textbf{absorption}, $\sigma_a$, of certain wavelengths 
+\item Photons may follow non linear paths $\Delta\x$, due to spatially varying \textbf{refractive} indices
+\item The eyes response to the final radiance $L(\lxo)$ is modified through \textbf{visual adaptation} processes
+\end{itemize}
+
+In the interest of simplicity, the absorption and radiation effects for \textbf{soot} will be treated separately from those caused by \textbf{other chemical species}.
 
 \section{Scattering}
 \label{sec:scattering}
@@ -62,7 +74,32 @@ The scattering phase function is defined by
 where $g$ can be a function of the wavelength, although in most cases is chosen to be constant.
 The value of $g$ must be in the range $(-1, 1)$, where $g < 0$ corresponds to backwards scattering, $g = 0$ to isotropic scattering, and $g > 0$ to forwards scattering.
 
-\section{Soot Absorption}
+\section{Black Body Radiation}
+\label{sec:black_body_radiation}
+
+Emitted light $L_e(\lxo)$ from an idealized physical body that absorbs all incident electromagnetic radiation can be modelled with Planck's equation for black body radiation.
+This equation characterizes the electromagnetic radiation $B(T, \lambda, \eta)$ emitted by a black body in thermal equilibrium at a given temperature $T$.
+
+\begin{equation}
+L_e(\lxo) = B(T, \lambda, \eta) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k T} - 1)},
+\end{equation}
+
+where $h = 6.62606957 \times 10^{-34}~J/s$ is Planck's constant, $k = 1.3806488 \times 10^{-23}~J/K$ is Boltzmann constant and $c =  c_0 / \eta$ is the speed of light in the current medium, where $c_0 = 299792458~m/s$ is the speed of light in a vacuum and $\eta$ is the refraction index of the medium.
+The refraction index $\eta$ varies across the medium, the procedure to compute will be described in Section~\ref{sec:refraction}.
+
+\section{Absorption coefficients}
+\label{sec:absorption_coefficients}
+
+As fire is not an idealized black body radiator, certain wavelengths are not present in the emitted radiance.
+This behaviour can be modelled using absorption coefficients for each chemical that would mask the undesired wavelengths, such that
+
+\begin{equation}
+\sigma_a L_e(\lxo) = \sum_{i = 0}^N \sigma_{ai} B_i(T, \lambda, \eta),
+\end{equation}
+
+where $N$ is the number of different chemical species in the mix, $\sigma_{ai}$ and $B_i(T, \lambda, \eta)$ are the absorption coefficient and light emission of the $i^{th}$ chemical.
+
+\subsection{Soot Absorption}
 \label{sec:soot_absorption}
 
 The spectral absorption coefficient of soot is defined as
@@ -91,31 +128,17 @@ Since our data is defined with soot densities, we have chosen the radius to be t
 \end{tabular}
 \end{table}
 
-\section{Black Body Radiation}
-\label{sec:black_body_radiation}
-
-Planck's equation for black body radiation characterizes the electromagnetic radiation emitted by a black body in thermal equilibrium at a given temperature $T$.
-The equation is defined as
-
-\begin{equation}
-B_\lambda(T, \lambda, \eta) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k T} - 1)},
-\end{equation}
-
-where $h = 6.62606957 \times 10^{-34}~J/s$ is Planck's constant, $k = 1.3806488 \times 10^{-23}~J/K$ is Boltzmann constant and $c =  c_0 / \eta$ is the speed of light in the current medium, where $c_0 = 299792458~m/s$ is the speed of light in a vacuum and $\eta$ is the refraction index of the medium.
-The refraction index $\eta$ varies across the medium, the procedure to compute will be described in Section~\ref{sec:refraction}.
-
-\section{Emission From Chemical Species}
-\label{sec:emission_from_chemical_species}
+\subsection{Absorption From Other Chemical Species}
+\label{sec:absorption_from_chemical_species}
 
 The emission and absorption coefficients associated with a given spectral frequency can be computed as
 
 
-\begin{align}
-\sigma_a &= \frac{\phi(\lambda) N_2 A_{21} \lambda^4 (e ^\frac{h c}{\lambda k T} - 1)}{8 \pi c}, \\
-j_\lambda &= \sigma_a B_\lambda (T, \lambda, n), 
-\end{align}
+\begin{equation}
+\sigma_a = \frac{\phi(\lambda) N_2 A_{21} \lambda^4 (e ^\frac{h c}{\lambda k T} - 1)}{8 \pi c}
+\end{equation}
 
-where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density of elements, $A_{21}$ is an Einstein coefficient measuring the transition probabilities of an spontaneous emission, and $j_\lambda$ is the emitted radiance for the current chemical component.
+where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density of elements, $A_{21}$ is an Einstein coefficient measuring the transition probabilities of an spontaneous emission.
 
 \section{Refraction}
 \label{sec:refraction}
@@ -135,7 +158,8 @@ where $\theta_1$ is the incident angle, $\theta_2$ is the refracted angle, $\eta
 \eta_{air} = 1 + \frac{\rho_a \eta_{axs}}{\rho_{axs}} + \frac{\rho_w \eta_{ws}}{\rho_{ws}},
 \end{equation}
 
-where $\rho_{axs}$ is the density of dry air, $\rho_{ws} = 0.00985938$ is the density of pure water vapour, $\rho_{a}$ and $\rho_{w}$ are the equivalent quantities for dry air, $\eta_{axs}$ is the refractive index for $CO_2$ and $\eta_{ws}$ is the refractive index for water vapour. 
+where $\rho_{axs}$ is the density of dry air, $\rho_{ws} = 0.00985938$ is the density of pure water vapour, $\rho_{a}$ and $\rho_{w}$ are the equivalent quantities for dry air, $\eta_{axs}$ is the refractive index for $CO_2$ and $\eta_{ws}$ is the refractive index for water vapour.
+The refractive index for $CO_2$ is estimated as
 
 \begin{align}
 \label{eq:ciddor_eta_axs}
@@ -145,6 +169,7 @@ where $\rho_{axs}$ is the density of dry air, $\rho_{ws} = 0.00985938$ is the de
 \end{align}
 
 where $x_c \in \lbrace 300 \ldots 450 \rbrace $ is the proportion in ppm of $CO_2$, in our case $x_c = 450$, $k_0 = 238.0185~\mu m^{-2}$, $k_1 = 5792105~\mu m^{-2}$, $k_2 = 57.362~\mu m^{-2}$, $k_3 = 167917~\mu m^{-2}$ and $\lambda$ is the wave number (reciprocal of the vacuum wavelength).
+The refractive index for water vapour is computed as
 
 \begin{equation}
 \label{eq:ciddor_eta_ws}
@@ -189,6 +214,8 @@ pV=\frac{NRT}{V} = n T,
 \end{equation}
 
 where $N$ is the number of molecules, $V$ is the total volume of the gas, $T$ is the temperature of the gas, $n$ is the number density, $R = k N_a$, where $k = 1.3806488 \times 10^{-23}~J/K$ is the Boltzmann constant and $N_a = 6.02214129 \times 10^{23}~mol^{-1}$ is Avogadro constant.
+
+Two methods are generally used to compute the vapour pressure $v$, Davis' and Huang's.
 
 \subsection{Davis' Saturation Vapour Pressure}
 \label{subsec:davis_v}
