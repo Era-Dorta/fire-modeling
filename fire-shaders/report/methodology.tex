@@ -119,11 +119,11 @@ Since our data is defined with soot densities, we have chosen the radius to be t
 \label{tb:soot_absorption_coefficients}
 \begin{tabular}{cc|c|c|c|c|}
 \cline{3-6}
-                                                 &    & \multicolumn{4}{c|}{Wavelengths} \\ \cline{3-6} 
+                                                 &    & \multicolumn{4}{c|}{\textbf{Wavelengths}} \\ \cline{3-6} 
                                                  &    & 435.8   & 450    & 550   & 650   \\ \hhline{--|=|=|=|=|}
-\multicolumn{1}{|c|}{\multirow{2}{*}{Propane}}   & \multicolumn{1}{c||}{n}  & 1.57    & 1.56   & 1.57  & 1.56  \\ \cline{2-6} 
+\multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{Propane}}}   & \multicolumn{1}{c||}{n}  & 1.57    & 1.56   & 1.57  & 1.56  \\ \cline{2-6} 
 \multicolumn{1}{|c|}{}                           & \multicolumn{1}{c||}{nm} & 0.46    & 0.5    & 0.53  & 0.52  \\ \hline
-\multicolumn{1}{|c|}{\multirow{2}{*}{Acetylene}} & \multicolumn{1}{c||}{n}  & 1.56    & 1.56   & 1.56  & 1.57  \\ \cline{2-6} 
+\multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{Acetylene}}} & \multicolumn{1}{c||}{n}  & 1.56    & 1.56   & 1.56  & 1.57  \\ \cline{2-6} 
 \multicolumn{1}{|c|}{}                           & \multicolumn{1}{c||}{nm} & 0.46    & 0.48   & 0.46  & 0.44  \\ \hline
 \end{tabular}
 \end{table}
@@ -150,6 +150,7 @@ Assuming a negligible reflection index, the refraction angles for the rays can b
 \end{equation}
 
 where $\theta_1$ is the incident angle, $\theta_2$ is the refracted angle, $\eta_1$ is the index of refraction of the media which the ray is coming from and $\eta_2$ is the index of refraction of the media which the ray is going to.
+The values for all the constants in this section are defined in Table~\ref{tb:ciddor_constants}.
 
 \cite{Ciddor:1996} proposed a method to compute the refractive indices of air 
 
@@ -158,7 +159,7 @@ where $\theta_1$ is the incident angle, $\theta_2$ is the refracted angle, $\eta
 \eta_{air} = 1 + \frac{\rho_a \eta_{axs}}{\rho_{axs}} + \frac{\rho_w \eta_{ws}}{\rho_{ws}},
 \end{equation}
 
-where $\rho_{axs}$ is the density of dry air, $\rho_{ws} = 0.00985938$ is the density of pure water vapour, $\rho_{a}$ and $\rho_{w}$ are the equivalent quantities for dry air, $\eta_{axs}$ is the refractive index for $CO_2$ and $\eta_{ws}$ is the refractive index for water vapour.
+where $\rho_{axs}$ is the density of dry air, $\rho_{ws}$ is the density of pure water vapour, $\rho_{a}$ and $\rho_{w}$ are the equivalent quantities for dry air, $\eta_{axs}$ is the refractive index for $CO_2$ and $\eta_{ws}$ is the refractive index for water vapour.
 The refractive index for $CO_2$ is estimated as
 
 \begin{align}
@@ -168,7 +169,7 @@ The refractive index for $CO_2$ is estimated as
 \eta_{as} &= 10^{-8} \left( \frac{k_1}{k_0 - \lambda} + \frac{k_3}{k_2 - \lambda} \right),
 \end{align}
 
-where $x_c \in \lbrace 300 \ldots 450 \rbrace $ is the proportion in ppm of $CO_2$, in our case $x_c = 450$, $k_0 = 238.0185~\mu m^{-2}$, $k_1 = 5792105~\mu m^{-2}$, $k_2 = 57.362~\mu m^{-2}$, $k_3 = 167917~\mu m^{-2}$ and $\lambda$ is the wave number (reciprocal of the vacuum wavelength).
+where $x_c \in \lbrace 300 \ldots 450 \rbrace $ is the proportion in ppm of $CO_2$, $k_0$, $k_1$ $k_2$ and $k_3$ are constants, and $\lambda$ is the wave number (reciprocal of the vacuum wavelength).
 The refractive index for water vapour is computed as
 
 \begin{equation}
@@ -176,7 +177,7 @@ The refractive index for water vapour is computed as
 \eta_{ws} = 1.022 \times 10^{-8} \left( w_0 + w_1 \lambda + w_1 \lambda^2 + w_3 \lambda^3 \right),
 \end{equation}
 
-where $w_0 = 295.235~\mu m^{-2}$, $w_1 = 2.6422~\mu m^{-2}$, $w_2 = -0.03238~\mu m^{-2}$ and $w_3 = 0.004028~\mu m^{-2}$
+where $w_0$, $w_1$, $w_2$ and $w_3$ are constants.
 
 The $\rho$ densities are computed as follows
 
@@ -185,7 +186,7 @@ The $\rho$ densities are computed as follows
 \rho =  \frac{p m_a}{zrT} \left( 1 - x_w \left(1 - \frac{m_w}{m_a} \right) \right), 
 \end{equation}
 
-where $p$ is the pressure in pascals, $1~atm~ = 101 325~Pa$ in our case, $r = 8.31451~J mol^{-1} K^{-1}$, $m_w = 0.018015~kg/mol$, 
+where $p$ is the pressure in pascals, $r$ and $m_w$ are constants, 
 
 \begin{align}
 \label{eq:ciddor_m_a}
@@ -194,7 +195,7 @@ m_a &= 0.0289635 + 12.011 \times 10^{-8}(x_c - 400)),\\
 z &= 1 - \frac{p}{T} \left(a_0 + a_1 t + a_2 t^2 + \left(b_0 + b_1 t \right) x_w + \left(c_0 + c_1 t \right) x_w^2 \right) + \left( \frac{p}{T} \right)^2 \left( d + ex_w^2 \right),
 \end{align}
 
-where $a_0 = 1.58123~\times 10 ^{-6} K Pa^{-1}$,  $a_1 =-2.9331 ~\times 10 ^{-8} Pa^{-1}$,  $b_0 = 5.707~\times 10 ^{-6} K Pa^{-1}$,  $b_1 = -2.051~\times 10 ^{-8} Pa^{-1}$,  $c_0 = 1.9898~\times 10 ^{-4} K Pa^{-1}$,  $c_1 = -2.376~\times 10 ^{-6} K Pa^{-1}$,  $d = 1.83~\times 10 ^{-11} K^2 Pa^{-2}$ and  $e = -0.765~\times 10 ^{-8} K^2 Pa^{-2}$.
+where $a_0$,  $a_1$, $a_2$,  $b_0$,  $b_1$,  $c_0$,  $c_1$,  $d$ and $e$ are constants.
 
 \begin{align}
 \label{eq:ciddor_t}
@@ -205,7 +206,7 @@ x_w &= \frac{f h v}{ p}, \\
 f &= \alpha + \beta p + \gamma t^2,
 \end{align}
 
-where $\alpha = 1.00062$, $\beta = 3.14 \times 10^{-8} Pa^{-1}$ and $\gamma = 5.6 \times 10^{-7} \C^{-2}$, and $h \in \lbrace 0 \ldots 1 \rbrace$ is the air relative fractional humidity, $0$ for dry air and given by the user for moist air.
+where $\alpha$, $\beta$ and $\gamma$, and $h \in \lbrace 0 \ldots 1 \rbrace$ is the air relative fractional humidity, $0$ for dry air and given by the user for moist air.
 
 The pressure $p$ can also be computed using the ideal gas law
 \begin{equation}
@@ -213,9 +214,9 @@ The pressure $p$ can also be computed using the ideal gas law
 pV=\frac{NRT}{V} = n T,
 \end{equation}
 
-where $N$ is the number of molecules, $V$ is the total volume of the gas, $T$ is the temperature of the gas, $n$ is the number density, $R = k N_a$, where $k = 1.3806488 \times 10^{-23}~J/K$ is the Boltzmann constant and $N_a = 6.02214129 \times 10^{23}~mol^{-1}$ is Avogadro constant.
+where $N$ is the number of molecules, $V$ is the total volume of the gas, $T$ is the temperature of the gas, $n$ is the number density, $R = k N_a$, where $k$ is the Boltzmann constant and $N_a$ is Avogadro constant.
 
-Two methods are generally used to compute the vapour pressure $v$, Davis' and Huang's.
+Depending on the situation, there are two acceptable methods to compute the vapour pressure $v$, both are described below.
 
 \subsection{Davis' Saturation Vapour Pressure}
 \label{subsec:davis_v}
@@ -227,7 +228,7 @@ In \cite{Ciddor:1996} paper, the author used the method proposed by~\cite{Davis:
 v = e^{AT^2 + BT + C + D/T},
 \end{equation}
 
-where $A = 1.2378847 \times 10^{-5} K^{-2}$, $B = -1.9121316 \times 10^{-2} K^{-1}$, $C = 33.93711047$ and $D = -6.3431645 \times 10^3 K$.
+where $A$, $B$, $C$ and $D$ are constants.
 This equation is relatively easy to compute, however incorrect results will be obtained for temperatures below $0\C$.
 As we are concerned with fire rendering, which entails high temperatures, this method was chosen for its simplicity.
 
@@ -259,11 +260,12 @@ K_6 & K_7 & K_8 \\
 \Omega &= T + \frac{K_9}{T - K_{10}},
 \end{align}
 
-where $K_1 = 1.16705214528 \times 10^{3}$, $K_2 = -7.24213167032 \times 10^{5}$, $K_3 = -1.70738469401 \times 10$, $K_4 = 1.20208247025 \times 10^{4}$, $K_5 = -3.23255503223 \times 10^{6}$, $K_6 = 1.49151086135 \times 10$, $K_7 = -4.82326573616 \times 10^{3}$, $K_8 = 4.05113405421 \times 10^{5}$, $K_9 = -2.38555575678 \times 10^{-1}$, and $K_{10} = 6.50175348448 \times 10^{2}$.
+where $K_1$, $K_2$, $K_3$, $K_4$, $K_5$, $K_6$, $K_7$, $K_8$, $K_9$, and $K_{10}$ are constants.
 
 \subsection{Ciddor's Method Summary}
 
 The inputs of Ciddor's technique are a wavelength $\lambda_0$, a temperature $t$, a pressure $p$, a relative humidity value $h$ and a $CO_2$ concentration $x_c$.
+The values for all the constants needed for the method are defined in Table~\ref{tb:ciddor_constants}.
 The steps to compute the index of refraction are listed below
 
 \begin{enumerate}
@@ -281,6 +283,37 @@ The steps to compute the index of refraction are listed below
 \item Find $\rho_{a} = ((1 - x_w) p m_a)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}.
 \item Find the index of refraction $\eta_{air}$ using Equation~\ref{eq:ciddor_eta_air}.
 \end{enumerate} 
+
+\begin{table}[]
+\centering
+\caption{Values for the constants in the equations used to compute the index of refraction.}
+\label{tb:ciddor_constants}
+\begin{tabular}{|l|l|l|l|l|}
+\cline{1-2} \cline{4-5}
+\textbf{Name}        & \textbf{Value}                       &  & \textbf{Name}     & \textbf{Value}                                \\ \cline{1-2} \cline{4-5} 
+$\rho_{ws}$ & 0.00985938                  &  & $a_0$    & $1.58123~\times 10 ^{-6} K Pa^{-1}$  \\ \cline{1-2} \cline{4-5} 
+$x_c$       & $450~ppm$                   &  & $a_1$    & $-2.9331 ~\times 10 ^{-8} Pa^{-1}$   \\ \cline{1-2} \cline{4-5} 
+$k_0$       & $238.0185~\mu m^{-2}$       &  & $a_2$    & $1.1043 ~\times 10 ^{-10} Pa^{-1}$   \\ \cline{1-2} \cline{4-5} 
+$k_1$       & $5792105~\mu m^{-2}$        &  & $b_0$    & $5.707~\times 10 ^{-6} K Pa^{-1}$    \\ \cline{1-2} \cline{4-5} 
+$k_2$       & $57.362~\mu m^{-2}$         &  & $b_1$    & $-2.051~\times 10 ^{-8} Pa^{-1}$     \\ \cline{1-2} \cline{4-5} 
+$k_3$       & $167917~\mu m^{-2}$         &  & $c_0$    & $1.9898~\times 10 ^{-4} K Pa^{-1}$   \\ \cline{1-2} \cline{4-5} 
+$w_0$       & $295.235~\mu m^{-2}$        &  & $c_1$    & $-2.376~\times 10 ^{-6} K Pa^{-1}$   \\ \cline{1-2} \cline{4-5} 
+$w_1$       & $2.6422~\mu m^{-2}$         &  & $d$      & $1.83~\times 10 ^{-11} K^2 Pa^{-2}$  \\ \cline{1-2} \cline{4-5} 
+$w_2$       & $-0.03238~\mu m^{-2}$       &  & $e$      & $-0.765~\times 10 ^{-8} K^2 Pa^{-2}$ \\ \cline{1-2} \cline{4-5} 
+$w_3$       & $0.004028~\mu m^{-2}$       &  & $\alpha$ & $1.00062$                            \\ \cline{1-2} \cline{4-5} 
+$p$         & $1~atm~ = 101 325~Pa$       &  & $\beta$  & $3.14 \times 10^{-8} Pa^{-1}$        \\ \cline{1-2} \cline{4-5} 
+$r$         & $8.31451~J mol^{-1} K^{-1}$ &  & $\gamma$ & $5.6 \times 10^{-7} \C^{-2}$         \\ \cline{1-2} \cline{4-5} 
+$m_w$       & $0.018015~kg/mol$           &  & $k$      & $1.3806488 \times 10^{-23}~J/K$      \\ \cline{1-2} \cline{4-5} 
+$N_a$ & $6.02214129 \times 10^{23}~mol^{-1}$ &  & $K_4$  & $1.20208247025 \times 10^{4}$   \\ \cline{1-2} \cline{4-5} 
+$A$   & $1.2378847 \times 10^{-5} K^{-2}$    &  & $K_5$  & $-3.23255503223 \times 10^{6}$  \\ \cline{1-2} \cline{4-5} 
+$B$   & $-1.9121316 \times 10^{-2} K^{-1}$   &  & $K_6$  & $1.49151086135 \times 10$       \\ \cline{1-2} \cline{4-5} 
+$C$   & $33.93711047$                        &  & $K_7$  & $-4.82326573616 \times 10^{3}$  \\ \cline{1-2} \cline{4-5} 
+$D$   & $-6.3431645 \times 10^3 K$           &  & $K_8$  & $4.05113405421 \times 10^{5}$   \\ \cline{1-2} \cline{4-5} 
+$K_1$ & $1.16705214528 \times 10^{3}$        &  & $K_9$  & $-2.38555575678 \times 10^{-1}$ \\ \cline{1-2} \cline{4-5} 
+$K_2$ & $-7.24213167032 \times 10^{5}$       &  & $K_{10}$ & $6.50175348448 \times 10^{2}$   \\ \cline{1-2} \cline{4-5} 
+$K_3$ & $-1.70738469401 \times 10$           &  &        &                                 \\ \cline{1-2} \cline{4-5}
+\end{tabular}
+\end{table}
 
 \section{Visual Adaptation}
 \label{sec:visual_adaptation}
