@@ -39,6 +39,38 @@ Eventually, the material shader will compute the final colour with the informati
 	\label{fig:mental_ray_model}
 \end{figure}
 
+Under this assumptions, the steps required to solve the RTE, Equation~\ref{eq:rte_solution_paper}, are:
+
+\begin{enumerate}
+\item Shoot a ray from the eye into the scene
+\item If the ray intersects the fire volume, perform ray marching in the volume
+	\begin{enumerate}
+	\item Compute direct illumination at the current point
+		\begin{enumerate}
+		\item Get initial radiance using black body radiation
+		\item Attenuate with absorption coefficient
+		\end{enumerate}
+	\item Compute indirect illumination at the current point
+		\begin{enumerate}
+		\item Use phase function to get the scattered light distribution
+		\end{enumerate}
+	\item Advance to next point in ray marching
+		\begin{enumerate}
+		\item Change ray direction using refraction index
+		\end{enumerate}	
+	\end{enumerate}
+\item Compute eye visual adaptation to fire colour
+\end{enumerate}
+
+The previous operations are done 
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.8\textwidth]{img/ray_marching}
+	\caption{Calculating the illumination values for samples along a ray.}
+	\label{fig:ray_marching2}
+\end{figure}
+
 Equation~\ref{eq:rte_solution_paper} provides a radiance value for the next march increment, however we want to compute the value at the ray intersection with the volume, i.e. at the ray origin.
 So we need to rewrite the equation as
 

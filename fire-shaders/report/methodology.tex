@@ -6,11 +6,23 @@ Not only explain in more detail every equation, what it means, comparison with o
 Should I explain what is and how to do ray marching? What is the spectrum? How to integrate it to RGB coefficients?
 Add all the values for the constants here or in implementation details??
 
+Given simulated or captured fire data, that could come from any of the methods discussed in Section~\ref{sec:simulation}, we want to generate a photo-realistic image from a camera view of the scene.
+From this point onwards we will assume that we have a volumetric data structure, which holds the relevant input data for the fire.
+
 \section{Radiative Transport Equation}
 \label{sec:radiative_transport_equation}
 
-The Radiative Transport Equation (RTE) models the variation of spectral radiance in the medium $L(\lxo)$, where $\lambda$ is a given wavelength in $m$, $\x$ is the point of interest in space, and $\omegam$ is a vector that points towards the viewing direction.
-The RTE is defined as
+The Radiative Transport Equation (RTE) \cite{Howell:2002} models the variation of spectral radiance $(\omega \nabla) L(\lxo)$ in the medium, where $\lambda$ is a given wavelength in $m$, $\x$ is the point of interest in space, and $\omegam$ is a vector that points towards the viewing direction.
+Formally, the objective is to get a solution for the RTE for each visible point in the scene, practically, an approximate solution will be computed.
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.8\textwidth]{img/ray_marching}
+	\caption{Calculating the illumination values for samples along a ray.}
+	\label{fig:ray_marching1}
+\end{figure}
+
+The integro-differential Radiative Transport Equation is defined as
 
 \begin{equation}
 \begin{split}
@@ -36,7 +48,7 @@ L(\lambda, \x + \Delta\x, \omegam) &= e^{-\sigma_t(\lambda, \x) \deltax} L(\lxo)
 \end{split}
 \end{equation}
 
-where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient.
+where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient, a visual depiction on this solution is shown in Figure~\ref{fig:ray_marching1}.
 
 \section{Scattering}
 \label{sec:scattering}
