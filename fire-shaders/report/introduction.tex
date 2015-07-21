@@ -51,7 +51,7 @@ In these and in many other applications, using real flames is an expensive and h
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.5\textwidth}
                 \includegraphics[width=\textwidth]{img/horvarth_2009}
-                \caption{Flames in Harry Potter~\cite{Horvath:2009}.}
+                \caption{Flames used in Harry Potter and the Deathly Hallows~\cite{Horvath:2009}.}
                 \label{fig:horvarth_2009}
         \end{subfigure}
         \caption{Examples of visual effects with fire in the film industry.}
@@ -63,16 +63,16 @@ Fire can be also be modelled as a fluid, however due to its multiphase flow, che
 As a result of the aforementioned complexity and the interdisciplinary nature of the problem, fire simulation is still an open problem in computer graphics.
 
 A great deal of work done in the area has sacrificed complexity for interactiveness, therefore producing simplified models which hope to deceit the observer by exploiting the chaotic behaviour present in fire motion.
-Nevertheless, physically-based simulations incorporate the intrinsic processes that occur in a combustion scenario:
+Nevertheless, physically-based simulations incorporate the intrinsic processes that occur in a combustion scenario in order to be able to produce realistic results.
+In general the following effects are taken into consideration
 
 \begin{description}
-\item[Flame motion:]
+\item[Flame motion:] under normal gravity conditions, convection, external wind forces, front propagation and gas expansion drive the shape and position of the flame. 
 \item[Fuel erosion:] when the fuel reaches a certain temperature, it is vaporized into a gaseous state, which rises under the influence of buoyancy.
-\item[Black body radiation:] the chemical species present in the fuel and the byproducts of the combustions emit energy in various wavelengths.
+\item[Flame colour:] the chemical species present in the fuel and the byproducts of the combustions emit energy in various wavelengths due to black body radiation.
 \end{description}
 
-In order to be able to produce a realistic result, the preceding factors have to be taken into consideration.
-In this report a short review in the field of fire simulation and rendering is presented, a state-of-the-art physically-based rendering model by ~\cite{Pegoraro:2006} is discussed in detail, and an implementation of the given model in \Maya is outlined.
-
-TODO Add some fancy pictures from real, film and videogames flames and explosions
-TODO Explain everything in more detail and go from slower from general to technical
+In this report a short review of fire simulation and rendering methods is presented in Chapter~\ref{ch:previous_work}.
+In Chapter~\ref{ch:methodology}, a state-of-the-art physically-based model to render fire, proposed by ~\cite{Pegoraro:2006}, is discussed extensively.
+Implementation details of a \MentalRay shader for the the given model are outlined in Chapter~\ref{ch:previous_work}, and results are discussed in Chapter~\ref{ch:results}.
+Lastly, conclusions and future research directions are considered in Chapter~\ref{ch:conclusions}.
