@@ -69,10 +69,10 @@ inline void XYZtoLMS(const float xyz[3], float lms[3]) {
 
 // Inverse of the XYZtoLMS matrix
 inline void LMStoXYZ(const float lms[3], float xyz[3]) {
-	xyz[0] = 1.860066612508235f * lms[0] - -1.129480078100770f * lms[1]
+	xyz[0] = 1.860066612508235f * lms[0] - 1.129480078100770f * lms[1]
 			+ 0.219898303049304f * lms[2];
 	xyz[1] = 0.361222924921148 * lms[0] + 0.638804306466829 * lms[1]
-			- -7.127501530533286e-06f * lms[2];
+			- 7.127501530533286e-06f * lms[2];
 	xyz[2] = 1.089087344805053f * lms[2];
 }
 

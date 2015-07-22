@@ -190,38 +190,57 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 	}
 }
 
+// TODO This could be threaded too, make all threads wait for each other and
+// then use this code with start end indices
 void VoxelDatasetColor::normalize_bb_radiation() {
 	auto max_ind = get_maximum_voxel_index();
-	miColor inv_norm_factor = block[max_ind];
+	const miColor& max_xyz = block[max_ind];
+	miColor inv_max_lms;
+	XYZtoLMS(&max_xyz.r, &inv_max_lms.r);
 
-	if (inv_norm_factor.r > 0) {
-		inv_norm_factor.r = 1.0 / inv_norm_factor.r;
+	if (inv_max_lms.r != 0) {
+		inv_max_lms.r = 1.0 / inv_max_lms.r;
 	}
-	if (inv_norm_factor.g > 0) {
-		inv_norm_factor.g = 1.0 / inv_norm_factor.g;
+	if (inv_max_lms.g != 0) {
+		inv_max_lms.g = 1.0 / inv_max_lms.g;
 	}
-	if (inv_norm_factor.b > 0) {
-		inv_norm_factor.b = 1.0 / inv_norm_factor.b;
+	if (inv_max_lms.b != 0) {
+		inv_max_lms.b = 1.0 / inv_max_lms.b;
 	}
+
 	// Nguyen normalization in Matlab would be
 	/*
 	 *  m = [0.4002, 0.7076, -0.0808; -0.2263, 1.1653, 0.0457; 0, 0, 0.9182];
 	 * invm = inv(m);
 	 * lmslw = m * maxxyz;
 	 * lmslw = 1 ./ lmslw;
-	 * mLW = diag(lms);
+	 * mLW = diag(lmslw);
 	 * newxyz = invm * mLw * m * oldxyz; % For all the points
 	 */
 
+	// TODO Add as a shader parameter
+	miScalar t = 0.5; // Interpolation factor
+
 	// TODO This normalisation is assuming the fire is the main light in the
 	// scene, it should pick the brightest object and normalise with that
-	miColor aux;
 	for (unsigned i = 0; i < count; i++) {
 		if (!miaux_color_is_black(&block[i])) {
-			miaux_multiply_colors(&aux, &block[i], &inv_norm_factor);
-			// Uncomment to ignore eye adaptation
-			miaux_copy_color(&aux, &block[i]);
-			XYZToRGB(&aux.r, &block[i].r);
+			miColor aux, color_lms;
+
+			XYZtoLMS(&block[i].r, &color_lms.r);
+
+			// Apply adaptation, is a diagonal matrix so we can just multiply
+			// the values
+			miaux_multiply_colors(&aux, &color_lms, &inv_max_lms);
+
+			LMStoXYZ(&aux.r, &color_lms.r);
+
+			// Give the user a control parameter between the old and the new
+			// colours
+			color_lms = linear_interp(t, block[i], color_lms);
+
+			XYZToRGB(&color_lms.r, &block[i].r);
+
 			miaux_clamp_color(&block[i], 0, 1);
 		}
 	}
