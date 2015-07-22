@@ -102,6 +102,9 @@ However, there are severe limitations when producing new animations and interact
 \cite{Rushmeier:1995} captured a heptane pool fire with water-cooled nitrogen-purged probes.
 Using two images from orographic camera views,~\cite{Hasinoff:2003} reconstructed 3D volumetric fire using tomographic techniques.
 \cite{Ihrke:2004} extended the work by~\cite{Hasinoff:2003}, the authors presented a method to reconstruct fire volumes using trilinear basis functions in scenes recorded with eight cameras.
+\cite{Zhang:2011} presented a method to new synthesize new animation sequences based on a previously simulated data.
+A flow graph whose nodes connect resembling simulation states is built, similarity between nodes is measured based on flow pathline distances.
+New frames with smooth transitions are created by traversing the graph through different paths.
 
 \begin{figure}[htpb!]
         \centering
@@ -120,7 +123,13 @@ Using two images from orographic camera views,~\cite{Hasinoff:2003} reconstructe
         \begin{subfigure}[t]{0.21\textwidth}
                 \includegraphics[width=\textwidth]{img/ihrke_2004}
                 \caption{\cite{Ihrke:2004}.}
-        \end{subfigure}          
+        \end{subfigure}      
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.38\textwidth}
+                \includegraphics[width=\textwidth]{img/zhang_2011}
+                \caption{\cite{Zhang:2011}.}
+        \end{subfigure}                   
         \caption{Date driven fire examples.}
         \label{fig:data_driven}
 \end{figure}
