@@ -53,14 +53,12 @@ where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient, a visual d
 Examining each individual term in Equations~\ref{eq:li} and ~\ref{eq:rte_solution_paper}, the following factors will demand a more detailed definition
 
 \begin{itemize}
-\item Light \textbf{scattering} in the media, $\Phi(\lambda, \omegam, \omegam_i)$
-\item Emitted light by \textbf{black body radiation}, $L_e(\lxo)$
+\item Light \textbf{scattering} in the media $L_i(\lxo)$ with a phase function $\Phi(\lambda, \omegam, \omegam_i)$
+\item Emitted light $L_e(\lxo)$ by \textbf{black body radiation} effects
 \item Electromagnetic \textbf{absorption}, $\sigma_a$, of certain wavelengths 
 \item Photons may follow non linear paths $\Delta\x$, due to spatially varying \textbf{refractive} indices
 \item The eyes response to the final radiance $L(\lxo)$ is modified through \textbf{visual adaptation} processes
 \end{itemize}
-
-In the interest of simplicity, the absorption and radiation effects for \textbf{soot} will be treated separately from those caused by \textbf{other chemical species}.
 
 \section{Scattering}
 \label{sec:scattering}
@@ -71,8 +69,9 @@ The scattering phase function is defined by
 \Phi (\lambda, \omegam, \omegam_i) = \frac{1 - g(\lambda)^2}{4 \pi(1 + g(\lambda)^2 - 2 g(\lambda) \omegam \omegam_i)^{\frac{3}{2}}},
 \end{equation}
 
-where $g$ can be a function of the wavelength, although in most cases is chosen to be constant.
+where $\omegam_i$ is the outgoing direction, $g$ can be a function of the wavelength, although in most cases is chosen to be constant.
 The value of $g$ must be in the range $(-1, 1)$, where $g < 0$ corresponds to backwards scattering, $g = 0$ to isotropic scattering, and $g > 0$ to forwards scattering.
+Monte Carlo techniques can be used to efficiently sample outgoing light scattering directions $\omegam_i$.
 
 \section{Black Body Radiation}
 \label{sec:black_body_radiation}
@@ -84,8 +83,8 @@ This equation characterizes the electromagnetic radiation $B(T, \lambda, \eta)$ 
 L_e(\lxo) = B(T, \lambda, \eta) = \frac{2 h c^2}{\lambda^5  (e ^\frac{h c}{\lambda k T} - 1)},
 \end{equation}
 
-where $h = 6.62606957 \times 10^{-34}~J/s$ is Planck's constant, $k = 1.3806488 \times 10^{-23}~J/K$ is Boltzmann constant and $c =  c_0 / \eta$ is the speed of light in the current medium, where $c_0 = 299792458~m/s$ is the speed of light in a vacuum and $\eta$ is the refraction index of the medium.
-The refraction index $\eta$ varies across the medium, the procedure to compute will be described in Section~\ref{sec:refraction}.
+where $h = 6.62606957 \times 10^{-34}~J/s$ is Planck's constant, $k = 1.3806488 \times 10^{-23}~J/K$ is Boltzmann constant, $\eta$ is the refraction index of the medium and $c =  c_0 / \eta$ is the speed of light in the current medium, where $c_0 = 299792458~m/s$ is the speed of light in a vacuum. 
+The refraction index $\eta$ varies across the medium, the procedure to compute it will be described in Section~\ref{sec:refraction}.
 
 \section{Absorption coefficients}
 \label{sec:absorption_coefficients}
@@ -98,6 +97,7 @@ This behaviour can be modelled using absorption coefficients for each chemical t
 \end{equation}
 
 where $N$ is the number of different chemical species in the mix, $\sigma_{ai}$ and $B_i(T, \lambda, \eta)$ are the absorption coefficient and light emission of the $i^{th}$ chemical.
+In the interest of simplicity, the absorption and radiation effects for \textbf{soot} will be treated separately from those caused by \textbf{other chemical species}.
 
 \subsection{Soot Absorption}
 \label{sec:soot_absorption}
@@ -131,11 +131,11 @@ Since our data is defined with soot densities, we have chosen the radius to be t
 \subsection{Absorption From Other Chemical Species}
 \label{sec:absorption_from_chemical_species}
 
-The emission and absorption coefficients associated with a given spectral frequency can be computed as
+The absorption coefficients associated with a given spectral frequency can be computed as
 
 
 \begin{equation}
-\sigma_a = \frac{\phi(\lambda) N_2 A_{21} \lambda^4 (e ^\frac{h c}{\lambda k T} - 1)}{8 \pi c}
+\sigma_a(\lambda, \x) = \frac{\phi(\lambda) N_2 A_{21} \lambda^4 (e ^\frac{h c}{\lambda k T} - 1)}{8 \pi c}
 \end{equation}
 
 where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density of elements, $A_{21}$ is an Einstein coefficient measuring the transition probabilities of an spontaneous emission.
@@ -266,6 +266,7 @@ where $K_1$, $K_2$, $K_3$, $K_4$, $K_5$, $K_6$, $K_7$, $K_8$, $K_9$, and $K_{10}
 
 The inputs of Ciddor's technique are a wavelength $\lambda_0$, a temperature $t$, a pressure $p$, a relative humidity value $h$ and a $CO_2$ concentration $x_c$.
 The values for all the constants needed for the method are defined in Table~\ref{tb:ciddor_constants}.
+A refraction index is computed following this method for each voxel in the volumetric data structure.
 The steps to compute the index of refraction are listed below
 
 \begin{enumerate}
@@ -282,7 +283,7 @@ The steps to compute the index of refraction are listed below
 \item Find $\rho_{w} = (x_w p m_w)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}.
 \item Find $\rho_{a} = ((1 - x_w) p m_a)/(z_m r T)$ using Equation~\ref{eq:ciddor_rho}.
 \item Find the index of refraction $\eta_{air}$ using Equation~\ref{eq:ciddor_eta_air}.
-\end{enumerate} 
+\end{enumerate}
 
 \renewcommand{\arraystretch}{1.2} % Add extra vertical space, otherwise the equations look awful in the table
 \begin{table}[htbp!]
