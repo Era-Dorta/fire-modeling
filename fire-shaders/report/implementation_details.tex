@@ -135,8 +135,9 @@ z &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) Z(\lambda) d\lam
 \end{split}
 \end{equation}
 
-The integration is performed for XYZ coefficients using a Rienmann sum.
-The Rienmann sum for each coefficient is computed as
+Note that the term $1 / \int Y(\lambda) d\lambda$ is added in each equation to act as a normalization factor for the colour brightness. 
+As we are concerned with sampled values on a discrete domain, the integration for XYZ coefficients is approximated by a Rienmann sum
+
 \begin{equation}
 \begin{split}
 x &\approx \frac{1}{\int Y(\lambda) d\lambda} \sum_i X_i c_i, \\
@@ -175,7 +176,9 @@ Note that all the factors in the transformation matrix are constants and they ca
 \subsection{Fire Volume Shader}
 \label{sec:fire_volume_shader}
 
-In order to achieve smoother rendering results, a trilinear interpolation is computed for each step in the ray-marching algorithm. 
+In order to achieve smoother rendering results, a trilinear interpolation is computed in each step in the ray-marching algorithm.
+Computing the interpolation smoothed the shape of the flames and reduced the effects of outliers is the input data.
+Tricubic interpolation was also considered, however it was discarded due to the significant increase in computational overhead.
 
 The implementation of the eye visual adaptation to the colours in fire, described in Equation~\ref{eq:visual_adaptation} is performed as described in~\cite{Nguyen:2002}, which uses Von Kries model~\cite{Fairchild:2005} 
 
