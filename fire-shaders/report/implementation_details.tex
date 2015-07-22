@@ -84,7 +84,7 @@ L(\lambda, \x, \omegam) &= e^{\sigma_t(\lambda, \x) \deltax} L(\lambda, x + \Del
 \section{Shaders Internals}
 \label{sec:shaders_internals}
 
-Talk about things like which parts are written in parallel code, instance support, shader internal memory, sparse data, how the software escalates, memory consumption, Maya integration, spectrum to rgb integration, maybe more details about units for black body radiation and everything that was not explained before
+Talk about things like which parts are written in parallel code, instance support, shader internal memory, sparse data, how the software escalates, memory consumption, Maya integration, spectrum to RGB integration, maybe more details about units for black body radiation and everything that was not explained before
 
 \begin{figure}[htbp!]
 \centering
@@ -93,12 +93,31 @@ Talk about things like which parts are written in parallel code, instance suppor
 	\label{fig:voxel_dataset_threaded}
 \end{figure}
 
+\begin{figure}[htpb!]
+        \centering
+        \begin{subfigure}[b]{0.7\textwidth}
+                \includegraphics[width=\textwidth]{img/CIE_RGB}
+                \caption{Spectral tristimulus values for CIE RGB~\cite{CIE_RGB}.}
+                \label{fig:cie_rgb}
+        \end{subfigure}%
+        \quad %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[b]{0.7\textwidth}
+                \includegraphics[width=\textwidth]{img/CIE_XYZ}
+                \caption{Spectral tristimulus values for CIE XYZ~\cite{CIE_XYZ}.}
+                \label{fig:cie_xyz}
+        \end{subfigure}
+        \caption{Colour matching curves for RGB and XYZ spaces.}
+\end{figure}
+
 In order to speed up the render time, all spectrum related computations are integrated to RGB coefficients.
 Our spectrum class has a number of samples that can be set a compile time, in general it is set to 30 samples.
 However, in certain cases a lower number is used, e.g. when computing the soot absorption coefficients, since we have values for the constants for only four wavelengths, using more than four samples in the spectrum would not improve the results.
-The integration is performed first to the XYZ colour space using a Rienmann sum.
-DEFINE XYZ COLOUR SPACE????
-NOTE ON XYZ, the advantages of XYZ are that they are constructed so that to achieve any colour perceived by a human the curve sum is always on positive factors and the luminance is encoded on the Y channel only.
+RGB coefficients are the standard colour representation used in computer screens, however not every colour visible by the human eye can be reproduced in the RGB space.
+A further disadvantage, is that for certain colours negative values for the $\bar{r}(\lambda)$ coefficient are needed, as shown in Figure~\ref{fig:cie_rgb}.
+The XYZ colour space is built using three sets of imaginary primaries, which have a series of favourable properties.
+Any colour which can be seen by the human eye can be represented with some $x(\lambda)$, $y(\lambda)$, $z(\lambda)$ coefficients, the Y channel is equal to the photopic luminous efficiency function $V(\lambda)$, which models the variation of perceived brightness, and as shown in Figure~\ref{fig:cie_xyz}, the coefficients are always positive.
+
 Given a Spectral Power Distribution (SPD) $S(\lambda)$, the $x$, $y$, $z$ coefficients for $S(\lambda)$ in the XYZ space are defined with respect to spectral matching curves $X(\lambda)$, $Y(\lambda)$ and $Z(\lambda)$, such that
 
 \begin{equation}
@@ -109,6 +128,7 @@ z &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) Z(\lambda) d\lam
 \end{split}
 \end{equation}
 
+The integration is performed for XYZ coefficients using a Rienmann sum.
 The Rienmann sum for each coefficient is computed as
 \begin{equation}
 \begin{split}
@@ -174,6 +194,7 @@ The implementation of the eye visual adaptation to the colours in fire, describe
 where $\x_a = \left[ x_a, y_a, z_a \right]^{T}$ is a column vector with the XYZ adapted coefficients, $\mathbf{T}_w$ is the Von Kries transformation, $x_{max}$ are the coefficients for the maximum temperature present in the fire,  $\mathbf{l}_{max} = \left[ l_{max}, m_{max}, s_{max} \right]^{T}$ are the LMS coefficients of $x_{max}$, $\mathbf{M}$ is a XYZ to LMS transformation matrix and, $\x_i = \left[ x_i, y_i, z_i \right]^{T}$ is a column vector with the XYZ input coefficients.
 The XYZ to LMS $\mathbf{M}$ matrix is a Hunt-Pointer-Estevez transformation, proposed by~\cite{Hunt:1985}, which has been normalized to the CIE Standard Illuminant D65.
 Since $M$ is a small $3 \times 3$ matrix, the inversion can be performed with any of the standard methods, in our case we used \Matlab default's algorithm and the values were hard-coded in the shader.
+Solving the aforementioned equation in the XYZ space, instead of the RGB, will improve the quality of the final rendered image.
 
 \subsection{Fire Light Shader}
 \label{sec:fire_light_shader}

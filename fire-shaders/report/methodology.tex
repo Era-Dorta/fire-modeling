@@ -63,15 +63,16 @@ Examining each individual term in Equations~\ref{eq:li} and ~\ref{eq:rte_solutio
 \section{Scattering}
 \label{sec:scattering}
 
-The scattering phase function is defined by
+Some photons travelling along arbitrary directions $\omegam_i$, might be scattered in the direction of interest $\omegam$.
+The amount of photons which are subjected to this process is controlled by a coefficient $\sigma_s$, the radiance carried by the photons is denoted by $L_i(\lxo)$ and follows a distribution defined by the phase function
 
 \begin{equation}
 \Phi (\lambda, \omegam, \omegam_i) = \frac{1 - g(\lambda)^2}{4 \pi(1 + g(\lambda)^2 - 2 g(\lambda) \omegam \omegam_i)^{\frac{3}{2}}},
 \end{equation}
 
-where $\omegam_i$ is the outgoing direction, $g$ can be a function of the wavelength, although in most cases is chosen to be constant.
+where is the outgoing direction, $g$ can be a function of the wavelength, although in most cases is chosen to be constant.
 The value of $g$ must be in the range $(-1, 1)$, where $g < 0$ corresponds to backwards scattering, $g = 0$ to isotropic scattering, and $g > 0$ to forwards scattering.
-Monte Carlo techniques can be used to efficiently sample outgoing light scattering directions $\omegam_i$.
+Monte Carlo techniques can be used to sample the light scattering directions $\omegam_i$.
 
 \section{Black Body Radiation}
 \label{sec:black_body_radiation}
