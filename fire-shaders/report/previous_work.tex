@@ -30,7 +30,7 @@ The transparency of would increase towards the outer vertices, thus providing an
 
 \begin{figure}[htpb!]
         \centering
-        \begin{subfigure}[b]{0.28\textwidth}
+        \begin{subfigure}[b]{0.275\textwidth}
                 \includegraphics[width=\textwidth]{img/reeves_1983}
                 \caption{\cite{Reeves:1983}.}
         \end{subfigure}%
@@ -96,14 +96,36 @@ In order to achieve real time simulations,~\cite{Bridault:2006} modelled the fla
         \label{fig:geometry_skeleton}
 \end{figure}
 
-\textbf{Data driven} methods are use to simulate fire with data from real flames.
+\textbf{Data driven} methods are use to simulate fire with data from real flames, as shown in Figure~\ref{fig:data_driven}.
 The quality of the animation is depends directly on the data, and by avoiding the simulation stage the computation overhead is reduced significantly.
 However, there are severe limitations when producing new animations and interactions with other objects.
 \cite{Rushmeier:1995} captured a heptane pool fire with water-cooled nitrogen-purged probes.
 Using two images from orographic camera views,~\cite{Hasinoff:2003} reconstructed 3D volumetric fire using tomographic techniques.
 \cite{Ihrke:2004} extended the work by~\cite{Hasinoff:2003}, the authors presented a method to reconstruct fire volumes using trilinear basis functions in scenes recorded with eight cameras.
 
-\textbf{Physically based} simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products.  
+\begin{figure}[htpb!]
+        \centering
+        \begin{subfigure}[t]{0.2\textwidth}
+                \includegraphics[width=\textwidth]{img/rushmeier_1995}
+                \caption{\cite{Rushmeier:1995}.}
+        \end{subfigure}%
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.162\textwidth}
+                \includegraphics[width=\textwidth]{img/hasinoff_2003}
+                \caption{\cite{Hasinoff:2003}.}
+        \end{subfigure}  
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.21\textwidth}
+                \includegraphics[width=\textwidth]{img/ihrke_2004}
+                \caption{\cite{Ihrke:2004}.}
+        \end{subfigure}          
+        \caption{Date driven fire examples.}
+        \label{fig:data_driven}
+\end{figure}
+
+\textbf{Physically based} simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products, as shown in Figure~\ref{fig:physically_based}.  
 Incompressible flow equations were used by~\cite{Stam:1995} to drive a fire simulation.
 Given initial fuel conditions, the fire spread is advected on a grid using an advection-diffusion type equation.
 Building on the work on a semi-Lagrangian fluid solver of~\cite{Stam:1999}, a model which includes gaseous fuel and gaseous byproducts was proposed by~\cite{Nguyen:2002}.
@@ -112,6 +134,29 @@ As with the noise-based methods, this addition is visually attractive, yet it is
 Capitalizing on the recent advances in GPUs parallel processing power, \cite{Horvath:2009} proposed a fixed camera model.
 Particle properties are computed on a three-dimensional coarse grid, which are then projected into several view dependant two-dimensional slices.
 The authors' model is based on the assumption that fine variations, which are perpendicular to the projection plane, are not individually visible and, they do not affect significantly the overall flow.
+
+
+\begin{figure}[htpb!]
+        \centering
+        \begin{subfigure}[t]{0.2\textwidth}
+                \includegraphics[width=\textwidth]{img/stam_1995}
+                \caption{\cite{Stam:1995}.}
+        \end{subfigure}%
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.22\textwidth}
+                \includegraphics[width=\textwidth]{img/nguyen_2002}
+                \caption{\cite{Nguyen:2002}.}
+        \end{subfigure}  
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.375\textwidth}
+                \includegraphics[width=\textwidth]{img/horvath_2009}
+                \caption{\cite{Horvath:2009}.}
+        \end{subfigure}          
+        \caption{Physically-based fire examples.}
+        \label{fig:physically_based}
+\end{figure}
  
 \textbf{Other effects} directly related to fire have also been explored.
 \cite{Feldman:2003} presented a model to simulate suspended particles during explosions.
@@ -122,6 +167,28 @@ Heat is transferred between the different parts of the object and the air; the d
 \cite{Chadwick:2011} proposed a method to automatically generate plausible noise given for a given fire simulation.
 Low frequency sound is estimated using a physical model whose inputs are the flame front and heat release.
 A data driven sound synthesis approach, based on the work by~\cite{Wei:2000}, is applied to generate the high frequency content.
+
+\begin{figure}[htpb!]
+        \centering
+        \begin{subfigure}[t]{0.175\textwidth}
+                \includegraphics[width=\textwidth]{img/feldman_2003}
+                \caption{\cite{Feldman:2003}.}
+        \end{subfigure}%
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.4\textwidth}
+                \includegraphics[width=\textwidth]{img/melek_2005}
+                \caption{\cite{Melek:2005}.}
+        \end{subfigure}  
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.3\textwidth}
+                \includegraphics[width=\textwidth]{img/chadwick_2011}
+                \caption{\cite{Chadwick:2011}.}
+        \end{subfigure}          
+        \caption{Other effects with fire.}
+        \label{fig:other_effects}
+\end{figure}
 
 %\subsection{Smoke Simulation}
 %\label{sec:smoke_simulation}
