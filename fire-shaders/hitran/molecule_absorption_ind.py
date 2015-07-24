@@ -10,7 +10,11 @@ from hapi import db_begin, select, fetch, absorptionCoefficient_Lorentz
 MoleculeType = namedtuple("MoleculeType", "name number isotope")
 
 # List of molecules to be used
-molecules = [MoleculeType('H2O', 1, 1)]
+molecules = []
+
+#molecules.append(MoleculeType('N2O', 4, 1)) # Nitrous Oxide, Blue flame
+molecules.append(MoleculeType('SO2', 9, 1)) # Nitrous Oxide, Blue flame
+molecules.append(MoleculeType('H2', 45, 1)) # Hydrogen, Orange flame
 
 db_begin('data')  # Creates or gets access to database data
 
