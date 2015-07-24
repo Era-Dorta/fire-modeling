@@ -39,6 +39,19 @@ void VoxelDatasetColor::compute_soot_emission_threaded(
 	normalize_bb_radiation(visual_adaptation_factor);
 }
 
+void VoxelDatasetColor::compute_chemical_emission_threaded(
+		float visual_adaptation_factor, const char* filename) {
+	// Spectrum static initialisation, ideally should only be called once
+	// move it from here to a proper initialisation context
+	Spectrum::Init();
+
+	readSpectralLineFile(filename);
+
+	compute_function_threaded(&VoxelDatasetColor::compute_chemical_emission);
+
+	normalize_bb_radiation(visual_adaptation_factor);
+}
+
 const miColor& VoxelDatasetColor::get_max_voxel_value() {
 	return max_color;
 }
@@ -186,6 +199,46 @@ void VoxelDatasetColor::compute_soot_emission(unsigned start_offset,
 	}
 }
 
+void VoxelDatasetColor::compute_chemical_emission(unsigned i_width,
+		unsigned i_height, unsigned i_depth, unsigned e_width,
+		unsigned e_height, unsigned e_depth) {
+	miColor t;
+	float xyz_norm;
+	float b[nSpectralSamples];
+	for (unsigned i = i_width; i < e_width; i++) {
+		for (unsigned j = i_height; j < e_height; j++) {
+			for (unsigned k = i_depth; k < e_depth; k++) {
+				t = get_voxel_value(i, j, k);
+				// Anything below 0 degrees Celsius or 400 Kelvin will not glow
+				// TODO Add as a parameter
+				if (t.r > 400) {
+					// TODO Pass a real refraction index, not 1
+					// Get the blackbody values
+					ChemicalEmission(&lambdas[0], &spectralLines[0],
+							lambdas.size(), t.r, 1, b);
+
+					// Create a Spectrum representation with the computed values
+					// Spectrum expects the wavelengths to be in nanometres
+					Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
+							lambdas.size());
+
+					// Transform the spectrum to XYZ coefficients
+					b_spec.ToXYZ(&t.r);
+
+					// Normalise the XYZ coefficients
+					xyz_norm = 1.0 / std::max(std::max(t.r, t.g), t.b);
+					miaux_scale_color(&t, xyz_norm);
+
+				} else {
+					// If the temperature is low, just set the colour to 0
+					miaux_set_rgb(&t, 0);
+				}
+				set_voxel_value(i, j, k, t);
+			}
+		}
+	}
+}
+
 // TODO This could be threaded too, make all threads wait for each other and
 // then use this code with start end indices
 void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
@@ -297,5 +350,32 @@ void VoxelDatasetColor::clamp_0_1(float &v) {
 	}
 	if (v > 1) {
 		v = 1;
+	}
+}
+
+void VoxelDatasetColor::readSpectralLineFile(const char* filename) {
+	std::ifstream fp(filename, std::ios_base::in);
+	if (!fp.is_open()) {
+		mi_fatal("Error opening file \"%s\".", filename);
+	}
+	unsigned num_lines = 0;
+	safe_ascii_read(fp, num_lines);
+
+	lambdas.resize(num_lines);
+	spectralLines.resize(num_lines);
+
+	for (unsigned i = 0; i < num_lines; i++) {
+		safe_ascii_read(fp, lambdas[i]);
+		safe_ascii_read(fp, spectralLines[i]);
+	}
+	fp.close();
+}
+
+template<typename T>
+void VoxelDatasetColor::safe_ascii_read(std::ifstream& fp, T &output) {
+	fp >> output;
+	if (!fp) {
+		fp.close();
+		mi_fatal("Error reading file");
 	}
 }

@@ -58,7 +58,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
 				width, height, depth, temperature_scale, temperature_offset);
 
-		voxels->compute_soot_emission_threaded(visual_adaptation_factor);
+		//voxels->compute_soot_emission_threaded(visual_adaptation_factor);
+		voxels->compute_chemical_emission_threaded(visual_adaptation_factor,
+				"/home/gdp24/maya/projects/fire/data/spectral_lines/S.specline");
 
 		// Restore previous state
 		state->point = original_point;

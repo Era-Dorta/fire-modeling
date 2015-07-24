@@ -9,6 +9,7 @@
 #define VOXELDATASETCOLOR_H_
 
 #include <vector>
+#include <fstream>
 
 #include "VoxelDataset.h"
 
@@ -18,6 +19,8 @@ public:
 	VoxelDatasetColor();
 	virtual void compute_sigma_a_threaded();
 	virtual void compute_soot_emission_threaded(float visual_adaptation_factor);
+	virtual void compute_chemical_emission_threaded(
+			float visual_adaptation_factor, const char* filename);
 	const miColor& get_max_voxel_value();
 protected:
 	virtual openvdb::Vec3f bilinear_interp(float tx, float ty,
@@ -31,13 +34,20 @@ private:
 	void compute_soot_coefficients();
 	void compute_sigma_a(unsigned start_offset, unsigned end_offset);
 	void compute_soot_emission(unsigned start_offset, unsigned end_offset);
+	void compute_chemical_emission(unsigned i_width, unsigned i_height,
+			unsigned i_depth, unsigned e_width, unsigned e_height,
+			unsigned e_depth);
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
 	void fill_lambda_vector();
 	static void clamp_0_1(openvdb::Vec3f& v);
 	static void clamp_0_1(float &v);
+	void readSpectralLineFile(const char* filename);
+	template<typename T>
+	void safe_ascii_read(std::ifstream& fp, T &output);
 
 	std::vector<miScalar> sootCoefficients;
+	std::vector<float> spectralLines;
 	std::vector<float> lambdas;
 	miColor max_color;
 };
