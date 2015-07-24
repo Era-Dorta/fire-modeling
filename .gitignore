@@ -49,6 +49,12 @@ build
 # Phyton compiled files 
 *.pyc
 
+
 # Matlab mex compiled files
 *.mexw32
 *.mexa64
+
+# HITRAN data files
+*.data
+*.header
+
