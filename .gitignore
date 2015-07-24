@@ -42,3 +42,6 @@ build
 *.bbl
 *.toc
 *.bak
+
+# Phyton compiled files 
+*.pyc
