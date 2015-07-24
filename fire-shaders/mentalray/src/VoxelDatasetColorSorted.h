@@ -12,7 +12,8 @@
 
 class VoxelDatasetColorSorted: public VoxelDatasetColor {
 public:
-	virtual void compute_bb_radiation_threaded() override;
+	virtual void compute_bb_radiation_threaded(float visual_adaptation_factor)
+			override;
 	const miColor& get_sorted_voxel_value(unsigned index) const;
 	void get_i_j_k_from_sorted(miVector &ijk, const unsigned &index) const;
 private:

@@ -14,6 +14,7 @@ struct fire_volume_light {
 	miTag temperature_shader;
 	miScalar temperature_scale;
 	miScalar temperature_offset;
+	miScalar visual_adaptation_factor;
 	miScalar shadow_threshold;
 	miScalar intensity;
 	miScalar decay;
@@ -34,6 +35,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 				&params->temperature_scale);
 		miScalar temperature_offset = *mi_eval_scalar(
 				&params->temperature_offset);
+		miScalar visual_adaptation_factor = *mi_eval_scalar(
+				&params->visual_adaptation_factor);
 		miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
 
 		VoxelDatasetColorSorted *voxels =
@@ -54,7 +57,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_copy_voxel_dataset(voxels, state, temperature_shader, width,
 				height, depth, temperature_scale, temperature_offset);
 
-		voxels->compute_bb_radiation_threaded();
+		voxels->compute_bb_radiation_threaded(visual_adaptation_factor);
 
 		// Restore previous state
 		state->point = original_point;

@@ -17,7 +17,7 @@ class VoxelDatasetColor: public VoxelDataset<miColor> {
 public:
 	VoxelDatasetColor();
 	virtual void compute_sigma_a_threaded();
-	virtual void compute_bb_radiation_threaded();
+	virtual void compute_bb_radiation_threaded(float visual_adaptation_factor);
 	const miColor& get_max_voxel_value();
 protected:
 	virtual miColor bilinear_interp(float tx, float ty, const miColor& c00,
@@ -34,7 +34,7 @@ private:
 	void compute_bb_radiation(unsigned i_width, unsigned i_height,
 			unsigned i_depth, unsigned e_width, unsigned e_height,
 			unsigned e_depth);
-	void normalize_bb_radiation();
+	void normalize_bb_radiation(float visual_adaptation_factor);
 	unsigned get_maximum_voxel_index();
 	void compute_wavelengths();
 

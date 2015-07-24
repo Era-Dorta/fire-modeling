@@ -25,7 +25,8 @@ void VoxelDatasetColor::compute_sigma_a_threaded() {
 	compute_function_threaded(&VoxelDatasetColor::compute_sigma_a);
 }
 
-void VoxelDatasetColor::compute_bb_radiation_threaded() {
+void VoxelDatasetColor::compute_bb_radiation_threaded(
+		float visual_adaptation_factor) {
 	// Spectrum static initialisation, ideally should only be called once
 	// move it from here to a proper initialisation context
 	Spectrum::Init();
@@ -34,7 +35,7 @@ void VoxelDatasetColor::compute_bb_radiation_threaded() {
 
 	compute_function_threaded(&VoxelDatasetColor::compute_bb_radiation);
 
-	normalize_bb_radiation();
+	normalize_bb_radiation(visual_adaptation_factor);
 }
 
 const miColor& VoxelDatasetColor::get_max_voxel_value() {
@@ -192,7 +193,7 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 
 // TODO This could be threaded too, make all threads wait for each other and
 // then use this code with start end indices
-void VoxelDatasetColor::normalize_bb_radiation() {
+void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 	auto max_ind = get_maximum_voxel_index();
 	const miColor& max_xyz = block[max_ind];
 	miColor inv_max_lms;
@@ -218,9 +219,6 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 	 * newxyz = invm * mLw * m * oldxyz; % For all the points
 	 */
 
-	// TODO Add as a shader parameter
-	miScalar t = 0.5; // Interpolation factor
-
 	// TODO This normalisation is assuming the fire is the main light in the
 	// scene, it should pick the brightest object and normalise with that
 	for (unsigned i = 0; i < count; i++) {
@@ -237,7 +235,8 @@ void VoxelDatasetColor::normalize_bb_radiation() {
 
 			// Give the user a control parameter between the old and the new
 			// colours
-			color_lms = linear_interp(t, block[i], color_lms);
+			color_lms = linear_interp(visual_adaptation_factor, block[i],
+					color_lms);
 
 			XYZToRGB(&color_lms.r, &block[i].r);
 
