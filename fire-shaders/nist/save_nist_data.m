@@ -39,5 +39,8 @@ for i=1:size(spec, 2)
     end
     
     % Save both variables into a file
-    save(['data/', spec{i}, '.specline'], 'norm_intensities', '-ascii');
+    fileID = fopen(['data/', spec{i}, '.specline'],'w');
+    fprintf(fileID, '%d\n',num_valid);
+    fprintf(fileID, '%d %d\n',norm_intensities');
+    fclose(fileID);
 end
