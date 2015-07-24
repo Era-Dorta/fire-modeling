@@ -26,15 +26,15 @@ void VoxelDatasetColor::compute_sigma_a_threaded() {
 	compute_function_threaded(&VoxelDatasetColor::compute_sigma_a);
 }
 
-void VoxelDatasetColor::compute_bb_radiation_threaded(
+void VoxelDatasetColor::compute_soot_emission_threaded(
 		float visual_adaptation_factor) {
 	// Spectrum static initialisation, ideally should only be called once
 	// move it from here to a proper initialisation context
 	Spectrum::Init();
 
-	compute_wavelengths();
+	fill_lambda_vector();
 
-	compute_function_threaded(&VoxelDatasetColor::compute_bb_radiation);
+	compute_function_threaded(&VoxelDatasetColor::compute_soot_emission);
 
 	normalize_bb_radiation(visual_adaptation_factor);
 }
@@ -149,7 +149,7 @@ void VoxelDatasetColor::compute_sigma_a(unsigned start_offset,
 	}
 }
 
-void VoxelDatasetColor::compute_bb_radiation(unsigned start_offset,
+void VoxelDatasetColor::compute_soot_emission(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f t;
 	float xyz_norm;
@@ -270,7 +270,7 @@ openvdb::Coord VoxelDatasetColor::get_maximum_voxel_index() {
 	return max_ind;
 }
 
-void VoxelDatasetColor::compute_wavelengths() {
+void VoxelDatasetColor::fill_lambda_vector() {
 	unsigned l;
 	float lambda;
 	lambdas.resize(nSpectralSamples);

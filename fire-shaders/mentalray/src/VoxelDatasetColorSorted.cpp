@@ -9,10 +9,10 @@
 
 #include "VoxelDatasetColorSorted.h"
 
-void VoxelDatasetColorSorted::compute_bb_radiation_threaded(
+void VoxelDatasetColorSorted::compute_soot_emission_threaded(
 		float visual_adaptation_factor) {
 	sorted_ind.resize(block->activeVoxelCount());
-	VoxelDatasetColor::compute_bb_radiation_threaded(visual_adaptation_factor);
+	VoxelDatasetColor::compute_soot_emission_threaded(visual_adaptation_factor);
 	sort();
 }
 

@@ -17,7 +17,7 @@ class VoxelDatasetColor: public VoxelDataset<openvdb::Vec3f, openvdb::Vec3STree>
 public:
 	VoxelDatasetColor();
 	virtual void compute_sigma_a_threaded();
-	virtual void compute_bb_radiation_threaded(float visual_adaptation_factor);
+	virtual void compute_soot_emission_threaded(float visual_adaptation_factor);
 	const miColor& get_max_voxel_value();
 protected:
 	virtual openvdb::Vec3f bilinear_interp(float tx, float ty,
@@ -30,10 +30,10 @@ private:
 			void (VoxelDatasetColor::*foo)(unsigned, unsigned));
 	void compute_soot_coefficients();
 	void compute_sigma_a(unsigned start_offset, unsigned end_offset);
-	void compute_bb_radiation(unsigned start_offset, unsigned end_offset);
+	void compute_soot_emission(unsigned start_offset, unsigned end_offset);
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
-	void compute_wavelengths();
+	void fill_lambda_vector();
 	static void clamp_0_1(openvdb::Vec3f& v);
 	static void clamp_0_1(float &v);
 
