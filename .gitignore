@@ -45,3 +45,6 @@ build
 
 # Phyton compiled files 
 *.pyc
+
+# Custom data files for spectral data
+*.specline
