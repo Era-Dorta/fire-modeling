@@ -10,13 +10,14 @@
 
 #include <array>
 #include <functional>
+#include <openvdb/openvdb.h>
 
 #include "shader.h"
 
 #define MAX_DATASET_DIM 200
 #define MAX_DATASET_SIZE (MAX_DATASET_DIM * MAX_DATASET_DIM * MAX_DATASET_DIM)
 
-template<typename T>
+template<typename DataT, typename TreeT>
 class VoxelDataset {
 public:
 	enum InterpolationMode {
@@ -28,16 +29,16 @@ public:
 	VoxelDataset(const VoxelDataset &other);
 	virtual ~VoxelDataset() = default;
 
-	VoxelDataset<T>& operator=(const VoxelDataset<T> &other);
+	VoxelDataset<DataT, TreeT>& operator=(const VoxelDataset<DataT, TreeT> &other);
 
 	void clear();
 	void resize(unsigned width, unsigned height, unsigned depth);
 
-	T get_voxel_value(float x, float y, float z) const;
-	T get_fitted_voxel_value(const miVector *p, const miVector *min_point,
+	DataT get_voxel_value(float x, float y, float z) const;
+	DataT get_fitted_voxel_value(const miVector *p, const miVector *min_point,
 			const miVector *max_point) const;
-	const T& get_voxel_value(unsigned x, unsigned y, unsigned z) const;
-	void set_voxel_value(unsigned x, unsigned y, unsigned z, const T& val);
+	const DataT& get_voxel_value(unsigned x, unsigned y, unsigned z) const;
+	void set_voxel_value(unsigned x, unsigned y, unsigned z, const DataT& val);
 
 	int getWidth() const;
 	int getHeight() const;
@@ -47,20 +48,22 @@ public:
 	InterpolationMode getInterpolationMode() const;
 	void setInterpolationMode(InterpolationMode interpolation_mode);
 protected:
-	virtual T bilinear_interp(float tx, float ty, const T&c00, const T&c01,
-			const T&c10, const T&c11) const = 0;
-	virtual T linear_interp(float t, const T&c0, const T&c1) const = 0;
+	virtual DataT bilinear_interp(float tx, float ty, const DataT& c00, const DataT& c01,
+			const DataT& c10, const DataT& c11) const = 0;
+	virtual DataT linear_interp(float t, const DataT& c0, const DataT& c1) const = 0;
 private:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
-	T trilinear_interpolation(float x, float y, float z) const;
-	T no_interpolation(float x, float y, float z) const;
+	DataT trilinear_interpolation(float x, float y, float z) const;
+	DataT no_interpolation(float x, float y, float z) const;
 protected:
 	unsigned width, height, depth, count;
-	std::array<T, MAX_DATASET_SIZE> block;
+
+	typename openvdb::Grid<TreeT>::Ptr block;
+	typename openvdb::Grid<TreeT>::Accessor accessor;
 private:
 	InterpolationMode interpolation_mode;
-	std::_Mem_fn<T (VoxelDataset<T>::*)(float, float, float) const> interpolate_function;
+	std::_Mem_fn<DataT (VoxelDataset<DataT, TreeT>::*)(float, float, float) const> interpolate_function;
 };
 
 // The compiler needs direct access to the template class implementation or

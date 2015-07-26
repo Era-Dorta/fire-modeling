@@ -11,35 +11,39 @@
 
 void VoxelDatasetColorSorted::compute_bb_radiation_threaded(
 		float visual_adaptation_factor) {
+	sorted_ind.resize(block->activeVoxelCount());
 	VoxelDatasetColor::compute_bb_radiation_threaded(visual_adaptation_factor);
 	sort();
 }
 
 void VoxelDatasetColorSorted::get_i_j_k_from_sorted(miVector &ijk,
 		const unsigned &index) const {
-	unsigned index_block = sorted_ind[index];
-
-	ijk.x = index_block % height;
-	ijk.y = ((index_block - (unsigned) ijk.x) / height) % depth;
-	ijk.z = ((index_block - (unsigned) ijk.x) / height - (unsigned) ijk.y)
-			/ depth;
+	ijk.x = sorted_ind[index].x();
+	ijk.y = sorted_ind[index].y();
+	ijk.z =  sorted_ind[index].z();
 }
 
 void VoxelDatasetColorSorted::sort() {
 	// initialise original index locations
-	for (unsigned i = 0; i < count; i++) {
-		sorted_ind[i] = i;
+	unsigned int i = 0;
+	for (openvdb::Vec3SGrid::ValueOnCIter iter = block->cbeginValueOn(); iter; ++iter) {
+		sorted_ind[i] = iter.getCoord();
+		i++;
 	}
 
 	// sort indexes based on comparing values in v
 	//auto foo_member = std::mem_fn(&VoxelDatasetColorSorted::comp);
-	std::sort(sorted_ind.begin(), sorted_ind.begin() + count - 1,
-			[&](int i1, int i2) {return block[i1].r + block[i1].g +
-				block[i1].b > block[i2].r + block[i2].g +
-				block[i2].b;});
+	std::sort(sorted_ind.begin(), sorted_ind.begin(),
+			[&](openvdb::Coord i1, openvdb::Coord i2) {return accessor.getValue(i1).x() + accessor.getValue(i1).y() +
+					accessor.getValue(i1).z() > accessor.getValue(i2).x() + accessor.getValue(i2).y() +
+					accessor.getValue(i2).z();});
 }
 
-const miColor& VoxelDatasetColorSorted::get_sorted_voxel_value(
+miColor VoxelDatasetColorSorted::get_sorted_voxel_value(
 		unsigned index) const {
-	return block[sorted_ind[index]];
+	miColor res;
+	res.r = accessor.getValue(sorted_ind[index]).x();
+	res.g = accessor.getValue(sorted_ind[index]).y();
+	res.b = accessor.getValue(sorted_ind[index]).z();
+	return res;
 }

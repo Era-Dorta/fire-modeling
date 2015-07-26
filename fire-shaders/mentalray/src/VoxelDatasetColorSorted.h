@@ -14,11 +14,11 @@ class VoxelDatasetColorSorted: public VoxelDatasetColor {
 public:
 	virtual void compute_bb_radiation_threaded(float visual_adaptation_factor)
 			override;
-	const miColor& get_sorted_voxel_value(unsigned index) const;
+	miColor get_sorted_voxel_value(unsigned index) const;
 	void get_i_j_k_from_sorted(miVector &ijk, const unsigned &index) const;
 private:
 	void sort();
-	std::array<unsigned, MAX_DATASET_SIZE> sorted_ind;
+	std::vector<openvdb::Coord> sorted_ind;
 };
 
 #endif /* VOXELDATASETCOLORSORTED_H_ */

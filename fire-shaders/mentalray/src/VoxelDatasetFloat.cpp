@@ -10,12 +10,12 @@
 #include <algorithm>
 
 VoxelDatasetFloat::VoxelDatasetFloat() :
-		VoxelDataset<float>() {
+		VoxelDataset<float, openvdb::FloatTree>() {
 }
 
 VoxelDatasetFloat::VoxelDatasetFloat(const char* filename,
 		FILE_FORMAT file_format) :
-		VoxelDataset<float>() {
+		VoxelDataset<float, openvdb::FloatTree>() {
 	initialize_with_file(filename, file_format);
 }
 
@@ -84,19 +84,17 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 
 	resize(width, height, depth);
 
-	for (unsigned i = 0; i < count; i++) {
-		safe_ascii_read(fp, block[i]);
+	for (unsigned i = 0; i < width; i++) {
+		for (unsigned j = 0; j < width; j++) {
+			for (unsigned k = 0; k < width; k++) {
+				float read_val;
+				safe_ascii_read(fp, read_val);
+				accessor.setValueOn(openvdb::Coord(i,j,k), read_val);
+			}
+		}
 	}
 
 	fp.close();
-}
-
-void VoxelDatasetFloat::set_all_voxels_to(float val) {
-	// Initialise all densities to 0, because the data comes in as a sparse
-	// matrix
-	for (unsigned i = 0; i < count; i++) {
-		block[i] = val;
-	}
 }
 
 void VoxelDatasetFloat::initialize_with_file_bin_only_red(
@@ -109,10 +107,6 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 
 	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
 	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
-
-	// Initialise all densities to 0, because the data comes in as a sparse
-	// matrix
-	set_all_voxels_to(0);
 
 	int count;
 	// Number of points in the file, integer, 4 bytes
@@ -146,10 +140,6 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 
 	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
 	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
-
-	// Initialise all densities to 0, because the data comes in as a sparse
-	// matrix
-	set_all_voxels_to(0);
 
 	int count;
 	// Number of points in the file, integer, 4 bytes

@@ -12,8 +12,8 @@
 
 #include "VoxelDataset.h"
 
-template class VoxelDataset<float> ;
-class VoxelDatasetFloat: public VoxelDataset<float> {
+template class VoxelDataset<float, openvdb::FloatTree>;
+class VoxelDatasetFloat: public VoxelDataset<float, openvdb::FloatTree> {
 public:
 	enum FILE_FORMAT {
 		ASCII_SINGLE_VALUE, BIN_ONLY_RED, BIN_MAX
@@ -26,14 +26,13 @@ public:
 			BIN_ONLY_RED);
 	void apply_sin_perturbation();
 protected:
-	virtual float bilinear_interp(float tx, float ty, const float&c00,
-			const float&c01, const float&c10, const float&c11) const;
-	virtual float linear_interp(float t, const float&c0, const float&c1) const;
+	virtual float bilinear_interp(float tx, float ty, const float& c00,
+			const float& c01, const float& c10, const float& c11) const;
+	virtual float linear_interp(float t, const float& c0, const float& c1) const;
 private:
 	void initialize_with_file_acii_single(const char* filename);
 	void initialize_with_file_bin_only_red(const char* filename);
 	void initialize_with_file_bin_max(const char* filename);
-	void set_all_voxels_to(float val);
 	void read_bin_xyz(std::ifstream& fp, unsigned& x, unsigned& y, unsigned& z);
 	void read_bin_rgba(std::ifstream& fp, double& r, double& g, double& b,
 			double& a);

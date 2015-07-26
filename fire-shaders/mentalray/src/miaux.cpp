@@ -265,6 +265,7 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 	state->type = (miRay_type) DENSITY_RAW;
 	voxels->resize(width, height, depth);
 	miColor density = { 0, 0, 0, 0 };
+	openvdb::Vec3f density_v = openvdb::Vec3f::zero();
 	for (unsigned i = 0; i < width; i++) {
 		for (unsigned j = 0; j < height; j++) {
 			for (unsigned k = 0; k < depth; k++) {
@@ -276,7 +277,9 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 				if (density.r != 0) { // Don't add offset if there isn't any data
 					density.r = density.r * scale + offset;
 				}
-				voxels->set_voxel_value(i, j, k, density);
+				density.r = density.r * scale + offset;
+				density_v.x() = density.r;
+				voxels->set_voxel_value(i, j, k, density_v);
 			}
 		}
 	}
@@ -287,8 +290,11 @@ void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
 	miVector min_point = { -1, -1, -1 };
 	miVector max_point = { 1, 1, 1 };
 	if (miaux_point_inside(point, &min_point, &max_point)) {
-		*sigma_a = voxels->get_fitted_voxel_value(point, &min_point,
+		openvdb::Vec3f sigma_av = voxels->get_fitted_voxel_value(point, &min_point,
 				&max_point);
+		sigma_a->r = sigma_av.x();
+		sigma_a->g = sigma_av.y();
+		sigma_a->b = sigma_av.z();
 	} else {
 		miaux_set_rgb(sigma_a, 0.0);
 	}

@@ -14,7 +14,7 @@
 #include "miaux.h"
 
 VoxelDatasetColor::VoxelDatasetColor() :
-		VoxelDataset<miColor>() {
+		VoxelDataset<openvdb::Vec3f, openvdb::Vec3fTree>() {
 	miaux_set_rgb(&max_color, 0);
 }
 
@@ -42,20 +42,16 @@ const miColor& VoxelDatasetColor::get_max_voxel_value() {
 	return max_color;
 }
 
-miColor VoxelDatasetColor::bilinear_interp(float tx, float ty,
-		const miColor& c00, const miColor&c01, const miColor& c10,
-		const miColor& c11) const {
-	miColor c0 = linear_interp(tx, c00, c10);
-	miColor c1 = linear_interp(tx, c01, c11);
+openvdb::Vec3f VoxelDatasetColor::bilinear_interp(float tx, float ty,
+		const openvdb::Vec3f& c00, const openvdb::Vec3f&c01, const openvdb::Vec3f& c10,
+		const openvdb::Vec3f& c11) const {
+	openvdb::Vec3f c0 = linear_interp(tx, c00, c10);
+	openvdb::Vec3f c1 = linear_interp(tx, c01, c11);
 	return linear_interp(ty, c0, c1);
 }
-miColor VoxelDatasetColor::linear_interp(float t, const miColor& c0,
-		const miColor& c1) const {
-	miColor res;
-	miaux_copy_color(&res, &c1);
-	miaux_scale_color(&res, t);
-	miaux_add_scaled_color(&res, &c0, 1 - t);
-	return res;
+openvdb::Vec3f VoxelDatasetColor::linear_interp(float t, const openvdb::Vec3f& c0,
+		const openvdb::Vec3f& c1) const {
+	return c0 * (1 - t) + c1 * t;
 }
 
 void VoxelDatasetColor::compute_function_threaded(
@@ -122,15 +118,15 @@ void VoxelDatasetColor::compute_soot_coefficients() {
 void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 		unsigned i_depth, unsigned e_width, unsigned e_height,
 		unsigned e_depth) {
-	miColor density;
+	openvdb::Vec3f density;
 	std::vector<float> sigma_a(Soot::num_samples);
 	for (unsigned i = i_width; i < e_width; i++) {
 		for (unsigned j = i_height; j < e_height; j++) {
 			for (unsigned k = i_depth; k < e_depth; k++) {
 				density = get_voxel_value(i, j, k);
-				if (density.r > 0.0) {
+				if (density.x() > 0.0) {
 					for (unsigned l = 0; l < sigma_a.size(); l++) {
-						sigma_a.at(l) = density.r * sootCoefficients[l];
+						sigma_a.at(l) = density.x() * sootCoefficients[l];
 					}
 					// Create a Spectrum representation with the computed values
 					// Spectrum expects the wavelengths to be in nanometres
@@ -140,11 +136,11 @@ void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 					// Transform the spectrum to RGB coefficients, since CIE is
 					// not fully represented by RGB clamp negative intensities
 					// to zero
-					sigma_a_spec.ToRGB(&density.r);
-					miaux_clamp_color(&density, 0, 1);
+					sigma_a_spec.ToRGB(&density.x());
+					clampVec3f(density);
 				} else {
 					// Safe check for negative densities
-					miaux_set_rgb(&density, 0);
+					density.setZero();
 				}
 				set_voxel_value(i, j, k, density);
 			}
@@ -155,7 +151,7 @@ void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
 void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 		unsigned i_height, unsigned i_depth, unsigned e_width,
 		unsigned e_height, unsigned e_depth) {
-	miColor t;
+	openvdb::Vec3f t;
 	float xyz_norm;
 	float b[nSpectralSamples];
 	for (unsigned i = i_width; i < e_width; i++) {
@@ -164,10 +160,10 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 				t = get_voxel_value(i, j, k);
 				// Anything below 0 degrees Celsius or 400 Kelvin will not glow
 				// TODO Add as a parameter
-				if (t.r > 400) {
+				if (t.x() > 400) {
 					// TODO Pass a real refraction index, not 1
 					// Get the blackbody values
-					Blackbody(&lambdas[0], nSpectralSamples, t.r, 1, b);
+					Blackbody(&lambdas[0], nSpectralSamples, t.x(), 1, b);
 
 					// Create a Spectrum representation with the computed values
 					// Spectrum expects the wavelengths to be in nanometres
@@ -175,15 +171,14 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 							nSpectralSamples);
 
 					// Transform the spectrum to XYZ coefficients
-					b_spec.ToXYZ(&t.r);
+					b_spec.ToXYZ(&t.x());
 
 					// Normalise the XYZ coefficients
-					xyz_norm = 1.0 / std::max(std::max(t.r, t.g), t.b);
-					miaux_scale_color(&t, xyz_norm);
-
+					xyz_norm = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
+					t = t * xyz_norm;
 				} else {
 					// If the temperature is low, just set the colour to 0
-					miaux_set_rgb(&t, 0);
+					t.setZero();
 				}
 				set_voxel_value(i, j, k, t);
 			}
@@ -194,19 +189,26 @@ void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
 // TODO This could be threaded too, make all threads wait for each other and
 // then use this code with start end indices
 void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
-	auto max_ind = get_maximum_voxel_index();
-	const miColor& max_xyz = block[max_ind];
-	miColor inv_max_lms;
-	XYZtoLMS(&max_xyz.r, &inv_max_lms.r);
+	openvdb::Coord max_ind = get_maximum_voxel_index();
+	const openvdb::Vec3f& max_xyz = accessor.getValue(max_ind);
+	float max_xyz_float[3];
 
-	if (inv_max_lms.r != 0) {
-		inv_max_lms.r = 1.0 / inv_max_lms.r;
+	max_xyz_float[0] = max_xyz.x();
+	max_xyz_float[1] = max_xyz.y();
+	max_xyz_float[2] = max_xyz.z();
+
+
+	openvdb::Vec3f inv_max_lms;
+	XYZtoLMS(max_xyz_float, &inv_max_lms[0]);
+
+	if (inv_max_lms.x() != 0) {
+		inv_max_lms.x() = 1.0 / inv_max_lms.x();
 	}
-	if (inv_max_lms.g != 0) {
-		inv_max_lms.g = 1.0 / inv_max_lms.g;
+	if (inv_max_lms.y() != 0) {
+		inv_max_lms.y() = 1.0 / inv_max_lms.y();
 	}
-	if (inv_max_lms.b != 0) {
-		inv_max_lms.b = 1.0 / inv_max_lms.b;
+	if (inv_max_lms.z() != 0) {
+		inv_max_lms.z() = 1.0 / inv_max_lms.z();
 	}
 
 	// Nguyen normalization in Matlab would be
@@ -221,40 +223,47 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 
 	// TODO This normalisation is assuming the fire is the main light in the
 	// scene, it should pick the brightest object and normalise with that
-	for (unsigned i = 0; i < count; i++) {
-		if (!miaux_color_is_black(&block[i])) {
-			miColor aux, color_lms;
+    // Print all active ("on") voxels by means of an iterator.
+	for (openvdb::Vec3SGrid::ValueOnIter iter = block->cbeginValueOn(); iter; ++iter) {
+		if (!(iter->x() == 0 && iter->y() == 0  && iter->z() == 0)) {
+			openvdb::Vec3f aux, color_lms;
 
-			XYZtoLMS(&block[i].r, &color_lms.r);
+			openvdb::Vec3f current_color = iter.getValue();
+
+			XYZtoLMS(&current_color.x(), &color_lms.x());
 
 			// Apply adaptation, is a diagonal matrix so we can just multiply
 			// the values
-			miaux_multiply_colors(&aux, &color_lms, &inv_max_lms);
+			aux = color_lms * inv_max_lms;
 
-			LMStoXYZ(&aux.r, &color_lms.r);
+			LMStoXYZ(&aux.x(), &color_lms.x());
 
 			// Give the user a control parameter between the old and the new
 			// colours
-			color_lms = linear_interp(visual_adaptation_factor, block[i],
+			color_lms = linear_interp(visual_adaptation_factor, current_color,
 					color_lms);
 
-			XYZToRGB(&color_lms.r, &block[i].r);
+			XYZToRGB(&color_lms.x(), &current_color.x());
 
-			miaux_clamp_color(&block[i], 0, 1);
+			clampVec3f(current_color);
+
+			iter.setValue(current_color);
 		}
 	}
 
-	max_color = block[max_ind];
+	max_color.r = accessor.getValue(max_ind).x();
+	max_color.g = accessor.getValue(max_ind).y();
+	max_color.b = accessor.getValue(max_ind).z();
 }
 
-unsigned VoxelDatasetColor::get_maximum_voxel_index() {
-	auto max_ind = 0;
+openvdb::Coord VoxelDatasetColor::get_maximum_voxel_index() {
+	openvdb::Coord max_ind;
 	float current_val, max_val = 0;
-	for (unsigned i = 0; i < count; i++) {
-		current_val = block[i].r + block[i].g + block[i].b;
+	for (openvdb::Vec3SGrid::ValueOnCIter iter = block->cbeginValueOn(); iter; ++iter) {
+		current_val = iter->x() + iter->y() + iter->z();
 		if (current_val > max_val) {
 			max_val = current_val;
-			max_ind = i;
+			max_ind = iter.getCoord();
 		}
 	}
 	return max_ind;
@@ -271,5 +280,29 @@ void VoxelDatasetColor::compute_wavelengths() {
 	for (l = 0, lambda = sampledLambdaStart; l < lambdas.size(); l++, lambda +=
 			lambda_inc) {
 		lambdas.at(l) = lambda;
+	}
+}
+
+void VoxelDatasetColor::clampVec3f(openvdb::Vec3f& v){
+	if (v.x() < 0) {
+		v.x() = 0;
+		return;
+	}
+	if (v.x() > 1) {
+		v.x() = 1;
+	}
+	if (v.y() < 0) {
+		v.y() = 0;
+		return;
+	}
+	if (v.y() > 1) {
+		v.y() = 1;
+	}
+	if (v.z() < 0) {
+		v.z() = 0;
+		return;
+	}
+	if (v.z() > 1) {
+		v.z() = 1;
 	}
 }

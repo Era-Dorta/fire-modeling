@@ -8,60 +8,64 @@
 #include <cassert>
 #include <cmath>
 
-template<typename T>
-VoxelDataset<T>::VoxelDataset() :
-		interpolation_mode(TRILINEAR), interpolate_function(
-				std::mem_fn(&VoxelDataset<T>::trilinear_interpolation)) {
+template<typename DataT, typename TreeT>
+VoxelDataset<DataT, TreeT>::VoxelDataset() :
+		interpolation_mode(
+				TRILINEAR), interpolate_function(
+				std::mem_fn(&VoxelDataset<typename DataT, typename TreeT>::trilinear_interpolation)) {
+	openvdb::initialize();
+	block = openvdb::Grid<TreeT>::create();
+	accessor = block->getAccessor();
 	clear();
 }
 
-template<typename T>
-VoxelDataset<T>::VoxelDataset(unsigned width, unsigned height, unsigned depth) :
-		interpolation_mode(TRILINEAR), interpolate_function(
-				std::mem_fn(&VoxelDataset<T>::trilinear_interpolation)) {
+template<typename DataT, typename TreeT>
+VoxelDataset<DataT, TreeT>::VoxelDataset(unsigned width, unsigned height, unsigned depth) :
+		block(openvdb::FloatGrid::create()), accessor(block->getAccessor()), interpolation_mode(
+				TRILINEAR), interpolate_function(
+				std::mem_fn(&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
+	openvdb::initialize();
 	resize(width, height, depth);
 }
 
-template<typename T>
-VoxelDataset<T>::VoxelDataset(const VoxelDataset& other) :
-		interpolation_mode(TRILINEAR), interpolate_function(
-				std::mem_fn(&VoxelDataset<T>::trilinear_interpolation)) {
+template<typename DataT, typename TreeT>
+VoxelDataset<DataT, TreeT>::VoxelDataset(const VoxelDataset& other) :
+		block(openvdb::FloatGrid::create()), accessor(block->getAccessor()), interpolation_mode(
+				TRILINEAR), interpolate_function(
+				std::mem_fn(&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
 	resize(other.width, other.height, other.depth);
 	setInterpolationMode(other.interpolation_mode);
-
-	for (unsigned i = 0; i < count; i++) {
-		block[i] = other.block[i];
-	}
+	block = other.block->deepCopy();
 }
 
-template<typename T>
-VoxelDataset<T>& VoxelDataset<T>::operator =(const VoxelDataset<T>& other) {
+template<typename DataT, typename TreeT>
+VoxelDataset<DataT, TreeT>& VoxelDataset<DataT, TreeT>::operator =(const VoxelDataset<DataT, TreeT>& other) {
 
 	if (this == &other) {
 		return *this;
 	}
 
+	clear();
 	resize(other.width, other.height, other.depth);
 	setInterpolationMode(other.interpolation_mode);
-
-	for (unsigned i = 0; i < count; i++) {
-		block[i] = other.block[i];
-	}
+	block = other.block->deepCopy();
 
 	return *this;
 }
 
-template<typename T>
-void VoxelDataset<T>::clear() {
+template<typename DataT, typename TreeT>
+void VoxelDataset<DataT, TreeT>::clear() {
 	resize(0, 0, 0);
+	block->clear();
 }
 
-template<typename T>
-void VoxelDataset<T>::resize(unsigned width, unsigned height, unsigned depth) {
+template<typename DataT, typename TreeT>
+void VoxelDataset<DataT, TreeT>::resize(unsigned width, unsigned height, unsigned depth) {
 	this->width = width;
 	this->height = height;
 	this->depth = depth;
 	count = width * height * depth;
+
 	if (count > MAX_DATASET_SIZE) {
 		mi_fatal(
 				"Voxel dataset, max size is %d but tried to initialise with %d",
@@ -69,16 +73,16 @@ void VoxelDataset<T>::resize(unsigned width, unsigned height, unsigned depth) {
 	}
 }
 
-template<typename T>
-T VoxelDataset<T>::get_voxel_value(float x, float y, float z) const {
+template<typename DataT, typename TreeT>
+DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y, float z) const {
 	assert(
 			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
 					+ ((int ) (x + .5)) < MAX_DATASET_SIZE);
 	return interpolate_function(this, x, y, z);
 }
 
-template<typename T>
-T VoxelDataset<T>::get_fitted_voxel_value(const miVector *p,
+template<typename DataT, typename TreeT>
+DataT VoxelDataset<DataT, TreeT>::get_fitted_voxel_value(const miVector *p,
 		const miVector *min_point, const miVector *max_point) const {
 	float x, y, z;
 	x = (float) fit(p->x, min_point->x, max_point->x, 0, width - 1);
@@ -88,47 +92,47 @@ T VoxelDataset<T>::get_fitted_voxel_value(const miVector *p,
 	return get_voxel_value(x, y, z);
 }
 
-template<typename T>
-const T& VoxelDataset<T>::get_voxel_value(unsigned x, unsigned y,
+template<typename DataT, typename TreeT>
+const DataT& VoxelDataset<DataT, TreeT>::get_voxel_value(unsigned x, unsigned y,
 		unsigned z) const {
 	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
-	return block[z * depth * height + y * height + x];
+	return accessor.getValue(openvdb::Coord(x,y,z));
 }
 
-template<typename T>
-void VoxelDataset<T>::set_voxel_value(unsigned x, unsigned y, unsigned z,
-		const T& val) {
+template<typename DataT, typename TreeT>
+void VoxelDataset<DataT, TreeT>::set_voxel_value(unsigned x, unsigned y, unsigned z,
+		const DataT& val) {
 	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
-	block[z * depth * height + y * height + x] = val;
+	accessor.setValueOn(openvdb::Coord(x,y,z), val);
 }
 
-template<typename T>
-int VoxelDataset<T>::getWidth() const {
+template<typename DataT, typename TreeT>
+int VoxelDataset<DataT, TreeT>::getWidth() const {
 	return width;
 }
 
-template<typename T>
-int VoxelDataset<T>::getDepth() const {
+template<typename DataT, typename TreeT>
+int VoxelDataset<DataT, TreeT>::getDepth() const {
 	return depth;
 }
 
-template<typename T>
-int VoxelDataset<T>::getHeight() const {
+template<typename DataT, typename TreeT>
+int VoxelDataset<DataT, TreeT>::getHeight() const {
 	return height;
 }
 
-template<typename T>
-int VoxelDataset<T>::getTotal() const {
+template<typename DataT, typename TreeT>
+int VoxelDataset<DataT, TreeT>::getTotal() const {
 	return count;
 }
 
-template<typename T>
-typename VoxelDataset<T>::InterpolationMode VoxelDataset<T>::getInterpolationMode() const {
+template<typename DataT, typename TreeT>
+typename VoxelDataset<DataT, TreeT>::InterpolationMode VoxelDataset<DataT, TreeT>::getInterpolationMode() const {
 	return interpolation_mode;
 }
 
-template<typename T>
-void VoxelDataset<T>::setInterpolationMode(
+template<typename DataT, typename TreeT>
+void VoxelDataset<DataT, TreeT>::setInterpolationMode(
 		InterpolationMode interpolation_mode) {
 	if (this->interpolation_mode == interpolation_mode) {
 		return;
@@ -136,25 +140,25 @@ void VoxelDataset<T>::setInterpolationMode(
 	this->interpolation_mode = interpolation_mode;
 	switch (interpolation_mode) {
 	case TRUNCATE: {
-		interpolate_function = std::mem_fn(&VoxelDataset<T>::no_interpolation);
+		interpolate_function = std::mem_fn(&VoxelDataset<DataT, TreeT>::no_interpolation);
 		break;
 	}
 	case TRILINEAR: {
 		interpolate_function = std::mem_fn(
-				&VoxelDataset<T>::trilinear_interpolation);
+				&VoxelDataset<DataT, TreeT>::trilinear_interpolation);
 		break;
 	}
 	}
 }
 
-template<typename T>
-double VoxelDataset<T>::fit(double v, double oldmin, double oldmax,
+template<typename DataT, typename TreeT>
+double VoxelDataset<DataT, TreeT>::fit(double v, double oldmin, double oldmax,
 		double newmin, double newmax) const {
 	return newmin + ((v - oldmin) / (oldmax - oldmin)) * (newmax - newmin);
 }
 
-template<typename T>
-T VoxelDataset<T>::trilinear_interpolation(float x, float y, float z) const {
+template<typename DataT, typename TreeT>
+DataT VoxelDataset<DataT, TreeT>::trilinear_interpolation(float x, float y, float z) const {
 	// Round down the indices
 	int x0, y0, z0;
 	x0 = int(x);
@@ -181,27 +185,25 @@ T VoxelDataset<T>::trilinear_interpolation(float x, float y, float z) const {
 		ty = y - y0;
 		tz = z - z0;
 
-		const T& c000 = block[x0 + height * (y0 + z0 * depth)];
-		const T& c001 = block[x0 + height * (y0 + z1 * depth)];
-		const T& c010 = block[x0 + height * (y1 + z0 * depth)];
-		const T& c011 = block[x0 + height * (y1 + z1 * depth)];
-		const T& c100 = block[x1 + height * (y0 + z0 * depth)];
-		const T& c101 = block[x1 + height * (y0 + z1 * depth)];
-		const T& c110 = block[x1 + height * (y1 + z0 * depth)];
-		const T& c111 = block[x1 + height * (y1 + z1 * depth)];
+		const DataT& c000 = accessor.getValue(openvdb::Coord(x0,y0,z0));
+		const DataT& c001 = accessor.getValue(openvdb::Coord(x0,y0,z1));
+		const DataT& c010 = accessor.getValue(openvdb::Coord(x0,y1,z0));
+		const DataT& c011 = accessor.getValue(openvdb::Coord(x0,y1,z1));
+		const DataT& c100 = accessor.getValue(openvdb::Coord(x1,y0,z0));
+		const DataT& c101 = accessor.getValue(openvdb::Coord(x1,y0,z1));
+		const DataT& c110 = accessor.getValue(openvdb::Coord(x1,y1,z0));
+		const DataT& c111 = accessor.getValue(openvdb::Coord(x1,y1,z1));
 
-		T c0 = bilinear_interp(tx, ty, c000, c100, c010, c110);
-		T c1 = bilinear_interp(tx, ty, c001, c101, c011, c111);
+		DataT c0 = bilinear_interp(tx, ty, c000, c100, c010, c110);
+		DataT c1 = bilinear_interp(tx, ty, c001, c101, c011, c111);
 
 		return linear_interp(tz, c0, c1);
 	} else {
-		return block[((int) (z + .5)) * depth * height
-				+ ((int) (y + .5)) * height + ((int) (x + .5))];
+		return accessor.getValue(openvdb::Coord((int) (x + .5), (int) (y + .5), (int) (z + .5)));
 	}
 }
 
-template<typename T>
-T VoxelDataset<T>::no_interpolation(float x, float y, float z) const {
-	return block[((int) (z + .5)) * depth * height + ((int) (y + .5)) * height
-			+ ((int) (x + .5))];
+template<typename DataT, typename TreeT>
+DataT VoxelDataset<DataT, TreeT>::no_interpolation(float x, float y, float z) const {
+	return accessor.getValue(openvdb::Coord((int) (x + .5), (int) (y + .5), (int) (z + .5)));
 }
