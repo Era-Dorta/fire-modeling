@@ -29,7 +29,8 @@ public:
 	VoxelDataset(const VoxelDataset &other);
 	virtual ~VoxelDataset() = default;
 
-	VoxelDataset<DataT, TreeT>& operator=(const VoxelDataset<DataT, TreeT> &other);
+	VoxelDataset<DataT, TreeT>& operator=(
+			const VoxelDataset<DataT, TreeT> &other);
 
 	void clear();
 	void resize(unsigned width, unsigned height, unsigned depth);
@@ -48,9 +49,10 @@ public:
 	InterpolationMode getInterpolationMode() const;
 	void setInterpolationMode(InterpolationMode interpolation_mode);
 protected:
-	virtual DataT bilinear_interp(float tx, float ty, const DataT& c00, const DataT& c01,
-			const DataT& c10, const DataT& c11) const = 0;
-	virtual DataT linear_interp(float t, const DataT& c0, const DataT& c1) const = 0;
+	virtual DataT bilinear_interp(float tx, float ty, const DataT& c00,
+			const DataT& c01, const DataT& c10, const DataT& c11) const = 0;
+	virtual DataT linear_interp(float t, const DataT& c0,
+			const DataT& c1) const = 0;
 private:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
@@ -63,7 +65,8 @@ protected:
 	typename openvdb::Grid<TreeT>::Accessor accessor;
 private:
 	InterpolationMode interpolation_mode;
-	std::_Mem_fn<DataT (VoxelDataset<DataT, TreeT>::*)(float, float, float) const> interpolate_function;
+	std::_Mem_fn<
+			DataT (VoxelDataset<DataT, TreeT>::*)(float, float, float) const> interpolate_function;
 };
 
 // The compiler needs direct access to the template class implementation or

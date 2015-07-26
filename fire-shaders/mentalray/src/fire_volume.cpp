@@ -41,6 +41,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 					(VoxelDatasetColor *) miaux_alloc_user_memory(state,
 							sizeof(VoxelDatasetColor));
 
+			openvdb::initialize();
 			// Placement new, initialisation of malloc memory block
 			voxels = new (voxels) VoxelDatasetColor();
 

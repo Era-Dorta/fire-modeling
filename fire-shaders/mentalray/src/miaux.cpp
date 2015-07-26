@@ -290,8 +290,8 @@ void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
 	miVector min_point = { -1, -1, -1 };
 	miVector max_point = { 1, 1, 1 };
 	if (miaux_point_inside(point, &min_point, &max_point)) {
-		openvdb::Vec3f sigma_av = voxels->get_fitted_voxel_value(point, &min_point,
-				&max_point);
+		openvdb::Vec3f sigma_av = voxels->get_fitted_voxel_value(point,
+				&min_point, &max_point);
 		sigma_a->r = sigma_av.x();
 		sigma_a->g = sigma_av.y();
 		sigma_a->b = sigma_av.z();

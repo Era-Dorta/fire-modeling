@@ -89,7 +89,7 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 			for (unsigned k = 0; k < width; k++) {
 				float read_val;
 				safe_ascii_read(fp, read_val);
-				accessor.setValueOn(openvdb::Coord(i,j,k), read_val);
+				accessor.setValueOn(openvdb::Coord(i, j, k), read_val);
 			}
 		}
 	}

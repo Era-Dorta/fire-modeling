@@ -43,14 +43,14 @@ const miColor& VoxelDatasetColor::get_max_voxel_value() {
 }
 
 openvdb::Vec3f VoxelDatasetColor::bilinear_interp(float tx, float ty,
-		const openvdb::Vec3f& c00, const openvdb::Vec3f&c01, const openvdb::Vec3f& c10,
-		const openvdb::Vec3f& c11) const {
+		const openvdb::Vec3f& c00, const openvdb::Vec3f&c01,
+		const openvdb::Vec3f& c10, const openvdb::Vec3f& c11) const {
 	openvdb::Vec3f c0 = linear_interp(tx, c00, c10);
 	openvdb::Vec3f c1 = linear_interp(tx, c01, c11);
 	return linear_interp(ty, c0, c1);
 }
-openvdb::Vec3f VoxelDatasetColor::linear_interp(float t, const openvdb::Vec3f& c0,
-		const openvdb::Vec3f& c1) const {
+openvdb::Vec3f VoxelDatasetColor::linear_interp(float t,
+		const openvdb::Vec3f& c0, const openvdb::Vec3f& c1) const {
 	return c0 * (1 - t) + c1 * t;
 }
 
@@ -197,7 +197,6 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 	max_xyz_float[1] = max_xyz.y();
 	max_xyz_float[2] = max_xyz.z();
 
-
 	openvdb::Vec3f inv_max_lms;
 	XYZtoLMS(max_xyz_float, &inv_max_lms[0]);
 
@@ -223,9 +222,10 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 
 	// TODO This normalisation is assuming the fire is the main light in the
 	// scene, it should pick the brightest object and normalise with that
-    // Print all active ("on") voxels by means of an iterator.
-	for (openvdb::Vec3SGrid::ValueOnIter iter = block->cbeginValueOn(); iter; ++iter) {
-		if (!(iter->x() == 0 && iter->y() == 0  && iter->z() == 0)) {
+	// Print all active ("on") voxels by means of an iterator.
+	for (openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn(); iter;
+			++iter) {
+		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
 			openvdb::Vec3f aux, color_lms;
 
 			openvdb::Vec3f current_color = iter.getValue();
@@ -259,7 +259,8 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 openvdb::Coord VoxelDatasetColor::get_maximum_voxel_index() {
 	openvdb::Coord max_ind;
 	float current_val, max_val = 0;
-	for (openvdb::Vec3SGrid::ValueOnCIter iter = block->cbeginValueOn(); iter; ++iter) {
+	for (openvdb::Vec3SGrid::ValueOnCIter iter = block->cbeginValueOn(); iter;
+			++iter) {
 		current_val = iter->x() + iter->y() + iter->z();
 		if (current_val > max_val) {
 			max_val = current_val;
@@ -283,7 +284,7 @@ void VoxelDatasetColor::compute_wavelengths() {
 	}
 }
 
-void VoxelDatasetColor::clampVec3f(openvdb::Vec3f& v){
+void VoxelDatasetColor::clampVec3f(openvdb::Vec3f& v) {
 	if (v.x() < 0) {
 		v.x() = 0;
 		return;

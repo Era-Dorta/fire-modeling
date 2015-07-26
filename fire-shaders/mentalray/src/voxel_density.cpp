@@ -35,6 +35,7 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 				(VoxelDatasetFloat *) miaux_alloc_user_memory(state,
 						sizeof(VoxelDatasetFloat));
 
+		openvdb::initialize();
 		// Placement new, initialisation of malloc memory block
 		voxels = new (voxels) VoxelDatasetFloat();
 
