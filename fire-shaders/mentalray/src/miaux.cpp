@@ -273,7 +273,9 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 				state->point.z = k;
 				mi_call_shader_x((miColor*) &density.r, miSHADER_MATERIAL,
 						state, density_shader, NULL);
-				density.r = density.r * scale + offset;
+				if (density.r != 0) { // Don't add offset if there isn't any data
+					density.r = density.r * scale + offset;
+				}
 				voxels->set_voxel_value(i, j, k, density);
 			}
 		}
