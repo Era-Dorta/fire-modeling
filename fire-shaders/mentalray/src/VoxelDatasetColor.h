@@ -34,7 +34,8 @@ private:
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
 	void compute_wavelengths();
-	static void clampVec3f(openvdb::Vec3f& v);
+	static void clamp_0_1(openvdb::Vec3f& v);
+	static void clamp_0_1(float &v);
 
 	std::vector<miScalar> sootCoefficients;
 	std::vector<float> lambdas;

@@ -138,7 +138,7 @@ void VoxelDatasetColor::compute_sigma_a(unsigned start_offset,
 			// not fully represented by RGB clamp negative intensities
 			// to zero
 			sigma_a_spec.ToRGB(&density.x());
-			clampVec3f(density);
+			clamp_0_1(density);
 		} else {
 			// Safe check for negative densities
 			density.setZero();
@@ -243,7 +243,7 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 
 			XYZToRGB(&color_lms.x(), &current_color.x());
 
-			clampVec3f(current_color);
+			clamp_0_1(current_color);
 
 			iter.setValue(current_color);
 		}
@@ -282,26 +282,18 @@ void VoxelDatasetColor::compute_wavelengths() {
 	}
 }
 
-void VoxelDatasetColor::clampVec3f(openvdb::Vec3f& v) {
-	if (v.x() < 0) {
-		v.x() = 0;
+void VoxelDatasetColor::clamp_0_1(openvdb::Vec3f& v) {
+	clamp_0_1(v.x());
+	clamp_0_1(v.y());
+	clamp_0_1(v.z());
+}
+
+void VoxelDatasetColor::clamp_0_1(float &v) {
+	if (v < 0) {
+		v = 0;
 		return;
 	}
-	if (v.x() > 1) {
-		v.x() = 1;
-	}
-	if (v.y() < 0) {
-		v.y() = 0;
-		return;
-	}
-	if (v.y() > 1) {
-		v.y() = 1;
-	}
-	if (v.z() < 0) {
-		v.z() = 0;
-		return;
-	}
-	if (v.z() > 1) {
-		v.z() = 1;
+	if (v > 1) {
+		v = 1;
 	}
 }
