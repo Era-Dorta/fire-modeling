@@ -85,6 +85,14 @@ float VoxelDataset<DataT, TreeT>::getMemFootPrint() const {
 }
 
 template<typename DataT, typename TreeT>
+void VoxelDataset<DataT, TreeT>::pre_cach_all(){
+	accessor.clear();
+	for(auto iter = block->beginValueOn(); iter; ++iter){
+		accessor.getValue(iter.getCoord());
+	}
+}
+
+template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y,
 		float z) const {
 	assert(

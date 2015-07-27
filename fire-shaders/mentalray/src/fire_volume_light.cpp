@@ -60,6 +60,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 
 		voxels->compute_bb_radiation_threaded(visual_adaptation_factor);
 
+		voxels->pre_cach_all();
+
 		// Restore previous state
 		state->point = original_point;
 		state->type = ray_type;

@@ -36,6 +36,7 @@ public:
 	void clear();
 	void resize(unsigned width, unsigned height, unsigned depth);
 	float getMemFootPrint() const;
+	void pre_cach_all();
 
 	DataT get_voxel_value(float x, float y, float z) const;
 	DataT get_fitted_voxel_value(const miVector *p, const miVector *min_point,
