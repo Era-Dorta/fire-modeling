@@ -34,7 +34,7 @@ void VoxelDatasetColorSorted::sort() {
 
 	// sort indexes based on comparing values in v
 	//auto foo_member = std::mem_fn(&VoxelDatasetColorSorted::comp);
-	std::sort(sorted_ind.begin(), sorted_ind.begin(),
+	std::sort(sorted_ind.begin(), sorted_ind.end(),
 			[&](openvdb::Coord i1, openvdb::Coord i2) {return accessor.getValue(i1).x() + accessor.getValue(i1).y() +
 				accessor.getValue(i1).z() > accessor.getValue(i2).x() + accessor.getValue(i2).y() +
 				accessor.getValue(i2).z();});
