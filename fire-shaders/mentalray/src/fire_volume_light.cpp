@@ -8,7 +8,7 @@
 
 //#define DEBUG_SIGMA_A
 
-#define INV_SIZE (1.0 / 127.0) * 2
+#define INV_SIZE (1.0 / (MAX_DATASET_DIM - 1.0)) * 2
 
 struct fire_volume_light {
 	miTag temperature_shader;
@@ -129,8 +129,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		voxels->get_i_j_k_from_sorted(offset_light, state->count);
 
 		// The voxel data set goes from {-1,-1,-1} to {1,1,1}, so with
-		// i,j,k = (127 / 2) it should be 1, to cancel the offset and
-		// with i,j,k = 127, then it should be 2, to be 1 above the offset
+		// i,j,k = (SIZE / 2) it should be 1, to cancel the offset and
+		// with i,j,k = SIZE, then it should be 2, to be 1 above the offset
 		mi_vector_mul(&offset_light, INV_SIZE);
 
 		mi_vector_add(&offset_light, &offset_light, &minus_one);

@@ -25,7 +25,7 @@ void VoxelDatasetColorSorted::get_i_j_k_from_sorted(miVector &ijk,
 
 void VoxelDatasetColorSorted::sort() {
 	// initialise original index locations
-	unsigned int i = 0;
+	unsigned i = 0;
 	for (openvdb::Vec3SGrid::ValueOnCIter iter = block->cbeginValueOn(); iter;
 			++iter) {
 		sorted_ind[i] = iter.getCoord();
