@@ -80,6 +80,11 @@ void VoxelDataset<DataT, TreeT>::resize(unsigned width, unsigned height,
 }
 
 template<typename DataT, typename TreeT>
+float VoxelDataset<DataT, TreeT>::getMemFootPrint() const {
+	return block->memUsage() * 1e-6; // Size in Mega Bytes
+}
+
+template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y,
 		float z) const {
 	assert(
