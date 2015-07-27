@@ -37,6 +37,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 			/* Instance initialization: */
 			mi_info("Precomputing sigma_a");
 
+			miScalar density_scale = *mi_eval_scalar(&params->density_scale);
+			miTag density_shader = *mi_eval_tag(&params->density_shader);
+
 			VoxelDatasetColor *voxels =
 					(VoxelDatasetColor *) miaux_alloc_user_memory(state,
 							sizeof(VoxelDatasetColor));
@@ -44,9 +47,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 			openvdb::initialize();
 			// Placement new, initialisation of malloc memory block
 			voxels = new (voxels) VoxelDatasetColor();
-
-			miScalar density_scale = *mi_eval_scalar(&params->density_scale);
-			miTag density_shader = *mi_eval_tag(&params->density_shader);
 
 			// Save previous state
 			miVector original_point = state->point;
@@ -56,8 +56,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					density_shader);
 
-			miaux_copy_voxel_dataset(voxels, state, density_shader, width,
-					height, depth, density_scale, 0);
+			miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
+					width, height, depth, density_scale, 0);
 
 			voxels->compute_sigma_a_threaded();
 

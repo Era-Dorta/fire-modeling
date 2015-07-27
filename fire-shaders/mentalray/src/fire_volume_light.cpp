@@ -55,8 +55,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 				temperature_shader);
 
-		miaux_copy_voxel_dataset(voxels, state, temperature_shader, width,
-				height, depth, temperature_scale, temperature_offset);
+		miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
+				width, height, depth, temperature_scale, temperature_offset);
 
 		voxels->compute_bb_radiation_threaded(visual_adaptation_factor);
 

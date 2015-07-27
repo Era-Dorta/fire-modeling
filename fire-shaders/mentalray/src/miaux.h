@@ -100,6 +100,10 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
 		miScalar scale, miScalar offset);
 
+void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
+		miTag density_shader, unsigned width, unsigned height, unsigned depth,
+		miScalar scale, miScalar offset);
+
 void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
 		const VoxelDatasetColor *voxels);
 

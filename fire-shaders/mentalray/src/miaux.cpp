@@ -285,6 +285,31 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 	}
 }
 
+void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
+		miTag density_shader, unsigned width, unsigned height, unsigned depth,
+		miScalar scale, miScalar offset) {
+	state->type = (miRay_type) DENSITY_RAW;
+	voxels->resize(width, height, depth);
+	miColor density = { 0, 0, 0, 0 };
+	openvdb::Vec3f density_v = openvdb::Vec3f::zero();
+	for (unsigned i = 0; i < width; i++) {
+		for (unsigned j = 0; j < height; j++) {
+			for (unsigned k = 0; k < depth; k++) {
+				state->point.x = i;
+				state->point.y = j;
+				state->point.z = k;
+				mi_call_shader_x((miColor*) &density.r, miSHADER_MATERIAL,
+						state, density_shader, NULL);
+				if (density.r != 0.0f) {
+					density.r = density.r * scale + offset;
+					density_v.x() = density.r;
+					voxels->set_voxel_value(i, j, k, density_v);
+				}
+			}
+		}
+	}
+}
+
 void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
 		const VoxelDatasetColor *voxels) {
 	miVector min_point = { -1, -1, -1 };
