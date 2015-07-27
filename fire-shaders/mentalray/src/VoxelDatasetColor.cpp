@@ -52,7 +52,7 @@ openvdb::Vec3f VoxelDatasetColor::bilinear_interp(float tx, float ty,
 }
 openvdb::Vec3f VoxelDatasetColor::linear_interp(float t,
 		const openvdb::Vec3f& c0, const openvdb::Vec3f& c1) const {
-	return c0 * (1 - t) + c1 * t;
+	return c0 * (1.0f - t) + c1 * t;
 }
 
 void VoxelDatasetColor::compute_function_threaded(
