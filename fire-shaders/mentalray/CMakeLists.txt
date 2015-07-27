@@ -24,8 +24,12 @@ ENDIF()
 #Add custom .cmake files located in this folder
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmakeModules")
 
+FIND_PACKAGE (OpenVDB REQUIRED)
+
 SET(MAYA_VERSION "2015")
 FIND_PACKAGE (Maya REQUIRED)
+
+INCLUDE_DIRECTORIES( ${OpenVdb_INCLUDE_DIRS} )
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
 
@@ -39,6 +43,9 @@ ADD_LIBRARY(mentalRayFireShader
 	SHARED
    ${mentalRayFireShader_SRC}
 )
+
+# OpenVDB linking
+TARGET_LINK_LIBRARIES(mentalRayFireShader ${OpenVdb_LIBRARIES})
 
 SET_TARGET_PROPERTIES(mentalRayFireShader PROPERTIES PREFIX "")
 

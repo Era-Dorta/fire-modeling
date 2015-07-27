@@ -9,7 +9,7 @@
 FIND_PATH( HALF_INCLUDE_DIR NAMES OpenEXR/half.h)
 
 # Look for the libraries.
-FIND_LIBRARY( HALF_LIBRARY NAMES Half)
+FIND_LIBRARY( HALF_LIBRARY NAMES Half )
 
 # handle the QUIETLY and REQUIRED arguments and set HALF_FOUND to TRUE if
 # all listed variables are TRUE
