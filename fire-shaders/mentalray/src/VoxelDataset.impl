@@ -12,8 +12,8 @@
 #include <cmath>
 
 template<typename DataT, typename TreeT>
-VoxelDataset<DataT, TreeT>::VoxelDataset() :
-		block(openvdb::Grid < TreeT > ::create()), accessor(
+VoxelDataset<DataT, TreeT>::VoxelDataset(const DataT& background) :
+		block(openvdb::Grid < TreeT > ::create(background)), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
 				std::mem_fn(
 						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
@@ -22,8 +22,8 @@ VoxelDataset<DataT, TreeT>::VoxelDataset() :
 
 template<typename DataT, typename TreeT>
 VoxelDataset<DataT, TreeT>::VoxelDataset(unsigned width, unsigned height,
-		unsigned depth) :
-		block(openvdb::Grid < TreeT > ::create()), accessor(
+		unsigned depth, const DataT& background) :
+		block(openvdb::Grid < TreeT > ::create(background)), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
 				std::mem_fn(
 						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
@@ -32,7 +32,7 @@ VoxelDataset<DataT, TreeT>::VoxelDataset(unsigned width, unsigned height,
 
 template<typename DataT, typename TreeT>
 VoxelDataset<DataT, TreeT>::VoxelDataset(const VoxelDataset& other) :
-		block(openvdb::Grid < TreeT > ::create()), accessor(
+		block(openvdb::Grid < TreeT > ::create(other.block->background())), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
 				std::mem_fn(
 						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {

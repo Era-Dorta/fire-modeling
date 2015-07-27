@@ -24,8 +24,9 @@ public:
 		TRUNCATE, TRILINEAR
 	};
 
-	VoxelDataset();
-	VoxelDataset(unsigned width, unsigned height, unsigned depth);
+	VoxelDataset(const DataT& background);
+	VoxelDataset(unsigned width, unsigned height, unsigned depth,
+			const DataT& background);
 	VoxelDataset(const VoxelDataset &other);
 	virtual ~VoxelDataset() = default;
 

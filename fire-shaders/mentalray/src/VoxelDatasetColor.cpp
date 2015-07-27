@@ -14,7 +14,8 @@
 #include "miaux.h"
 
 VoxelDatasetColor::VoxelDatasetColor() :
-		VoxelDataset<openvdb::Vec3f, openvdb::Vec3fTree>() {
+		VoxelDataset<openvdb::Vec3f, openvdb::Vec3fTree>(
+				openvdb::Vec3f(0, 0, 0)) {
 	miaux_set_rgb(&max_color, 0);
 }
 

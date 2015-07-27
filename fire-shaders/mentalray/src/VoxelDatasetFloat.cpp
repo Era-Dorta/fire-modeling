@@ -10,12 +10,12 @@
 #include <algorithm>
 
 VoxelDatasetFloat::VoxelDatasetFloat() :
-		VoxelDataset<float, openvdb::FloatTree>() {
+		VoxelDataset<float, openvdb::FloatTree>(0) {
 }
 
 VoxelDatasetFloat::VoxelDatasetFloat(const char* filename,
 		FILE_FORMAT file_format) :
-		VoxelDataset<float, openvdb::FloatTree>() {
+		VoxelDataset<float, openvdb::FloatTree>(0) {
 	initialize_with_file(filename, file_format);
 }
 
