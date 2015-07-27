@@ -108,14 +108,14 @@ template<typename DataT, typename TreeT>
 const DataT& VoxelDataset<DataT, TreeT>::get_voxel_value(unsigned x, unsigned y,
 		unsigned z) const {
 	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
-	return accessor.getValue(openvdb::Coord(x, y, z));
+	return block->getAccessor().getValue(openvdb::Coord(x, y, z));
 }
 
 template<typename DataT, typename TreeT>
 void VoxelDataset<DataT, TreeT>::set_voxel_value(unsigned x, unsigned y,
 		unsigned z, const DataT& val) {
 	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
-	accessor.setValue(openvdb::Coord(x, y, z), val);
+	block->getAccessor().setValue(openvdb::Coord(x, y, z), val);
 }
 
 template<typename DataT, typename TreeT>
@@ -199,6 +199,7 @@ DataT VoxelDataset<DataT, TreeT>::trilinear_interpolation(float x, float y,
 		ty = y - y0;
 		tz = z - z0;
 
+		typename openvdb::Grid<TreeT>::Accessor accessor = block->getAccessor();
 		const DataT& c000 = accessor.getValue(openvdb::Coord(x0, y0, z0));
 		const DataT& c001 = accessor.getValue(openvdb::Coord(x0, y0, z1));
 		const DataT& c010 = accessor.getValue(openvdb::Coord(x0, y1, z0));
@@ -213,7 +214,7 @@ DataT VoxelDataset<DataT, TreeT>::trilinear_interpolation(float x, float y,
 
 		return linear_interp(tz, c0, c1);
 	} else {
-		return accessor.getValue(
+		return block->getAccessor().getValue(
 				openvdb::Coord((int) (x + .5), (int) (y + .5), (int) (z + .5)));
 	}
 }
@@ -221,6 +222,6 @@ DataT VoxelDataset<DataT, TreeT>::trilinear_interpolation(float x, float y,
 template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::no_interpolation(float x, float y,
 		float z) const {
-	return accessor.getValue(
+	return block->getAccessor().getValue(
 			openvdb::Coord((int) (x + .5), (int) (y + .5), (int) (z + .5)));
 }

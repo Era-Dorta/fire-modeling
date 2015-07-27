@@ -74,6 +74,9 @@ void VoxelDatasetColor::compute_function_threaded(
 		num_threads = num_values;
 	}
 
+	// TODO Should make copies of the grid, work on them and then merge them
+	num_threads = 1;
+
 	mi_info("\tStart computation with %d threads", num_threads);
 	unsigned thread_chunk = num_values / num_threads;
 	std::vector<std::thread> threads;
@@ -94,6 +97,8 @@ void VoxelDatasetColor::compute_function_threaded(
 	for (auto& thread : threads) {
 		thread.join();
 	}
+
+	accessor.clear(); // Accessor is not longer valid after the threaded use
 }
 
 void VoxelDatasetColor::compute_soot_coefficients() {
