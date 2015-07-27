@@ -55,9 +55,9 @@ openvdb::Vec3f VoxelDatasetColor::linear_interp(float t,
 }
 
 void VoxelDatasetColor::compute_function_threaded(
-		void (VoxelDatasetColor::*foo)(unsigned, unsigned, unsigned, unsigned,
-				unsigned, unsigned)) {
-	if (depth <= 0) {
+		void (VoxelDatasetColor::*foo)(unsigned, unsigned)) {
+	unsigned num_values = block->activeVoxelCount();
+	if (num_values <= 0) {
 		return;
 	}
 
@@ -69,26 +69,25 @@ void VoxelDatasetColor::compute_function_threaded(
 	}
 
 	// Cap the number of threads if there is not enough work for each one
-	if ((unsigned) (depth) < num_threads) {
-		num_threads = depth;
+	if ((unsigned) (num_values) < num_threads) {
+		num_threads = num_values;
 	}
 
 	mi_info("\tStart computation with %d threads", num_threads);
-	unsigned thread_chunk = depth / num_threads;
+	unsigned thread_chunk = num_values / num_threads;
 	std::vector<std::thread> threads;
-	unsigned i_depth = 0, e_depth = thread_chunk;
+	unsigned start_offset = 0, end_offset = thread_chunk;
 
 	// Launch each thread with its chunk of work
 	for (unsigned i = 0; i < num_threads - 1; i++) {
-		threads.push_back(
-				std::thread(foo, this, 0, 0, i_depth, width, height, e_depth));
-		i_depth = e_depth;
-		e_depth = e_depth + thread_chunk;
+		threads.push_back(std::thread(foo, this, start_offset, end_offset));
+		start_offset = end_offset;
+		end_offset += thread_chunk;
 	}
 
 	// The remaining work will be handled by the current thread
 	auto foo_member = std::mem_fn(foo);
-	foo_member(this, 0, 0, i_depth, width, height, depth);
+	foo_member(this, start_offset, num_values);
 
 	// Wait for the other threads to finish
 	for (auto& thread : threads) {
@@ -115,74 +114,72 @@ void VoxelDatasetColor::compute_soot_coefficients() {
 	}
 }
 
-void VoxelDatasetColor::compute_sigma_a(unsigned i_width, unsigned i_height,
-		unsigned i_depth, unsigned e_width, unsigned e_height,
-		unsigned e_depth) {
+void VoxelDatasetColor::compute_sigma_a(unsigned start_offset,
+		unsigned end_offset) {
 	openvdb::Vec3f density;
 	std::vector<float> sigma_a(Soot::num_samples);
-	for (unsigned i = i_width; i < e_width; i++) {
-		for (unsigned j = i_height; j < e_height; j++) {
-			for (unsigned k = i_depth; k < e_depth; k++) {
-				density = get_voxel_value(i, j, k);
-				if (density.x() > 0.0) {
-					for (unsigned l = 0; l < sigma_a.size(); l++) {
-						sigma_a.at(l) = density.x() * sootCoefficients[l];
-					}
-					// Create a Spectrum representation with the computed values
-					// Spectrum expects the wavelengths to be in nanometres
-					Spectrum sigma_a_spec = Spectrum::FromSampled(
-							Soot::lambda_nano, &sigma_a[0], Soot::num_samples);
-
-					// Transform the spectrum to RGB coefficients, since CIE is
-					// not fully represented by RGB clamp negative intensities
-					// to zero
-					sigma_a_spec.ToRGB(&density.x());
-					clampVec3f(density);
-				} else {
-					// Safe check for negative densities
-					density.setZero();
-				}
-				set_voxel_value(i, j, k, density);
+	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
+	for (unsigned i = 0; i < start_offset; i++) {
+		iter.next();
+	}
+	for (auto i = start_offset; i < end_offset && iter; ++iter) {
+		density = iter.getValue();
+		if (density.x() > 0.0) {
+			for (unsigned l = 0; l < sigma_a.size(); l++) {
+				sigma_a.at(l) = density.x() * sootCoefficients[l];
 			}
+			// Create a Spectrum representation with the computed values
+			// Spectrum expects the wavelengths to be in nanometres
+			Spectrum sigma_a_spec = Spectrum::FromSampled(Soot::lambda_nano,
+					&sigma_a[0], Soot::num_samples);
+
+			// Transform the spectrum to RGB coefficients, since CIE is
+			// not fully represented by RGB clamp negative intensities
+			// to zero
+			sigma_a_spec.ToRGB(&density.x());
+			clampVec3f(density);
+		} else {
+			// Safe check for negative densities
+			density.setZero();
 		}
+		iter.setValue(density);
 	}
 }
 
-void VoxelDatasetColor::compute_bb_radiation(unsigned i_width,
-		unsigned i_height, unsigned i_depth, unsigned e_width,
-		unsigned e_height, unsigned e_depth) {
+void VoxelDatasetColor::compute_bb_radiation(unsigned start_offset,
+		unsigned end_offset) {
 	openvdb::Vec3f t;
 	float xyz_norm;
 	float b[nSpectralSamples];
-	for (unsigned i = i_width; i < e_width; i++) {
-		for (unsigned j = i_height; j < e_height; j++) {
-			for (unsigned k = i_depth; k < e_depth; k++) {
-				t = get_voxel_value(i, j, k);
-				// Anything below 0 degrees Celsius or 400 Kelvin will not glow
-				// TODO Add as a parameter
-				if (t.x() > 400) {
-					// TODO Pass a real refraction index, not 1
-					// Get the blackbody values
-					Blackbody(&lambdas[0], nSpectralSamples, t.x(), 1, b);
+	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
+	for (unsigned i = 0; i < start_offset; i++) {
+		iter.next();
+	}
+	for (auto i = start_offset; i < end_offset && iter; ++iter) {
+		t = iter.getValue();
+		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
+		// TODO Add as a parameter
+		if (t.x() > 400) {
+			// TODO Pass a real refraction index, not 1
+			// Get the blackbody values
+			Blackbody(&lambdas[0], nSpectralSamples, t.x(), 1, b);
 
-					// Create a Spectrum representation with the computed values
-					// Spectrum expects the wavelengths to be in nanometres
-					Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
-							nSpectralSamples);
+			// Create a Spectrum representation with the computed values
+			// Spectrum expects the wavelengths to be in nanometres
+			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
+					nSpectralSamples);
 
-					// Transform the spectrum to XYZ coefficients
-					b_spec.ToXYZ(&t.x());
+			// Transform the spectrum to XYZ coefficients
+			b_spec.ToXYZ(&t.x());
 
-					// Normalise the XYZ coefficients
-					xyz_norm = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
-					t = t * xyz_norm;
-				} else {
-					// If the temperature is low, just set the colour to 0
-					t.setZero();
-				}
-				set_voxel_value(i, j, k, t);
-			}
+			// Normalise the XYZ coefficients
+			xyz_norm = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
+			t = t * xyz_norm;
+		} else {
+			// If the temperature is low, just set the colour to 0
+			t.setZero();
 		}
+		iter.setValue(t);
 	}
 }
 

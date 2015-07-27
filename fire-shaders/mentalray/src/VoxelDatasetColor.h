@@ -27,14 +27,10 @@ protected:
 			const openvdb::Vec3f& c1) const;
 private:
 	void compute_function_threaded(
-			void (VoxelDatasetColor::*foo)(unsigned, unsigned, unsigned,
-					unsigned, unsigned, unsigned));
+			void (VoxelDatasetColor::*foo)(unsigned, unsigned));
 	void compute_soot_coefficients();
-	void compute_sigma_a(unsigned i_width, unsigned i_height, unsigned i_depth,
-			unsigned e_width, unsigned e_height, unsigned e_depth);
-	void compute_bb_radiation(unsigned i_width, unsigned i_height,
-			unsigned i_depth, unsigned e_width, unsigned e_height,
-			unsigned e_depth);
+	void compute_sigma_a(unsigned start_offset, unsigned end_offset);
+	void compute_bb_radiation(unsigned start_offset, unsigned end_offset);
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
 	void compute_wavelengths();
