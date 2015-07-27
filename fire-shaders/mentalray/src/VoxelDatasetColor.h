@@ -12,7 +12,7 @@
 
 #include "VoxelDataset.h"
 
-//template class VoxelDataset<openvdb::Vec3f, openvdb::Vec3STree>;
+template class VoxelDataset<openvdb::Vec3f, openvdb::Vec3STree> ;
 class VoxelDatasetColor: public VoxelDataset<openvdb::Vec3f, openvdb::Vec3STree> {
 public:
 	VoxelDatasetColor();

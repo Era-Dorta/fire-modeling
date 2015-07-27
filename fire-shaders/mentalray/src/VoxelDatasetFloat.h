@@ -12,7 +12,7 @@
 
 #include "VoxelDataset.h"
 
-//template class VoxelDataset<float, openvdb::FloatTree>;
+template class VoxelDataset<float, openvdb::FloatTree> ;
 class VoxelDatasetFloat: public VoxelDataset<float, openvdb::FloatTree> {
 public:
 	enum FILE_FORMAT {

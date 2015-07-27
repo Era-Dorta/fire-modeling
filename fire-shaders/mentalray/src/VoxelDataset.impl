@@ -17,7 +17,7 @@ VoxelDataset<DataT, TreeT>::VoxelDataset() :
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
 				std::mem_fn(
 						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
-	clear();
+	resize(0, 0, 0);
 }
 
 template<typename DataT, typename TreeT>
@@ -61,6 +61,7 @@ template<typename DataT, typename TreeT>
 void VoxelDataset<DataT, TreeT>::clear() {
 	resize(0, 0, 0);
 	block->clear();
+	accessor.clear();
 }
 
 template<typename DataT, typename TreeT>
@@ -109,7 +110,7 @@ template<typename DataT, typename TreeT>
 void VoxelDataset<DataT, TreeT>::set_voxel_value(unsigned x, unsigned y,
 		unsigned z, const DataT& val) {
 	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
-	accessor.setValueOn(openvdb::Coord(x, y, z), val);
+	accessor.setValue(openvdb::Coord(x, y, z), val);
 }
 
 template<typename DataT, typename TreeT>
