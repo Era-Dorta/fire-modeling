@@ -298,6 +298,9 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 				state->point.x = i;
 				state->point.y = j;
 				state->point.z = k;
+				// TODO Modify voxel_density to copy only the sparse values
+				// Also the authors recommend setting the topology and then
+				// using setValueOnly to change values
 				mi_call_shader_x((miColor*) &density.r, miSHADER_MATERIAL,
 						state, density_shader, NULL);
 				if (density.r != 0.0f) {
