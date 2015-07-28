@@ -85,10 +85,14 @@ float VoxelDataset<DataT, TreeT>::getMemFootPrint() const {
 }
 
 template<typename DataT, typename TreeT>
-void VoxelDataset<DataT, TreeT>::pre_cach_all(){
+void VoxelDataset<DataT, TreeT>::pre_cach_all() {
 	accessor.clear();
-	for(auto iter = block->beginValueOn(); iter; ++iter){
-		accessor.getValue(iter.getCoord());
+	for (unsigned i = 0; i < width; i++) {
+		for (unsigned j = 0; j < height; j++) {
+			for (unsigned k = 0; k < depth; k++) {
+				accessor.getValue(openvdb::Coord(i, j, k));
+			}
+		}
 	}
 }
 
