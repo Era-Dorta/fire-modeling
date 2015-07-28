@@ -147,16 +147,27 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
 
 		miVector original_point = state->point;
+		miRay_type ray_type = state->type;
 		// Primitive intersection is the bounding box, set to null to be able
 		// to do the ray marching
 		struct miRc_intersection* original_state_pri = state->pri;
 		state->pri = NULL;
 
+		// Since we are going to call the density shader several times,
+		// tell the shader to cache the values
+		state->type = static_cast<miRay_type>(ALLOC_CACHE);
+		mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
+				nullptr);
+
 		for (distance = state->dist; distance >= 0; distance -=
 				march_increment) {
 			miaux_march_point(&state->point, &origin, &direction, distance);
+
+			state->type = static_cast<miRay_type>(DENSITY_CACHE);
 			mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
-					density_shader, NULL);
+					density_shader, nullptr);
+			state->type = ray_type;
+
 #ifdef DEBUG_SIGMA_A
 			VoxelDatasetColor *voxels =
 			(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
@@ -188,6 +199,11 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		// volumetric 1 is transparent
 		miaux_set_rgb(&result->transparency, 1 - volume_color.a);
 
+		state->type = static_cast<miRay_type>(FREE_CACHE);
+		mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
+				nullptr);
+
+		state->type = ray_type;
 		state->point = original_point;
 		state->pri = original_state_pri;
 	}

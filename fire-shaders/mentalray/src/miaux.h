@@ -20,7 +20,14 @@ typedef struct VolumeShader_R {
 } VolumeShader_R;
 
 enum Voxel_Return {
-	DENSITY, WIDTH, HEIGHT, DEPTH, DENSITY_RAW
+	DENSITY,
+	DENSITY_CACHE,
+	DENSITY_RAW,
+	WIDTH,
+	HEIGHT,
+	DEPTH,
+	ALLOC_CACHE,
+	FREE_CACHE
 };
 
 const char* miaux_tag_to_string(miTag tag, const char *default_value);

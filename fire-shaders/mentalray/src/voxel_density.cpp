@@ -117,6 +117,69 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		}
 		break;
 	}
+	case DENSITY_CACHE: {
+		miVector *min_point = mi_eval_vector(&params->min_point);
+		miVector *max_point = mi_eval_vector(&params->max_point);
+		miVector *p = &state->point;
+		if (miaux_point_inside(p, min_point, max_point)) {
+			VoxelDatasetFloat *voxels =
+					(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
+
+			// Get previously allocated accessor
+			VoxelDatasetFloat::Accessor *accessor = nullptr;
+			mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+
+			assert(accessor != nullptr);
+
+			*result = voxels->get_fitted_voxel_value(p, min_point, max_point,
+					*accessor);
+		} else {
+			*result = 0.0;
+		}
+		break;
+	}
+	case ALLOC_CACHE: {
+		// Get thread pointer
+		VoxelDatasetFloat::Accessor *accessor = nullptr;
+		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+
+		// Allocate memory
+		accessor = static_cast<VoxelDatasetFloat::Accessor *>(mi_mem_allocate(
+				sizeof(VoxelDatasetFloat::Accessor)));
+
+		// Initialise the memory
+		VoxelDatasetFloat *voxels =
+				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
+		accessor = new (accessor) VoxelDatasetFloat::Accessor(
+				voxels->get_accessor());
+
+		// Save the thread pointer
+		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
+
+		break;
+	}
+	case FREE_CACHE: {
+		// Get thread pointer
+		VoxelDatasetFloat::Accessor *accessor = nullptr;
+		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+		if (accessor == nullptr) {
+			mi_warning(
+					"Tried to free accessor but not memory found, possible\
+					memory leak");
+			break;
+		}
+
+		// Call destructor manually because we used placement new
+		accessor->~ValueAccessor();
+		mi_mem_release(accessor);
+
+		// For some reason miQ_FUNC_TLS_SET does not set the pointer to null,
+		// only changes the address, so we will have to trust that the user
+		// will call alloc and free responsibly
+		accessor = nullptr;
+		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
+		break;
+	}
 	}
 	return miTRUE;
 }
