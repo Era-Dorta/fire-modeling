@@ -97,7 +97,7 @@ void VoxelDataset<DataT, TreeT>::pre_cach_all() {
 }
 
 template<typename DataT, typename TreeT>
-typename VoxelDataset<DataT, TreeT>::Accessor VoxelDataset<DataT, TreeT>::get_accessor() {
+typename VoxelDataset<DataT, TreeT>::Accessor VoxelDataset<DataT, TreeT>::get_accessor() const {
 	return block->getAccessor();
 }
 

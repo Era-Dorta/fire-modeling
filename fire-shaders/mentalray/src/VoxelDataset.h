@@ -39,7 +39,7 @@ public:
 	void resize(unsigned width, unsigned height, unsigned depth);
 	float getMemFootPrint() const;
 	void pre_cach_all();
-	Accessor get_accessor();
+	Accessor get_accessor() const;
 
 	DataT get_voxel_value(float x, float y, float z) const;
 	DataT get_voxel_value(float x, float y, float z,
