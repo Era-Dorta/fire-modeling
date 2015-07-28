@@ -18,6 +18,7 @@ void VoxelDatasetColorSorted::compute_soot_emission_threaded(
 
 void VoxelDatasetColorSorted::get_i_j_k_from_sorted(miVector &ijk,
 		const unsigned &index) const {
+	assert(index < sorted_ind.size());
 	ijk.x = sorted_ind[index].x();
 	ijk.y = sorted_ind[index].y();
 	ijk.z = sorted_ind[index].z();
@@ -48,6 +49,7 @@ miColor VoxelDatasetColorSorted::get_sorted_voxel_value(unsigned index) const {
 miColor VoxelDatasetColorSorted::get_sorted_voxel_value(unsigned index,
 		const Accessor& accessor) const {
 	miColor res;
+	assert(index < sorted_ind.size());
 	res.r = accessor.getValue(sorted_ind[index]).x();
 	res.g = accessor.getValue(sorted_ind[index]).y();
 	res.b = accessor.getValue(sorted_ind[index]).z();
