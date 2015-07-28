@@ -146,6 +146,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+		VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
 		miColor sigma_a;
 
 		miScalar distance, density;
@@ -184,7 +185,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			if (density > 0) {
 				// Here is where the equation is solved
 				// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
-				miaux_get_sigma_a(&sigma_a, &state->point, voxels);
+				miaux_get_sigma_a(&sigma_a, &state->point, voxels, accessor);
 				density *= density_scale * march_increment;
 				miaux_total_light_at_point(&light_color, state, light, n_light);
 				miaux_multiply_colors(&l_e, color, &light_color);

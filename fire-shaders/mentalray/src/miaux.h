@@ -114,7 +114,8 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miScalar scale, miScalar offset);
 
 void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
-		const VoxelDatasetColor *voxels);
+		const VoxelDatasetColor *voxels,
+		const VoxelDatasetColor::Accessor& accessor);
 
 void miaux_compute_object_matrix(miState *state, miMatrix matrix);
 

@@ -116,12 +116,13 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 		const miVector *start_point, const miVector *direction,
 		miScalar total_distance, miScalar march_increment,
 		miScalar shadow_scale, const VoxelDatasetColor *voxels) {
+	VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	miVector march_point;
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
 		miaux_point_along_vector(&march_point, start_point, direction, dist);
-		miaux_get_sigma_a(&current_sigma, &march_point, voxels);
+		miaux_get_sigma_a(&current_sigma, &march_point, voxels, accessor);
 		miaux_add_color(&total_sigma, &current_sigma);
 	}
 	// In sigma_a we do R^3 since R is 10e-10, that leaves a final result in
@@ -320,12 +321,13 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 }
 
 void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
-		const VoxelDatasetColor *voxels) {
+		const VoxelDatasetColor *voxels,
+		const VoxelDatasetColor::Accessor& accessor) {
 	miVector min_point = { -1, -1, -1 };
 	miVector max_point = { 1, 1, 1 };
 	if (miaux_point_inside(point, &min_point, &max_point)) {
 		openvdb::Vec3f sigma_av = voxels->get_fitted_voxel_value(point,
-				&min_point, &max_point);
+				&min_point, &max_point, accessor);
 		sigma_a->r = sigma_av.x();
 		sigma_a->g = sigma_av.y();
 		sigma_a->b = sigma_av.z();
