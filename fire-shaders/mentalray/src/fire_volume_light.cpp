@@ -60,8 +60,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 
 		voxels->compute_bb_radiation_threaded(visual_adaptation_factor);
 
-		voxels->pre_cach_all();
-
 		// Restore previous state
 		state->point = original_point;
 		state->type = ray_type;
@@ -113,7 +111,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		if (state->count >= voxels->getTotal()) {
 			return ((miBoolean) 2);
 		}
-		miColor voxel_c = voxels->get_sorted_voxel_value(state->count);
+		VoxelDatasetColorSorted::Accessor accessor = voxels->get_accessor();
+		miColor voxel_c = voxels->get_sorted_voxel_value(state->count,
+				accessor);
 
 		// If the contribution is too small return early
 		if (voxel_c.r < shadow_threshold && voxel_c.g < shadow_threshold

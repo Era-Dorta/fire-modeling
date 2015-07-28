@@ -97,28 +97,52 @@ void VoxelDataset<DataT, TreeT>::pre_cach_all() {
 }
 
 template<typename DataT, typename TreeT>
+typename VoxelDataset<DataT, TreeT>::Accessor VoxelDataset<DataT, TreeT>::get_accessor() {
+	return block->getAccessor();
+}
+
+template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y,
 		float z) const {
+	return get_voxel_value(x, y, z, accessor);
+}
+
+template<typename DataT, typename TreeT>
+DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y, float z,
+		const Accessor& accessor) const {
 	assert(
 			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
 					+ ((int ) (x + .5)) < MAX_DATASET_SIZE);
-	return interpolate_function(this, x, y, z);
+	return interpolate_function(this, x, y, z, accessor);
 }
 
 template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::get_fitted_voxel_value(const miVector *p,
 		const miVector *min_point, const miVector *max_point) const {
+	return get_fitted_voxel_value(p, min_point, max_point, accessor);
+}
+
+template<typename DataT, typename TreeT>
+DataT VoxelDataset<DataT, TreeT>::get_fitted_voxel_value(const miVector *p,
+		const miVector *min_point, const miVector *max_point,
+		const Accessor& accessor) const {
 	float x, y, z;
 	x = (float) fit(p->x, min_point->x, max_point->x, 0, width - 1);
 	y = (float) fit(p->y, min_point->y, max_point->y, 0, height - 1);
 	z = (float) fit(p->z, min_point->z, max_point->z, 0, depth - 1);
 	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
-	return get_voxel_value(x, y, z);
+	return get_voxel_value(x, y, z, accessor);
 }
 
 template<typename DataT, typename TreeT>
 const DataT& VoxelDataset<DataT, TreeT>::get_voxel_value(unsigned x, unsigned y,
 		unsigned z) const {
+	return get_voxel_value(x, y, z, accessor);
+}
+
+template<typename DataT, typename TreeT>
+const DataT& VoxelDataset<DataT, TreeT>::get_voxel_value(unsigned x, unsigned y,
+		unsigned z, const Accessor& accessor) const {
 	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
 	return accessor.getValue(openvdb::Coord(x, y, z));
 }
@@ -184,7 +208,7 @@ double VoxelDataset<DataT, TreeT>::fit(double v, double oldmin, double oldmax,
 
 template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::trilinear_interpolation(float x, float y,
-		float z) const {
+		float z, const Accessor& accessor) const {
 	// Round down the indices
 	int x0, y0, z0;
 	x0 = int(x);
@@ -231,8 +255,8 @@ DataT VoxelDataset<DataT, TreeT>::trilinear_interpolation(float x, float y,
 }
 
 template<typename DataT, typename TreeT>
-DataT VoxelDataset<DataT, TreeT>::no_interpolation(float x, float y,
-		float z) const {
+DataT VoxelDataset<DataT, TreeT>::no_interpolation(float x, float y, float z,
+		const Accessor& accessor) const {
 	return accessor.getValue(
 			openvdb::Coord((int) (x + .5), (int) (y + .5), (int) (z + .5)));
 }

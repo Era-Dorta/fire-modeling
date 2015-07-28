@@ -49,7 +49,6 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 			voxels->initialize_with_file(filename,
 					(VoxelDatasetFloat::FILE_FORMAT) mode);
 
-			voxels->pre_cach_all();
 			//voxels->apply_sin_perturbation();
 
 			mi_info("\tDone with Voxel dataset: %dx%dx%d %s",
@@ -98,8 +97,9 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 	case DENSITY_RAW: {
 		VoxelDatasetFloat *voxels =
 				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
+		VoxelDatasetFloat::Accessor accessor = voxels->get_accessor();
 		*result = voxels->get_voxel_value((unsigned) state->point.x,
-				(unsigned) state->point.y, (unsigned) state->point.z);
+				(unsigned) state->point.y, (unsigned) state->point.z, accessor);
 		break;
 	}
 	case DENSITY: {
@@ -109,7 +109,9 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		if (miaux_point_inside(p, min_point, max_point)) {
 			VoxelDatasetFloat *voxels =
 					(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
-			*result = voxels->get_fitted_voxel_value(p, min_point, max_point);
+			VoxelDatasetFloat::Accessor accessor = voxels->get_accessor();
+			*result = voxels->get_fitted_voxel_value(p, min_point, max_point,
+					accessor);
 		} else {
 			*result = 0.0;
 		}

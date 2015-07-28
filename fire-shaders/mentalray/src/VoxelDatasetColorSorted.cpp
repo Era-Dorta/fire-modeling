@@ -42,6 +42,11 @@ void VoxelDatasetColorSorted::sort() {
 }
 
 miColor VoxelDatasetColorSorted::get_sorted_voxel_value(unsigned index) const {
+	return get_sorted_voxel_value(index, accessor);
+}
+
+miColor VoxelDatasetColorSorted::get_sorted_voxel_value(unsigned index,
+		const Accessor& accessor) const {
 	miColor res;
 	res.r = accessor.getValue(sorted_ind[index]).x();
 	res.g = accessor.getValue(sorted_ind[index]).y();

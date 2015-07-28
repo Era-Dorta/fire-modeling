@@ -24,6 +24,8 @@ public:
 		TRUNCATE, TRILINEAR
 	};
 
+	typedef typename openvdb::Grid<TreeT>::Accessor Accessor;
+
 	VoxelDataset(const DataT& background);
 	VoxelDataset(unsigned width, unsigned height, unsigned depth,
 			const DataT& background);
@@ -37,11 +39,18 @@ public:
 	void resize(unsigned width, unsigned height, unsigned depth);
 	float getMemFootPrint() const;
 	void pre_cach_all();
+	Accessor get_accessor();
 
 	DataT get_voxel_value(float x, float y, float z) const;
+	DataT get_voxel_value(float x, float y, float z,
+			const Accessor& accessor) const;
 	DataT get_fitted_voxel_value(const miVector *p, const miVector *min_point,
 			const miVector *max_point) const;
+	DataT get_fitted_voxel_value(const miVector *p, const miVector *min_point,
+			const miVector *max_point, const Accessor& accessor) const;
 	const DataT& get_voxel_value(unsigned x, unsigned y, unsigned z) const;
+	const DataT& get_voxel_value(unsigned x, unsigned y, unsigned z,
+			const Accessor& accessor) const;
 	void set_voxel_value(unsigned x, unsigned y, unsigned z, const DataT& val);
 
 	int getWidth() const;
@@ -59,8 +68,10 @@ protected:
 private:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
-	DataT trilinear_interpolation(float x, float y, float z) const;
-	DataT no_interpolation(float x, float y, float z) const;
+	DataT trilinear_interpolation(float x, float y, float z,
+			const Accessor& accessor) const;
+	DataT no_interpolation(float x, float y, float z,
+			const Accessor& accessor) const;
 protected:
 	unsigned width, height, depth, count;
 
@@ -69,7 +80,8 @@ protected:
 private:
 	InterpolationMode interpolation_mode;
 	std::_Mem_fn<
-			DataT (VoxelDataset<DataT, TreeT>::*)(float, float, float) const> interpolate_function;
+			DataT (VoxelDataset<DataT, TreeT>::*)(float, float, float,
+					const Accessor&) const> interpolate_function;
 };
 
 // The compiler needs direct access to the template class implementation or

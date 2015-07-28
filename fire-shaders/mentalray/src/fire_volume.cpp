@@ -61,8 +61,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 
 			voxels->compute_sigma_a_threaded();
 
-			voxels->pre_cach_all();
-
 			// Restore previous state
 			state->point = original_point;
 			state->type = ray_type;

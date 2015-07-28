@@ -15,6 +15,8 @@ public:
 	virtual void compute_bb_radiation_threaded(float visual_adaptation_factor)
 			override;
 	miColor get_sorted_voxel_value(unsigned index) const;
+	miColor get_sorted_voxel_value(unsigned index,
+			const Accessor& accessor) const;
 	void get_i_j_k_from_sorted(miVector &ijk, const unsigned &index) const;
 private:
 	void sort();
