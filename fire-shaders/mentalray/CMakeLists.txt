@@ -44,6 +44,9 @@ ADD_LIBRARY(mentalRayFireShader
    ${mentalRayFireShader_SRC}
 )
 
+# Pass to the source code were it will be installed, so it can access the data files
+ADD_DEFINITIONS(-DLIBRARY_PATH="${CMAKE_INSTALL_PREFIX}")
+
 # OpenVDB linking
 TARGET_LINK_LIBRARIES(mentalRayFireShader ${OpenVdb_LIBRARIES})
 
