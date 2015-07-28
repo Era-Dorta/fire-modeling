@@ -187,6 +187,7 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 			// Negative and zero densities
 			density.init(1.0f, 1.0f, 1.0f);
 		}
+		iter.setValue(density);
 	}
 }
 
