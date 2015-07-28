@@ -34,9 +34,7 @@ private:
 	void compute_soot_coefficients();
 	void compute_sigma_a(unsigned start_offset, unsigned end_offset);
 	void compute_soot_emission(unsigned start_offset, unsigned end_offset);
-	void compute_chemical_emission(unsigned i_width, unsigned i_height,
-			unsigned i_depth, unsigned e_width, unsigned e_height,
-			unsigned e_depth);
+	void compute_chemical_emission(unsigned start_offset, unsigned end_offset);
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
 	void fill_lambda_vector();

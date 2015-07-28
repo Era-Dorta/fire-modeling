@@ -199,43 +199,41 @@ void VoxelDatasetColor::compute_soot_emission(unsigned start_offset,
 	}
 }
 
-void VoxelDatasetColor::compute_chemical_emission(unsigned i_width,
-		unsigned i_height, unsigned i_depth, unsigned e_width,
-		unsigned e_height, unsigned e_depth) {
-	miColor t;
+void VoxelDatasetColor::compute_chemical_emission(unsigned start_offset,
+		unsigned end_offset) {
+	openvdb::Vec3f t;
 	float xyz_norm;
 	float b[nSpectralSamples];
-	for (unsigned i = i_width; i < e_width; i++) {
-		for (unsigned j = i_height; j < e_height; j++) {
-			for (unsigned k = i_depth; k < e_depth; k++) {
-				t = get_voxel_value(i, j, k);
-				// Anything below 0 degrees Celsius or 400 Kelvin will not glow
-				// TODO Add as a parameter
-				if (t.r > 400) {
-					// TODO Pass a real refraction index, not 1
-					// Get the blackbody values
-					ChemicalEmission(&lambdas[0], &spectralLines[0],
-							lambdas.size(), t.r, 1, b);
+	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
+	for (unsigned i = 0; i < start_offset; i++) {
+		iter.next();
+	}
+	for (auto i = start_offset; i < end_offset && iter; ++iter) {
+		t = iter.getValue();
+		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
+		// TODO Add as a parameter
+		if (t.x() > 400) {
+			// TODO Pass a real refraction index, not 1
+			// Get the blackbody values
+			ChemicalEmission(&lambdas[0], &spectralLines[0], lambdas.size(),
+					t.x(), 1, b);
 
-					// Create a Spectrum representation with the computed values
-					// Spectrum expects the wavelengths to be in nanometres
-					Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
-							lambdas.size());
+			// Create a Spectrum representation with the computed values
+			// Spectrum expects the wavelengths to be in nanometres
+			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
+					lambdas.size());
 
-					// Transform the spectrum to XYZ coefficients
-					b_spec.ToXYZ(&t.r);
+			// Transform the spectrum to XYZ coefficients
+			b_spec.ToXYZ(&t.x());
 
-					// Normalise the XYZ coefficients
-					xyz_norm = 1.0 / std::max(std::max(t.r, t.g), t.b);
-					miaux_scale_color(&t, xyz_norm);
-
-				} else {
-					// If the temperature is low, just set the colour to 0
-					miaux_set_rgb(&t, 0);
-				}
-				set_voxel_value(i, j, k, t);
-			}
+			// Normalise the XYZ coefficients
+			xyz_norm = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
+			t.scale(xyz_norm, t);
+		} else {
+			// If the temperature is low, just set the colour to 0
+			t.setZero();
 		}
+		iter.setValue(t);
 	}
 }
 
