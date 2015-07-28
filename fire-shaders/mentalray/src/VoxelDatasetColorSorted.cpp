@@ -9,10 +9,24 @@
 
 #include "VoxelDatasetColorSorted.h"
 
+void VoxelDatasetColorSorted::compute_sigma_a_threaded() {
+	sorted_ind.resize(block->activeVoxelCount());
+	VoxelDatasetColor::compute_sigma_a_threaded();
+	sort();
+}
+
 void VoxelDatasetColorSorted::compute_soot_emission_threaded(
 		float visual_adaptation_factor) {
 	sorted_ind.resize(block->activeVoxelCount());
 	VoxelDatasetColor::compute_soot_emission_threaded(visual_adaptation_factor);
+	sort();
+}
+
+void VoxelDatasetColorSorted::compute_chemical_emission_threaded(
+		float visual_adaptation_factor, const char* filename) {
+	sorted_ind.resize(block->activeVoxelCount());
+	VoxelDatasetColor::compute_chemical_emission_threaded(
+			visual_adaptation_factor, filename);
 	sort();
 }
 

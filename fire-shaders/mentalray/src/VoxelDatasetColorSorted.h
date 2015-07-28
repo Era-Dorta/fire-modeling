@@ -12,8 +12,11 @@
 
 class VoxelDatasetColorSorted: public VoxelDatasetColor {
 public:
+	virtual void compute_sigma_a_threaded() override;
 	virtual void compute_soot_emission_threaded(float visual_adaptation_factor)
 			override;
+	virtual void compute_chemical_emission_threaded(
+			float visual_adaptation_factor, const char* filename) override;
 	miColor get_sorted_voxel_value(unsigned index) const;
 	miColor get_sorted_voxel_value(unsigned index,
 			const Accessor& accessor) const;
