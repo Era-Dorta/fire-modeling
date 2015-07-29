@@ -7,8 +7,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(mentalRayFireShader)
 
-#SET(CMAKE_INSTALL_PREFIX "/home/gdp24/maya/")
-
 SET(CMAKE_CXX_COMPILER g++)
 
 #Set build to Release is none is given
