@@ -72,6 +72,7 @@ FILE(GLOB PROJECT_SRC
 
 FILE(GLOB PROJECT_DATA
     "nist/data/*.specline"
+    "nist/data/*.optconst"
 )
 
 FILE(GLOB PROJECT_SCRIPTS

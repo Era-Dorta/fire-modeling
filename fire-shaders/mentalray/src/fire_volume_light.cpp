@@ -21,11 +21,12 @@ struct fire_volume_light {
 	miScalar decay;
 };
 
-enum FuelType {
-	Propane, Cu, S,
+enum FuelEmission {
+	BlackBody, Cu, S, FuelEmissionMax = S
 };
 
-static const std::array<std::string, 3> FuelTypeNames { "Propane", "Cu", "S" };
+static const std::array<std::string, FuelEmissionMax + 1> FuelEmissionStr {
+		"BlackBody", "Cu", "S" };
 
 extern "C" DLLEXPORT int fire_volume_light_version(void) {
 	return 1;
@@ -66,20 +67,16 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
 				width, height, depth, temperature_scale, temperature_offset);
 
-		switch (fuel_type) {
-		case FuelType::Propane: {
-			voxels->compute_soot_emission_threaded(visual_adaptation_factor);
-			break;
-		}
-		default: {
+		if (fuel_type == FuelEmission::BlackBody) {
+			voxels->compute_black_body_emission_threaded(
+					visual_adaptation_factor);
+		} else {
 			std::string data_file(LIBRARY_DATA_PATH);
-			assert(static_cast<unsigned>(fuel_type) < FuelTypeNames.size());
-			data_file = data_file + "/" + FuelTypeNames[fuel_type]
+			assert(static_cast<unsigned>(fuel_type) < FuelEmissionStr.size());
+			data_file = data_file + "/" + FuelEmissionStr[fuel_type]
 					+ ".specline";
 			voxels->compute_chemical_emission_threaded(visual_adaptation_factor,
 					data_file.c_str());
-			break;
-		}
 		}
 
 		// Restore previous state

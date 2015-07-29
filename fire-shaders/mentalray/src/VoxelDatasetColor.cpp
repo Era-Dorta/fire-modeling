@@ -17,16 +17,11 @@ VoxelDatasetColor::VoxelDatasetColor() :
 		VoxelDataset<openvdb::Vec3f, openvdb::Vec3fTree>(
 				openvdb::Vec3f(0, 0, 0)) {
 	miaux_set_rgb(&max_color, 0);
+	soot_radius = 0;
+	alpha_lambda = 0;
 }
 
-void VoxelDatasetColor::compute_sigma_a_threaded() {
-	// Precompute all the constant soot coefficients
-	compute_soot_coefficients();
-
-	compute_function_threaded(&VoxelDatasetColor::compute_sigma_a);
-}
-
-void VoxelDatasetColor::compute_soot_emission_threaded(
+void VoxelDatasetColor::compute_black_body_emission_threaded(
 		float visual_adaptation_factor) {
 	// Spectrum static initialisation, ideally should only be called once
 	// move it from here to a proper initialisation context
@@ -34,9 +29,27 @@ void VoxelDatasetColor::compute_soot_emission_threaded(
 
 	fill_lambda_vector();
 
-	compute_function_threaded(&VoxelDatasetColor::compute_soot_emission);
+	compute_function_threaded(&VoxelDatasetColor::compute_black_body_emission);
 
 	normalize_bb_radiation(visual_adaptation_factor);
+
+	lambdas.clear();
+}
+
+void VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
+	// Spectrum static initialisation, ideally should only be called once
+	// move it from here to a proper initialisation context
+	Spectrum::Init();
+
+	read_optical_constants_file(filename);
+
+	compute_soot_constant_coefficients();
+
+	compute_function_threaded(&VoxelDatasetColor::compute_soot_absorption);
+
+	input_data.clear();
+	extra_data.clear();
+	lambdas.clear();
 }
 
 void VoxelDatasetColor::compute_chemical_emission_threaded(
@@ -45,11 +58,14 @@ void VoxelDatasetColor::compute_chemical_emission_threaded(
 	// move it from here to a proper initialisation context
 	Spectrum::Init();
 
-	readSpectralLineFile(filename);
+	read_spectral_line_file(filename);
 
 	compute_function_threaded(&VoxelDatasetColor::compute_chemical_emission);
 
 	normalize_bb_radiation(visual_adaptation_factor);
+
+	input_data.clear();
+	lambdas.clear();
 }
 
 const miColor& VoxelDatasetColor::get_max_voxel_value() {
@@ -111,7 +127,7 @@ void VoxelDatasetColor::compute_function_threaded(
 	}
 }
 
-void VoxelDatasetColor::compute_soot_coefficients() {
+void VoxelDatasetColor::compute_soot_constant_coefficients() {
 	// Spectrum static initialisation, ideally should only be called once
 	// move it from here to a proper initialisation context
 	Spectrum::Init();
@@ -119,21 +135,30 @@ void VoxelDatasetColor::compute_soot_coefficients() {
 	// TODO If we wanted to sample more from the spectrum, we would have to
 	// compute lambda^alpha_lambda in compute_sigma_a, in any case I don't think
 	// it makes sense, as we do not have more n or k data
-	sootCoefficients = std::vector<miScalar>(Soot::num_samples, 0);
-	for (unsigned i = 0; i < sootCoefficients.size(); i++) {
-		miScalar n2_k2_2 = Soot::n[i] * Soot::n[i] - Soot::k[i] * Soot::k[i]
-				+ 2;
+	std::vector<float> &n = input_data;
+	std::vector<float> &nk = extra_data;
+	std::vector<float> k(n.size());
+
+	for (unsigned i = 0; i < n.size(); i++) {
+		k[i] = nk[i] / n[i];
+	}
+
+	float pi_r3_36 = (4.0f / 3.0f) * M_PI * soot_radius * soot_radius
+			* soot_radius * 36.0f * M_PI;
+
+	for (unsigned i = 0; i < n.size(); i++) {
+		miScalar n2_k2_2 = n[i] * n[i] - k[i] * k[i] + 2;
 		n2_k2_2 = n2_k2_2 * n2_k2_2;
-		sootCoefficients[i] = Soot::PI_R3_36 * Soot::nk[i]
-				/ (std::pow(Soot::lambda[i], Soot::alpha_lambda)
-						* (n2_k2_2 + 4 * Soot::nk[i] * Soot::nk[i]));
+		input_data[i] = pi_r3_36 * nk[i]
+				/ (std::pow(lambdas[i] * 1e-9, alpha_lambda)
+						* (n2_k2_2 + 4 * nk[i] * nk[i]));
 	}
 }
 
-void VoxelDatasetColor::compute_sigma_a(unsigned start_offset,
+void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f density;
-	std::vector<float> sigma_a(Soot::num_samples);
+	std::vector<float> spec_values(Soot::num_samples);
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -141,13 +166,13 @@ void VoxelDatasetColor::compute_sigma_a(unsigned start_offset,
 	for (auto i = start_offset; i < end_offset && iter; ++iter) {
 		density = iter.getValue();
 		if (density.x() > 0.0) {
-			for (unsigned l = 0; l < sigma_a.size(); l++) {
-				sigma_a.at(l) = density.x() * sootCoefficients[l];
+			for (unsigned j = 0; j < spec_values.size(); j++) {
+				spec_values.at(j) = density.x() * input_data[j];
 			}
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum sigma_a_spec = Spectrum::FromSampled(Soot::lambda_nano,
-					&sigma_a[0], Soot::num_samples);
+			Spectrum sigma_a_spec = Spectrum::FromSampled(&lambdas[0],
+					&spec_values[0], lambdas.size());
 
 			// Transform the spectrum to RGB coefficients, since CIE is
 			// not fully represented by RGB clamp negative intensities
@@ -162,11 +187,11 @@ void VoxelDatasetColor::compute_sigma_a(unsigned start_offset,
 	}
 }
 
-void VoxelDatasetColor::compute_soot_emission(unsigned start_offset,
+void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f t;
 	float xyz_norm;
-	float b[nSpectralSamples];
+	float spec_values[nSpectralSamples];
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -178,11 +203,11 @@ void VoxelDatasetColor::compute_soot_emission(unsigned start_offset,
 		if (t.x() > 400) {
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
-			Blackbody(&lambdas[0], nSpectralSamples, t.x(), 1, b);
+			Blackbody(&lambdas[0], nSpectralSamples, t.x(), 1, spec_values);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
+			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
 					nSpectralSamples);
 
 			// Transform the spectrum to XYZ coefficients
@@ -203,7 +228,7 @@ void VoxelDatasetColor::compute_chemical_emission(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f t;
 	float xyz_norm;
-	float b[nSpectralSamples];
+	float spec_values[nSpectralSamples];
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -215,12 +240,12 @@ void VoxelDatasetColor::compute_chemical_emission(unsigned start_offset,
 		if (t.x() > 400) {
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
-			ChemicalEmission(&lambdas[0], &spectralLines[0], lambdas.size(),
-					t.x(), 1, b);
+			ChemicalEmission(&lambdas[0], &input_data[0], lambdas.size(), t.x(),
+					1, spec_values);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], b,
+			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
 					lambdas.size());
 
 			// Transform the spectrum to XYZ coefficients
@@ -351,7 +376,7 @@ void VoxelDatasetColor::clamp_0_1(float &v) {
 	}
 }
 
-void VoxelDatasetColor::readSpectralLineFile(const char* filename) {
+void VoxelDatasetColor::read_spectral_line_file(const char* filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
@@ -360,11 +385,34 @@ void VoxelDatasetColor::readSpectralLineFile(const char* filename) {
 	safe_ascii_read(fp, num_lines);
 
 	lambdas.resize(num_lines);
-	spectralLines.resize(num_lines);
+	input_data.resize(num_lines);
 
 	for (unsigned i = 0; i < num_lines; i++) {
 		safe_ascii_read(fp, lambdas[i]);
-		safe_ascii_read(fp, spectralLines[i]);
+		safe_ascii_read(fp, input_data[i]);
+	}
+	fp.close();
+}
+
+void VoxelDatasetColor::read_optical_constants_file(const char* filename) {
+	std::ifstream fp(filename, std::ios_base::in);
+	if (!fp.is_open()) {
+		mi_fatal("Error opening file \"%s\".", filename);
+	}
+	unsigned num_lines = 0;
+	safe_ascii_read(fp, num_lines);
+
+	safe_ascii_read(fp, soot_radius);
+	safe_ascii_read(fp, alpha_lambda);
+
+	lambdas.resize(num_lines);
+	input_data.resize(num_lines);
+	extra_data.resize(num_lines);
+
+	for (unsigned i = 0; i < num_lines; i++) {
+		safe_ascii_read(fp, lambdas[i]);
+		safe_ascii_read(fp, input_data[i]);
+		safe_ascii_read(fp, extra_data[i]);
 	}
 	fp.close();
 }

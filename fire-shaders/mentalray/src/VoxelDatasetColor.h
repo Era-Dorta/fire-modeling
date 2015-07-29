@@ -17,8 +17,9 @@ template class VoxelDataset<openvdb::Vec3f, openvdb::Vec3STree> ;
 class VoxelDatasetColor: public VoxelDataset<openvdb::Vec3f, openvdb::Vec3STree> {
 public:
 	VoxelDatasetColor();
-	virtual void compute_sigma_a_threaded();
-	virtual void compute_soot_emission_threaded(float visual_adaptation_factor);
+	virtual void compute_black_body_emission_threaded(
+			float visual_adaptation_factor);
+	virtual void compute_soot_absorption_threaded(const char* filename);
 	virtual void compute_chemical_emission_threaded(
 			float visual_adaptation_factor, const char* filename);
 	const miColor& get_max_voxel_value();
@@ -31,23 +32,27 @@ protected:
 private:
 	void compute_function_threaded(
 			void (VoxelDatasetColor::*foo)(unsigned, unsigned));
-	void compute_soot_coefficients();
-	void compute_sigma_a(unsigned start_offset, unsigned end_offset);
-	void compute_soot_emission(unsigned start_offset, unsigned end_offset);
+	void compute_soot_constant_coefficients();
+	void compute_soot_absorption(unsigned start_offset, unsigned end_offset);
+	void compute_black_body_emission(unsigned start_offset,
+			unsigned end_offset);
 	void compute_chemical_emission(unsigned start_offset, unsigned end_offset);
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
 	void fill_lambda_vector();
 	static void clamp_0_1(openvdb::Vec3f& v);
 	static void clamp_0_1(float &v);
-	void readSpectralLineFile(const char* filename);
+	void read_spectral_line_file(const char* filename);
+	void read_optical_constants_file(const char* filename);
 	template<typename T>
 	void safe_ascii_read(std::ifstream& fp, T &output);
 
-	std::vector<miScalar> sootCoefficients;
-	std::vector<float> spectralLines;
 	std::vector<float> lambdas;
+	std::vector<float> input_data;
+	std::vector<float> extra_data;
 	miColor max_color;
+	miScalar soot_radius;
+	miScalar alpha_lambda;
 };
 
 #endif /* VOXELDATASETCOLOR_H_ */

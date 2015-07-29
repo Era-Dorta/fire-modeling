@@ -59,7 +59,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 			miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
 					width, height, depth, density_scale, 0);
 
-			voxels->compute_sigma_a_threaded();
+			// TODO Not sure were this should go here or what to do
+			std::string data_file(LIBRARY_DATA_PATH);
+			data_file = data_file + "/Propane.optconst";
+			voxels->compute_soot_absorption_threaded(data_file.c_str());
 
 			// Restore previous state
 			state->point = original_point;

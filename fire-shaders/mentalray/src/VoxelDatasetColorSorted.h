@@ -12,8 +12,9 @@
 
 class VoxelDatasetColorSorted: public VoxelDatasetColor {
 public:
-	virtual void compute_sigma_a_threaded() override;
-	virtual void compute_soot_emission_threaded(float visual_adaptation_factor)
+	virtual void compute_black_body_emission_threaded(
+			float visual_adaptation_factor) override;
+	virtual void compute_soot_absorption_threaded(const char* filename)
 			override;
 	virtual void compute_chemical_emission_threaded(
 			float visual_adaptation_factor, const char* filename) override;

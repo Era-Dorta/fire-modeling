@@ -9,16 +9,18 @@
 
 #include "VoxelDatasetColorSorted.h"
 
-void VoxelDatasetColorSorted::compute_sigma_a_threaded() {
+void VoxelDatasetColorSorted::compute_soot_absorption_threaded(
+		const char* filename) {
 	sorted_ind.resize(block->activeVoxelCount());
-	VoxelDatasetColor::compute_sigma_a_threaded();
+	VoxelDatasetColor::compute_soot_absorption_threaded(filename);
 	sort();
 }
 
-void VoxelDatasetColorSorted::compute_soot_emission_threaded(
+void VoxelDatasetColorSorted::compute_black_body_emission_threaded(
 		float visual_adaptation_factor) {
 	sorted_ind.resize(block->activeVoxelCount());
-	VoxelDatasetColor::compute_soot_emission_threaded(visual_adaptation_factor);
+	VoxelDatasetColor::compute_black_body_emission_threaded(
+			visual_adaptation_factor);
 	sort();
 }
 
