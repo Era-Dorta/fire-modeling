@@ -12,6 +12,7 @@
 
 struct fire_volume_light {
 	miTag temperature_shader;
+	miInteger fuel_type;
 	miScalar temperature_scale;
 	miScalar temperature_offset;
 	miScalar visual_adaptation_factor;
@@ -19,6 +20,12 @@ struct fire_volume_light {
 	miScalar intensity;
 	miScalar decay;
 };
+
+enum FuelType {
+	Propane, Cu, S,
+};
+
+static const std::array<std::string, 3> FuelTypeNames { "Propane", "Cu", "S" };
 
 extern "C" DLLEXPORT int fire_volume_light_version(void) {
 	return 1;
@@ -38,6 +45,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miScalar visual_adaptation_factor = *mi_eval_scalar(
 				&params->visual_adaptation_factor);
 		miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
+		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
 
 		VoxelDatasetColorSorted *voxels =
 				(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
@@ -58,9 +66,21 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
 				width, height, depth, temperature_scale, temperature_offset);
 
-		//voxels->compute_soot_emission_threaded(visual_adaptation_factor);
-		voxels->compute_chemical_emission_threaded(visual_adaptation_factor,
-				"/home/gdp24/maya/projects/fire/data/spectral_lines/S.specline");
+		switch (fuel_type) {
+		case FuelType::Propane: {
+			voxels->compute_soot_emission_threaded(visual_adaptation_factor);
+			break;
+		}
+		default: {
+			std::string data_file(LIBRARY_DATA_PATH);
+			assert(static_cast<unsigned>(fuel_type) < FuelTypeNames.size());
+			data_file = data_file + "/" + FuelTypeNames[fuel_type]
+					+ ".specline";
+			voxels->compute_chemical_emission_threaded(visual_adaptation_factor,
+					data_file.c_str());
+			break;
+		}
+		}
 
 		// Restore previous state
 		state->point = original_point;

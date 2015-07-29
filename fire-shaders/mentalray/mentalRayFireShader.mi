@@ -71,6 +71,10 @@ end declare
 declare shader
 	color "fire_volume_light" (
 		shader "temperature_shader",
+		integer "fuel_type",
+			#: default 0
+			#: enum "Propane-Yellow:Copper-Blue:Sulfur-Purple"
+			#: min 0 max 2
 		scalar "temperature_scale", 
 			#: default 2500 # Usually temperatures are from 0 to 10000K
 			#: softmin 0.0
