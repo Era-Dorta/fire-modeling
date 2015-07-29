@@ -33,6 +33,19 @@ INCLUDE_DIRECTORIES( ${OpenVdb_INCLUDE_DIRS} )
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
 
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	# MENTALRAY_LOCATION points to mentalray/devkit, get the parent directory 
+	GET_FILENAME_COMPONENT(MENTALRAY_SHADERS ${MENTALRAY_LOCATION} DIRECTORY)
+	
+	# Shaders go in mentalray/shaders
+	SET(MENTALRAY_SHADERS "${MENTALRAY_SHADERS}/shaders")
+	
+    SET(CMAKE_INSTALL_PREFIX "${MENTALRAY_SHADERS}" CACHE PATH "default install path" FORCE )
+ENDIF()
+
+# Pass to the source code were it will be installed, so it can access the data files
+ADD_DEFINITIONS(-DLIBRARY_PATH="${CMAKE_INSTALL_PREFIX}")
+
 FILE(GLOB mentalRayFireShader_SRC
     "src/*.h"
     "src/*.cpp"
@@ -43,9 +56,6 @@ ADD_LIBRARY(mentalRayFireShader
 	SHARED
    ${mentalRayFireShader_SRC}
 )
-
-# Pass to the source code were it will be installed, so it can access the data files
-ADD_DEFINITIONS(-DLIBRARY_PATH="${CMAKE_INSTALL_PREFIX}")
 
 # OpenVDB linking
 TARGET_LINK_LIBRARIES(mentalRayFireShader ${OpenVdb_LIBRARIES})
