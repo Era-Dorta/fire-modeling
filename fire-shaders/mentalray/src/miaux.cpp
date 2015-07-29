@@ -381,6 +381,165 @@ void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
 	result->z = -vector->z;
 }
 
+void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
+		miScalar density_scale, miScalar march_increment, miTag density_shader,
+		miTag *light, miInteger n_light, miVector &origin, miVector &direction,
+		const miColor &color) {
+
+	miScalar distance, density;
+	miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
+
+	miVector original_point = state->point;
+	miRay_type ray_type = state->type;
+	// Primitive intersection is the bounding box, set to null to be able
+	// to do the ray marching
+	struct miRc_intersection* original_state_pri = state->pri;
+	state->pri = NULL;
+
+	// Since we are going to call the density shader several times,
+	// tell the shader to cache the values
+	state->type = static_cast<miRay_type>(ALLOC_CACHE);
+	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
+			nullptr);
+
+	for (distance = state->dist; distance >= 0; distance -= march_increment) {
+		miaux_march_point(&state->point, &origin, &direction, distance);
+
+		state->type = static_cast<miRay_type>(DENSITY_CACHE);
+		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
+				density_shader, nullptr);
+		state->type = ray_type;
+
+#ifdef DEBUG_SIGMA_A
+		VoxelDatasetColor *voxels =
+		(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+		miColor sigma_a;
+		miaux_get_sigma_a(&sigma_a, &state->point, voxels);
+		density = std::max(std::max(sigma_a.r, sigma_a.g), sigma_a.b)
+		* pow(10, 12);
+#endif
+		if (density > 0) {
+			// Here is where the equation is solved
+			// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
+			density *= density_scale * march_increment;
+			miaux_total_light_at_point(&light_color, state, light, n_light);
+			miaux_multiply_colors(&point_color, &color, &light_color);
+			miaux_add_transparent_color(&volume_color, &point_color, density);
+		}
+		if (volume_color.a == 1.0) {
+			break;
+		}
+	}
+
+	// Note changing result->color or result->transparecy alpha channel
+	// has no effect, the transparency is controlled with the transparency
+	// rgb channels
+	miaux_copy_color(&result->color, &volume_color);
+
+	// In RGBA, 0 alpha is transparent, but in in transparency for maya
+	// volumetric 1 is transparent
+	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
+
+	state->type = static_cast<miRay_type>(FREE_CACHE);
+	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
+			nullptr);
+
+	state->type = ray_type;
+	state->point = original_point;
+	state->pri = original_state_pri;
+}
+
+void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
+		miScalar density_scale, miScalar march_increment, miTag density_shader,
+		miTag *light, miInteger n_light, miVector &origin, miVector &direction,
+		const miColor &color) {
+	VoxelDatasetColor *voxels =
+			(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+	VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
+	miColor sigma_a;
+
+	miScalar distance, density;
+	miColor volume_color = { 0, 0, 0, 0 }, light_color, l_e;
+
+	miVector original_point = state->point;
+	miRay_type ray_type = state->type;
+	// Primitive intersection is the bounding box, set to null to be able
+	// to do the ray marching
+	struct miRc_intersection* original_state_pri = state->pri;
+	state->pri = NULL;
+
+	// Since we are going to call the density shader several times,
+	// tell the shader to cache the values
+	state->type = static_cast<miRay_type>(ALLOC_CACHE);
+	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
+			nullptr);
+
+	for (distance = state->dist; distance >= 0; distance -= march_increment) {
+		miaux_march_point(&state->point, &origin, &direction, distance);
+
+		state->type = static_cast<miRay_type>(DENSITY_CACHE);
+		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
+				density_shader, nullptr);
+		state->type = ray_type;
+
+#ifdef DEBUG_SIGMA_A
+		VoxelDatasetColor *voxels =
+		(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+		miColor sigma_a;
+		miaux_get_sigma_a(&sigma_a, &state->point, voxels);
+		density = std::max(std::max(sigma_a.r, sigma_a.g), sigma_a.b)
+		* pow(10, 12);
+#endif
+		if (density > 0) {
+			// Here is where the equation is solved
+			// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
+			miaux_get_sigma_a(&sigma_a, &state->point, voxels, accessor);
+			density *= density_scale * march_increment;
+			miaux_total_light_at_point(&light_color, state, light, n_light);
+			miaux_multiply_colors(&l_e, &color, &light_color);
+
+			//sigma_a * L_e
+			l_e.r *= sigma_a.r;
+			l_e.g *= sigma_a.g;
+			l_e.b *= sigma_a.b;
+
+			// e^(- sigma_a * dx)*L(x + dx)
+			volume_color.r *= exp(-sigma_a.r * march_increment);
+			volume_color.g *= exp(-sigma_a.g * march_increment);
+			volume_color.b *= exp(-sigma_a.b * march_increment);
+
+			// L_x = e^(- sigma_a * dx)*L(x + dx) + sigma_a * L_e
+			miScalar new_alpha = volume_color.a + density;
+			if (new_alpha > 1.0) {
+				density = 1.0 - volume_color.a;
+			}
+			volume_color.r += l_e.r * density;
+			volume_color.g += l_e.g * density;
+			volume_color.b += l_e.b * density;
+			volume_color.a += density;
+		}
+		if (volume_color.a == 1.0) {
+			break;
+		}
+	}
+	// Note changing result->color or result->transparecy alpha channel
+	// has no effect, the transparency is controlled with the transparency
+	// rgb channels
+	miaux_copy_color(&result->color, &volume_color);
+
+	// In RGBA, 0 alpha is transparent, but in in transparency for maya
+	// volumetric 1 is transparent
+	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
+
+	state->type = static_cast<miRay_type>(FREE_CACHE);
+	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
+			nullptr);
+
+	state->type = ray_type;
+	state->point = original_point;
+	state->pri = original_state_pri;
+}
+
 void miaux_vector_info(const char* s, const miVector& v) {
 	mi_info("%s %f, %f, %f", s, v.x, v.y, v.z);
 }

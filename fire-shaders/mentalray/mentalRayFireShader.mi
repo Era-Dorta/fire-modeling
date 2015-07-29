@@ -47,6 +47,10 @@ declare shader
 				#: default 0.5 0.5 0.5
 				#: hidden true
 			shader "density_shader",
+			integer "absorption_type",
+				#: default 0
+				#: enum "None:Propane"
+				#: min 0 max 1		
 			scalar "density_scale", 
 				#: default 5
 				#: softmin 0.0
