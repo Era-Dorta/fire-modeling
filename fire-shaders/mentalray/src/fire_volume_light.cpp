@@ -122,45 +122,41 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	// interpolating between the value the interpolation code is there, what is
 	// needed is to decide where to place the points
 
-	// If this is not the first sample then next data from the voxel dataset
-	// set the light to be that colour and in that position
-	if (state->count > 0) {
-		// If no more voxel data then return early
-		if (state->count >= voxels->getTotal()) {
-			return ((miBoolean) 2);
-		}
-		VoxelDatasetColorSorted::Accessor accessor = voxels->get_accessor();
-		miColor voxel_c = voxels->get_sorted_voxel_value(state->count,
-				accessor);
-
-		// If the contribution is too small return early
-		if (voxel_c.r < shadow_threshold && voxel_c.g < shadow_threshold
-				&& voxel_c.b < shadow_threshold) {
-			return ((miBoolean) 2);
-		}
-
-		// Set the colour using the next value
-		miaux_copy_color_scaled(result, &voxel_c, intensity);
-
-		// Move the light origin to the voxel position
-		const miVector minus_one = { -1, -1, -1 };
-		miVector offset_light, offset_internal;
-
-		voxels->get_i_j_k_from_sorted(offset_light, state->count);
-
-		// The voxel data set goes from {-1,-1,-1} to {1,1,1}, so with
-		// i,j,k = (SIZE / 2) it should be 1, to cancel the offset and
-		// with i,j,k = SIZE, then it should be 2, to be 1 above the offset
-		mi_vector_mul(&offset_light, INV_SIZE);
-
-		mi_vector_add(&offset_light, &offset_light, &minus_one);
-
-		// {-1,-,1,-1} is for a light at origin without rotation, so transform
-		// from light space to internal, to account for that
-		mi_vector_from_light(state, &offset_internal, &offset_light);
-
-		mi_vector_add(&state->org, &state->org, &offset_internal);
+	// If no more voxel data then return early
+	if (state->count >= voxels->getTotal()) {
+		return ((miBoolean) 2);
 	}
+	VoxelDatasetColorSorted::Accessor accessor = voxels->get_accessor();
+	miColor voxel_c = voxels->get_sorted_voxel_value(state->count, accessor);
+
+	// If the contribution is too small return early
+	if (voxel_c.r < shadow_threshold && voxel_c.g < shadow_threshold
+			&& voxel_c.b < shadow_threshold) {
+		return ((miBoolean) 2);
+	}
+
+	// Set the colour using the next value
+	miaux_copy_color_scaled(result, &voxel_c, intensity);
+
+	// Move the light origin to the voxel position
+	const miVector minus_one = { -1, -1, -1 };
+	miVector offset_light, offset_internal;
+
+	voxels->get_i_j_k_from_sorted(offset_light, state->count);
+
+	// The voxel data set goes from {-1,-1,-1} to {1,1,1}, so with
+	// i,j,k = (SIZE / 2) it should be 1, to cancel the offset and
+	// with i,j,k = SIZE, then it should be 2, to be 1 above the offset
+	mi_vector_mul(&offset_light, INV_SIZE);
+
+	mi_vector_add(&offset_light, &offset_light, &minus_one);
+
+	// {-1,-,1,-1} is for a light at origin without rotation, so transform
+	// from light space to internal, to account for that
+	mi_vector_from_light(state, &offset_internal, &offset_light);
+
+	mi_vector_add(&state->org, &state->org, &offset_internal);
+
 	// dir is vector from light origin to primitive intersection point
 	mi_vector_sub(&state->dir, &state->point, &state->org);
 
