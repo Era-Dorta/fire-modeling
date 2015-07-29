@@ -47,9 +47,9 @@ ENDIF()
 ADD_DEFINITIONS(-DLIBRARY_PATH="${CMAKE_INSTALL_PREFIX}")
 
 FILE(GLOB mentalRayFireShader_SRC
-    "src/*.h"
-    "src/*.cpp"
-    "src/*.impl"
+    "mentalray/src/*.h"
+    "mentalray/src/*.cpp"
+    "mentalray/src/*.impl"
 )
 
 ADD_LIBRARY(mentalRayFireShader
