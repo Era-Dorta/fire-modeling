@@ -30,6 +30,8 @@ enum Voxel_Return {
 	FREE_CACHE
 };
 
+void miaux_initialize_external_libs();
+
 const char* miaux_tag_to_string(miTag tag, const char *default_value);
 
 double miaux_fit(double v, double oldmin, double oldmax, double newmin,

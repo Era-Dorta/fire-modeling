@@ -8,6 +8,12 @@
 #include "miaux.h"
 
 #include "shader.h"
+#include "Spectrum.h"
+
+void miaux_initialize_external_libs() {
+	Spectrum::Init();
+	openvdb::initialize();
+}
 
 const char* miaux_tag_to_string(miTag tag, const char *default_value) {
 	const char *result = default_value;

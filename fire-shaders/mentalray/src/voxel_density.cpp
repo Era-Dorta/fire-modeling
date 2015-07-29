@@ -22,6 +22,7 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 		struct voxel_density *params, miBoolean *instance_init_required) {
 	if (!params) { /* Main shader init (not an instance): */
 		*instance_init_required = miTRUE;
+		miaux_initialize_external_libs();
 	} else {
 		/* Instance initialization: */
 		const char* filename = miaux_tag_to_string(
@@ -35,7 +36,6 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 				(VoxelDatasetFloat *) miaux_alloc_user_memory(state,
 						sizeof(VoxelDatasetFloat));
 
-		openvdb::initialize();
 		// Placement new, initialisation of malloc memory block
 		voxels = new (voxels) VoxelDatasetFloat();
 

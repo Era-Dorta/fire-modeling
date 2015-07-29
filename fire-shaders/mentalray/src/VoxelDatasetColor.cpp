@@ -23,9 +23,6 @@ VoxelDatasetColor::VoxelDatasetColor() :
 
 void VoxelDatasetColor::compute_black_body_emission_threaded(
 		float visual_adaptation_factor) {
-	// Spectrum static initialisation, ideally should only be called once
-	// move it from here to a proper initialisation context
-	Spectrum::Init();
 
 	fill_lambda_vector();
 
@@ -37,10 +34,6 @@ void VoxelDatasetColor::compute_black_body_emission_threaded(
 }
 
 void VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
-	// Spectrum static initialisation, ideally should only be called once
-	// move it from here to a proper initialisation context
-	Spectrum::Init();
-
 	read_optical_constants_file(filename);
 
 	compute_soot_constant_coefficients();
@@ -54,10 +47,6 @@ void VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
 
 void VoxelDatasetColor::compute_chemical_emission_threaded(
 		float visual_adaptation_factor, const char* filename) {
-	// Spectrum static initialisation, ideally should only be called once
-	// move it from here to a proper initialisation context
-	Spectrum::Init();
-
 	read_spectral_line_file(filename);
 
 	compute_function_threaded(&VoxelDatasetColor::compute_chemical_emission);
@@ -128,10 +117,6 @@ void VoxelDatasetColor::compute_function_threaded(
 }
 
 void VoxelDatasetColor::compute_soot_constant_coefficients() {
-	// Spectrum static initialisation, ideally should only be called once
-	// move it from here to a proper initialisation context
-	Spectrum::Init();
-
 	// TODO If we wanted to sample more from the spectrum, we would have to
 	// compute lambda^alpha_lambda in compute_sigma_a, in any case I don't think
 	// it makes sense, as we do not have more n or k data

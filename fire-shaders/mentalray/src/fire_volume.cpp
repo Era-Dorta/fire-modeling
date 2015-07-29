@@ -39,6 +39,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 		struct fire_volume *params, miBoolean *instance_init_required) {
 	if (!params) { /* Main shader init (not an instance): */
 		*instance_init_required = miTRUE;
+		miaux_initialize_external_libs();
 	} else {
 
 		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
@@ -54,7 +55,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
 					(VoxelDatasetColor *) miaux_alloc_user_memory(state,
 							sizeof(VoxelDatasetColor));
 
-			openvdb::initialize();
 			// Placement new, initialisation of malloc memory block
 			voxels = new (voxels) VoxelDatasetColor();
 
