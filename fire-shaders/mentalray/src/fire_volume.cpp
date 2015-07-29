@@ -25,11 +25,11 @@ struct fire_volume {
 };
 
 enum AbsorptionType {
-	None, Propane, AbsorptionTypeMax = Propane
+	None, Propane, Acetylene, AbsorptionTypeMax = Acetylene
 };
 
 static const std::array<std::string, AbsorptionTypeMax + 1> AbsorptionTypeStr {
-		"None", "Propane" };
+		"None", "Propane", "Acetylene" };
 
 extern "C" DLLEXPORT int fire_volume_version(void) {
 	return 1;
