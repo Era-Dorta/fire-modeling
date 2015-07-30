@@ -17,7 +17,7 @@ Fire Shader for Mental Ray in Maya
 * make
 * make install
 
-### Using the shaders
+#### Using the shaders
 * Select Render Settings -> Render Using -> Mental Ray
 * Run createFireVolume("/path-to-temperature-file.raw", "/path-to-density-file.raw");
 * Additionally create new instances with ```instance -smartTransform;```
