@@ -9,7 +9,6 @@
 
 #include <thread>
 
-#include "RenderingConstants.h"
 #include "Spectrum.h"
 #include "miaux.h"
 
@@ -143,7 +142,7 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f density;
-	std::vector<float> spec_values(Soot::num_samples);
+	std::vector<float> spec_values(input_data.size());
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
