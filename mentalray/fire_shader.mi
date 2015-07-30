@@ -55,7 +55,7 @@ declare shader
 				#: default 5
 				#: softmin 0.0
 				#: softmax 10.0
-			scalar "shadow_scale", 
+			scalar "density_scale_for_shadows", 
 				#: default 1e1 # This scale is an exponential parameter
 				#: softmin 9.0
 				#: softmax 12.0

@@ -5,7 +5,7 @@
 #******************************************************************************
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8) 
 
-PROJECT(mentalRayFireShader)
+PROJECT(fire_shader)
 
 SET(CMAKE_CXX_COMPILER g++)
 
