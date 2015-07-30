@@ -112,14 +112,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		return miTRUE;
 	}
 
-	miColor *color = mi_eval_color(&params->color);
-	//miColor *glowColor = mi_eval_color(&params->glowColor);
-	//miColor *matteOpacity = mi_eval_color(&params->matteOpacity);
-	//miColor *transparency = mi_eval_color(&params->transparency);
-	miScalar density_scale = *mi_eval_scalar(&params->density_scale);
 	miScalar march_increment = *mi_eval_scalar(&params->march_increment);
-	miTag density_shader = *mi_eval_tag(&params->density_shader);
-	miInteger absorption_type = *mi_eval_integer(&params->absorption_type);
 
 	// Transform to object space, as voxel_shader and the voxel object assume
 	// a cube centred at origin of unit width, height and depth
@@ -156,6 +149,15 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 
 		miaux_initialize_volume_output(result);
 
+		//miColor *color = mi_eval_color(&params->color);
+		//miColor *glowColor = mi_eval_color(&params->glowColor);
+		//miColor *matteOpacity = mi_eval_color(&params->matteOpacity);
+		//miColor *transparency = mi_eval_color(&params->transparency);
+		miScalar density_scale = *mi_eval_scalar(&params->density_scale);
+		miScalar march_increment = *mi_eval_scalar(&params->march_increment);
+		miTag density_shader = *mi_eval_tag(&params->density_shader);
+		miInteger absorption_type = *mi_eval_integer(&params->absorption_type);
+
 		miInteger i_light = *mi_eval_integer(&params->i_light);
 		miInteger n_light = *mi_eval_integer(&params->n_light);
 		miTag *light = mi_eval_tag(&params->light) + i_light;
@@ -166,11 +168,11 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		if (absorption_type == AbsorptionType::None) {
 			miaux_ray_march_simple(result, state, density_scale,
 					march_increment, density_shader, light, n_light, origin,
-					direction, *color);
+					direction);
 		} else {
 			miaux_ray_march_with_sigma_a(result, state, density_scale,
 					march_increment, density_shader, light, n_light, origin,
-					direction, *color);
+					direction);
 		}
 	}
 	return miTRUE;

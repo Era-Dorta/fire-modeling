@@ -389,11 +389,10 @@ void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag *light, miInteger n_light, miVector &origin, miVector &direction,
-		const miColor &color) {
+		miTag *light, miInteger n_light, miVector &origin, miVector &direction) {
 
 	miScalar distance, density;
-	miColor volume_color = { 0, 0, 0, 0 }, light_color, point_color;
+	miColor volume_color = { 0, 0, 0, 0 }, point_color;
 
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
@@ -428,8 +427,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 			// Here is where the equation is solved
 			// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
 			density *= density_scale * march_increment;
-			miaux_total_light_at_point(&light_color, state, light, n_light);
-			miaux_multiply_colors(&point_color, &color, &light_color);
+			miaux_total_light_at_point(&point_color, state, light, n_light);
 			miaux_add_transparent_color(&volume_color, &point_color, density);
 		}
 		if (volume_color.a == 1.0) {
@@ -457,8 +455,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag *light, miInteger n_light, miVector &origin, miVector &direction,
-		const miColor &color) {
+		miTag *light, miInteger n_light, miVector &origin, miVector &direction) {
 	VoxelDatasetColor *voxels =
 			(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 	VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
@@ -502,12 +499,9 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			miaux_get_sigma_a(&sigma_a, &state->point, voxels, accessor);
 			density *= density_scale * march_increment;
 			miaux_total_light_at_point(&light_color, state, light, n_light);
-			miaux_multiply_colors(&l_e, &color, &light_color);
 
 			//sigma_a * L_e
-			l_e.r *= sigma_a.r;
-			l_e.g *= sigma_a.g;
-			l_e.b *= sigma_a.b;
+			miaux_multiply_colors(&l_e, &sigma_a, &light_color);
 
 			// e^(- sigma_a * dx)*L(x + dx)
 			volume_color.r *= exp(-sigma_a.r * march_increment);
