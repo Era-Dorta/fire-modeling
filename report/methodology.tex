@@ -85,7 +85,14 @@ Monte Carlo techniques can be used to sample the light scattering directions $\o
 \section{Black Body Radiation}
 \label{sec:black_body_radiation}
 
-Emitted light $L_e(\lxo)$ from an idealized physical body that absorbs all incident electromagnetic radiation can be modelled with Planck's equation for black body radiation.
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=\textwidth]{img/black_body_diag}
+	\caption{Black body emission colours normalised to ignore brightness \cite{BlackBody}.}
+	\label{fig:black_body_diag}
+\end{figure}
+
+Emitted light $L_e(\lxo)$ from an idealized physical body that absorbs all incident electromagnetic radiation can be modelled with Planck's equation for black body radiation, as shown in Figure~\ref{fig:black_body_diag}.
 This equation characterizes the electromagnetic radiation $B(T, \lambda, \eta)$ emitted by a black body in thermal equilibrium at a given temperature $T$.
 
 \begin{equation}
@@ -152,7 +159,11 @@ where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number densi
 \section{Refraction}
 \label{sec:refraction}
 
-Assuming a negligible reflection index, the refraction angles for the rays can be easily computed using Snell's law
+Heat emanating from the flame is transferred to the air which surrounds it.
+Since the refractive index of a medium depends on its temperature, light transiting the space near the flame will follow non linear paths due to varying refractive indices.
+Fresnel equations describe in detail both reflection and refraction effects when a wave moves between media with different refractive indices.
+In the computer graphics community is common to approximate the coefficients using Schlick equations~\cite{Schlick1994}.
+In combustion phenomena, the fraction of light which is reflect is assumed to be negligible; thus, the refraction angles for the rays can be easily computed using Snell's law
 
 \begin{equation}
 \frac{\sin \theta_1}{\sin \theta_2} = \frac{\eta_2}{\eta_1},
