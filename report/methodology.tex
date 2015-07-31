@@ -159,6 +159,11 @@ where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number densi
 \section{Refraction}
 \label{sec:refraction}
 
+Heat emanating from the flame is transferred to the air which surrounds it.
+Since the refractive index of a medium depends on its temperature, light transiting the space near the flame will follow non linear paths due to varying refractive indices.
+Fresnel equations describe in detail both reflection and refraction effects, as shown in Figure~\ref{fig:refraction_diag}, when a wave moves between media with different refractive indices.
+Schlick equations~\cite{Schlick1994} are widely used by the computer graphics community to approximate the Fresnel coefficients.
+
 \begin{figure}[htbp!]
 	\centering
 	\includegraphics[width=0.4\textwidth]{img/refraction_diag}
@@ -166,11 +171,7 @@ where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number densi
 	\label{fig:refraction_diag}
 \end{figure}
 
-Heat emanating from the flame is transferred to the air which surrounds it.
-Since the refractive index of a medium depends on its temperature, light transiting the space near the flame will follow non linear paths due to varying refractive indices.
-Fresnel equations describe in detail both reflection and refraction effects, as shown in Figure~\ref{fig:refraction_diag}, when a wave moves between media with different refractive indices.
-In the computer graphics community is common to approximate the coefficients using Schlick equations~\cite{Schlick1994}.
-In combustion phenomena, the fraction of light which is reflect is assumed to be negligible; thus, the refraction angles for the rays can be easily computed using Snell's law
+The fraction of light which is reflected is assumed to be negligible for combustion phenomena; thus, the refraction angles for the rays can be easily computed using Snell's law
 
 \begin{equation}
 \frac{\sin \theta_1}{\sin \theta_2} = \frac{\eta_2}{\eta_1},
@@ -345,10 +346,21 @@ $K_3$ & $-1.70738469401 \times 10$           &  &        &                      
 \end{table}
 \renewcommand{\arraystretch}{1} % Restore to previous value
 
+\FloatBarrier
 \section{Visual Adaptation}
 \label{sec:visual_adaptation}
 
-The human eye presents a non-linear response to incident radiance $L$, \cite{Naka:1966} proposed a simple equation to model this phenomena
+The human eye presents a non-linear response to incident radiance $L$, as shown in Figure~\ref{fig:pegoraro_2006_adaptation}.
+If a flame is the dominant light source in a scene, it will appear with yellow-white colours, while the same flame in an environment with significant external lights might appear orange-yellow.
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.6\textwidth]{img/pegoraro_2006_adaptation}
+	\caption{Fire variations in colour due to eye adaptation mechanisms~\cite{Pegoraro:2006}.}
+	\label{fig:pegoraro_2006_adaptation}
+\end{figure}
+
+A simple equation which can model this phenomena was proposed by~\cite{Naka:1966}
 
 \begin{equation}
 \label{eq:visual_adaptation}
