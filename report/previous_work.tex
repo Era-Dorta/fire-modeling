@@ -21,29 +21,19 @@ Still, the main focus of this report lies in the rendering phase of the combusti
 The techniques presented in this section are divided adopting the same criteria that was used by~\cite{Huang:2014}.
 Since the categories are roughly chronological, the evolution of the field is easier to follow.
 
-\textbf{Particle-based methods} were the first approach to simulate the visual animation of fire, as shown in Figure~\ref{fig:particle_based}.
+\textbf{Particle-based methods} were the first approach to simulate the visual animation of fire, as shown in Figures~\ref{fig:reeves_1983} and~\ref{fig:particle_based}.
 A number of particles are emitted from certain locations, each particle has a set of attributes such as shape, velocity, color or lifetime.
 The first model with particle systems was presented by~\cite{Reeves:1983}, the particles speed and colour were perturbed with a Gaussian noise at each time step, and the colour was subject to an additional linear perturbation on its lifetime.
 Two particle systems were used in a hierarchy, one would control fire spread and the other a single explosion effect.
 An extension was proposed by~\cite{Perry:1994}, the authors modified the particle system such that each particle shape would be defined by a series of non-overlapping coplanar triangles.
-The transparency of would increase towards the outer vertices, thus providing an improved visual effect.
+The transparency of each triangle increases towards the outer vertices, thus providing an improved visual effect.
 
 \begin{figure}[htpb!]
         \centering
-        \begin{subfigure}[b]{0.275\textwidth}
-                \includegraphics[width=\textwidth]{img/reeves_1983}
-                \caption{\cite{Reeves:1983}.}
-        \end{subfigure}%
-        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
-          %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{img/perry_1994}
-                \caption{\cite{Perry:1994}.}
-        \end{subfigure}  
-        \caption{Particle-based fire examples.}
+		\includegraphics[width=0.4\textwidth]{img/perry_1994}
+        \caption{Particle-based fire \cite{Perry:1994}.}
         \label{fig:particle_based}
 \end{figure}
-
 
 \textbf{Noise-based methods} focus on synthesizing the high fluctuation present in fire procedurally, as shown in Figure~\ref{fig:noise_based}.
 The objective is to approximate the turbulence present in fire with an appropriate statistical model.
@@ -67,7 +57,7 @@ This work was extended by~\cite{Perlin:1989} to 3D, where they use volumetric re
         \label{fig:noise_based}
 \end{figure}
 
-\textbf{Geometry skeleton} are driven by rendering primitives that represent the fire main features, the high frequency details are built on top of the geometry structure, as shown in Figure~\ref{fig:geometry_skeleton}.
+\textbf{Geometry skeleton} are driven by rendering primitives that represent the fire main features, the high frequency details are built on top of the geometry structure, as shown in Figures~\ref{fig:lamorlette_2002} and~\ref{fig:geometry_skeleton}.
 \cite{Lee:2001} presented a technique to animate fire on meshes, the flame front propagation is based on a geodesic flow field on the surface.
 Merging and separating of multiple fronts is achieved, however there is not control for animators over the fire evolution. 
 \cite{Lamorlette:2002} proposed a B-Spline curves interpolation method, details are added from a library of images which are then cast onto the profile of the flame.
@@ -76,19 +66,13 @@ In order to achieve real time simulations,~\cite{Bridault:2006} modelled the fla
 
 \begin{figure}[htpb!]
         \centering
-        \begin{subfigure}[t]{0.31\textwidth}
+        \begin{subfigure}[t]{0.41\textwidth}
                 \includegraphics[width=\textwidth]{img/lee_2001}
                 \caption{\cite{Lee:2001}.}
         \end{subfigure}%
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.34\textwidth}
-                \includegraphics[width=\textwidth]{img/lamorlette_2002}
-                \caption{\cite{Lamorlette:2002}.}
-        \end{subfigure}  
-        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
-          %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.27\textwidth}
+        \begin{subfigure}[t]{0.36\textwidth}
                 \includegraphics[width=\textwidth]{img/bridault_2006}
                 \caption{\cite{Bridault:2006}.}
         \end{subfigure}          
@@ -134,7 +118,7 @@ New frames with smooth transitions are created by traversing the graph through d
         \label{fig:data_driven}
 \end{figure}
 
-\textbf{Physically based} simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products, as shown in Figure~\ref{fig:physically_based}.  
+\textbf{Physically based} simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products, as shown in Figures~\ref{fig:horvath_2009} and~\ref{fig:physically_based}.  
 Incompressible flow equations were used by~\cite{Stam:1995} to drive a fire simulation.
 Given initial fuel conditions, the fire spread is advected on a grid using an advection-diffusion type equation.
 Building on the work on a semi-Lagrangian fluid solver of~\cite{Stam:1999}, a model which includes gaseous fuel and gaseous byproducts was proposed by~\cite{Nguyen:2002}.
@@ -151,18 +135,18 @@ The authors' model is based on the assumption that fine variations, which are pe
                 \includegraphics[width=\textwidth]{img/stam_1995}
                 \caption{\cite{Stam:1995}.}
         \end{subfigure}%
-        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+        \quad %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[t]{0.22\textwidth}
                 \includegraphics[width=\textwidth]{img/nguyen_2002}
                 \caption{\cite{Nguyen:2002}.}
-        \end{subfigure}  
-        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+        \end{subfigure}       
+        \quad %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.375\textwidth}
-                \includegraphics[width=\textwidth]{img/horvath_2009}
-                \caption{\cite{Horvath:2009}.}
-        \end{subfigure}          
+        \begin{subfigure}[t]{0.3\textwidth}
+                \includegraphics[width=\textwidth]{img/hong_2007}
+                \caption{\cite{Hong:2007}.}
+        \end{subfigure} 
         \caption{Physically-based fire examples.}
         \label{fig:physically_based}
 \end{figure}
