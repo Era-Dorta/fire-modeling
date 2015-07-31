@@ -17,9 +17,9 @@ Formally, the objective is to get a solution for the RTE for each visible point 
 
 \begin{figure}[htbp!]
 	\centering
-	\includegraphics[width=0.8\textwidth]{img/ray_marching}
+	\includegraphics[width=0.9\textwidth]{img/ray_marching_parti}
 	\caption{Calculating the illumination values for samples along a ray.}
-	\label{fig:ray_marching1}
+	\label{fig:ray_marching_parti}
 \end{figure}
 
 The integro-differential Radiative Transport Equation is defined as
@@ -49,15 +49,15 @@ L(\lambda, \x + \Delta\x, \omegam) &= e^{-\sigma_t(\lambda, \x) \deltax} L(\lxo)
 \end{split}
 \end{equation}
 
-where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient, a visual depiction on this solution is shown in Figure~\ref{fig:ray_marching1}.
-Examining each individual term in Equations~\ref{eq:li} and ~\ref{eq:rte_solution_paper}, the following factors will demand a more detailed definition
+where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient, a visual depiction on this solution is shown in Figure~\ref{fig:ray_marching_parti}.
+To be able to calculate the terms in Equations~\ref{eq:li} and ~\ref{eq:rte_solution_paper}, the following factors demand a more detailed definition.
 
 \begin{itemize}
-\item Light \textbf{scattering} in the media $L_i(\lxo)$ with a phase function $\Phi(\lambda, \omegam, \omegam_i)$
-\item Emitted light $L_e(\lxo)$ by \textbf{black body radiation} effects
-\item Electromagnetic \textbf{absorption}, $\sigma_a$, of certain wavelengths 
-\item Photons may follow non linear paths $\Delta\x$, due to spatially varying \textbf{refractive} indices
-\item The eyes response to the final radiance $L(\lxo)$ is modified through \textbf{visual adaptation} processes
+\item Light \textbf{scattering} in the media $L_i(\lxo)$ with a phase function $\Phi(\lambda, \omegam, \omegam_i)$.
+\item Emitted light $L_e(\lxo)$ due to \textbf{black body radiation}.
+\item Electromagnetic \textbf{absorption}, $\sigma_a$, of certain wavelengths.
+\item Due to spatially varying \textbf{refractive} indices, photons may follow non linear paths $\Delta\x$.
+\item \textbf{Visual adaptation} processes in the human eye affect the perceived final radiance $L(\lxo)$.
 \end{itemize}
 
 \section{Scattering}

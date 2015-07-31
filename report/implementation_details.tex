@@ -62,15 +62,6 @@ Under this assumptions, the steps required to solve the RTE, Equation~\ref{eq:rt
 \item Compute eye visual adaptation to fire colour
 \end{enumerate}
 
-The previous operations are done 
-
-\begin{figure}[htbp!]
-	\centering
-	\includegraphics[width=0.8\textwidth]{img/ray_marching}
-	\caption{Calculating the illumination values for samples along a ray.}
-	\label{fig:ray_marching2}
-\end{figure}
-
 Equation~\ref{eq:rte_solution_paper} provides a radiance value for the next march increment, however we want to compute the value at the ray intersection with the volume, i.e. at the ray origin.
 So we need to rewrite the equation as
 
@@ -87,6 +78,16 @@ Exploiting the previous prior knowledge, the scattering contributions can be saf
 \begin{equation}
 L(\lambda, \x, \omegam) = e^{\sigma_a(\lambda, \x) \deltax} L(\lambda, x + \Delta\x, \omegam) +  (1 - e^{\sigma_a(\lambda, \x) \deltax}) L_e(\lxo).
 \end{equation}
+
+A visual representation of the implications of the aforementioned simplification is shown in Figure~\ref{fig:ray_marching}.
+Note that a single point light is used in the diagram to avoid clutter, yet in our implementation there is a point light located at the centre of each voxel whose temperature is high enough to be emissive.
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.8\textwidth]{img/ray_marching}
+	\caption{Calculating the illumination values for samples along a ray.}
+	\label{fig:ray_marching}
+\end{figure}
 
 \section{Shaders Internals}
 \label{sec:shaders_internals}
