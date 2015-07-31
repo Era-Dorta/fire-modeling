@@ -18,7 +18,7 @@ Formally, the objective is to get a solution for the RTE for each visible point 
 \begin{figure}[htbp!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{img/ray_marching_parti}
-	\caption{Calculating the illumination values for samples along a ray.}
+	\caption{A visual representation of the RTE.}
 	\label{fig:ray_marching_parti}
 \end{figure}
 
@@ -159,9 +159,16 @@ where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number densi
 \section{Refraction}
 \label{sec:refraction}
 
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.4\textwidth]{img/refraction_diag}
+	\caption{Ray being refracted and reflected in the boundary between two media.}
+	\label{fig:refraction_diag}
+\end{figure}
+
 Heat emanating from the flame is transferred to the air which surrounds it.
 Since the refractive index of a medium depends on its temperature, light transiting the space near the flame will follow non linear paths due to varying refractive indices.
-Fresnel equations describe in detail both reflection and refraction effects when a wave moves between media with different refractive indices.
+Fresnel equations describe in detail both reflection and refraction effects, as shown in Figure~\ref{fig:refraction_diag}, when a wave moves between media with different refractive indices.
 In the computer graphics community is common to approximate the coefficients using Schlick equations~\cite{Schlick1994}.
 In combustion phenomena, the fraction of light which is reflect is assumed to be negligible; thus, the refraction angles for the rays can be easily computed using Snell's law
 
