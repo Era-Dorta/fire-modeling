@@ -9,13 +9,13 @@ Fire Shader for Mental Ray in Maya
 * [OpenVDB](http://www.openvdb.org/)
 * [Maya DevKit](https://apps.exchange.autodesk.com/en) Search for "Maya Developer Kit"
 * [MentalRay DevKit](http://knowledge.autodesk.com/support/maya/downloads/caas/downloads/content/mental-ray-plugin-for-maya-2016.html)
-* For Ubuntu, all the dependencies but Maya and MentalRay can be installed with `sudo apt-get install cmake libboost-all-dev zlib1g-dev libopenexr-dev libtbb-dev libopenvdb-dev`
+* For Ubuntu, all the dependencies but Maya and MentalRay can be installed with <br /> `sudo apt-get install cmake libboost-all-dev zlib1g-dev libopenexr-dev libtbb-dev libopenvdb-dev`
 
 #### Compile and install
-* Create build folder
-* cmake -DCMAKE_INSTALL_PREFIX="/path-to-shaders-installation-folder" ../
-* make
-* make install
+* Create build folder and the run the following commands in it
+* ```cmake ../```
+* ```make```
+* ```make install```
 
 #### Using the shaders
 * Select Render Settings -> Render Using -> Mental Ray
