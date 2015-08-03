@@ -8,6 +8,14 @@ Add all the values for the constants here or in implementation details??
 
 Given simulated or captured fire data, that could come from any of the methods discussed in Section~\ref{sec:simulation}, we want to generate a photo-realistic image from a camera view of the scene.
 From this point onwards we will assume that we have a volumetric data structure, which holds the relevant input data for the fire.
+An overview of the pipeline is shown in Figure\ref{fig:pipeline}, for inputs we have a volumetric data of density and temperature, from those values a series of intermediate constants for each voxel for the current frame are computed, and with the previous data a ray marcher is used to generate the final image.
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=\textwidth]{img/pipeline}
+	\caption{An overview of the fire rendering pipeline.}
+	\label{fig:pipeline}
+\end{figure}
 
 \section{Radiative Transport Equation}
 \label{sec:radiative_transport_equation}
