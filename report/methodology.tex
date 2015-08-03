@@ -53,7 +53,7 @@ In order to get an analytical solution to the aforementioned equation, the prope
 \label{eq:rte_solution_paper}
 \begin{split}
 L(\lambda, \x + \Delta\x, \omegam) &= e^{-\sigma_t(\lambda, \x) \deltax} L(\lxo) +  \\
-& (1 - e^{-\sigma_t(\lambda, \x) \deltax} ) \frac{\sigma_a(\lambda, \x) L_e(\lxo) + \sigma_s(\lambda, \x) L_i(\lxo)}{\sigma_t(\lambda, \x)},
+& \left(1 - e^{-\sigma_t(\lambda, \x) \deltax} \right) \frac{\sigma_a(\lambda, \x) L_e(\lxo) + \sigma_s(\lambda, \x) L_i(\lxo)}{\sigma_t(\lambda, \x)},
 \end{split}
 \end{equation}
 
@@ -80,10 +80,10 @@ To be able to calculate the terms in Equations~\ref{eq:li} and ~\ref{eq:rte_solu
 
 Some photons travelling along arbitrary directions $\omegam_i$, might be scattered in the direction of interest $\omegam$.
 A simple diagram of the process is shown in Figure~\ref{fig:scattering_diag}, where two photons travelling in directions $\omegam_1$ and $\omegam_2$, are scattered in the direction of interest $\omegam$, at the points $p_1$ and $p_2$ respectively.
-The amount of photons which are subjected to this process is controlled by a coefficient $\sigma_s$, the radiance carried by the photons is denoted by $L_i(\lxo)$ and follows a distribution defined by the phase function
+The amount of photons which are subjected to this process is controlled by a coefficient $\sigma_s$, the radiance carried by the photons is denoted by $L_i(\lxo)$ and follows a spherical distribution $\Phi (\lambda, \omegam, \omegam_i)$, which was first proposed by~\cite{Henyey:1941} to model diffuse radiation is astronomy.
 
 \begin{equation}
-\Phi (\lambda, \omegam, \omegam_i) = \frac{1 - g(\lambda)^2}{4 \pi(1 + g(\lambda)^2 - 2 g(\lambda) \omegam \omegam_i)^{\frac{3}{2}}},
+\Phi (\lambda, \omegam, \omegam_i) = \frac{1 - g(\lambda)^2}{4 \pi\left(1 + g(\lambda)^2 - 2 g(\lambda) \omegam \omegam_i\right)^{\frac{3}{2}}},
 \end{equation}
 
 where is the outgoing direction, $g$ can be a function of the wavelength, although in most cases is chosen to be constant.
