@@ -22,8 +22,8 @@ The binary sparse format starts with a 4 byte integer declaring how many data po
 \end{figure}
 
 
-\section{\MentalRay Shading Approach}
-\label{sec:mental_ray_shading_approach}
+\section{\MentalRay Rendering Approach}
+\label{sec:mental_ray_rendering_approach}
 
 How mental ray shoots rays around and what is its paradigm.
 
@@ -89,8 +89,8 @@ Note that a single point light is used in the diagram to avoid clutter, yet in o
 	\label{fig:ray_marching}
 \end{figure}
 
-\section{Shaders Internals}
-\label{sec:shaders_internals}
+\section{Shaders}
+\label{sec:shaders}
 
 Talk about things like which parts are written in parallel code, instance support, shader internal memory, sparse data, how the software escalates, memory consumption, Maya integration, spectrum to RGB integration, maybe more details about units for black body radiation and everything that was not explained before
 
@@ -119,8 +119,9 @@ Talk about things like which parts are written in parallel code, instance suppor
 \end{figure}
 
 In order to speed up the render time, all spectrum related computations are integrated to RGB coefficients.
-Our spectrum class has a number of samples that can be set a compile time, in general it is set to 30 samples.
-However, in certain cases a lower number is used, e.g. when computing the soot absorption coefficients, since we have values for the constants for only four wavelengths, using more than four samples in the spectrum would not improve the results.
+Our spectrum class has a number of samples that can be set a compile time, 30 samples were used in all of our renderings.
+To compute the absorption coefficients, Section~\ref{sec:absorption_coefficients}, data from Table~\ref{tb:soot_absorption_coefficients} is used.
+Since, there is not enough data to cover the 30 spectrum coefficients, linear interpolation is used to be fill the missing values.
 RGB coefficients are the standard colour representation used in computer screens, however not every colour visible by the human eye can be reproduced in the RGB space.
 A further disadvantage, is that for certain colours negative values for the $\bar{r}(\lambda)$ coefficient are needed, as shown in Figure~\ref{fig:cie_rgb}.
 The XYZ colour space is built using three sets of imaginary primaries, which have a series of favourable properties.
@@ -136,7 +137,7 @@ z &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) Z(\lambda) d\lam
 \end{split}
 \end{equation}
 
-Note that the term $1 / \int Y(\lambda) d\lambda$ is added in each equation to act as a normalization factor for the colour brightness. 
+The term $1 / \int Y(\lambda) d\lambda$ is added in each equation to act as a normalization factor for the colour brightness. 
 As we are concerned with sampled values on a discrete domain, the integration for XYZ coefficients is approximated by a Rienmann sum
 
 \begin{equation}
@@ -214,3 +215,8 @@ Solving the aforementioned equation in the XYZ space, instead of the RGB, will i
 
 \subsection{Voxel Dataset Shader}
 \label{sec:voxel_dataset_shader}
+
+\subsection{Other}
+\label{sec:other}
+
+Talk about the maya command and matlab script
