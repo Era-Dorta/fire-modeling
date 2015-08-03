@@ -2,13 +2,20 @@
 \chapter{Implementation details}
 \label{ch:implementation_details}
 
+In this chapter we will explain how to use the shaders which have been implemented and the minor differences between the theoretical pipeline explained in Chapter~\ref{ch:methodology} and the actual software implementation.
+An overview of the pipeline is shown in Figure~\ref{fig:pipeline_simplified}, note that modules in grey have not been implemented.
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=\textwidth]{img/pipeline_simplified}
+	\caption{An overview of the implemented fire rendering pipeline.}
+	\label{fig:pipeline_simplified}
+\end{figure}
 
 \section{Application Overview}
 \label{sec:application_overview}
 
-Explain how to use the shaders and the commands, add images of the scenes in Maya
-
-The model chosen for our data is that of a three-dimensional voxel dataset, a cube in space is be uniformly divided and we have a data value for each voxel.
+The model chosen for our data is that of a three-dimensional voxel dataset, a cube in space is uniformly divided and a data value for each voxel.
 This data is either a soot density estimate for the \textit{fire volume shader} or a temperature estimate for the \textit{fire light shader}.
 Two file formats are supported, dense float voxel data is ASCII or sparse binary RGBA values, as shown in Figure~\ref{fig:file_format}.
 In the ASCII format, the file first line are three integers, separated by spaces, declaring the width, height and depth of the data, and $whd$ lines with a single floating point value.
