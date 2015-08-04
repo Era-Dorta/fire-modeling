@@ -39,6 +39,10 @@ void VoxelDatasetFloat::initialize_with_file(const char* filename,
 		initialize_with_file_acii_uintah(filename);
 		break;
 	}
+	case ASCII_SUINTAH: {
+		initialize_with_file_acii_suintah(filename);
+		break;
+	}
 	}
 }
 
@@ -141,6 +145,44 @@ void VoxelDatasetFloat::initialize_with_file_acii_uintah(const char* filename) {
 				}
 			}
 		}
+	}
+
+	fp.close();
+}
+
+void VoxelDatasetFloat::initialize_with_file_acii_suintah(
+		const char* filename) {
+
+	std::ifstream fp(filename, std::ios_base::in);
+	if (!fp.is_open()) {
+		mi_fatal("Error opening file \"%s\".", filename);
+	}
+
+	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
+	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
+
+	int count;
+	// Number of points in the file
+	safe_ascii_read(fp, count);
+
+	float background;
+	safe_ascii_read(fp, background);
+
+	// Openvdb 2.1 does not allow to change the background, so just create a new
+	// block with a new background value
+	block = openvdb::ScalarGrid::create(background);
+	accessor = block->getAccessor();
+
+	for (int i = 0; i < count; i++) {
+		openvdb::Coord coord;
+		safe_ascii_read(fp, coord.x());
+		safe_ascii_read(fp, coord.y());
+		safe_ascii_read(fp, coord.z());
+
+		float read_val;
+		safe_ascii_read(fp, read_val);
+
+		accessor.setValue(coord, read_val);
 	}
 
 	fp.close();
