@@ -4,6 +4,10 @@
 # Uintah
 ################################################################################
 
+##############
+# Compiling
+##############
+
 # Dependencies
 sudo apt-get install libhypre-dev petsc-dev libxml2-dev zlib1g-dev liblapack-dev libglew-dev libxmu-dev gfortran libboost-all-dev libxrender-dev libxi-dev
 
@@ -40,6 +44,33 @@ gedit src/build_scripts/build_wasatch_3p.sh&
 
 make -j8
 
+##############
+# Running
+##############
+
+# Go into the stand alone folder
+cd StandAlone
+
+# The examples that were run were the helium and the methane plume
+mpirun -np 1 sus inputs/ARCHES/helium_1m__NEW.ups
+mpirun -np 1 sus inputs/ARCHES/methane_fire__NEW.ups
+
+# To extract the data into simple data files run
+# ./tools/extractors/lineextract -v <variable_name> -istart 0 0 0 -iend <end_voxel_x>  <end_voxel_y> <end_voxel_z> -tlow <start_frame_num> -thigh <end-frame_num> -o <output_file> -uda <input_file.uda>
+
+cd methane_fire.uda
+mkdir ascii_data
+
+# Saving the data into simple ascii files
+i=0
+for j in `echo t0*`;
+do
+	suffix=$(printf "%03d" $i) # Add three zeros to the name
+	../tools/extractors/lineextract -v temperature -istart 0 0 0 -iend 255 255 255 -tlow $i -thigh $i -o ascii_data/methane_temperature_$suffix.txt  -uda ../methane_fire.uda
+	../tools/extractors/lineextract -v density -istart 0 0 0 -iend 255 255 255 -tlow $i -thigh $i -o ascii_data/methane_density_$suffix.txt  -uda ../methane_fire.uda
+	let i=i+1
+done 
+
 ################################################################################
 # VisIt
 ################################################################################
@@ -54,10 +85,11 @@ make -j8
 # Download the install script visit-install from the previous site
 # With the .tar.gz and the .sh on the same folder execute
 # sudo ./visit-install version platform destination
-# In our case: sudo ./visit-install 2.9.2 linux-x86_64-ubuntu14 /usr/local/visit
+# In our case: 
+sudo ./visit-install 2.9.2 linux-x86_64-ubuntu14 /usr/local/visit
 
 # Add path to bash_rc
-# export PATH=/usr/local/visit/bin:$PATH
+export PATH=/usr/local/visit/bin:$PATH
 
 ##############
 # Compiling
@@ -84,5 +116,16 @@ export PAR_INCLUDE="-I/usr/include/mpi/"
 # if we do not want to waste time fixing it
 ./build_visit.sh --thirdparty-path ./3rdparty --makeflags -j8 --no-icet --uintah
 
-# Visit should be built in 
+##############
+# Running
+##############
+
+# Binary location 
 ./visit2.9.2/src/bin/visit
+
+# Click on Open and select the index.html file inside the uda folder
+# Click the Add button under the Plots Section and select
+# Volume -> <variable name>
+# In our case temperature or density
+# Click on Draw to show the data
+# Double click on the variable name in Plots to change 
