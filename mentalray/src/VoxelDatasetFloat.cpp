@@ -192,14 +192,8 @@ void VoxelDatasetFloat::safe_binary_read(std::ifstream& fp, char *output,
 	}
 }
 
-void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, float &output) {
-	fp >> output;
-	if (!fp) {
-		fp.close();
-		mi_fatal("Error reading file");
-	}
-}
-void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, unsigned &output) {
+template<typename T>
+void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, T &output) {
 	fp >> output;
 	if (!fp) {
 		fp.close();

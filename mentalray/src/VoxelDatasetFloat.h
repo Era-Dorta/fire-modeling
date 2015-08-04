@@ -38,8 +38,8 @@ private:
 	void read_bin_rgba(std::ifstream& fp, double& r, double& g, double& b,
 			double& a);
 	void safe_binary_read(std::ifstream& fp, char *output, long int byte_size);
-	void safe_ascii_read(std::ifstream& fp, float &output);
-	void safe_ascii_read(std::ifstream& fp, unsigned &output);
+	template<typename T>
+	void safe_ascii_read(std::ifstream& fp, T &output);
 	void check_index_range(unsigned x, unsigned y, unsigned z,
 			std::ifstream& fp, const char* filename);
 	float bilinear_interp(float tx, float ty, float c00, float c01, float c10,
