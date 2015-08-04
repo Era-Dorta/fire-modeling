@@ -389,7 +389,8 @@ void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag *light, miInteger n_light, miVector &origin, miVector &direction) {
+		miTag *light, miInteger n_light, miVector &origin,
+		miVector &direction) {
 
 	miScalar distance, density;
 	miColor volume_color = { 0, 0, 0, 0 }, point_color;
@@ -455,7 +456,8 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag *light, miInteger n_light, miVector &origin, miVector &direction) {
+		miTag *light, miInteger n_light, miVector &origin,
+		miVector &direction) {
 	VoxelDatasetColor *voxels =
 			(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 	VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
