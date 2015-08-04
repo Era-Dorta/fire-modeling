@@ -4,7 +4,7 @@ if [ "$#" -le 0 ]; then
 	echo ""
 	echo "Missing data size"
 	echo ""
-	echo "Usage: save_data <max_size> [background_density] [background_temperature]"
+	echo "Usage: udaToUintah <max_size> [background_density] [background_temperature]"
 	echo ""
 	exit 0 
 fi
