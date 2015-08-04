@@ -78,6 +78,7 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 	}
 
 	// Read width height and depth
+	unsigned width, height, depth;
 	safe_ascii_read(fp, width);
 	safe_ascii_read(fp, height);
 	safe_ascii_read(fp, depth);
