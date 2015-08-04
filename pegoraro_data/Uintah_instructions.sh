@@ -54,22 +54,16 @@ cd StandAlone
 # The examples that were run were the helium and the methane plume
 mpirun -np 1 sus inputs/ARCHES/helium_1m__NEW.ups
 mpirun -np 1 sus inputs/ARCHES/methane_fire__NEW.ups
+# mpirun -np 8 sus inputs/ARCHES/methane_fire_8patch__NEW.ups > methane_fire_log.txt &
 
-# To extract the data into simple data files run
+# To extract the data into simple data files run, this has been included in the script
 # ./tools/extractors/lineextract -v <variable_name> -istart 0 0 0 -iend <end_voxel_x>  <end_voxel_y> <end_voxel_z> -tlow <start_frame_num> -thigh <end-frame_num> -o <output_file> -uda <input_file.uda>
 
 cd methane_fire.uda
-mkdir ascii_data
 
-# Saving the data into simple ascii files
-i=0
-for j in `echo t0*`;
-do
-	suffix=$(printf "%03d" $i) # Add three zeros to the name
-	../tools/extractors/lineextract -v temperature -istart 0 0 0 -iend 255 255 255 -tlow $i -thigh $i -o ascii_data/methane_temperature_$suffix.txt  -uda ../methane_fire.uda
-	../tools/extractors/lineextract -v density -istart 0 0 0 -iend 255 255 255 -tlow $i -thigh $i -o ascii_data/methane_density_$suffix.txt  -uda ../methane_fire.uda
-	let i=i+1
-done 
+# Copy the save_data.sh in the uda folder
+# run the script to generate the simple ascii data files with temperatures and densities
+./save_data.sh 256
 
 ################################################################################
 # VisIt
