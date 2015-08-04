@@ -63,7 +63,10 @@ cd methane_fire.uda
 
 # Copy the save_data.sh in the uda folder
 # run the script to generate the simple ascii data files with temperatures and densities
-./save_data.sh 256
+# ./save_data.sh <max_voxel_size> [background_density] [background_temperature]
+# The background parameters are optional and they are used for sparse memory management in the shader
+# It should be set to the most repeated value in the data files
+./save_data.sh 256 1.1798200000000001 298.0
 
 ################################################################################
 # VisIt
