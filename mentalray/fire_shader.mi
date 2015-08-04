@@ -9,12 +9,10 @@ declare shader
 		string "filename",
 		integer "read_mode",
 			#: default 1
-			#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB"
-			#: min 0 max 2
+			#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB:ASCII Uintah"
 		integer "interpolation_mode",
 			#: default 1
 			#: enum "None:Trilinear"
-			#: min 0 max 1
 		vector "min_point", 
 			#: default -1 -1 -1
 			#: hidden true
@@ -50,7 +48,6 @@ declare shader
 			integer "absorption_type",
 				#: default 0
 				#: enum "None:Propane:Acetylene"
-				#: min 0 max 2	
 			scalar "density_scale", 
 				#: default 5
 				#: softmin 0.0
@@ -82,7 +79,6 @@ declare shader
 		integer "fuel_type",
 			#: default 0
 			#: enum "BlackBody:Copper-Blue:Sulfur-Purple"
-			#: min 0 max 2
 		scalar "temperature_scale", 
 			#: default 2500 # Usually temperatures are from 0 to 10000K
 			#: softmin 0.0

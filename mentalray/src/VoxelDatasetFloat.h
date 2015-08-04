@@ -16,7 +16,7 @@ template class VoxelDataset<float, openvdb::FloatTree> ;
 class VoxelDatasetFloat: public VoxelDataset<float, openvdb::FloatTree> {
 public:
 	enum FILE_FORMAT {
-		ASCII_SINGLE_VALUE, BIN_ONLY_RED, BIN_MAX
+		ASCII_SINGLE_VALUE, BIN_ONLY_RED, BIN_MAX, ASCII_UINTAH
 	};
 
 	VoxelDatasetFloat();
@@ -32,6 +32,7 @@ protected:
 			const float& c1) const;
 private:
 	void initialize_with_file_acii_single(const char* filename);
+	void initialize_with_file_acii_uintah(const char* filename);
 	void initialize_with_file_bin_only_red(const char* filename);
 	void initialize_with_file_bin_max(const char* filename);
 	void read_bin_xyz(std::ifstream& fp, unsigned& x, unsigned& y, unsigned& z);
