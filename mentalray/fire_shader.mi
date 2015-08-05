@@ -9,7 +9,7 @@ declare shader
 		string "filename",
 		integer "read_mode",
 			#: default 1
-			#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB:ASCII Uintah:ASCII Sparse Uintah"
+			#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB:ASCII Uintah"
 		integer "interpolation_mode",
 			#: default 1
 			#: enum "None:Trilinear"

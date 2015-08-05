@@ -39,10 +39,6 @@ void VoxelDatasetFloat::initialize_with_file(const char* filename,
 		initialize_with_file_acii_uintah(filename);
 		break;
 	}
-	case ASCII_SUINTAH: {
-		initialize_with_file_acii_suintah(filename);
-		break;
-	}
 	}
 }
 
@@ -109,6 +105,7 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 }
 
 void VoxelDatasetFloat::initialize_with_file_acii_uintah(const char* filename) {
+
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
 		mi_fatal("Error opening file \"%s\".", filename);
@@ -120,46 +117,7 @@ void VoxelDatasetFloat::initialize_with_file_acii_uintah(const char* filename) {
 	safe_ascii_read(fp, height);
 	safe_ascii_read(fp, depth);
 
-	float background;
-	safe_ascii_read(fp, background);
-
-	// Openvdb 2.1 does not allow to change the background, so just create a new
-	// block with a new background value
-	block = openvdb::ScalarGrid::create(background);
-	accessor = block->getAccessor();
 	resize(width, height, depth);
-
-	for (unsigned i = 0; i < width; i++) {
-		for (unsigned j = 0; j < height; j++) {
-			for (unsigned k = 0; k < depth; k++) {
-				openvdb::Coord coord;
-				safe_ascii_read(fp, coord.x());
-				safe_ascii_read(fp, coord.y());
-				safe_ascii_read(fp, coord.z());
-
-				float read_val;
-				safe_ascii_read(fp, read_val);
-
-				if (read_val != background) {
-					accessor.setValue(coord, read_val);
-				}
-			}
-		}
-	}
-
-	fp.close();
-}
-
-void VoxelDatasetFloat::initialize_with_file_acii_suintah(
-		const char* filename) {
-
-	std::ifstream fp(filename, std::ios_base::in);
-	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename);
-	}
-
-	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
-	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
 
 	int count;
 	// Number of points in the file
