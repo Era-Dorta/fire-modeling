@@ -1,0 +1,82 @@
+global proc AEvoxel_densityReload (string $ftn)
+{
+	setUITemplate -pst attributeEditorTemplate;
+	rowLayout -nc 2;
+		text -label "";
+		button -label "Reload" -c ("AEvoxel_densityReloadCmd " + $ftn) fileReloadBtn;
+		setParent ..;
+
+	setUITemplate -ppt;
+}
+
+global proc AEvoxel_densityReloadCmd (string $ftn)
+{
+    string $currFile = `getAttr $ftn`;
+	if ($currFile != "") {
+		int $i;
+		string $allFiles[] = `ls -type file voxel_density`;
+
+		// this loop is needed to guarantee all texture nodes who
+		// reference this file gets updated.
+		for ($i = 0; $i < size($allFiles); $i++) {
+			string $ithFile = `getAttr ($allFiles[$i] + ".ftn")`;
+			if ($ithFile == $currFile)
+				setAttr ($allFiles[$i] + ".ftn") -type "string" $currFile;
+		}
+	}
+}
+
+global proc AEvoxel_densityReloadReplace (string $ftn)
+{
+	button -e -c ("AEvoxel_densityReloadCmd " + $ftn) fileReloadBtn;    
+}
+
+global proc AE_file_browse(string $attr){
+
+	rowLayout -nc 3;
+	text -label "Data File";
+	textField  -fileName `getAttr $attr` LocationText;
+	symbolButton -image "navButtonBrowse.xpm" -c ("loadPopup(\"" + $attr + "\")");
+	setParent ..;
+
+}  
+  
+global proc AE_file_browse_repeat(string $attr){
+	textField  -e -fileName `getAttr $attr` LocationText;
+}
+
+global proc loadPopup(string $attr){
+	string $loc[] = `fileDialog2 -fileMode 1`;
+
+	if ($loc[0] != ""){
+		setAttr -type "string" $attr $loc[0];
+		textField -e -fileName `getAttr $attr` LocationText;
+	}
+}
+
+global proc AEvoxel_densityTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -beginLayout "Input File Attributes" -collapse 0;
+	
+		editorTemplate -callCustom "AE_file_browse" "AE_file_browse_repeat" "filename";
+		editorTemplate -callCustom "AEvoxel_densityReload" "AEvoxel_densityReloadReplace" "filename";
+		
+		editorTemplate -addSeparator;
+		
+		editorTemplate -addControl "read_mode";
+		editorTemplate -addControl "interpolation_mode";
+		
+	editorTemplate -endLayout;
+	
+	editorTemplate -addExtraControls;
+	
+	editorTemplate -suppress "min_point";
+	editorTemplate -suppress "max_point";
+	
+	editorTemplate -suppress "caching"; 
+	editorTemplate -suppress "nodeState"; 
+	
+	editorTemplate -endScrollLayout;
+}
