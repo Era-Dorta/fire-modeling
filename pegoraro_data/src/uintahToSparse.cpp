@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <cmath>
+#include <map>
 using namespace std;
 
 void check_in_stream(const std::string & in_file, std::ifstream& in_stream,
@@ -58,15 +60,10 @@ int main(int argc, char *argv[]) {
 	in_stream >> depth;
 	check_in_stream(in_file, in_stream, out_stream);
 
-	double background;
-	in_stream >> background;
-	check_in_stream(in_file, in_stream, out_stream);
 
-	// Cannot easily write at the start of the file and main return
-	// is for program status, so read the file twice
+	map<double, int> repeated_count;
 
-	// Count num valid loop
-	unsigned num_valid = 0;
+	// Count number of repetitions for each value
 	for (unsigned i = 0; i < width; i++) {
 		for (unsigned j = 0; j < height; j++) {
 			for (unsigned k = 0; k < depth; k++) {
@@ -82,10 +79,34 @@ int main(int argc, char *argv[]) {
 
 				double read_val;
 				in_stream >> read_val;
+				check_in_stream(in_file, in_stream, out_stream);
 
-				if (read_val != background) {
-					num_valid++;
+				if(repeated_count.find(read_val) != repeated_count.end()){
+					repeated_count.at(read_val) += 1;
+				}else{
+					repeated_count.insert(make_pair(read_val, 1));
 				}
+			}
+		}
+	}
+
+	// Get the max
+	double val_max = NAN;
+	int val_max_count = 0;
+
+	if(repeated_count.size() > 0){
+		auto iter = repeated_count.begin();
+
+		// Initialise to first element
+		val_max =  iter->first;
+		val_max_count = iter->second;
+
+		// Compare with the rest in the container
+		iter++;
+		for(; iter != repeated_count.end(); ++iter){
+			if(iter->second >= val_max_count){
+				val_max = iter->first;
+				val_max_count = iter->second;
 			}
 		}
 	}
@@ -95,14 +116,17 @@ int main(int argc, char *argv[]) {
 	in_stream.seekg(0, ios::beg);
 
 	// Advance to the data
-	for (unsigned i = 0; i < 4; i++) {
+	for (unsigned i = 0; i < 3; i++) {
 		double aux;
 		in_stream >> aux;
 		check_in_stream(in_file, in_stream, out_stream);
 	}
 
+	double background = val_max;
+	int num_valid = width * height * depth - val_max_count;
+
 	// Actual read/write loop
-	out_stream << num_valid << " " << background << endl;
+	out_stream << width << " " << height << " " << depth << " " << num_valid << " " << background << endl;
 	check_out_stream(in_stream, out_file, out_stream);
 
 	for (unsigned i = 0; i < width; i++) {
@@ -120,10 +144,10 @@ int main(int argc, char *argv[]) {
 
 				double read_val;
 				in_stream >> read_val;
+				check_in_stream(in_file, in_stream, out_stream);
 
 				if (read_val != background) {
-					out_stream << x << " " << y << " " << z << " ";
-					out_stream << read_val << endl;
+					out_stream << x << " " << y << " " << z << " " << read_val << endl;
 					check_out_stream(in_stream, out_file, out_stream);
 				}
 			}
