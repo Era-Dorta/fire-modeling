@@ -63,11 +63,9 @@ cd methane_fire.uda
 
 # Copy the udaToUintah.sh, udaToUintah.sh and the binary uintahToSparse in the uda folder
 # run the script to generate the simple ascii data files with temperatures and densities
-# ./udaToUintah.sh <max_voxel_size> [background_density] [background_temperature]
-# The background parameters are optional and they are used for sparse memory management in the shader
-# It should be set to the most repeated value in the data files
-./udaToUintah.sh 256 1.1798200000000001 298.0
-./uintahToSparseAll.sh
+# ./udaToUintah.sh <max_voxel_size>
+# The size parameter is the box size, in our case 256x256x256 voxels
+./udaToUintah.sh 256
 
 ################################################################################
 # VisIt
