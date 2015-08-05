@@ -104,6 +104,7 @@ FILE(GLOB PROJECT_DATA
 
 FILE(GLOB PROJECT_SCRIPTS
     "maya/*.mel"
+    "mentalray/*.mel"
 )
 
 ADD_LIBRARY(${PROJECT_NAME}
