@@ -17,17 +17,37 @@ An overview of the pipeline is shown in Figure~\ref{fig:pipeline_simplified}, no
 
 The model chosen for our data is that of a three-dimensional voxel dataset, a cube in space is uniformly divided and a data value for each voxel.
 This data is either a soot density estimate for the \textit{fire volume shader} or a temperature estimate for the \textit{fire light shader}.
-Two file formats are supported, dense float voxel data is ASCII or sparse binary RGBA values, as shown in Figure~\ref{fig:file_format}.
-In the ASCII format, the file first line are three integers, separated by spaces, declaring the width, height and depth of the data, and $whd$ lines with a single floating point value.
-The binary sparse format starts with a 4 byte integer declaring how many data points are in the file, each voxel has its coordinates $x,y,z$ as 4 bytes integers and a rgb alpha colour, where each channel is an 8 bytes floating point double value. 
+Three file formats are supported, dense and sparse float voxel data is ASCII, and sparse binary RGBA values, as shown in Figure~\ref{fig:file_format}.
+In the ASCII dense format, the file first line are three integers, separated by spaces, declaring the width, height and depth of the data, and $w \cdot h \cdot d$ lines with a single floating point values.
+The ASCII sparse format, has two extra parameters in the first line, $c$ number of data points in the file and $b$ default value for any voxel that is not specified in the file.
+Each data line has the $x,y,z$ coordinates and the data value separated by spaces.
+The binary sparse format starts with a 4 byte integer declaring how many data points are in the file, each voxel has its coordinates $x,y,z$ as 4 bytes integers and a rgb alpha colour, where each channel is an 8 bytes floating point double value.
+Values not included in the file are considered to be initialized to zero. 
 
-\begin{figure}[htbp!]
-\centering
-\includegraphics[width=0.5\textwidth]{img/file_format}
-	\caption{Suported file formats.}
-	\label{fig:file_format}
+\begin{figure}[htpb!]
+        \centering
+        \begin{subfigure}[t]{0.2\textwidth}
+                \includegraphics[width=\textwidth]{img/file_format_ascii_dense}
+                \caption{ASCII dense (*.vol).}
+                \label{fig:file_format_ascii_dense}
+        \end{subfigure}%
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.3\textwidth}
+                \includegraphics[width=\textwidth]{img/file_format_ascii_sparse}
+                \caption{ASCII sparse (*.uintah).}
+                \label{fig:file_format_ascii_sparse}
+        \end{subfigure}
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.282\textwidth}
+                \includegraphics[width=\textwidth]{img/file_format_binary}
+                \caption{Binary sparse (*.raw).}
+                \label{fig:file_format_binary}
+        \end{subfigure}
+        \caption{Suported file formats, $\_$ represent the character space.}
+        \label{fig:file_format}
 \end{figure}
-
 
 \section{\MentalRay Rendering Approach}
 \label{sec:mental_ray_rendering_approach}
