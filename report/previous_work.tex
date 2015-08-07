@@ -8,7 +8,7 @@ Present techniques in the area are discussed below.
 Secondly, the previously gathered data will be visualized on the screen using some rendering method, a brief state-of-the-art review of fire rendering procedures is presented in Section~\ref{sec:rendering}.
 We refer the interested readers to the more detailed survey on the topic, which has been recently presented by~\cite{Huang:2014}.
 
-Fire simulation has significantly received more attention from the computer graphics community than fire rendering.
+Fire simulation has received significantly more attention from the computer graphics community than fire rendering.
 As the output data of the simulation methods is used by the rendering stage, an outline of the different simulation techniques is given below. 
 Still, the main focus of this report lies in the rendering phase of the combustion simulation pipeline.
 
@@ -21,11 +21,11 @@ Still, the main focus of this report lies in the rendering phase of the combusti
 The techniques presented in this section are divided adopting the same criteria that was used by~\cite{Huang:2014}.
 Since the categories are roughly chronological, the evolution of the field is easier to follow.
 
-\textbf{Particle-based methods} were the first approach to simulate the visual animation of fire, as shown in Figures~\ref{fig:reeves_1983} and~\ref{fig:particle_based}.
+\textbf{Particle-based} methods were the first approach to simulate the visual animation of fire, as shown in Figures~\ref{fig:reeves_1983} and~\ref{fig:particle_based}.
 A number of particles are emitted from certain locations, each particle has a set of attributes such as shape, velocity, color or lifetime.
 The first model with particle systems was presented by~\cite{Reeves:1983}, the particles speed and colour were perturbed with a Gaussian noise at each time step, and the colour was subject to an additional linear perturbation on its lifetime.
 Two particle systems were used in a hierarchy, one would control fire spread and the other a single explosion effect.
-An extension was proposed by~\cite{Perry:1994}, the authors modified the particle system such that each particle shape would be defined by a series of non-overlapping coplanar triangles.
+An extension was proposed by~\cite{Perry:1994}; the authors modified the particle system such that each particle shape would be defined by a series of non-overlapping coplanar triangles.
 The transparency of each triangle increases towards the outer vertices, thus providing an improved visual effect.
 
 \begin{figure}[htpb!]
@@ -35,11 +35,11 @@ The transparency of each triangle increases towards the outer vertices, thus pro
         \label{fig:particle_based}
 \end{figure}
 
-\textbf{Noise-based methods} focus on synthesizing the high fluctuation present in fire procedurally, as shown in Figure~\ref{fig:noise_based}.
+\textbf{Noise-based} methods focus on synthesizing the high fluctuation present in fire procedurally, as shown in Figure~\ref{fig:noise_based}.
 The objective is to approximate the turbulence present in fire with an appropriate statistical model.
 Using a variation of Perlin noise,~\cite{Perlin:1985} presented images of a corona of flames.
 However, the method is limited to 2D, where the color is a combination of non-linear arbitrary functions.
-This work was extended by~\cite{Perlin:1989} to 3D, where they use volumetric rendering to achieve improved results.
+This work was extended by~\cite{Perlin:1989} to 3D, where they used volumetric rendering to achieve improved results.
 
 \begin{figure}[htpb!]
         \centering
@@ -57,9 +57,9 @@ This work was extended by~\cite{Perlin:1989} to 3D, where they use volumetric re
         \label{fig:noise_based}
 \end{figure}
 
-\textbf{Geometry skeleton} are driven by rendering primitives that represent the fire main features, the high frequency details are built on top of the geometry structure, as shown in Figures~\ref{fig:lamorlette_2002} and~\ref{fig:geometry_skeleton}.
+\textbf{Geometry skeleton} are driven by rendering primitives that represent the main features of fire, the high frequency details are built on top of the geometry structure, as shown in Figures~\ref{fig:lamorlette_2002} and~\ref{fig:geometry_skeleton}.
 \cite{Lee:2001} presented a technique to animate fire on meshes, the flame front propagation is based on a geodesic flow field on the surface.
-Merging and separating of multiple fronts is achieved, however there is not control for animators over the fire evolution. 
+Merging and separating of multiple fronts is achieved, however the animators have no control over the fire evolution. 
 \cite{Lamorlette:2002} proposed a B-Spline curves interpolation method, details are added from a library of images which are then cast onto the profile of the flame.
 The authors' technique supports a range of flame behaviour, such as spreading, flickering, and flame separation and merging.
 In order to achieve real time simulations,~\cite{Bridault:2006} modelled the flame shape on NURBS surfaces on which a transparent 2D texture were mapped.
@@ -81,12 +81,12 @@ In order to achieve real time simulations,~\cite{Bridault:2006} modelled the fla
 \end{figure}
 
 \textbf{Data driven} methods are use to simulate fire with data from real flames, as shown in Figure~\ref{fig:data_driven}.
-The quality of the animation is depends directly on the data, and by avoiding the simulation stage the computation overhead is reduced significantly.
+The quality of the animation depends directly on the data, and by avoiding the simulation stage the computation overhead is reduced significantly.
 However, there are severe limitations when producing new animations and interactions with other objects.
 \cite{Rushmeier:1995} captured a heptane pool fire with water-cooled nitrogen-purged probes.
-Using two images from orographic camera views,~\cite{Hasinoff:2003} reconstructed 3D volumetric fire using tomographic techniques.
+Using two images from orthographic camera views,~\cite{Hasinoff:2003} reconstructed 3D volumetric fire using tomographic techniques.
 \cite{Ihrke:2004} extended the work by~\cite{Hasinoff:2003}, the authors presented a method to reconstruct fire volumes using trilinear basis functions in scenes recorded with eight cameras.
-\cite{Zhang:2011} presented a method to new synthesize new animation sequences based on a previously simulated data.
+\cite{Zhang:2011} presented a method to synthesize new animation sequences based on previously simulated data.
 A flow graph whose nodes connect resembling simulation states is built, similarity between nodes is measured based on flow pathline distances.
 New frames with smooth transitions are created by traversing the graph through different paths.
 
@@ -118,15 +118,15 @@ New frames with smooth transitions are created by traversing the graph through d
         \label{fig:data_driven}
 \end{figure}
 
-\textbf{Physically based} simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products, as shown in Figures~\ref{fig:horvath_2009} and~\ref{fig:physically_based}.  
+\textbf{Physically based} methods simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products, as shown in Figures~\ref{fig:horvath_2009} and~\ref{fig:physically_based}.  
 Incompressible flow equations were used by~\cite{Stam:1995} to drive a fire simulation.
 Given initial fuel conditions, the fire spread is advected on a grid using an advection-diffusion type equation.
-Building on the work on a semi-Lagrangian fluid solver of~\cite{Stam:1999}, a model which includes gaseous fuel and gaseous byproducts was proposed by~\cite{Nguyen:2002}.
+Building on a semi-Lagrangian fluid solver of~\cite{Stam:1999}, a model which includes gaseous fuel and gaseous byproducts was proposed by~\cite{Nguyen:2002}.
 In order to include the characteristics of the noise-based methods, \cite{Hong:2007} combined the previous model with a set of third-order equations from detonation shock dynamics presented by~\cite{Yao:1996}.
 As with the noise-based methods, this addition is visually attractive, yet it is not physically based. 
 Capitalizing on the recent advances in GPUs parallel processing power, \cite{Horvath:2009} proposed a fixed camera model.
-Particle properties are computed on a three-dimensional coarse grid, which are then projected into several view dependant two-dimensional slices.
-The authors' model is based on the assumption that fine variations, which are perpendicular to the projection plane, are not individually visible and, they do not affect significantly the overall flow.
+Particle properties are computed on a three-dimensional coarse grid, which are then projected into several view-dependant two-dimensional slices.
+The authors' model is based on the assumption that fine variations, which are perpendicular to the projection plane, are not individually visible and, they do not significantly affect the overall flow.
 
 
 \begin{figure}[htpb!]
@@ -153,12 +153,12 @@ The authors' model is based on the assumption that fine variations, which are pe
  
 \textbf{Other effects} directly related to fire have also been explored.
 \cite{Feldman:2003} presented a model to simulate suspended particles during explosions.
-An incompressible fluid model drives the motion of air and hot gases, and the suspended particles follow the their movements.
-Sound is a important factor to increase the believability of a finished fire animation.
+An incompressible fluid model drives the motion of air and hot gases, and the suspended particles follow their movements.
 \cite{Melek:2005} simulated the decomposition of an object as it undergoes combustion.
 Heat is transferred between the different parts of the object and the air; the decomposition is modelled as a moving boundary spreading in the distance field of the object, where level set methods are used to compute the moving interfaces.
+Credible sound is an important factor to increase the believability of a finished fire animation.
 \cite{Chadwick:2011} proposed a method to automatically generate plausible noise given for a given fire simulation.
-Low frequency sound is estimated using a physical model whose inputs are the flame front and heat release.
+Low frequency sound is estimated using a physical model whose two given inputs are the flame front and heat release.
 A data driven sound synthesis approach, based on the work by~\cite{Wei:2000}, is applied to generate the high frequency content.
 
 \begin{figure}[htpb!]
@@ -190,30 +190,30 @@ A data driven sound synthesis approach, based on the work by~\cite{Wei:2000}, is
 \section{Rendering}
 \label{sec:rendering}
 
-Rendering fire is more challenging than rendering other type of participating media, the main reason being that fire is a light-emitting source.
+Rendering fire is more challenging than rendering other types of participating media, the main reason being that fire is a light-emitting source.
 The luminescence radiated by a flame is generated by black body radiation due to the high temperature of the particles during the combustion process.
 In order to realistically render fire, light absorption and scattering in the media, including air, has to be taken into consideration.
 A succinct review of the current methods used by the computer graphics community for fire rendering is presented below.
 
-\subsection{Raster-Based}
+\subsection{Raster-Based Methods}
 \label{sec:raster_based}
 
 Raster-based techniques sacrifice quality in the interest of interactive frame rates, renderings are shown in Figure~\ref{fig:raster_based}.
-Some form of texture mapping is usually practised, usually only the surface of the flame is considered, and the illumination of the scene is approximated base on some parameter which can be easily computed such as a as well, e.g. the fire height.
+Generally, some form of texture mapping is applied, only the surface of the flame is considered, and the illumination of the scene is approximated using parameters which can be easily computed such as the fire height.
 
 \cite{Reeves:1983} applied a linear colour assignment to each particle in their simulation based on their lifetime.
 \cite{Lee:2001} applied the same technique to render fires on mesh surfaces, where a particle would begin with a light yellow colour, evolve to red and finish in black at the end of their lifetime.
-\cite{Lamorlette:2002} presented a technique were a based flame picture is mapped onto the two-dimensional flame profile with a base colour.
-For each particle an intermediate emitting value is computed, and the final colour is super-sampled profile from an approximation of the cross-sectional area of the flame, as it would appear from the camera.
+\cite{Lamorlette:2002} presented a technique were a flame picture is mapped onto the two-dimensional flame profile with a base colour.
+For each particle an intermediate emitting value is computed, and the final colour profile is super-sampled from an approximation of the cross-sectional area of the flame, as it would appear from the camera.
 \cite{Westover:1990} introduced texture splats as a new rendering primitive, \cite{Wei:2002} rendered fire using Westover's technique.
 Direct illumination is approximated by rendering the fire particles separately to create a light image, which is texture projected into the surrounding objects.
-\cite{Zhao:2003} also proposed a method with flame particles splats, which are added with splats from other objects and sorted based on their distance to the screen plane.
+\cite{Zhao:2003} also proposed a method with flame particle splats, which are added with splats from other objects and sorted based on their distance to the screen plane.
 The splats are projected in front-to-back order and alpha-blended to produce the end result.
 \cite{Ihrke:2004} render fire realistically using a technique based on tomography reconstructions of real flames. 
 \cite{Bridault:2006} used a spectrophotometer to capture photometric distributions of candles.
-The intensities are stored on a texture and changes in illumination over time are introduced with an attenuation factor which is computed based on the size of the flame.
+The intensities are stored on a texture and changes in illumination over time are introduced with an attenuation factor which is proportional to the size of the flame.
 \cite{Zhang:2011} proposed a method were fire particles and their attributes are first projected onto a set of slicing planes, which are orthogonal to the camera direction. 
-The planes are then blended in back-to-front order, and a one-dimensional colour texture is used as transfer function to convert flow attributes to colours and opacities.
+The planes are then blended in back-to-front order, and a one-dimensional colour texture is used as a transfer function to convert flow attributes to colours and opacities.
 
 \begin{figure}[htpb!]
         \centering
@@ -232,24 +232,24 @@ The planes are then blended in back-to-front order, and a one-dimensional colour
 
 
 
-\subsection{Ray-Tracing-Based}
+\subsection{Ray-Tracing-Based Methods}
 \label{sec:ray_tracing_based}
 
 Volume ray-tracing techniques offer astonishing results, however the associated computational costs are considerable.
 Rays are shot from the view plane and evaluated at small increments; the total radiance at the origin of the ray is computed by integrating the radiance at each step size.
-A further drawback for ray tracing techniques, in comparison to raster-based methods, is the lack of a standard ray-tracing pipeline.
+A further drawback of ray tracing techniques, in comparison to raster-based methods, is the lack of a standard ray-tracing pipeline.
 
 \cite{Rushmeier:1995} presented a method to perform accurate ray casting on sparse measured data.
-The fire was modelled as a series of stacked cylindrical rings, where each ring has with uniform properties.
-The total radiance at each point is integrated using a MonteCarlo method, summing up the measured irradiances at sample locations. 
+The fire was modelled as a series of stacked cylindrical rings, where each ring has uniform properties.
+The total radiance at each point is integrated using a Monte Carlo method, summing up the measured irradiances at sample locations. 
 \cite{Nguyen:2002} proposed a ray marching technique to solve the Radiative Transport Equation, see Chapter~\ref{ch:methodology}.
-The emitted light is computed using Planck's formula of black body radiation, the light scattering in the media and visual adaptation to the fire spectra are modelled.
+The emitted light is computed using Planck's formula of black body radiation, scattering in the media and visual adaptation to the fire spectra are modelled.
 \cite{Feldman:2003} also included black body radiation in their animation of fire with suspended particles, however the mapping to RGB was manually adjusted to match the images of real explosions.
 Direct illumination shadows were computed using deep shadow maps~\cite{Lokovic:2000}, while scattering and illumination by other objects in the scene used the technique proposed by~\cite{Jensen:2002}.
-An extension to~\cite{Nguyen:2002} was presented by~\cite{Pegoraro:2006}, the authors' model has physically-based abortion, emission and scattering properties.
+An extension to~\cite{Nguyen:2002} was presented by~\cite{Pegoraro:2006}, the authors' model has physically-based absorption, emission and scattering properties.
 The spectroscopy characteristics of different fuels are achieved by modelling the electronic transitions between states in the molecules.
 Non-linear trajectories of light in the medium due to light refraction effects are included as well.
 In order to minimize the effects induced by the limitations of the RGB colour space, the visual adaptation process is presented as a post-processing effect.
-\cite{Horvath:2009} proposed a rendering method whose main objective was user-friedliness for artists.
-Using the fixed camera slices described in Section~\ref{sec:simulation}, the authors' perform a simple volume rendering to join them in a single image.
-Black body radiation is used for the light, the images are motion-blurred with a filter based on the velocities in the slices, and the heat distortion is added as post-processing user defined filter. 
+\cite{Horvath:2009} proposed a rendering method whose main objective was user-friendliness for artists.
+Using the fixed camera slices described in Section~\ref{sec:simulation}, the authors perform simple volume rendering to join them in a single image.
+Black body radiation is used for the light, the images are motion-blurred with a filter based on the velocities in the slices, and the heat distortion is added as post-processing filter defined by the user. 
