@@ -9,8 +9,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="1365.8246"
-   height="353.68411"
+   width="1394.8563"
+   height="351.72543"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
@@ -24,13 +24,13 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.96998071"
      inkscape:cx="768.05899"
-     inkscape:cy="77.001919"
+     inkscape:cy="76.832606"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1855"
      inkscape:window-height="1056"
-     inkscape:window-x="1425"
+     inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
      fit-margin-top="0"
@@ -84,7 +84,7 @@
      id="layer1"
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
-     transform="translate(84.387962,-230.61934)">
+     transform="translate(84.387962,-232.40871)">
     <rect
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect3912"
@@ -148,7 +148,8 @@
          sodipodi:role="line"
          id="tspan3910"
          x="-6.5527563"
-         y="286.78156">Input</tspan></text>
+         y="286.78156"
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold">Input</tspan></text>
     <g
        id="g3920"
        transform="translate(8.7370114,9.829138)"
@@ -249,14 +250,15 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="374.59933"
+       x="362.22797"
        y="283.50519"
        id="text3914"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3916"
-         x="374.59933"
-         y="283.50519">Voxel Constant Data</tspan></text>
+         x="362.22797"
+         y="283.50519"
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold">Voxel Constant Data</tspan></text>
     <g
        id="g3893"
        transform="translate(230.43867,-256.64972)"
@@ -287,17 +289,18 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="998.27936"
+       x="992.09369"
        y="283.16833"
        id="text3842"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3844"
-         x="998.27936"
-         y="283.16833">Ray Marching</tspan></text>
+         x="992.09369"
+         y="283.16833"
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold">Ray Marching</tspan></text>
     <g
        id="g3902"
-       transform="translate(991.65079,-344.01982)"
+       transform="translate(1014.3317,-344.01982)"
        style="stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none">
       <rect
          y="788.06757"
@@ -324,7 +327,7 @@
     </g>
     <g
        id="g4911"
-       transform="translate(2.1842528,6.5527585)"
+       transform="translate(24.865116,6.5527585)"
        style="stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none">
       <rect
          y="310.26233"
@@ -360,11 +363,11 @@
        id="path4064-9"
        inkscape:connector-curvature="0" />
     <rect
-       style="fill:none;stroke:#000000;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:none;stroke:#000000;stroke-width:3.16003227;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect3038"
-       width="288.97012"
-       height="348.31006"
-       x="988.03888"
-       y="233.90871" />
+       width="320.7695"
+       height="348.15002"
+       x="988.1189"
+       y="233.98872" />
   </g>
 </svg>
