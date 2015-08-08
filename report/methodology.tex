@@ -8,7 +8,8 @@ Add all the values for the constants here or in implementation details??
 
 Given simulated or captured fire data, that could come from any of the methods discussed in Section~\ref{sec:simulation}, we want to generate a photo-realistic image from a camera view of the scene.
 From this point onwards we will assume that we have a volumetric data structure, which holds the relevant input data for the fire.
-An overview of the pipeline is shown in Figure\ref{fig:pipeline}, for inputs we have a volumetric data of density and temperature, from those values a series of intermediate constants for each voxel for the current frame are computed, and with the previous data a ray marcher is used to generate the final image.
+An overview of the pipeline based on the work by \cite{Pegoraro:2006} is shown in Figure~\ref{fig:pipeline}.
+The inputs are volumetric data of density and temperature, from those values a series of intermediate constants for each voxel for the current frame are computed, and with the previous data a ray marcher is used to generate the final image.
 
 \begin{figure}[htbp!]
 	\centering
@@ -17,10 +18,24 @@ An overview of the pipeline is shown in Figure\ref{fig:pipeline}, for inputs we 
 	\label{fig:pipeline}
 \end{figure}
 
+\section{Fundamental Concepts}
+\label{sec:fundamental_concepts}
+
+Define everything from the very basics, tell the reader that if he is familiar with this to skip the section.
+Explain it as in a book, but say first that the decisions will be justified later and come from the RTE.
+
+Explain that we have a scene, with a camera and we want to render an image.
+We are going to shoot rays.
+Talk about the three stages, simple ray marching.
+With direct ilummination.
+With indirect ilumination.
+With refractions.
+
+
 \section{Radiative Transport Equation}
 \label{sec:radiative_transport_equation}
 
-The Radiative Transport Equation (RTE) \cite{Howell:2002} models the variation of spectral radiance $(\omega \nabla) L(\lxo)$ in the medium, where $\lambda$ is a given wavelength in $m$, $\x$ is the point of interest in space, and $\omegam$ is a vector that points towards the viewing direction.
+The Radiative Transport Equation (RTE) \cite{Howell:2002} models the variation of spectral radiance $(\omega \nabla) L(\lxo)$ in the medium, where $\lambda$ is a given wavelength in metres, $\x$ is the point of interest in space, and $\omegam$ is a vector that points towards the viewing direction.
 Formally, the objective is to get a solution for the RTE for each visible point in the scene, practically, an approximate solution will be computed.
 
 \begin{figure}[htbp!]
@@ -58,7 +73,7 @@ L(\lambda, \x + \Delta\x, \omegam) &= e^{-\sigma_t(\lambda, \x) \deltax} L(\lxo)
 \end{equation}
 
 where $\sigma_t = \sigma_a + \sigma_s$ is the extinction coefficient, a visual depiction on this solution is shown in Figure~\ref{fig:ray_marching_parti}.
-To be able to calculate the terms in Equations~\ref{eq:li} and ~\ref{eq:rte_solution_paper}, the following factors demand a more detailed definition.
+To be able to calculate the terms in Equations~\ref{eq:li} and ~\ref{eq:rte_solution_paper}, we will explain in more detail the following factors:
 
 \begin{itemize}
 \item Light \textbf{scattering} in the media $L_i(\lxo)$ with a phase function $\Phi(\lambda, \omegam, \omegam_i)$.
@@ -80,13 +95,13 @@ To be able to calculate the terms in Equations~\ref{eq:li} and ~\ref{eq:rte_solu
 
 Some photons travelling along arbitrary directions $\omegam_i$, might be scattered in the direction of interest $\omegam$.
 A simple diagram of the process is shown in Figure~\ref{fig:scattering_diag}, where two photons travelling in directions $\omegam_1$ and $\omegam_2$, are scattered in the direction of interest $\omegam$, at the points $p_1$ and $p_2$ respectively.
-The amount of photons which are subjected to this process is controlled by a coefficient $\sigma_s$, the radiance carried by the photons is denoted by $L_i(\lxo)$ and follows a spherical distribution $\Phi (\lambda, \omegam, \omegam_i)$, which was first proposed by~\cite{Henyey:1941} to model diffuse radiation is astronomy.
+The number of photons which are subjected to this process is controlled by a coefficient $\sigma_s$, the radiance carried by the photons is denoted by $L_i(\lxo)$ and follows a spherical distribution $\Phi (\lambda, \omegam, \omegam_i)$, which was first proposed by~\cite{Henyey:1941} to model diffuse radiation in astronomy,
 
 \begin{equation}
 \Phi (\lambda, \omegam, \omegam_i) = \frac{1 - g(\lambda)^2}{4 \pi\left(1 + g(\lambda)^2 - 2 g(\lambda) \omegam \omegam_i\right)^{\frac{3}{2}}},
 \end{equation}
 
-where is the outgoing direction, $g$ can be a function of the wavelength, although in most cases is chosen to be constant.
+where $g$ is an asymmetry coefficient which can be a function of the wavelength, although in most cases it is chosen to be constant.
 The value of $g$ must be in the range $(-1, 1)$, where $g < 0$ corresponds to backwards scattering, $g = 0$ to isotropic scattering, and $g > 0$ to forwards scattering.
 Monte Carlo techniques can be used to sample the light scattering directions $\omegam_i$.
 
@@ -100,7 +115,8 @@ Monte Carlo techniques can be used to sample the light scattering directions $\o
 	\label{fig:black_body_diag}
 \end{figure}
 
-Emitted light $L_e(\lxo)$ from an idealized physical body that absorbs all incident electromagnetic radiation can be modelled with Planck's equation for black body radiation, as shown in Figure~\ref{fig:black_body_diag}.
+Emitted light from fire, which will illuminate the flame itself and other objects in the scene, is denoted as $L_e(\lxo)$. 
+Radiation from an idealized physical body that absorbs all incident electromagnetic radiation can be modelled with Planck's equation for black body radiation, as shown in Figure~\ref{fig:black_body_diag}.
 This equation characterizes the electromagnetic radiation $B(T, \lambda, \eta)$ emitted by a black body in thermal equilibrium at a given temperature $T$.
 
 \begin{equation}
@@ -126,6 +142,7 @@ In the interest of simplicity, the absorption and radiation effects for \textbf{
 \subsection{Soot Absorption}
 \label{sec:soot_absorption}
 
+Light generated by incandescent soot accounts for most of the total radiance emitted by a flame. 
 The spectral absorption coefficient of soot is defined as
 
 \begin{equation}
@@ -155,14 +172,16 @@ Since our data is defined with soot densities, we have chosen the radius to be t
 \subsection{Absorption From Other Chemical Species}
 \label{sec:absorption_from_chemical_species}
 
-The absorption coefficients associated with a given spectral frequency can be computed as
+Flames of more uncommon colours are generally produced when using salts of different chemicals.
+The spectral line emitted by an particular atom depends of the electronic transitions between different different energy levels.
+The absorption coefficients associated for a given spectral frequency and a known atomic element can be computed as
 
 
 \begin{equation}
 \sigma_a(\lambda, \x) = \frac{\phi(\lambda) N_2 A_{21} \lambda^4 (e ^\frac{h c}{\lambda k T} - 1)}{8 \pi c}
 \end{equation}
 
-where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density of elements, $A_{21}$ is an Einstein coefficient measuring the transition probabilities of an spontaneous emission.
+where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density of elements, $A_{21}$ is an Einstein coefficient measuring the transition probabilities of spontaneous emission.
 
 \section{Refraction}
 \label{sec:refraction}
@@ -205,7 +224,7 @@ The refractive index for $CO_2$ is estimated as
 \eta_{as} &= 10^{-8} \left( \frac{k_1}{k_0 - \lambda} + \frac{k_3}{k_2 - \lambda} \right),
 \end{align}
 
-where $x_c \in \lbrace 300 \ldots 450 \rbrace $ is the proportion in ppm of $CO_2$, $k_0$, $k_1$ $k_2$ and $k_3$ are constants, and $\lambda$ is the wave number (reciprocal of the vacuum wavelength).
+where $x_c \in \lbrace 300 \ldots 450 \rbrace $ is the proportion in parts per million of $CO_2$, $k_0$, $k_1$ $k_2$ and $k_3$ are constants, and $\lambda$ is the wave number (reciprocal of the vacuum wavelength).
 The refractive index for water vapour is computed as
 
 \begin{equation}
@@ -242,7 +261,7 @@ x_w &= \frac{f h v}{ p}, \\
 f &= \alpha + \beta p + \gamma t^2,
 \end{align}
 
-where $\alpha$, $\beta$ and $\gamma$, and $h \in \lbrace 0 \ldots 1 \rbrace$ is the air relative fractional humidity, $0$ for dry air and given by the user for moist air.
+where $\alpha$, $\beta$ and $\gamma$ are constants, and $h \in \lbrace 0 \ldots 1 \rbrace$ is the air relative fractional humidity, $0$ for dry air and given by the user for moist air.
 
 The pressure $p$ can also be computed using the ideal gas law
 \begin{equation}
@@ -272,7 +291,8 @@ As we are concerned with fire rendering, which entails high temperatures, this m
 \label{subsec:huang_v}
 
 The International Association for the Properties of Water and Steam (IAPWS) adopted an alternative technique to~\cite{Davis:1992}, which was proposed by~\cite{Huang:1998}.
-The more recent method will address the drawbacks of the previous one, giving reasonable results for temperatures below $0\C$, nevertheless, the generality comes with increased complexity in the equations.
+The more recent method addresses the drawbacks of the previous technique, giving reasonable results for temperatures below $0\C$.
+Nevertheless, the generality comes with increased complexity in the equations
 
 \begin{align}
 \label{eq:huang_v}
@@ -359,7 +379,7 @@ $K_3$ & $-1.70738469401 \times 10$           &  &        &                      
 \label{sec:visual_adaptation}
 
 The human eye presents a non-linear response to incident radiance $L$, as shown in Figure~\ref{fig:pegoraro_2006_adaptation}.
-If a flame is the dominant light source in a scene, it will appear with yellow-white colours, while the same flame in an environment with significant external lights might appear orange-yellow.
+If a flame is the dominant light source in a scene, it will appear with yellow-white colours, while the same flame in an environment with comparable or larger lights might appear orange-yellow.
 
 \begin{figure}[htbp!]
 	\centering
