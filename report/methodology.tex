@@ -21,15 +21,16 @@ The inputs are volumetric data of density and temperature, from those values a s
 \section{Fundamental Concepts}
 \label{sec:fundamental_concepts}
 
-Define everything from the very basics, tell the reader that if he is familiar with this to skip the section.
-Explain it as in a book, but say first that the decisions will be justified later and come from the RTE.
+In this section an overview of the fundamentals concepts of volume rendering is presented, readers familiar with the area may proceed to Section~\ref{sec:radiative_transport_equation}.
+As the main objective is to give a intuitive introduction into the area, the steps and concepts presented here will not be formally derived.
+A simple framework to generate images when light interacts with a participating media will be described. 
 
-Explain that we have a scene, with a camera and we want to render an image.
-We are going to shoot rays.
-Talk about the three stages, simple ray marching.
-With direct ilummination.
-With indirect ilumination.
-With refractions.
+The world is modelled as scene were there are a number of elements, the camera, fire volumes, lights and other objects.
+The \textbf{camera} is defined as a point and orientation in space, with a projection matrix.
+A \textbf{voxel} is defined a cube in space with some data associated to it.
+A \textbf{voxel dataset} is a collection on voxels in space, typically a cubic section of the scene is divided uniformly in voxels.
+There could also be other \textbf{lights} in the scene, several types are supported, point, area, directional and cone lights.
+\textbf{Other objects} may also be part of the scene, such as polygonal or nurbs meshes.
 
 \begin{figure}[htbp!]
 	\centering
@@ -37,6 +38,11 @@ With refractions.
 	\caption{Computing the colour of $p_1$ using path tracing~\cite{Pharr:2010}.}
 	\label{fig:path_tracing}
 \end{figure}
+
+In order to generate an image from the camera view, path tracing is used to compute the colour of each pixel, as shown in Figure~\ref{fig:path_tracing}.
+For each pixel in the camera view, a \textbf{ray} is shot into the scene; whose direction is defined by the camera origin and the pixel position.
+When the ray hits a primitive in the scene, it will be reflected and the colour will depend on the contribution of further intersections along the path.
+The final point in the path will be directly connected to a light in the scene, in Figure~\ref{fig:path_tracing}, $p_{i - 1}$ is the final intersection and $p_i$ is the light position.
 
 \section{Radiative Transport Equation}
 \label{sec:radiative_transport_equation}
