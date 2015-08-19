@@ -67,6 +67,7 @@ int main(int argc, char *argv[]) {
 		in_stream.close();
 		return -1;
 	}
+	out_stream.precision(9);
 	out_stream << std::scientific; // Scientific precision
 
 	map<double, int> repeated_count;
@@ -88,6 +89,9 @@ int main(int argc, char *argv[]) {
 				double read_val;
 				in_stream >> read_val;
 				check_in_stream(in_file, in_stream, out_stream);
+
+				// Round the value, with 9 decimals
+				read_val = round(read_val * 1e9) * 1e-9;
 
 				if (repeated_count.find(read_val) != repeated_count.end()) {
 					repeated_count.at(read_val) += 1;
@@ -147,6 +151,9 @@ int main(int argc, char *argv[]) {
 				double read_val;
 				in_stream >> read_val;
 				check_in_stream(in_file, in_stream, out_stream);
+
+				// Round the value, with 9 decimals
+				read_val = round(read_val * 1e9) * 1e-9;
 
 				if (read_val != background) {
 					out_stream << x << " " << y << " " << z << " " << read_val
