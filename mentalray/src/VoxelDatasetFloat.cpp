@@ -108,8 +108,13 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 				float read_val;
 				safe_ascii_read(fp, read_val);
 
-				read_val = read_val * scale + offset;
-				accessor.setValue(openvdb::Coord(i, j, k), read_val);
+				// Ignore zeros
+				if (read_val != 0) {
+					read_val = read_val * scale + offset;
+					if (read_val != block->background()) {
+						accessor.setValue(openvdb::Coord(i, j, k), read_val);
+					}
+				}
 			}
 		}
 	}
@@ -154,7 +159,9 @@ void VoxelDatasetFloat::initialize_with_file_acii_uintah(const char* filename) {
 		safe_ascii_read(fp, read_val);
 
 		read_val = read_val * scale + offset;
-		accessor.setValue(coord, read_val);
+		if (read_val != block->background()) {
+			accessor.setValue(coord, read_val);
+		}
 	}
 
 	fp.close();
@@ -188,9 +195,14 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 		// Make sure the indices are in a valid range
 		check_index_range(x, y, z, fp, filename);
 
-		r = r * scale + offset;
-		// For the moment assume the red component is the density
-		set_voxel_value(x, y, z, r);
+		// Ignore zeros
+		if (r != 0) {
+			r = r * scale + offset;
+			// For the moment assume the red component is the density
+			if (r != block->background()) {
+				set_voxel_value(x, y, z, r);
+			}
+		}
 	}
 
 	fp.close();
@@ -223,9 +235,15 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 		check_index_range(x, y, z, fp, filename);
 
 		float max_val = std::max(std::max(r, g), b);
-		max_val = max_val * scale + offset;
-		// For the temperature, use the channel with maximum intensity
-		set_voxel_value(x, y, z, max_val);
+
+		// Ignore zeros
+		if (max_val != 0) {
+			max_val = max_val * scale + offset;
+			// For the temperature, use the channel with maximum intensity
+			if (r != block->background()) {
+				set_voxel_value(x, y, z, max_val);
+			}
+		}
 	}
 
 	fp.close();
