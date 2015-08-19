@@ -240,7 +240,7 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 	 }*/
 }
 
-extern void ChemicalEmission(const float *wl, const float *intensity, int n,
+extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
 	float temp, float r_index, float *vals) {
 
 	if (temp <= 0) {
@@ -253,19 +253,13 @@ extern void ChemicalEmission(const float *wl, const float *intensity, int n,
 	//const double C1 = 2.0 * BB::h * c * c;
 	const double C2 = (BB::h * c) / BB::k;
 
-	double norm = pow(555.0, 5) * (exp(C2 / (555.0 * temp)) - 1.0);
-
 	double n_2 = 1;
 	double a_21 = 1;
 
 	for (int i = 0; i < n; ++i) {
 		// Absorption coefficient
-		vals[i] = (intensity[i] * BB::inv_8_pi) * n_2 * a_21 *
-				(pow(wl[i], 4.0) / c) * ((exp(C2 / (wl[i] * temp)) - 1.0));
-
-		// Multiply by B(T, lambda)
-		vals[i] *= float( norm / (pow(double(wl[i]), 5.0) *
-				(exp(C2 / (wl[i] * temp)) - 1.)));
+		vals[i] = (intensity[i] * BB::inv_8_pi) * n_2 * a_21 * (pow(wl[i], 4.0) / c)
+				* ((exp(C2 / (wl[i] * temp)) - 1.0));
 	}
 }
 
