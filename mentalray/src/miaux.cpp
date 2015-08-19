@@ -287,10 +287,7 @@ void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
 void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
 		miScalar scale, miScalar offset) {
-	state->type = static_cast<miRay_type>(ALLOC_CACHE);
-	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
-			nullptr);
-
+	miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
 	state->type = (miRay_type) DENSITY_RAW;
 	voxels->resize(width, height, depth);
 	miColor density = { 0, 0, 0, 0 };
@@ -303,7 +300,8 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 				state->point.z = k;
 				// TODO Modify voxel_density to copy only the sparse values
 				// Also the authors recommend setting the topology and then
-				// using setValueOnly to change values
+				// using setValueOnly to change values, this assumes background
+				// value is zero
 				mi_call_shader_x((miColor*) &density.r, miSHADER_MATERIAL,
 						state, density_shader, NULL);
 				if (density.r != 0.0f) {
@@ -314,6 +312,7 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 			}
 		}
 	}
+	miaux_manage_shader_cach(state, density_shader, FREE_CACHE);
 }
 
 void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
@@ -394,9 +393,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 	// Since we are going to call the density shader several times,
 	// tell the shader to cache the values
-	state->type = static_cast<miRay_type>(ALLOC_CACHE);
-	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
-			nullptr);
+	miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
 
 	for (distance = state->dist; distance >= 0; distance -= march_increment) {
 		miaux_march_point(&state->point, &origin, &direction, distance);
@@ -435,9 +432,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	// volumetric 1 is transparent
 	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
 
-	state->type = static_cast<miRay_type>(FREE_CACHE);
-	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
-			nullptr);
+	miaux_manage_shader_cach(state, density_shader, FREE_CACHE);
 
 	state->type = ray_type;
 	state->point = original_point;
@@ -532,7 +527,8 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	state->pri = original_state_pri;
 }
 
-void miaux_manage_shader_cach(miState* state, miTag shader, Voxel_Return action) {
+void miaux_manage_shader_cach(miState* state, miTag shader,
+		Voxel_Return action) {
 	state->type = static_cast<miRay_type>(action);
 	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, shader, nullptr);
 }
