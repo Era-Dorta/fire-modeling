@@ -69,9 +69,9 @@ void miaux_invert_rgb_color(miColor *result);
 void miaux_scale_color(miColor *result, miScalar scale);
 
 void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
-		const miVector *start_point, const miVector *direction,
+		miState* state, const miVector *start_point, const miVector *direction,
 		miScalar total_distance, miScalar march_increment,
-		miScalar shadow_scale, const VoxelDatasetColor *voxels);
+		miScalar shadow_scale, miTag sigma_a_shader);
 
 void miaux_multiply_colors(miColor *result, const miColor *x, const miColor *y);
 
@@ -131,7 +131,11 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag *light, miInteger n_light, miVector &origin, miVector &direction);
+		miTag sigma_a_shader, miTag *light, miInteger n_light, miVector &origin,
+		miVector &direction);
+
+void miaux_manage_shader_cach(miState* state, miTag shader,
+		Voxel_Return action);
 
 void miaux_vector_info(const char* s, const miVector& v);
 

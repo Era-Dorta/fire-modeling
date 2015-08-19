@@ -57,6 +57,7 @@ public:
 	int getHeight() const;
 	int getDepth() const;
 	int getTotal() const;
+	const DataT& getBackground() const;
 
 	InterpolationMode getInterpolationMode() const;
 	void setInterpolationMode(InterpolationMode interpolation_mode);

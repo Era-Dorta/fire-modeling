@@ -19,8 +19,8 @@ public:
 		ASCII_SINGLE_VALUE, BIN_ONLY_RED, BIN_MAX, ASCII_UINTAH
 	};
 
-	VoxelDatasetFloat();
-	VoxelDatasetFloat(const char* filename, FILE_FORMAT file_format =
+	VoxelDatasetFloat(float scale, float offset);
+	VoxelDatasetFloat(const char* filename, float scale, float offset, FILE_FORMAT file_format =
 			BIN_ONLY_RED);
 	void initialize_with_file(const char* filename, FILE_FORMAT file_format =
 			BIN_ONLY_RED);
@@ -45,6 +45,9 @@ private:
 			std::ifstream& fp, const char* filename);
 	float bilinear_interp(float tx, float ty, float c00, float c01, float c10,
 			float c11) const;
+private:
+	float scale;
+	float offset;
 };
 
 #endif /* VOXELDATASETFLOAT_H_ */

@@ -119,16 +119,24 @@ void miaux_scale_color(miColor *result, miScalar scale) {
 }
 
 void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
-		const miVector *start_point, const miVector *direction,
+		miState* state, const miVector *start_point, const miVector *direction,
 		miScalar total_distance, miScalar march_increment,
-		miScalar shadow_scale, const VoxelDatasetColor *voxels) {
-	VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
+		miScalar shadow_scale, miTag sigma_a_shader) {
+
+	miVector original_point = state->point;
+	miRay_type ray_type = state->type;
+
+	miaux_manage_shader_cach(state, sigma_a_shader, ALLOC_CACHE);
+	state->type = static_cast<miRay_type>(DENSITY_CACHE);
+
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
-	miVector march_point;
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
-		miaux_point_along_vector(&march_point, start_point, direction, dist);
-		miaux_get_sigma_a(&current_sigma, &march_point, voxels, accessor);
+		miaux_point_along_vector(&state->point, start_point, direction, dist);
+
+		mi_call_shader_x((miColor*) &current_sigma, miSHADER_MATERIAL, state,
+				sigma_a_shader, nullptr);
+
 		miaux_add_color(&total_sigma, &current_sigma);
 	}
 	// In sigma_a we do R^3 since R is 10e-10, that leaves a final result in
@@ -141,6 +149,11 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 	total_sigma.b = exp(-total_sigma.b);
 	// 0 is completely transparent
 	miaux_add_color(transparency, &total_sigma);
+
+	miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
+
+	state->point = original_point;
+	state->type = ray_type;
 }
 
 void miaux_multiply_colors(miColor *result, const miColor *x,
@@ -290,7 +303,6 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 				if (density.r != 0) { // Don't add offset if there isn't any data
 					density.r = density.r * scale + offset;
 				}
-				density.r = density.r * scale + offset;
 				density_v.x() = density.r;
 				voxels->set_voxel_value(i, j, k, density_v);
 			}
@@ -301,6 +313,10 @@ void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
 		miScalar scale, miScalar offset) {
+	state->type = static_cast<miRay_type>(ALLOC_CACHE);
+	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
+			nullptr);
+
 	state->type = (miRay_type) DENSITY_RAW;
 	voxels->resize(width, height, depth);
 	miColor density = { 0, 0, 0, 0 };
@@ -456,7 +472,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag *light, miInteger n_light, miVector &origin,
+		miTag sigma_a_shader, miTag *light, miInteger n_light, miVector &origin,
 		miVector &direction) {
 	VoxelDatasetColor *voxels =
 			(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
@@ -475,9 +491,8 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 
 	// Since we are going to call the density shader several times,
 	// tell the shader to cache the values
-	state->type = static_cast<miRay_type>(ALLOC_CACHE);
-	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
-			nullptr);
+	miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
+	miaux_manage_shader_cach(state, sigma_a_shader, ALLOC_CACHE);
 
 	for (distance = state->dist; distance >= 0; distance -= march_increment) {
 		miaux_march_point(&state->point, &origin, &direction, distance);
@@ -485,7 +500,6 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		state->type = static_cast<miRay_type>(DENSITY_CACHE);
 		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 				density_shader, nullptr);
-		state->type = ray_type;
 
 #ifdef DEBUG_SIGMA_A
 		VoxelDatasetColor *voxels =
@@ -498,7 +512,10 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		if (density > 0) {
 			// Here is where the equation is solved
 			// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
-			miaux_get_sigma_a(&sigma_a, &state->point, voxels, accessor);
+			mi_call_shader_x((miColor*) &sigma_a, miSHADER_MATERIAL, state,
+					sigma_a_shader, nullptr);
+			state->type = ray_type;
+
 			density *= density_scale * march_increment;
 			miaux_total_light_at_point(&light_color, state, light, n_light);
 
@@ -533,13 +550,17 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	// volumetric 1 is transparent
 	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
 
-	state->type = static_cast<miRay_type>(FREE_CACHE);
-	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, density_shader,
-			nullptr);
+	miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
+	miaux_manage_shader_cach(state, density_shader, FREE_CACHE);
 
 	state->type = ray_type;
 	state->point = original_point;
 	state->pri = original_state_pri;
+}
+
+void miaux_manage_shader_cach(miState* state, miTag shader, Voxel_Return action) {
+	state->type = static_cast<miRay_type>(action);
+	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, shader, nullptr);
 }
 
 void miaux_vector_info(const char* s, const miVector& v) {

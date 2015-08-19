@@ -3,6 +3,7 @@
 #include "shader.h"
 #include "mayaapi.h"
 
+#include "FuelTypes.h"
 #include "miaux.h"
 #include "VoxelDatasetColorSorted.h"
 
@@ -11,7 +12,8 @@
 #define INV_SIZE (1.0 / (MAX_DATASET_DIM - 1.0)) * 2
 
 struct fire_volume_light {
-	miTag temperature_shader;
+	miTag bb_shader;
+	miTag sigma_a_shader;
 	miInteger fuel_type;
 	miScalar temperature_scale;
 	miScalar temperature_offset;
@@ -20,13 +22,6 @@ struct fire_volume_light {
 	miScalar intensity;
 	miScalar decay;
 };
-
-enum FuelType {
-	BlackBody, Cu, S, FuelTypeMax = S
-};
-
-static const std::array<std::string, FuelTypeMax + 1> FuelTypeStr { "BlackBody",
-		"Cu", "S" };
 
 extern "C" DLLEXPORT int fire_volume_light_version(void) {
 	return 1;
@@ -39,50 +34,38 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_initialize_external_libs();
 	} else {
 		/* Instance initialization: */
-		mi_info("Precomputing bb radiation");
-		miScalar temperature_scale = *mi_eval_scalar(
-				&params->temperature_scale);
-		miScalar temperature_offset = *mi_eval_scalar(
-				&params->temperature_offset);
-		miScalar visual_adaptation_factor = *mi_eval_scalar(
-				&params->visual_adaptation_factor);
-		miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
-		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
+		FuelType fuel_type = static_cast<FuelType>(*mi_eval_integer(&params->fuel_type));
+		if(fuel_type != BlackBody){
+			mi_info("Premultiplying bb radiation and sigma_a");
 
-		VoxelDatasetColorSorted *voxels =
-				(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
-						sizeof(VoxelDatasetColorSorted));
+			miVector original_point = state->point;
+			miRay_type ray_type = state->type;
 
-		// Placement new, initialisation of malloc memory block
-		voxels = new (voxels) VoxelDatasetColorSorted();
+			miTag bb_shader = *mi_eval_tag(&params->bb_shader);
+			miTag sigma_a_shader = *mi_eval_tag(&params->sigma_a_shader);
 
-		// Save previous state
-		miVector original_point = state->point;
-		miRay_type ray_type = state->type;
+			// Since we are going to call the density shader several times,
+			// tell the shader to cache the values
+			miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
+			miaux_manage_shader_cach(state, sigma_a_shader, ALLOC_CACHE);
 
-		unsigned width, height, depth;
-		miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
-				temperature_shader);
+			VoxelDatasetColorSorted *voxels =
+					(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
+							sizeof(VoxelDatasetColorSorted));
 
-		miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
-				width, height, depth, temperature_scale, temperature_offset);
+			// Placement new, initialisation of malloc memory block
+			voxels = new (voxels) VoxelDatasetColorSorted();
+			VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
 
-		if (fuel_type == FuelType::BlackBody) {
-			voxels->compute_black_body_emission_threaded(
-					visual_adaptation_factor);
-		} else {
-			std::string data_file(LIBRARY_DATA_PATH);
-			assert(static_cast<unsigned>(fuel_type) < FuelTypeStr.size());
-			data_file = data_file + "/" + FuelTypeStr[fuel_type] + ".specline";
-			voxels->compute_chemical_emission_threaded(visual_adaptation_factor,
-					data_file.c_str());
+			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
+			miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
+
+			// Restore previous state
+			state->point = original_point;
+			state->type = ray_type;
+
+			mi_info("Done premultiplying bb radiation and sigma_a");
 		}
-
-		// Restore previous state
-		state->point = original_point;
-		state->type = ray_type;
-		mi_info("Done precomputing bb radiation with dataset size %dx%dx%d",
-				width, height, depth);
 	}
 	return miTRUE;
 }

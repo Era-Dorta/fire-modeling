@@ -175,6 +175,11 @@ int VoxelDataset<DataT, TreeT>::getTotal() const {
 }
 
 template<typename DataT, typename TreeT>
+const DataT& VoxelDataset<DataT, TreeT>::getBackground() const{
+	return block->background();
+}
+
+template<typename DataT, typename TreeT>
 typename VoxelDataset<DataT, TreeT>::InterpolationMode VoxelDataset<DataT, TreeT>::getInterpolationMode() const {
 	return interpolation_mode;
 }
