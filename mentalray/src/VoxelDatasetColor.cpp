@@ -20,6 +20,14 @@ VoxelDatasetColor::VoxelDatasetColor() :
 	alpha_lambda = 0;
 }
 
+VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
+		VoxelDataset<openvdb::Vec3f, openvdb::Vec3fTree>(
+				openvdb::Vec3f(background.r, background.g, background.b)) {
+	miaux_set_rgb(&max_color, 0);
+	soot_radius = 0;
+	alpha_lambda = 0;
+}
+
 void VoxelDatasetColor::compute_black_body_emission_threaded(
 		float visual_adaptation_factor) {
 
@@ -44,11 +52,11 @@ void VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
 	lambdas.clear();
 }
 
-void VoxelDatasetColor::compute_chemical_emission_threaded(
+void VoxelDatasetColor::compute_chemical_absorption_threaded(
 		float visual_adaptation_factor, const char* filename) {
 	read_spectral_line_file(filename);
 
-	compute_function_threaded(&VoxelDatasetColor::compute_chemical_emission);
+	compute_function_threaded(&VoxelDatasetColor::compute_chemical_absorption);
 
 	normalize_bb_radiation(visual_adaptation_factor);
 
@@ -212,7 +220,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 	}
 }
 
-void VoxelDatasetColor::compute_chemical_emission(unsigned start_offset,
+void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f t;
 	float xyz_norm;
@@ -228,8 +236,8 @@ void VoxelDatasetColor::compute_chemical_emission(unsigned start_offset,
 		if (t.x() > 400) {
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
-			ChemicalEmission(&lambdas[0], &input_data[0], lambdas.size(), t.x(),
-					1, spec_values);
+			ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
+					t.x(), 1, spec_values);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
