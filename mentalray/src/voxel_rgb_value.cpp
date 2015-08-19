@@ -12,7 +12,7 @@
 
 #include "FuelTypes.h"
 #include "miaux.h"
-#include "VoxelDatasetColorSorted.h"
+#include "VoxelDatasetColor.h"
 
 struct voxel_rgb_value {
 	miTag temperature_shader;
@@ -55,15 +55,15 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				&params->visual_adaptation_factor);
 		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
 
-		VoxelDatasetColorSorted *voxels =
-				(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
-						sizeof(VoxelDatasetColorSorted));
+		VoxelDatasetColor *voxels =
+				(VoxelDatasetColor *) miaux_alloc_user_memory(state,
+						sizeof(VoxelDatasetColor));
 
 		// Placement new, initialisation of malloc memory block
-		voxels = new (voxels) VoxelDatasetColorSorted();
+		voxels = new (voxels) VoxelDatasetColor();
 
 		voxels->setInterpolationMode(
-				(VoxelDatasetColorSorted::InterpolationMode) interpolation_mode);
+				(VoxelDatasetColor::InterpolationMode) interpolation_mode);
 
 		// Save previous state
 		miVector original_point = state->point;
@@ -76,6 +76,9 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					temperature_shader);
 
+			// TODO It should set the background of voxels to the black body rgb
+			// of the background value of the temperature shader, and the same
+			// with the density shaders
 			miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
 					width, height, depth, 1, 0);
 
@@ -106,12 +109,12 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 						temperature_shader);
 
-				miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
-						width, height, depth, 1, 0);
+				miaux_copy_sparse_voxel_dataset(voxels, state,
+						temperature_shader, width, height, depth, 1, 0);
 
 				data_file = data_file + "/" + FuelTypeStr[fuel_type]
 						+ ".specline";
-				voxels->compute_chemical_emission_threaded(
+				voxels->compute_chemical_absorption_threaded(
 						visual_adaptation_factor, data_file.c_str());
 			}
 			break;
@@ -160,15 +163,41 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		result->r = voxels->getDepth();
 		break;
 	}
+	case BACKGROUND: {
+		VoxelDatasetColor *voxels =
+				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+		openvdb::Vec3f res_vec3 = voxels->getBackground();
+		result->r = res_vec3.x();
+		result->g = res_vec3.y();
+		result->b = res_vec3.z();
+		break;
+	}
 	case DENSITY_RAW: {
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 		VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
-		openvdb::Vec3f res_vec3 = voxels->get_voxel_value((unsigned) state->point.x,
-				(unsigned) state->point.y, (unsigned) state->point.z, accessor);
+		openvdb::Vec3f res_vec3 = voxels->get_voxel_value(
+				(unsigned) state->point.x, (unsigned) state->point.y,
+				(unsigned) state->point.z, accessor);
 		result->r = res_vec3.x();
 		result->g = res_vec3.y();
 		result->b = res_vec3.z();
+		break;
+	}
+	case DENSITY_RAW_CACHE: {
+		VoxelDatasetColor *voxels =
+				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+		VoxelDatasetColor::Accessor *accessor = nullptr;
+		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+
+		assert(accessor != nullptr);
+		openvdb::Vec3f res_vec3 = voxels->get_voxel_value(
+				(unsigned) state->point.x, (unsigned) state->point.y,
+				(unsigned) state->point.z, *accessor);
+		result->r = res_vec3.x();
+		result->g = res_vec3.y();
+		result->b = res_vec3.z();
+
 		break;
 	}
 	case DENSITY: {
@@ -179,8 +208,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 		if (miaux_point_inside(p, min_point, max_point)) {
 			VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
-			openvdb::Vec3f res_vec3 = voxels->get_fitted_voxel_value(p, min_point, max_point,
-					accessor);
+			openvdb::Vec3f res_vec3 = voxels->get_fitted_voxel_value(p,
+					min_point, max_point, accessor);
 			result->r = res_vec3.x();
 			result->g = res_vec3.y();
 			result->b = res_vec3.z();
@@ -205,8 +234,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 
 			assert(accessor != nullptr);
 
-			openvdb::Vec3f res_vec3 = voxels->get_fitted_voxel_value(p, min_point, max_point,
-					*accessor);
+			openvdb::Vec3f res_vec3 = voxels->get_fitted_voxel_value(p,
+					min_point, max_point, *accessor);
 			result->r = res_vec3.x();
 			result->g = res_vec3.y();
 			result->b = res_vec3.z();
