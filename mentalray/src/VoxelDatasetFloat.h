@@ -20,8 +20,8 @@ public:
 	};
 
 	VoxelDatasetFloat(float scale, float offset);
-	VoxelDatasetFloat(const char* filename, float scale, float offset, FILE_FORMAT file_format =
-			BIN_ONLY_RED);
+	VoxelDatasetFloat(const char* filename, float scale, float offset,
+			FILE_FORMAT file_format = BIN_ONLY_RED);
 	void initialize_with_file(const char* filename, FILE_FORMAT file_format =
 			BIN_ONLY_RED);
 	void apply_sin_perturbation();

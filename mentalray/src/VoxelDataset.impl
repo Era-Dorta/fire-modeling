@@ -175,7 +175,7 @@ int VoxelDataset<DataT, TreeT>::getTotal() const {
 }
 
 template<typename DataT, typename TreeT>
-const DataT& VoxelDataset<DataT, TreeT>::getBackground() const{
+const DataT& VoxelDataset<DataT, TreeT>::getBackground() const {
 	return block->background();
 }
 

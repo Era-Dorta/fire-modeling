@@ -77,8 +77,8 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		 */
 
 #ifndef DEBUG_SIGMA_A
-		miaux_fractional_shader_occlusion_at_point(&result->transparency,
-				state, &origin, &direction, state->dist, march_increment,
+		miaux_fractional_shader_occlusion_at_point(&result->transparency, state,
+				&origin, &direction, state->dist, march_increment,
 				shadow_d_scale, obsorption_shader);
 		return miTRUE;
 #else
