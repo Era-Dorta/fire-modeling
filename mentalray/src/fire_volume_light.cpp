@@ -34,8 +34,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_initialize_external_libs();
 	} else {
 		/* Instance initialization: */
-		FuelType fuel_type = static_cast<FuelType>(*mi_eval_integer(&params->fuel_type));
-		if(fuel_type != BlackBody){
+		FuelType fuel_type = static_cast<FuelType>(*mi_eval_integer(
+				&params->fuel_type));
+		if (fuel_type != BlackBody) {
 			mi_info("Premultiplying bb radiation and sigma_a");
 
 			miVector original_point = state->point;
@@ -44,18 +45,71 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			miTag bb_shader = *mi_eval_tag(&params->bb_shader);
 			miTag sigma_a_shader = *mi_eval_tag(&params->sigma_a_shader);
 
-			// Since we are going to call the density shader several times,
-			// tell the shader to cache the values
-			miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
-			miaux_manage_shader_cach(state, sigma_a_shader, ALLOC_CACHE);
+			// Get background values
+			miColor background_bb;
+			state->type = static_cast<miRay_type>(BACKGROUND);
+			mi_call_shader_x((miColor*) &background_bb, miSHADER_MATERIAL,
+					state, bb_shader, nullptr);
+
+			miColor background_sigma;
+			state->type = static_cast<miRay_type>(BACKGROUND);
+			mi_call_shader_x((miColor*) &background_sigma, miSHADER_MATERIAL,
+					state, sigma_a_shader, nullptr);
+
+			miColor background;
+			miaux_multiply_colors(&background, &background_bb,
+					&background_sigma);
 
 			VoxelDatasetColorSorted *voxels =
 					(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
 							sizeof(VoxelDatasetColorSorted));
 
 			// Placement new, initialisation of malloc memory block
-			voxels = new (voxels) VoxelDatasetColorSorted();
-			VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
+			voxels = new (voxels) VoxelDatasetColorSorted(background);
+
+			// Since we are going to call the density shader several times,
+			// tell the shader to cache the values
+			miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
+			miaux_manage_shader_cach(state, sigma_a_shader, ALLOC_CACHE);
+
+			unsigned width = 0, height = 0, depth = 0;
+			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
+					bb_shader);
+
+			state->type = static_cast<miRay_type>(DENSITY_RAW);
+			voxels->resize(width, height, depth);
+			miColor bb_radiation = { 0, 0, 0, 0 }, sigma_a = { 0, 0, 0, 0 };
+			openvdb::Vec3f bb_sigma_v = openvdb::Vec3f::zero();
+			for (unsigned i = 0; i < width; i++) {
+				for (unsigned j = 0; j < height; j++) {
+					for (unsigned k = 0; k < depth; k++) {
+						state->point.x = i;
+						state->point.y = j;
+						state->point.z = k;
+						// TODO Modify voxel_density to copy only the sparse values
+						// Also the authors recommend setting the topology and then
+						// using setValueOnly to change values, this assumes background
+						// value is zero
+						mi_call_shader_x((miColor*) &bb_radiation,
+								miSHADER_MATERIAL, state, bb_shader, NULL);
+						mi_call_shader_x((miColor*) &sigma_a, miSHADER_MATERIAL,
+								state, sigma_a_shader, NULL);
+						miColor bb_sigma;
+						miaux_multiply_colors(&bb_sigma, &bb_radiation,
+								&sigma_a);
+
+						bb_sigma_v.x() = bb_sigma.r;
+						bb_sigma_v.y() = bb_sigma.g;
+						bb_sigma_v.z() = bb_sigma.b;
+
+						if (!miaux_color_is_black(&bb_sigma)) {
+							voxels->set_voxel_value(i, j, k, bb_sigma_v);
+						}
+					}
+				}
+			}
+
+			voxels->sort();
 
 			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
 			miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
@@ -65,6 +119,67 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			state->type = ray_type;
 
 			mi_info("Done premultiplying bb radiation and sigma_a");
+		} else {
+			miVector original_point = state->point;
+			miRay_type ray_type = state->type;
+
+			miTag bb_shader = *mi_eval_tag(&params->bb_shader);
+
+			// Get background values
+			miColor background_bb;
+			state->type = static_cast<miRay_type>(BACKGROUND);
+			mi_call_shader_x((miColor*) &background_bb, miSHADER_MATERIAL,
+					state, bb_shader, nullptr);
+
+			VoxelDatasetColorSorted *voxels =
+					(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
+							sizeof(VoxelDatasetColorSorted));
+
+			// Placement new, initialisation of malloc memory block
+			voxels = new (voxels) VoxelDatasetColorSorted(background_bb);
+
+			// Since we are going to call the density shader several times,
+			// tell the shader to cache the values
+			miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
+
+			unsigned width = 0, height = 0, depth = 0;
+			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
+					bb_shader);
+
+			state->type = static_cast<miRay_type>(DENSITY_RAW);
+			voxels->resize(width, height, depth);
+			miColor bb_radiation = { 0, 0, 0, 0 };
+			openvdb::Vec3f bb_radiation_v = openvdb::Vec3f::zero();
+			for (unsigned i = 0; i < width; i++) {
+				for (unsigned j = 0; j < height; j++) {
+					for (unsigned k = 0; k < depth; k++) {
+						state->point.x = i;
+						state->point.y = j;
+						state->point.z = k;
+						// TODO Modify voxel_density to copy only the sparse values
+						mi_call_shader_x((miColor*) &bb_radiation,
+								miSHADER_MATERIAL, state, bb_shader, NULL);
+
+						bb_radiation_v.x() = bb_radiation.r;
+						bb_radiation_v.y() = bb_radiation.g;
+						bb_radiation_v.z() = bb_radiation.b;
+
+						if (bb_radiation.r != background_bb.r
+								&& bb_radiation.g != background_bb.g
+								&& bb_radiation.b != background_bb.b) {
+							voxels->set_voxel_value(i, j, k, bb_radiation_v);
+						}
+					}
+				}
+			}
+
+			voxels->sort();
+
+			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
+
+			// Restore previous state
+			state->point = original_point;
+			state->type = ray_type;
 		}
 	}
 	return miTRUE;
