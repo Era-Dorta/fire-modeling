@@ -9,25 +9,30 @@
 
 #include "VoxelDatasetColorSorted.h"
 
+VoxelDatasetColorSorted::VoxelDatasetColorSorted() :
+		VoxelDatasetColor() {
+}
+
+VoxelDatasetColorSorted::VoxelDatasetColorSorted(const miColor& background) :
+		VoxelDatasetColor(background) {
+}
+
 void VoxelDatasetColorSorted::compute_soot_absorption_threaded(
 		const char* filename) {
-	sorted_ind.resize(block->activeVoxelCount());
 	VoxelDatasetColor::compute_soot_absorption_threaded(filename);
 	sort();
 }
 
 void VoxelDatasetColorSorted::compute_black_body_emission_threaded(
 		float visual_adaptation_factor) {
-	sorted_ind.resize(block->activeVoxelCount());
 	VoxelDatasetColor::compute_black_body_emission_threaded(
 			visual_adaptation_factor);
 	sort();
 }
 
-void VoxelDatasetColorSorted::compute_chemical_emission_threaded(
+void VoxelDatasetColorSorted::compute_chemical_absorption_threaded(
 		float visual_adaptation_factor, const char* filename) {
-	sorted_ind.resize(block->activeVoxelCount());
-	VoxelDatasetColor::compute_chemical_emission_threaded(
+	VoxelDatasetColor::compute_chemical_absorption_threaded(
 			visual_adaptation_factor, filename);
 	sort();
 }
@@ -42,6 +47,7 @@ void VoxelDatasetColorSorted::get_i_j_k_from_sorted(miVector &ijk,
 
 void VoxelDatasetColorSorted::sort() {
 	// initialise original index locations
+	sorted_ind.resize(block->activeVoxelCount());
 	unsigned i = 0;
 	for (openvdb::Vec3SGrid::ValueOnCIter iter = block->cbeginValueOn(); iter;
 			++iter) {
