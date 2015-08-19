@@ -98,13 +98,32 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		*result = voxels->getDepth();
 		break;
 	}
+	case BACKGROUND: {
+		VoxelDatasetFloat *voxels =
+				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
+		*result = voxels->getBackground();
+		break;
+	}
 	case DENSITY_RAW: {
-		//TODO Add density_raw_cache
 		VoxelDatasetFloat *voxels =
 				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
 		VoxelDatasetFloat::Accessor accessor = voxels->get_accessor();
 		*result = voxels->get_voxel_value((unsigned) state->point.x,
 				(unsigned) state->point.y, (unsigned) state->point.z, accessor);
+		break;
+	}
+	case DENSITY_RAW_CACHE: {
+		VoxelDatasetFloat *voxels =
+				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
+		// Get previously allocated accessor
+		VoxelDatasetFloat::Accessor *accessor = nullptr;
+		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+
+		assert(accessor != nullptr);
+
+		*result = voxels->get_voxel_value((unsigned) state->point.x,
+				(unsigned) state->point.y, (unsigned) state->point.z,
+				*accessor);
 		break;
 	}
 	case DENSITY: {
