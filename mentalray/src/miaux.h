@@ -109,10 +109,6 @@ void miaux_initialize_volume_output(VolumeShader_R* result);
 void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
 		unsigned *depth, miState *state, miTag density_shader);
 
-void miaux_copy_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
-		miTag density_shader, unsigned width, unsigned height, unsigned depth,
-		miScalar scale, miScalar offset);
-
 void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
 		miScalar scale, miScalar offset);
