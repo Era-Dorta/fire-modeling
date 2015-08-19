@@ -61,11 +61,18 @@ void VoxelDatasetFloat::apply_sin_perturbation() {
 					if (density < 0) {
 						density = 0;
 					}
-					set_voxel_value(i, j, k, density);
+					if (density != block->background()) {
+						set_voxel_value(i, j, k, density);
+					} else {
+						accessor.setValueOff(openvdb::Coord(i, j, k),
+								block->background());
+					}
 				}
 			}
 		}
 	}
+	// Free the memory in case some values were set to off
+	block->pruneGrid();
 }
 
 float VoxelDatasetFloat::bilinear_interp(float tx, float ty, const float&c00,
