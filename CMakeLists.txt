@@ -98,8 +98,8 @@ FILE(GLOB PROJECT_SRC
 )
 
 FILE(GLOB PROJECT_DATA
-    "data/*.specline"
-    "data/*.optconst"
+    "${PROJECT_NAME}_data/*.specline"
+    "${PROJECT_NAME}_data/*.optconst"
 )
 
 FILE(GLOB PROJECT_SCRIPTS
