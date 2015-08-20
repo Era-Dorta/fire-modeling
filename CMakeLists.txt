@@ -33,7 +33,7 @@ SET(CMAKE_CXX_COMPILER g++)
 
 #All warnings and thread compiling on linux
 IF(UNIX)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
 ENDIF(UNIX)
 
 #Add custom .cmake files located in this folder
@@ -44,8 +44,6 @@ FIND_PACKAGE (OpenVDB REQUIRED)
 FIND_PACKAGE (Maya REQUIRED)
 
 INCLUDE_DIRECTORIES( ${OpenVdb_INCLUDE_DIRS} )
-
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
 
 MARK_AS_ADVANCED(MAYA_LOCATION MENTALRAY_LOCATION)
 
