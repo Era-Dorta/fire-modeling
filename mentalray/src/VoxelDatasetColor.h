@@ -35,9 +35,9 @@ private:
 			void (VoxelDatasetColor::*foo)(unsigned, unsigned));
 	void compute_soot_constant_coefficients();
 	void compute_soot_absorption(unsigned start_offset, unsigned end_offset);
-	void compute_black_body_emission(unsigned start_offset,
-			unsigned end_offset);
 	void compute_chemical_absorption(unsigned start_offset,
+			unsigned end_offset);
+	void compute_black_body_emission(unsigned start_offset,
 			unsigned end_offset);
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();

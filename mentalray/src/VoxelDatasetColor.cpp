@@ -183,6 +183,51 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 	}
 }
 
+void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
+		unsigned end_offset) {
+	openvdb::Vec3f t;
+	float spec_values[nSpectralSamples];
+	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
+	for (unsigned i = 0; i < start_offset; i++) {
+		iter.next();
+	}
+	for (auto i = start_offset; i < end_offset && iter; ++iter) {
+		t = iter.getValue();
+		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
+		// TODO Add as a parameter
+		if (t.x() > 400) {
+			// TODO Pass a real refraction index, not 1
+			// Get the blackbody values
+			ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
+					t.x(), 1, spec_values);
+
+			// Create a Spectrum representation with the computed values
+			// Spectrum expects the wavelengths to be in nanometres
+			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
+					lambdas.size());
+
+			// Transform the spectrum to RGB coefficients, since CIE is
+			// not fully represented by RGB clamp negative intensities
+			// to zero
+			b_spec.ToRGB(&t.x());
+
+			// Scales are crazy in spectrum due to luminosity variations
+			// Divide by the sum and then clamp to [0,..,1]
+			float sum = t.x() + t.y() + t.z();
+			if(sum > 0){
+				t.scale(1.0 / sum, t);
+			}
+
+			// But just clamping gives the best results
+			clamp_0_1(t);
+		} else {
+			// Negative and zero absorption
+			t.setZero();
+		}
+		iter.setValue(t);
+	}
+}
+
 void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f t;
@@ -212,44 +257,6 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			// Normalise the XYZ coefficients
 			xyz_norm = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
 			t = t * xyz_norm;
-		} else {
-			// If the temperature is low, just set the colour to 0
-			t.setZero();
-		}
-		iter.setValue(t);
-	}
-}
-
-void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
-		unsigned end_offset) {
-	openvdb::Vec3f t;
-	float xyz_norm;
-	float spec_values[nSpectralSamples];
-	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
-	for (unsigned i = 0; i < start_offset; i++) {
-		iter.next();
-	}
-	for (auto i = start_offset; i < end_offset && iter; ++iter) {
-		t = iter.getValue();
-		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
-		// TODO Add as a parameter
-		if (t.x() > 400) {
-			// TODO Pass a real refraction index, not 1
-			// Get the blackbody values
-			ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
-					t.x(), 1, spec_values);
-
-			// Create a Spectrum representation with the computed values
-			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
-					lambdas.size());
-
-			// Transform the spectrum to XYZ coefficients
-			b_spec.ToXYZ(&t.x());
-
-			// Normalise the XYZ coefficients
-			xyz_norm = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
-			t.scale(xyz_norm, t);
 		} else {
 			// If the temperature is low, just set the colour to 0
 			t.setZero();
