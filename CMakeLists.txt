@@ -29,13 +29,6 @@ ELSE(MAYA_VERSION)
     MESSAGE(FATAL_ERROR "Maya version required, e.g. cmake -DMAYA_VERSION=2015 ../")
 ENDIF(MAYA_VERSION)
 
-SET(CMAKE_CXX_COMPILER g++)
-
-#All warnings and thread compiling on linux
-IF(UNIX)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
-ENDIF(UNIX)
-
 #Add custom .cmake files located in this folder
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmakeModules")
 
@@ -46,6 +39,12 @@ FIND_PACKAGE (Maya REQUIRED)
 INCLUDE_DIRECTORIES( ${OpenVdb_INCLUDE_DIRS} )
 
 MARK_AS_ADVANCED(MAYA_LOCATION MENTALRAY_LOCATION)
+
+#All warnings and thread compiling on linux
+IF(UNIX)
+	SET(CMAKE_CXX_COMPILER g++)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
+ENDIF(UNIX)
 
 IF(IS_DEFAULT_PREFIX)
 	# MENTALRAY_LOCATION points to mentalray/devkit, get the parent directory 
@@ -61,7 +60,7 @@ IF(IS_DEFAULT_PREFIX)
 
 
 	IF(NOT SCRIPTS_INSTALL_PREFIX)	
-		SET(SCRIPTS_PREFIX_INSTALL "${MAYA_LOCATION}/scripts" CACHE PATH "scripts install path" FORCE)	
+		SET(SCRIPTS_PREFIX_INSTALL "${MENTALRAY_LOCATION_DIR}/scripts" CACHE PATH "scripts install path" FORCE)	
 	ELSE(NOT SCRIPTS_INSTALL_PREFIX)
 		SET(SCRIPTS_PREFIX_INSTALL "${SCRIPTS_INSTALL_PREFIX}/scripts" CACHE PATH "scripts install path" FORCE)
 	ENDIF(NOT SCRIPTS_INSTALL_PREFIX)    	
@@ -101,8 +100,11 @@ FILE(GLOB PROJECT_DATA
 )
 
 FILE(GLOB PROJECT_SCRIPTS
-    "maya/*.mel"
-    "mentalray/*.mel"
+    "mentalray/scripts/*.mel"
+)
+
+FILE(GLOB PROJECT_SCRIPTS_AETEMPLATES
+    "mentalray/scripts/AETemplates/*.mel"
 )
 
 ADD_LIBRARY(${PROJECT_NAME}
@@ -131,6 +133,9 @@ INSTALL( FILES "mentalray/${PROJECT_NAME}.mi" DESTINATION "${SHADERS_PREFIX_INST
 # MentalRay library data files
 INSTALL( FILES ${PROJECT_DATA} DESTINATION "${SHADERS_PREFIX_INSTALL}/${PROJECT_NAME}_data" )
 
-# Maya command
+# Commands
 INSTALL( FILES ${PROJECT_SCRIPTS} DESTINATION "${SCRIPTS_PREFIX_INSTALL}" )
+
+# Shader UI templates
+INSTALL( FILES ${PROJECT_SCRIPTS} DESTINATION "${SCRIPTS_PREFIX_INSTALL}/AETemplates" )
 
