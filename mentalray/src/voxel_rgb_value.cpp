@@ -52,7 +52,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				&params->interpolation_mode);
 		miScalar visual_adaptation_factor = *mi_eval_scalar(
 				&params->visual_adaptation_factor);
-		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
 
 		VoxelDatasetColor *voxels =
 				(VoxelDatasetColor *) miaux_alloc_user_memory(state,
@@ -72,6 +71,9 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 		switch (compute_mode) {
 		case BB_RADIATION: {
+			mi_info("Precomputing bb radiation with dataset size %dx%dx%d",
+					width, height, depth);
+
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					temperature_shader);
 
@@ -83,9 +85,16 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 			voxels->compute_black_body_emission_threaded(
 					visual_adaptation_factor);
+			mi_info("Done precomputing bb radiation with dataset size %dx%dx%d",
+					width, height, depth);
 			break;
 		}
 		case ABSORPTION: {
+			mi_info("Precomputing absorption with dataset size %dx%dx%d", width,
+					height, depth);
+
+			miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
+
 			if (fuel_type == BlackBody) {
 				break;
 			}
@@ -118,6 +127,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				voxels->compute_chemical_absorption_threaded(
 						visual_adaptation_factor, data_file.c_str());
 			}
+			mi_info("Done precomputing absorption with dataset size %dx%dx%d",
+					width, height, depth);
 			break;
 		}
 		}
@@ -125,8 +136,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 		// Restore previous state
 		state->point = original_point;
 		state->type = ray_type;
-		mi_info("Done precomputing bb radiation with dataset size %dx%dx%d",
-				width, height, depth);
 	}
 	return miTRUE;
 }

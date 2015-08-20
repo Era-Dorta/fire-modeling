@@ -17,10 +17,12 @@ declare shader
 			#: default 1.0
 			#: softmin 0.0
 			#: softmax 10000.0
+			#: hidden true
 		scalar "offset",
 			#: default 0.0
 			#: softmin 0.0
 			#: softmax 100.0
+			#: hidden true
 		vector "min_point", 
 			#: default -1 -1 -1
 			#: hidden true
