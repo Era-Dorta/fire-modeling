@@ -79,9 +79,9 @@ protected:
 	typename openvdb::Grid<TreeT>::Accessor accessor;
 private:
 	InterpolationMode interpolation_mode;
-	std::_Mem_fn<
-			DataT (VoxelDataset<DataT, TreeT>::*)(float, float, float,
-					const Accessor&) const> interpolate_function;
+	std::function<
+			DataT(const VoxelDataset<DataT, TreeT>&, float, float, float,
+					const Accessor&)> interpolate_function;
 };
 
 // The compiler needs direct access to the template class implementation or

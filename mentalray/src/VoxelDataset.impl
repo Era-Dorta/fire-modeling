@@ -15,8 +15,7 @@ template<typename DataT, typename TreeT>
 VoxelDataset<DataT, TreeT>::VoxelDataset(const DataT& background) :
 		block(openvdb::Grid < TreeT > ::create(background)), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
-				std::mem_fn(
-						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
+				&VoxelDataset<DataT, TreeT>::trilinear_interpolation) {
 	resize(0, 0, 0);
 }
 
@@ -25,8 +24,7 @@ VoxelDataset<DataT, TreeT>::VoxelDataset(unsigned width, unsigned height,
 		unsigned depth, const DataT& background) :
 		block(openvdb::Grid < TreeT > ::create(background)), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
-				std::mem_fn(
-						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
+				&VoxelDataset<DataT, TreeT>::trilinear_interpolation) {
 	resize(width, height, depth);
 }
 
@@ -34,8 +32,7 @@ template<typename DataT, typename TreeT>
 VoxelDataset<DataT, TreeT>::VoxelDataset(const VoxelDataset& other) :
 		block(openvdb::Grid < TreeT > ::create(other.block->background())), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
-				std::mem_fn(
-						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
+				&VoxelDataset<DataT, TreeT>::trilinear_interpolation) {
 	resize(other.width, other.height, other.depth);
 	setInterpolationMode(other.interpolation_mode);
 	block = other.block->deepCopy();
@@ -113,7 +110,7 @@ DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y, float z,
 	assert(
 			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
 					+ ((int ) (x + .5)) < MAX_DATASET_SIZE);
-	return interpolate_function(this, x, y, z, accessor);
+	return interpolate_function(*this, x, y, z, accessor);
 }
 
 template<typename DataT, typename TreeT>
@@ -188,13 +185,12 @@ void VoxelDataset<DataT, TreeT>::setInterpolationMode(
 	this->interpolation_mode = interpolation_mode;
 	switch (interpolation_mode) {
 	case TRUNCATE: {
-		interpolate_function = std::mem_fn(
-				&VoxelDataset<DataT, TreeT>::no_interpolation);
+		interpolate_function = &VoxelDataset<DataT, TreeT>::no_interpolation;
 		break;
 	}
 	case TRILINEAR: {
-		interpolate_function = std::mem_fn(
-				&VoxelDataset<DataT, TreeT>::trilinear_interpolation);
+		interpolate_function =
+				&VoxelDataset<DataT, TreeT>::trilinear_interpolation;
 		break;
 	}
 	}
