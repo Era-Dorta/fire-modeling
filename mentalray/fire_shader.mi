@@ -13,7 +13,46 @@ declare shader
 		integer "interpolation_mode",
 			#: default 1
 			#: enum "None:Trilinear"
+		scalar "scale",
+			#: default 1.0
+			#: softmin 0.0
+			#: softmax 10000.0
+		scalar "offset",
+			#: default 0.0
+			#: softmin 0.0
+			#: softmax 100.0
 		vector "min_point", 
+			#: default -1 -1 -1
+			#: hidden true
+		vector "max_point", 
+			#: default 1 1 1
+			#: hidden true
+			)
+	version 1
+end declare
+
+# Voxel shader with intermediate rgb values
+
+declare shader
+	color "voxel_rgb_value" (
+		shader "temperature_shader",
+		shader "density_shader",
+		integer "compute_mode",
+			#: default 0
+			#: enum "Black Body:Absorption"
+		integer "interpolation_mode",
+			#: default 1
+			#: enum "None:Trilinear"
+		scalar "visual_adaptation_factor",
+			#: default 0.0
+			#: min 0.0
+			#: max 1.0
+			#: hidden true
+		integer "fuel_type",
+			#: default 0
+			#: enum "Black Body:Propane:Acetylene:Copper-Blue:Sulfur-Purple"
+			#: hidden true
+		vector "min_point",
 			#: default -1 -1 -1
 			#: hidden true
 		vector "max_point", 
@@ -45,9 +84,9 @@ declare shader
 				#: default 0.5 0.5 0.5
 				#: hidden true
 			shader "density_shader",
-			integer "absorption_type",
+			integer "fuel_type",
 				#: default 0
-				#: enum "None:Propane:Acetylene"
+				#: enum "Black Body:Propane:Acetylene:Copper-Blue:Sulfur-Purple"
 			scalar "density_scale", 
 				#: default 5
 				#: softmin 0.0
@@ -75,10 +114,12 @@ end declare
 
 declare shader
 	color "fire_volume_light" (
-		shader "temperature_shader",
+		shader "bb_shader",
+		shader "sigma_a_shader",
 		integer "fuel_type",
 			#: default 0
-			#: enum "BlackBody:Copper-Blue:Sulfur-Purple"
+			#: enum "Black Body:Propane:Acetylene:Copper-Blue:Sulfur-Purple"
+			#: hidden true
 		scalar "temperature_scale", 
 			#: default 2500 # Usually temperatures are from 0 to 10000K
 			#: softmin 0.0
