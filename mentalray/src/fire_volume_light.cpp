@@ -76,7 +76,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					bb_shader);
 
-			state->type = static_cast<miRay_type>(DENSITY_RAW);
+			state->type = static_cast<miRay_type>(DENSITY_RAW_CACHE);
 			voxels->resize(width, height, depth);
 			miColor bb_radiation = { 0, 0, 0, 0 }, sigma_a = { 0, 0, 0, 0 };
 			openvdb::Vec3f bb_sigma_v = openvdb::Vec3f::zero();
@@ -146,7 +146,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					bb_shader);
 
-			state->type = static_cast<miRay_type>(DENSITY_RAW);
+			state->type = static_cast<miRay_type>(DENSITY_RAW_CACHE);
 			voxels->resize(width, height, depth);
 			miColor bb_radiation = { 0, 0, 0, 0 };
 			openvdb::Vec3f bb_radiation_v = openvdb::Vec3f::zero();

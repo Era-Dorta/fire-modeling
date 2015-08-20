@@ -288,7 +288,7 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
 		miScalar scale, miScalar offset) {
 	miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
-	state->type = (miRay_type) DENSITY_RAW;
+	state->type = (miRay_type) DENSITY_RAW_CACHE;
 	voxels->resize(width, height, depth);
 	miColor density = { 0, 0, 0, 0 };
 	openvdb::Vec3f density_v = openvdb::Vec3f::zero();
