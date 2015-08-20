@@ -45,7 +45,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 	} else {
 		/* Instance initialization: */
 		miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
-		miTag density_shader = *mi_eval_tag(&params->density_shader);
 
 		ComputeMode compute_mode = static_cast<ComputeMode>(*mi_eval_integer(
 				&params->compute_mode));
@@ -96,6 +95,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 			// Soot absorption
 			if (fuel_type <= SootMax) {
+				miTag density_shader = *mi_eval_tag(&params->density_shader);
+
 				miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 						density_shader);
 
