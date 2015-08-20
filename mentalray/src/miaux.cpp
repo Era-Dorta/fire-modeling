@@ -443,9 +443,6 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		miScalar density_scale, miScalar march_increment, miTag density_shader,
 		miTag sigma_a_shader, miTag *light, miInteger n_light, miVector &origin,
 		miVector &direction) {
-	VoxelDatasetColor *voxels =
-			(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
-	VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
 	miColor sigma_a;
 
 	miScalar distance, density;
