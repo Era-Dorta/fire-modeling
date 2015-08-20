@@ -119,6 +119,10 @@ ADD_LIBRARY(${PROJECT_NAME}
 # OpenVDB linking
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenVdb_LIBRARIES})
 
+# Maya Linking
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${MAYA_LIBRARIES})
+
+# Library name should not have lib as name prefix
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 # MentalRay library
