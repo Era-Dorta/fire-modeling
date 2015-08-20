@@ -144,10 +144,7 @@ void VoxelDatasetFloat::initialize_with_file_acii_uintah(const char* filename) {
 	float background;
 	safe_ascii_read(fp, background);
 
-	// Openvdb 2.1 does not allow to change the background, so just create a new
-	// block with a new background value
-	block = openvdb::ScalarGrid::create(background * scale + offset);
-	accessor = block->getAccessor();
+	block->setBackground(background * scale + offset);
 
 	for (int i = 0; i < count; i++) {
 		openvdb::Coord coord;
@@ -195,13 +192,10 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 		// Make sure the indices are in a valid range
 		check_index_range(x, y, z, fp, filename);
 
-		// Ignore zeros
-		if (r != 0) {
-			r = r * scale + offset;
-			// For the moment assume the red component is the density
-			if (r != block->background()) {
-				set_voxel_value(x, y, z, r);
-			}
+		r = r * scale + offset;
+		// For the moment assume the red component is the density
+		if (r != block->background()) {
+			set_voxel_value(x, y, z, r);
 		}
 	}
 
@@ -236,13 +230,10 @@ void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
 
 		float max_val = std::max(std::max(r, g), b);
 
-		// Ignore zeros
-		if (max_val != 0) {
-			max_val = max_val * scale + offset;
-			// For the temperature, use the channel with maximum intensity
-			if (r != block->background()) {
-				set_voxel_value(x, y, z, max_val);
-			}
+		max_val = max_val * scale + offset;
+		// For the temperature, use the channel with maximum intensity
+		if (r != block->background()) {
+			set_voxel_value(x, y, z, max_val);
 		}
 	}
 
