@@ -214,7 +214,7 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// Scales are crazy in spectrum due to luminosity variations
 			// Divide by the sum and then clamp to [0,..,1]
 			float sum = t.x() + t.y() + t.z();
-			if(sum > 0){
+			if (sum > 0) {
 				t.scale(1.0 / sum, t);
 			}
 

@@ -395,13 +395,13 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	// tell the shader to cache the values
 	miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
 
+	state->type = static_cast<miRay_type>(DENSITY_CACHE);
+
 	for (distance = state->dist; distance >= 0; distance -= march_increment) {
 		miaux_march_point(&state->point, &origin, &direction, distance);
 
-		state->type = static_cast<miRay_type>(DENSITY_CACHE);
 		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 				density_shader, nullptr);
-		state->type = ray_type;
 
 #ifdef DEBUG_SIGMA_A
 		VoxelDatasetColor *voxels =
@@ -412,11 +412,17 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		* pow(10, 12);
 #endif
 		if (density > 0) {
+			// Restore ray type for total light at point
+			state->type = ray_type;
+
 			// Here is where the equation is solved
 			// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
 			density *= density_scale * march_increment;
 			miaux_total_light_at_point(&point_color, state, light, n_light);
 			miaux_add_transparent_color(&volume_color, &point_color, density);
+
+			// Reset for the density shader calls
+			state->type = static_cast<miRay_type>(DENSITY_CACHE);
 		}
 		if (volume_color.a == 1.0) {
 			break;
@@ -460,10 +466,11 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
 	miaux_manage_shader_cach(state, sigma_a_shader, ALLOC_CACHE);
 
+	state->type = static_cast<miRay_type>(DENSITY_CACHE);
+
 	for (distance = state->dist; distance >= 0; distance -= march_increment) {
 		miaux_march_point(&state->point, &origin, &direction, distance);
 
-		state->type = static_cast<miRay_type>(DENSITY_CACHE);
 		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 				density_shader, nullptr);
 
@@ -480,6 +487,8 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
 			mi_call_shader_x((miColor*) &sigma_a, miSHADER_MATERIAL, state,
 					sigma_a_shader, nullptr);
+
+			// Restore ray type for total light at point
 			state->type = ray_type;
 
 			density *= density_scale * march_increment;
@@ -502,6 +511,9 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			volume_color.g += l_e.g * density;
 			volume_color.b += l_e.b * density;
 			volume_color.a += density;
+
+			// Reset for the density shader calls
+			state->type = static_cast<miRay_type>(DENSITY_CACHE);
 		}
 		if (volume_color.a == 1.0) {
 			break;
