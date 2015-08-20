@@ -84,6 +84,7 @@ declare shader
 				#: default 0.5 0.5 0.5
 				#: hidden true
 			shader "density_shader",
+			shader "absorption_shader",
 			integer "fuel_type",
 				#: default 0
 				#: enum "Black Body:Propane:Acetylene:Copper-Blue:Sulfur-Purple"

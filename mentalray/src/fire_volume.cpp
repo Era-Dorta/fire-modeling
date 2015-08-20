@@ -15,7 +15,7 @@ struct fire_volume {
 	miColor matteOpacity;
 	miColor transparency;
 	miTag density_shader;
-	miTag obsorption_shader;
+	miTag absorption_shader;
 	miInteger fuel_type;
 	miScalar density_scale;
 	miScalar density_scale_for_shadows;
@@ -69,7 +69,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		miScalar shadow_d_scale = *mi_eval_scalar(
 				&params->density_scale_for_shadows);
 		shadow_d_scale = pow(10, shadow_d_scale);
-		miTag obsorption_shader = *mi_eval_tag(&params->obsorption_shader);
+		miTag absorption_shader = *mi_eval_tag(&params->absorption_shader);
 		/*
 		 * Seems to be affected only by transparency, 0 to not produce hard
 		 * shadows (default) effect, 1 to let that colour pass
@@ -79,7 +79,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 #ifndef DEBUG_SIGMA_A
 		miaux_fractional_shader_occlusion_at_point(&result->transparency, state,
 				&origin, &direction, state->dist, march_increment,
-				shadow_d_scale, obsorption_shader);
+				shadow_d_scale, absorption_shader);
 		return miTRUE;
 #else
 		return miFALSE;
@@ -98,7 +98,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		//miColor *matteOpacity = mi_eval_color(&params->matteOpacity);
 		//miColor *transparency = mi_eval_color(&params->transparency);
 		miTag density_shader = *mi_eval_tag(&params->density_shader);
-		miTag obsorption_shader = *mi_eval_tag(&params->obsorption_shader);
+		miTag absorption_shader = *mi_eval_tag(&params->absorption_shader);
 		miScalar density_scale = *mi_eval_scalar(&params->density_scale);
 		miScalar march_increment = *mi_eval_scalar(&params->march_increment);
 		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
@@ -116,7 +116,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 					direction);
 		} else {
 			miaux_ray_march_with_sigma_a(result, state, density_scale,
-					march_increment, density_shader, obsorption_shader, light,
+					march_increment, density_shader, absorption_shader, light,
 					n_light, origin, direction);
 		}
 	}
