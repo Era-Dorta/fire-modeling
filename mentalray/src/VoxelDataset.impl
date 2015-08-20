@@ -15,7 +15,8 @@ template<typename DataT, typename TreeT>
 VoxelDataset<DataT, TreeT>::VoxelDataset(const DataT& background) :
 		block(openvdb::Grid < TreeT > ::create(background)), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
-				&VoxelDataset<DataT, TreeT>::trilinear_interpolation) {
+				std::mem_fn(
+						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
 	resize(0, 0, 0);
 }
 
@@ -24,7 +25,8 @@ VoxelDataset<DataT, TreeT>::VoxelDataset(unsigned width, unsigned height,
 		unsigned depth, const DataT& background) :
 		block(openvdb::Grid < TreeT > ::create(background)), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
-				&VoxelDataset<DataT, TreeT>::trilinear_interpolation) {
+				std::mem_fn(
+						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
 	resize(width, height, depth);
 }
 
@@ -32,7 +34,8 @@ template<typename DataT, typename TreeT>
 VoxelDataset<DataT, TreeT>::VoxelDataset(const VoxelDataset& other) :
 		block(openvdb::Grid < TreeT > ::create(other.block->background())), accessor(
 				block->getAccessor()), interpolation_mode(TRILINEAR), interpolate_function(
-				&VoxelDataset<DataT, TreeT>::trilinear_interpolation) {
+				std::mem_fn(
+						&VoxelDataset<DataT, TreeT>::trilinear_interpolation)) {
 	resize(other.width, other.height, other.depth);
 	setInterpolationMode(other.interpolation_mode);
 	block = other.block->deepCopy();
@@ -185,12 +188,13 @@ void VoxelDataset<DataT, TreeT>::setInterpolationMode(
 	this->interpolation_mode = interpolation_mode;
 	switch (interpolation_mode) {
 	case TRUNCATE: {
-		interpolate_function = &VoxelDataset<DataT, TreeT>::no_interpolation;
+		interpolate_function = std::mem_fn(
+				&VoxelDataset<DataT, TreeT>::no_interpolation);
 		break;
 	}
 	case TRILINEAR: {
-		interpolate_function =
-				&VoxelDataset<DataT, TreeT>::trilinear_interpolation;
+		interpolate_function = std::mem_fn(
+				&VoxelDataset<DataT, TreeT>::trilinear_interpolation);
 		break;
 	}
 	}
