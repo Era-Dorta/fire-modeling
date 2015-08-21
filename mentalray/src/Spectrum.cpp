@@ -31,6 +31,7 @@
 // core/spectrum.cpp*
 //#include "stdafx.h"
 #include <algorithm>
+#include <cassert>
 
 #include "Spectrum.h"
 
@@ -232,6 +233,7 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 	double lambdaMax = 555.0;
 	double scale = C1
 			/ (std::pow(lambdaMax, 5.0) * (exp(C2 / lambdaMax) - 1.0));
+	assert(scale > 0.0);
 	scale = 1.0 / scale;
 
 	for (int i = 0; i < n; ++i) {
@@ -251,17 +253,32 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
 		return;
 	}
 
-	const double c = BB::c0 / r_index;
-	//const double C1 = 2.0 * BB::h * c * c;
-	const double C2 = (BB::h * c) / BB::k;
-
 	double n_2 = 1;
 	double a_21 = 1;
 
+	const double c = BB::c0 / r_index;
+	const double C1 = (BB::inv_8_pi * n_2 * a_21) / c;
+	const double C2 = (BB::h * c) / (BB::k * temp);
+
+	// Same as black body scale
+	double lambdaMax = 2.8977721e6 / temp;
+	if (lambdaMax > sampledLambdaEnd) {
+		lambdaMax = sampledLambdaEnd;
+	}
+	if (lambdaMax < sampledLambdaStart) {
+		lambdaMax = sampledLambdaStart;
+	}
+	double scale = C1 * pow(lambdaMax, 4.0) * ((exp(C2 / lambdaMax) - 1.0));
+	//assert(scale > 0.0);
+	if (scale == 0) {
+		mi_fatal("scale is 0");
+	}
+	scale = 1.0 / scale;
+
 	for (int i = 0; i < n; ++i) {
 		// Absorption coefficient
-		vals[i] = (intensity[i] * BB::inv_8_pi) * n_2 * a_21 * (pow(wl[i], 4.0) / c)
-				* ((exp(C2 / (wl[i] * temp)) - 1.0));
+		vals[i] = scale * C1 * intensity[i] * pow(wl[i], 4.0)
+				* ((exp(C2 / wl[i]) - 1.0));
 	}
 }
 

@@ -199,32 +199,28 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 	}
 	for (auto i = start_offset; i < end_offset && iter; ++iter) {
 		t = iter.getValue();
-		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
-		// TODO Add as a parameter
+		// As it has the same exponential as black body, with low temperatures
+		// there is no absorption
 		if (t.x() > 400) {
 			// TODO Pass a real refraction index, not 1
-			// Get the blackbody values
+			// Compute the chemical absorption spectrum values
 			ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
 					t.x(), 1, spec_values);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
+			Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
 					lambdas.size());
 
 			// Transform the spectrum to RGB coefficients, since CIE is
 			// not fully represented by RGB clamp negative intensities
 			// to zero
-			b_spec.ToRGB(&t.x());
+			chem_spec.ToRGB(&t.x());
 
-			// Scales are crazy in spectrum due to luminosity variations
-			// Divide by the sum and then clamp to [0,..,1]
-			float sum = t.x() + t.y() + t.z();
-			if (sum > 0) {
-				t.scale(1.0 / sum, t);
-			}
+			// TODO Same problems as normalising black body rgb
+			float rgb_scale = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
+			t.scale(rgb_scale, t);
 
-			// But just clamping gives the best results
 			clamp_0_1(t);
 		} else {
 			// Negative and zero absorption
@@ -262,8 +258,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			// better to scale the rgb at the end instead of the xyz here
 
 			// Normalise the XYZ coefficients
-			// 1) Norm
-			// float xyz_scale = t.length();
+			// 1) Norm, actually better to use t.normalize()
+			// float xyz_scale = 1.0 / t.length();
 			// 2) Inverse of maximum value
 			float xyz_scale = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
 			// 3) Inverse of sum of components
