@@ -48,13 +48,13 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			// Get background values
 			miColor background_bb;
 			state->type = static_cast<miRay_type>(BACKGROUND);
-			mi_call_shader_x((miColor*) &background_bb, miSHADER_MATERIAL,
-					state, bb_shader, nullptr);
+			mi_call_shader_x(&background_bb, miSHADER_MATERIAL, state,
+					bb_shader, nullptr);
 
 			miColor background_sigma;
 			state->type = static_cast<miRay_type>(BACKGROUND);
-			mi_call_shader_x((miColor*) &background_sigma, miSHADER_MATERIAL,
-					state, sigma_a_shader, nullptr);
+			mi_call_shader_x(&background_sigma, miSHADER_MATERIAL, state,
+					sigma_a_shader, nullptr);
 
 			miColor background;
 			miaux_multiply_colors(&background, &background_bb,
@@ -75,9 +75,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			unsigned width = 0, height = 0, depth = 0;
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					bb_shader);
+			voxels->resize(width, height, depth);
 
 			state->type = static_cast<miRay_type>(DENSITY_RAW_CACHE);
-			voxels->resize(width, height, depth);
+
 			miColor bb_radiation = { 0, 0, 0, 0 }, sigma_a = { 0, 0, 0, 0 };
 			openvdb::Vec3f bb_sigma_v = openvdb::Vec3f::zero();
 			for (unsigned i = 0; i < width; i++) {
@@ -90,10 +91,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 						// Also the authors recommend setting the topology and then
 						// using setValueOnly to change values, this assumes background
 						// value is zero
-						mi_call_shader_x((miColor*) &bb_radiation,
-								miSHADER_MATERIAL, state, bb_shader, NULL);
-						mi_call_shader_x((miColor*) &sigma_a, miSHADER_MATERIAL,
-								state, sigma_a_shader, NULL);
+						mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL,
+								state, bb_shader, NULL);
+						mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
+								sigma_a_shader, NULL);
 						miColor bb_sigma;
 						miaux_multiply_colors(&bb_sigma, &bb_radiation,
 								&sigma_a);
@@ -131,8 +132,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			// Get background values
 			miColor background_bb;
 			state->type = static_cast<miRay_type>(BACKGROUND);
-			mi_call_shader_x((miColor*) &background_bb, miSHADER_MATERIAL,
-					state, bb_shader, nullptr);
+			mi_call_shader_x(&background_bb, miSHADER_MATERIAL, state,
+					bb_shader, nullptr);
 
 			VoxelDatasetColorSorted *voxels =
 					(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
@@ -160,8 +161,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 						state->point.y = j;
 						state->point.z = k;
 						// TODO Modify voxel_density to copy only the sparse values
-						mi_call_shader_x((miColor*) &bb_radiation,
-								miSHADER_MATERIAL, state, bb_shader, NULL);
+						mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL,
+								state, bb_shader, NULL);
 
 						bb_radiation_v.x() = bb_radiation.r;
 						bb_radiation_v.y() = bb_radiation.g;

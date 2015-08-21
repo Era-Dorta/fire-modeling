@@ -134,7 +134,7 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
 		miaux_point_along_vector(&state->point, start_point, direction, dist);
 
-		mi_call_shader_x((miColor*) &current_sigma, miSHADER_MATERIAL, state,
+		mi_call_shader_x(&current_sigma, miSHADER_MATERIAL, state,
 				sigma_a_shader, nullptr);
 
 		miaux_add_color(&total_sigma, &current_sigma);
@@ -484,8 +484,8 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		if (density > 0) {
 			// Here is where the equation is solved
 			// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
-			mi_call_shader_x((miColor*) &sigma_a, miSHADER_MATERIAL, state,
-					sigma_a_shader, nullptr);
+			mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state, sigma_a_shader,
+					nullptr);
 
 			// Restore ray type for total light at point
 			state->type = ray_type;
