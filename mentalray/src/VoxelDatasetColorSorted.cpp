@@ -77,3 +77,10 @@ miColor VoxelDatasetColorSorted::get_sorted_voxel_value(unsigned index,
 	res.b = accessor.getValue(sorted_ind[index]).z();
 	return res;
 }
+
+void VoxelDatasetColorSorted::compute_max_voxel_value() {
+	assert(0 < sorted_ind.size());
+	max_color.r = accessor.getValue(sorted_ind[0]).x();
+	max_color.g = accessor.getValue(sorted_ind[0]).y();
+	max_color.b = accessor.getValue(sorted_ind[0]).z();
+}

@@ -68,6 +68,14 @@ const miColor& VoxelDatasetColor::get_max_voxel_value() {
 	return max_color;
 }
 
+void VoxelDatasetColor::compute_max_voxel_value() {
+	auto voxel_val = accessor.getValue(get_maximum_voxel_index());
+
+	max_color.r = voxel_val.x();
+	max_color.g = voxel_val.y();
+	max_color.b = voxel_val.z();
+}
+
 openvdb::Vec3f VoxelDatasetColor::bilinear_interp(float tx, float ty,
 		const openvdb::Vec3f& c00, const openvdb::Vec3f&c01,
 		const openvdb::Vec3f& c10, const openvdb::Vec3f& c11) const {

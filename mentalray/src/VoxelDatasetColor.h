@@ -24,6 +24,7 @@ public:
 	virtual void compute_chemical_absorption_threaded(
 			float visual_adaptation_factor, const char* filename);
 	const miColor& get_max_voxel_value();
+	virtual void compute_max_voxel_value();
 protected:
 	virtual openvdb::Vec3f bilinear_interp(float tx, float ty,
 			const openvdb::Vec3f& c00, const openvdb::Vec3f& c01,
@@ -49,10 +50,12 @@ private:
 	template<typename T>
 	void safe_ascii_read(std::ifstream& fp, T &output);
 
+protected:
+	miColor max_color;
+private:
 	std::vector<float> lambdas;
 	std::vector<float> input_data;
 	std::vector<float> extra_data;
-	miColor max_color;
 	miScalar soot_radius;
 	miScalar alpha_lambda;
 };

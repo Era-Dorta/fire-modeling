@@ -25,6 +25,7 @@ public:
 	miColor get_sorted_voxel_value(unsigned index,
 			const Accessor& accessor) const;
 	void get_i_j_k_from_sorted(miVector &ijk, const unsigned &index) const;
+	virtual void compute_max_voxel_value() override;
 private:
 	std::vector<openvdb::Coord> sorted_ind;
 };

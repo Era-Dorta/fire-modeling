@@ -109,7 +109,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 				}
 			}
 
+			// Since we copied the data manually, we need to call sort and
+			// maximum voxel so that the VoxelDataset is correctly initialized
 			voxels->sort();
+			voxels->compute_max_voxel_value();
 
 			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
 			miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
@@ -173,7 +176,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 				}
 			}
 
+			// Since we copied the data manually, we need to call sort and
+			// maximum voxel so that the VoxelDataset is correctly initialized
 			voxels->sort();
+			voxels->compute_max_voxel_value();
 
 			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
 
