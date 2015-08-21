@@ -200,11 +200,11 @@ void Blackbody(const float *wl, int n, float temp, float *vals) {
 // Data from Optical Constants of Soot and Their Application to Heat-Flux
 // Calculations, 1969
 namespace BB {
+const static double inv_8_pi = 1.0 / (8 * M_PI);
 #ifdef BB_IN_NANOMETRES
 const static double k = 1.3806488e-5; // Bolztmann constant in (kg nm^2)/s^2
 const static double h = 6.62606957e-16; // Planck constant in (kg nm^2)/s^2
 const static double c0 = 299792458e9; // Speed of light in nm/s
-const static double inv_8_pi = 1.0 / (8 * M_PI);
 #else
 const static double k = 1.3806488e-23; // Bolztmann constant in J/K
 const static double h = 6.62606957e-34;// Planck constant in J/s
@@ -221,27 +221,29 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 	}
 
 	const double c = BB::c0 / r_index;
-	//const double C1 = 2.0 * BB::h * c * c;
-	const double C2 = (BB::h * c) / BB::k;
+	const double C1 = 2.0 * BB::h * c * c;
+	const double C2 = (BB::h * c) / (BB::k * temp);
 
-	double norm = pow(555.0, 5) * (exp(C2 / (555.0 * temp)) - 1.0);
+	// Result spectrum varies greatly in scale, for numerical stability
+	// take the response at 555 nanometres as unit intensity
+
+	// Lambda with maximum intensity according to Wien's displacement law
+	// double lambdaMax = 2.8977721e6 / temp;
+	double lambdaMax = 555.0;
+	double scale = C1
+			/ (std::pow(lambdaMax, 5.0) * (exp(C2 / lambdaMax) - 1.0));
+	scale = 1.0 / scale;
 
 	for (int i = 0; i < n; ++i) {
-		vals[i] = norm / (pow(wl[i], 5.0) * (exp(C2 / (wl[i] * temp)) - 1.0));
+		// Black body radiation with Planck's formula
+		vals[i] = C1 / (std::pow(wl[i], 5.0) * (exp(C2 / wl[i]) - 1.0));
+		// Normalise with the maximum intensity
+		vals[i] *= scale;
 	}
-
-	// Code from Mitsuba renderer, lambdas and constants should be in metres
-	/* Watts per unit surface area (m^-2) per unit wavelength (nm^-1) per
-	 steradian (sr^-1) */
-	/*for (int i = 0; i < n; ++i) {
-	 vals[i] = (2 * BB::h * c * c) * std::pow(wl[i] * 1e-9, -5.0)
-	 / ((exp((BB::h / BB::k) * c / (wl[i] * 1e-9 * temp)) - 1.0)
-	 * 1e9);
-	 }*/
 }
 
 extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
-	float temp, float r_index, float *vals) {
+		float temp, float r_index, float *vals) {
 
 	if (temp <= 0) {
 		for (int i = 0; i < n; ++i)

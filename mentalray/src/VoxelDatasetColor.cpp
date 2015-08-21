@@ -228,17 +228,15 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 
 void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		unsigned end_offset) {
-	openvdb::Vec3f t;
-	float xyz_norm;
 	float spec_values[nSpectralSamples];
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
 	}
 	for (auto i = start_offset; i < end_offset && iter; ++iter) {
-		t = iter.getValue();
+		openvdb::Vec3f t = iter.getValue();
+
 		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
-		// TODO Add as a parameter
 		if (t.x() > 400) {
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
@@ -252,9 +250,18 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			// Transform the spectrum to XYZ coefficients
 			b_spec.ToXYZ(&t.x());
 
+			// TODO Not sure which method to use, if I should scale or if it is
+			// better to scale the rgb at the end instead of the xyz here
+
 			// Normalise the XYZ coefficients
-			xyz_norm = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
-			t = t * xyz_norm;
+			// 1) Norm
+			// float xyz_scale = t.length();
+			// 2) Inverse of maximum value
+			float xyz_scale = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
+			// 3) Inverse of sum of components
+			// float xyz_scale = 1.0 / (t.x() + t.y() + t.z());
+
+			t.scale(xyz_scale, t);
 		} else {
 			// If the temperature is low, just set the colour to 0
 			t.setZero();
