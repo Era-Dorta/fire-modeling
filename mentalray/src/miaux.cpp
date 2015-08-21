@@ -490,26 +490,32 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			// Restore ray type for total light at point
 			state->type = ray_type;
 
-			// TODO Add transparency parameter and multiply here with the density
-			density *= march_increment;
+			// Get L_e
 			miaux_total_light_at_point(&light_color, state, light, n_light);
 
-			//sigma_a * L_e
-			miaux_multiply_colors(&l_e, &sigma_a, &light_color);
+			// (1 - exp(sigma_a * Dx) * L_e
+			light_color.r *= 1.0 - exp(-sigma_a.r * march_increment);
+			light_color.g *= 1.0 - exp(-sigma_a.g * march_increment);
+			light_color.b *= 1.0 - exp(-sigma_a.b * march_increment);
 
-			// e^(- sigma_a * dx)*L(x + dx)
+			// exp(sigma_a * Dx) * L(x + Dx)
 			volume_color.r *= exp(-sigma_a.r * march_increment);
 			volume_color.g *= exp(-sigma_a.g * march_increment);
 			volume_color.b *= exp(-sigma_a.b * march_increment);
 
-			// L_x = e^(- sigma_a * dx)*L(x + dx) + sigma_a * L_e
+			// Sum previous and current contributions
+			volume_color.r += light_color.r * density;
+			volume_color.g += light_color.g * density;
+			volume_color.b += light_color.b * density;
+
+			// TODO Add transparency parameter and multiply here with the density
+			density *= march_increment;
+
+			// Final color transparency depends on the density
 			miScalar new_alpha = volume_color.a + density;
 			if (new_alpha > 1.0) {
 				density = 1.0 - volume_color.a;
 			}
-			volume_color.r += l_e.r * density;
-			volume_color.g += l_e.g * density;
-			volume_color.b += l_e.b * density;
 			volume_color.a += density;
 
 			// Reset for the density shader calls
