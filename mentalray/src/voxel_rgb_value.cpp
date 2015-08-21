@@ -71,11 +71,11 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 		switch (compute_mode) {
 		case BB_RADIATION: {
-			mi_info("Precomputing bb radiation with dataset size %dx%dx%d",
-					width, height, depth);
-
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					temperature_shader);
+
+			mi_info("Precomputing bb radiation with dataset size %dx%dx%d",
+					width, height, depth);
 
 			// TODO It should set the background of voxels to the black body rgb
 			// of the background value of the temperature shader, and the same
@@ -90,9 +90,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 			break;
 		}
 		case ABSORPTION: {
-			mi_info("Precomputing absorption with dataset size %dx%dx%d", width,
-					height, depth);
-
 			miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
 
 			if (fuel_type == BlackBody) {
@@ -109,6 +106,10 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 						density_shader);
 
+				mi_info(
+						"Precomputing soot absorption with dataset size %dx%dx%d",
+						width, height, depth);
+
 				miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
 						width, height, depth, 1, 0);
 
@@ -118,6 +119,10 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 			} else {
 				miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 						temperature_shader);
+
+				mi_info(
+						"Precomputing chem absorption with dataset size %dx%dx%d",
+						width, height, depth);
 
 				miaux_copy_sparse_voxel_dataset(voxels, state,
 						temperature_shader, width, height, depth, 1, 0);

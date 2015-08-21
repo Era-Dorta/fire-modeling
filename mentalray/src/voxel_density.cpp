@@ -55,7 +55,7 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 
 			//voxels->apply_sin_perturbation();
 
-			mi_info("\tDone with Voxel dataset: %dx%dx%d %s",
+			mi_info("\tDone reading voxel dataset: %dx%dx%d %s",
 					voxels->getWidth(), voxels->getHeight(), voxels->getDepth(),
 					filename);
 		} else {
