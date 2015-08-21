@@ -214,9 +214,9 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		miVector *min_point = mi_eval_vector(&params->min_point);
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;
-		VoxelDatasetColor *voxels =
-				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 		if (miaux_point_inside(p, min_point, max_point)) {
+			VoxelDatasetColor *voxels =
+					(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 			VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
 			openvdb::Vec3f res_vec3 = voxels->get_fitted_voxel_value(p,
 					min_point, max_point, accessor);
@@ -224,10 +224,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 			result->g = res_vec3.y();
 			result->b = res_vec3.z();
 		} else {
-			openvdb::Vec3f res_vec3 = voxels->getBackground();
-			result->r = res_vec3.x();
-			result->g = res_vec3.y();
-			result->b = res_vec3.z();
+			miaux_set_rgb(result, 0);
 		}
 		break;
 	}
@@ -235,9 +232,9 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		miVector *min_point = mi_eval_vector(&params->min_point);
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;
-		VoxelDatasetColor *voxels =
-				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 		if (miaux_point_inside(p, min_point, max_point)) {
+			VoxelDatasetColor *voxels =
+					(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 			// Get previously allocated accessor
 			VoxelDatasetColor::Accessor *accessor = nullptr;
 			mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
@@ -250,10 +247,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 			result->g = res_vec3.y();
 			result->b = res_vec3.z();
 		} else {
-			openvdb::Vec3f res_vec3 = voxels->getBackground();
-			result->r = res_vec3.x();
-			result->g = res_vec3.y();
-			result->b = res_vec3.z();
+			miaux_set_rgb(result, 0);
 		}
 		break;
 	}
