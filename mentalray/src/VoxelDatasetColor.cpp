@@ -159,7 +159,8 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 		density = iter.getValue();
 		if (density.x() > 0.0) {
 			for (unsigned j = 0; j < spec_values.size(); j++) {
-				spec_values.at(j) = density.x() * input_data[j];
+				// TODO 1e12 is a magic number to get the right scale
+				spec_values.at(j) = density.x() * 1e12 * input_data[j];
 			}
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
@@ -170,14 +171,11 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 			// not fully represented by RGB clamp negative intensities
 			// to zero
 			sigma_a_spec.ToRGB(&density.x());
-			clamp_0_1(density);
 
-			// Since this is an absorption coefficient, inverse it, so
-			// we just multiply by it
-			density = openvdb::Vec3f(1.0f, 1.0f, 1.0f) - density;
+			clamp_0_1(density);
 		} else {
 			// Negative and zero densities
-			density.init(1.0f, 1.0f, 1.0f);
+			density.setZero();
 		}
 		iter.setValue(density);
 	}
