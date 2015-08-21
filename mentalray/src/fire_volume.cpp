@@ -99,7 +99,6 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		//miColor *transparency = mi_eval_color(&params->transparency);
 		miTag density_shader = *mi_eval_tag(&params->density_shader);
 		miTag absorption_shader = *mi_eval_tag(&params->absorption_shader);
-		miScalar density_scale = *mi_eval_scalar(&params->density_scale);
 		miScalar march_increment = *mi_eval_scalar(&params->march_increment);
 		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
 
@@ -111,13 +110,12 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		mi_inclusive_lightlist(&n_light, &light, state);
 
 		if (fuel_type == FuelType::BlackBody) {
-			miaux_ray_march_simple(result, state, density_scale,
-					march_increment, density_shader, light, n_light, origin,
-					direction);
+			miaux_ray_march_simple(result, state, march_increment,
+					density_shader, light, n_light, origin, direction);
 		} else {
-			miaux_ray_march_with_sigma_a(result, state, density_scale,
-					march_increment, density_shader, absorption_shader, light,
-					n_light, origin, direction);
+			miaux_ray_march_with_sigma_a(result, state, march_increment,
+					density_shader, absorption_shader, light, n_light, origin,
+					direction);
 		}
 	}
 	return miTRUE;

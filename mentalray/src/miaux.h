@@ -124,13 +124,12 @@ void miaux_copy_vector(miVector *result, const miVector *vector);
 void miaux_copy_vector_neg(miVector *result, const miVector *vector);
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
-		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag *light, miInteger n_light, miVector &origin, miVector &direction);
+		miScalar march_increment, miTag density_shader, miTag *light,
+		miInteger n_light, miVector &origin, miVector &direction);
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
-		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag sigma_a_shader, miTag *light, miInteger n_light, miVector &origin,
-		miVector &direction);
+		miScalar march_increment, miTag density_shader, miTag sigma_a_shader,
+		miTag *light, miInteger n_light, miVector &origin, miVector &direction);
 
 void miaux_manage_shader_cach(miState* state, miTag shader,
 		Voxel_Return action);

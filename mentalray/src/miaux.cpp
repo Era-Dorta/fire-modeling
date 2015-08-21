@@ -377,9 +377,8 @@ void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
 }
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
-		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag *light, miInteger n_light, miVector &origin,
-		miVector &direction) {
+		miScalar march_increment, miTag density_shader, miTag *light,
+		miInteger n_light, miVector &origin, miVector &direction) {
 
 	miScalar distance, density;
 	miColor volume_color = { 0, 0, 0, 0 }, point_color;
@@ -417,7 +416,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 			// Here is where the equation is solved
 			// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
-			density *= density_scale * march_increment;
+			density *= march_increment;
 			miaux_total_light_at_point(&point_color, state, light, n_light);
 			miaux_add_transparent_color(&volume_color, &point_color, density);
 
@@ -446,8 +445,8 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 }
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
-		miScalar density_scale, miScalar march_increment, miTag density_shader,
-		miTag sigma_a_shader, miTag *light, miInteger n_light, miVector &origin,
+		miScalar march_increment, miTag density_shader, miTag sigma_a_shader,
+		miTag *light, miInteger n_light, miVector &origin,
 		miVector &direction) {
 	miColor sigma_a;
 
@@ -491,7 +490,8 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			// Restore ray type for total light at point
 			state->type = ray_type;
 
-			density *= density_scale * march_increment;
+			// TODO Add transparency parameter and multiply here with the density
+			density *= march_increment;
 			miaux_total_light_at_point(&light_color, state, light, n_light);
 
 			//sigma_a * L_e
