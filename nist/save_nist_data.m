@@ -39,7 +39,7 @@ for i=1:size(spec, 2)
     end
     
     % Save both variables into a file
-    fileID = fopen(['data/', spec{i}, '.specline'],'w');
+    fileID = fopen(['fire_shader_data/', spec{i}, '.specline'],'w');
     fprintf(fileID, '%d\n',num_valid);
     fprintf(fileID, '%d %d\n',norm_intensities');
     fclose(fileID);
