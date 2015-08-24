@@ -282,6 +282,42 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
 	}
 }
 
+extern void ChemicalAbsorptionNormalized(const float *wl,
+		const float *intensity, int n, float temp, float r_index, float *vals) {
+	if (temp <= 0) {
+		for (int i = 0; i < n; ++i)
+			vals[i] = 0.f;
+		return;
+	}
+
+	double n_2 = 1;
+	double a_21 = 1;
+
+	const double c = BB::c0 / r_index;
+	const double C1 = (BB::inv_8_pi * n_2 * a_21) / c;
+	const double C2 = (BB::h * c) / (BB::k * temp);
+
+	float max_val = 0;
+
+	for (int i = 0; i < n; ++i) {
+		// Absorption coefficient
+		vals[i] = C1 * intensity[i] * pow(wl[i], 4.0)
+				* ((exp(C2 / wl[i]) - 1.0));
+		if (max_val < vals[i]) {
+			max_val = vals[i];
+		}
+	}
+
+	// Normalise the Spectrum
+	if (max_val > 0) {
+		max_val = 1.0 / max_val;
+		for (int i = 0; i < n; ++i) {
+			// Absorption coefficient
+			vals[i] *= max_val;
+		}
+	}
+}
+
 float InterpolateSpectrumSamples(const float *lambda, const float *vals, int n,
 		float l) {
 	for (int i = 0; i < n - 1; ++i)
