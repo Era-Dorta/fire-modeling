@@ -260,61 +260,10 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
 	const double C1 = (BB::inv_8_pi * n_2 * a_21) / c;
 	const double C2 = (BB::h * c) / (BB::k * temp);
 
-	// Same as black body scale
-	double lambdaMax = 2.8977721e6 / temp;
-	if (lambdaMax > sampledLambdaEnd) {
-		lambdaMax = sampledLambdaEnd;
-	}
-	if (lambdaMax < sampledLambdaStart) {
-		lambdaMax = sampledLambdaStart;
-	}
-	double scale = C1 * pow(lambdaMax, 4.0) * ((exp(C2 / lambdaMax) - 1.0));
-	//assert(scale > 0.0);
-	if (scale == 0) {
-		mi_fatal("scale is 0");
-	}
-	scale = 1.0 / scale;
-
-	for (int i = 0; i < n; ++i) {
-		// Absorption coefficient
-		vals[i] = scale * C1 * intensity[i] * pow(wl[i], 4.0)
-				* ((exp(C2 / wl[i]) - 1.0));
-	}
-}
-
-extern void ChemicalAbsorptionNormalized(const float *wl,
-		const float *intensity, int n, float temp, float r_index, float *vals) {
-	if (temp <= 0) {
-		for (int i = 0; i < n; ++i)
-			vals[i] = 0.f;
-		return;
-	}
-
-	double n_2 = 1;
-	double a_21 = 1;
-
-	const double c = BB::c0 / r_index;
-	const double C1 = (BB::inv_8_pi * n_2 * a_21) / c;
-	const double C2 = (BB::h * c) / (BB::k * temp);
-
-	float max_val = 0;
-
 	for (int i = 0; i < n; ++i) {
 		// Absorption coefficient
 		vals[i] = C1 * intensity[i] * pow(wl[i], 4.0)
 				* ((exp(C2 / wl[i]) - 1.0));
-		if (max_val < vals[i]) {
-			max_val = vals[i];
-		}
-	}
-
-	// Normalise the Spectrum
-	if (max_val > 0) {
-		max_val = 1.0 / max_val;
-		for (int i = 0; i < n; ++i) {
-			// Absorption coefficient
-			vals[i] *= max_val;
-		}
 	}
 }
 
