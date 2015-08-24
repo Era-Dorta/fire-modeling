@@ -203,7 +203,8 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 		// there is no absorption
 		if (t.x() > 400) {
 			// TODO Pass a real refraction index, not 1
-			// Compute the chemical absorption spectrum values
+			// Compute the chemical absorption spectrum values, as we are
+			// normalizing afterwards, the units used here don't matter
 			ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
 					t.x(), 1, spec_values);
 
