@@ -230,6 +230,36 @@ public:
 				return false;
 		return true;
 	}
+	bool Normalize() {
+		float norm = 0;
+		for (int i = 0; i < nSamples; ++i) {
+			norm += c[i] * c[i];
+		}
+		if (norm == 0) {
+			return false;
+		}
+		norm = 1.0 / norm;
+		for (int i = 0; i < nSamples; ++i) {
+			c[i] = c[i] * norm;
+		}
+		return true;
+	}
+	bool NormalizeByMax() {
+		float norm = 0;
+		for (int i = 0; i < nSamples; ++i) {
+			if (norm <= c[i]) {
+				norm = c[i];
+			}
+		}
+		if (norm == 0) {
+			return false;
+		}
+		norm = 1.0 / norm;
+		for (int i = 0; i < nSamples; ++i) {
+			c[i] = c[i] * norm;
+		}
+		return true;
+	}
 	friend CoefficientSpectrum Sqrt(const CoefficientSpectrum &s) {
 		CoefficientSpectrum ret;
 		for (int i = 0; i < nSamples; ++i)

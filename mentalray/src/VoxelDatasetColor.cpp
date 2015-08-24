@@ -212,14 +212,13 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
 					lambdas.size());
 
+			// Divide each coefficient by the max, to get a normalized spectrum
+			chem_spec.NormalizeByMax();
+
 			// Transform the spectrum to RGB coefficients, since CIE is
 			// not fully represented by RGB clamp negative intensities
 			// to zero
 			chem_spec.ToRGB(&t.x());
-
-			// TODO Same problems as normalising black body rgb
-			float rgb_scale = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
-			t.scale(rgb_scale, t);
 
 			clamp_0_1(t);
 		} else {
