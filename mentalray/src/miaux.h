@@ -54,11 +54,8 @@ void miaux_clamp(miScalar *result, miScalar min, miScalar max);
 
 void miaux_clamp_color(miColor *c, miScalar min, miScalar max);
 
-void miaux_point_along_vector(miVector *result, const miVector *point,
+void miaux_march_point(miVector *result, const miVector *point,
 		const miVector *direction, miScalar distance);
-
-void miaux_march_point(miVector *result, const miVector *org,
-		const miVector *dir, miScalar distance);
 
 void miaux_alpha_blend_colors(miColor *result, const miColor *foreground,
 		const miColor *background);

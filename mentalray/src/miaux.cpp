@@ -79,16 +79,11 @@ void miaux_clamp_color(miColor *c, miScalar min, miScalar max) {
 	miaux_clamp(&c->a, min, max);
 }
 
-void miaux_point_along_vector(miVector *result, const miVector *point,
+void miaux_march_point(miVector *result, const miVector *point,
 		const miVector *direction, miScalar distance) {
 	result->x = point->x + distance * direction->x;
 	result->y = point->y + distance * direction->y;
 	result->z = point->z + distance * direction->z;
-}
-
-void miaux_march_point(miVector *result, const miVector *org,
-		const miVector *dir, miScalar distance) {
-	miaux_point_along_vector(result, org, dir, distance);
 }
 
 void miaux_alpha_blend_colors(miColor *result, const miColor *foreground,
@@ -132,7 +127,7 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 	miScalar dist;
 	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
 	for (dist = 0; dist <= total_distance; dist += march_increment) {
-		miaux_point_along_vector(&state->point, start_point, direction, dist);
+		miaux_march_point(&state->point, start_point, direction, dist);
 
 		mi_call_shader_x(&current_sigma, miSHADER_MATERIAL, state,
 				sigma_a_shader, nullptr);
