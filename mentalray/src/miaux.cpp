@@ -555,6 +555,10 @@ void miaux_vector_info(const char* s, const miColor& v) {
 	mi_info("%s %f, %f, %f, %f", s, v.r, v.g, v.b, v.a);
 }
 
+void miaux_vector_info(const char* s, const openvdb::Vec3f& v) {
+	mi_info("%s %f, %f, %f", s, v.x(), v.y(), v.z());
+}
+
 void miaux_matrix_info(const char* s, const miMatrix& v) {
 	mi_info("%s %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, "
 			"%f", s, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9],
