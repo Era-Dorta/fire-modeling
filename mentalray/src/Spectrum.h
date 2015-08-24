@@ -247,7 +247,7 @@ public:
 	bool NormalizeByMax() {
 		float norm = 0;
 		for (int i = 0; i < nSamples; ++i) {
-			if (norm <= c[i]) {
+			if (norm < c[i]) {
 				norm = c[i];
 			}
 		}
