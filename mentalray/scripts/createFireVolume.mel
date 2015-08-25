@@ -21,8 +21,8 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	string $area_light = $select_list[0];
 
 	// Set the files paths in the shader nodes
-	setAttr -type "string" ($temperature_shader + ".filename") $temperature_file;
-	setAttr -type "string" ($density_shader + ".filename") $density_file;
+	setAttr -type "string" ($fire_shader + ".temperature_file") $temperature_file;
+	setAttr -type "string" ($fire_shader + ".density_file") $density_file;
 
 	// Fire shader as volume shader for the shading group
 	connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
@@ -45,21 +45,36 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	connectAttr -f ($fire_light_shader + ".message") ($area_light + ".miLightShader");
 
 	// Connect common inputs for the shaders, so that they change together
-	connectAttr -f ($density_shader + ".interpolation_mode") ($absorption_shader + ".interpolation_mode");
-	connectAttr -f ($temperature_shader + ".interpolation_mode") ($black_body_shader + ".interpolation_mode");
+	connectAttr -f ($fire_shader + ".density_file") ($density_shader + ".filename");
+	connectAttr -f ($fire_shader + ".temperature_file") ($temperature_shader + ".filename");
+	
+	connectAttr -f ($fire_shader + ".interpolation_mode") ($absorption_shader + ".interpolation_mode");
+	connectAttr -f ($fire_shader + ".interpolation_mode") ($black_body_shader + ".interpolation_mode");
+	connectAttr -f ($fire_shader + ".interpolation_mode") ($density_shader + ".interpolation_mode");
+	connectAttr -f ($fire_shader + ".interpolation_mode") ($temperature_shader + ".interpolation_mode");
 
-	connectAttr -f ($fire_light_shader + ".visual_adaptation_factor") ($absorption_shader + ".visual_adaptation_factor");
-	connectAttr -f ($fire_light_shader + ".visual_adaptation_factor") ($black_body_shader + ".visual_adaptation_factor");
+	connectAttr -f ($fire_shader + ".visual_adaptation_factor") ($absorption_shader + ".visual_adaptation_factor");
+	connectAttr -f ($fire_shader + ".visual_adaptation_factor") ($black_body_shader + ".visual_adaptation_factor");
+	connectAttr -f ($fire_shader + ".visual_adaptation_factor") ($fire_light_shader + ".visual_adaptation_factor");
 
 	connectAttr -f ($fire_shader + ".fuel_type") ($absorption_shader + ".fuel_type");
 	connectAttr -f ($fire_shader + ".fuel_type") ($black_body_shader + ".fuel_type");
 	connectAttr -f ($fire_shader + ".fuel_type") ($fire_light_shader + ".fuel_type");
 
-	connectAttr -f ($fire_light_shader + ".temperature_scale") ($temperature_shader + ".scale");
+	connectAttr -f ($fire_shader + ".temperature_scale") ($temperature_shader + ".scale");
+	connectAttr -f ($fire_shader + ".temperature_scale") ($fire_light_shader + ".temperature_scale");
+	connectAttr -f ($fire_shader + ".temperature_offset") ($temperature_shader + ".offset");
+	connectAttr -f ($fire_shader + ".temperature_offset") ($fire_light_shader + ".temperature_offset");
+	
 	connectAttr -f ($fire_shader + ".density_scale") ($density_shader + ".scale");
-
-	connectAttr -f ($fire_light_shader + ".temperature_offset") ($temperature_shader + ".offset");
-	//connectAttr -f ($fire_shader + ".density_offset") ($density_shader + ".offset");
+	connectAttr -f ($fire_shader + ".density_offset") ($density_shader + ".offset");
+	
+	connectAttr -f ($fire_shader + ".density_read_mode") ($density_shader + ".read_mode");
+	connectAttr -f ($fire_shader + ".temperature_read_mode") ($temperature_shader + ".read_mode");
+	
+	connectAttr -f ($fire_shader + ".intensity") ($fire_light_shader + ".intensity");
+	connectAttr -f ($fire_shader + ".shadow_threshold") ($fire_light_shader + ".shadow_threshold");
+	connectAttr -f ($fire_shader + ".decay") ($fire_light_shader + ".decay");
 
 	// Fire volume will only be illuminated by its own light
 	connectAttr ($area_light + ".message") ($fire_shader + ".lights[0]");
@@ -69,8 +84,8 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr ($absorption_shader + ".compute_mode") 1;
 
 	// Set the read modes for the voxel data
-	setAttr ($temperature_shader + ".read_mode") 2; // Max rgb value
-	setAttr ($density_shader + ".read_mode") 1; // Red channel only
+	setAttr ($fire_shader + ".temperature_read_mode") 2; // Max rgb value
+	setAttr ($fire_shader + ".density_read_mode") 1; // Red channel only
 
 	// Set the material of the cube to be the Shading Group 
 	select -r $cube;
