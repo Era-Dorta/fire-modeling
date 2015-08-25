@@ -335,39 +335,67 @@ void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
 	result->z = -vector->z;
 }
 
-void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
+void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 		miState* state, const RayMarchOcclusionData& rm_data) {
+	miColor total_sigma = { 0, 0, 0, 0 }, sigma_a;
+
+	miScalar distance, density;
+	miColor volume_color = { 0, 0, 0, 0 };
+
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
+	// Primitive intersection is the bounding box, set to null to be able
+	// to do the ray marching
+	struct miRc_intersection* original_state_pri = state->pri;
+	state->pri = NULL;
 
-	bool alloc_abso = miaux_manage_shader_cach(state, rm_data.absorption_shader,
+	// Since we are going to call the density shader several times,
+	// tell the shader to cache the values
+	bool alloc_d = miaux_manage_shader_cach(state, rm_data.density_shader,
 			ALLOC_CACHE);
+	bool alloc_absor = miaux_manage_shader_cach(state,
+			rm_data.absorption_shader, ALLOC_CACHE);
+
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
-	miScalar dist;
-	miColor total_sigma = { 0, 0, 0, 0 }, current_sigma;
-	for (dist = 0; dist <= state->dist; dist += rm_data.march_increment) {
+	for (distance = state->dist; distance >= 0;
+			distance -= rm_data.march_increment) {
 		miaux_march_point(&state->point, &rm_data.origin, &rm_data.direction,
-				dist);
+				distance);
 
-		mi_call_shader_x(&current_sigma, miSHADER_MATERIAL, state,
-				rm_data.absorption_shader, nullptr);
+		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
+				rm_data.density_shader, nullptr);
 
-		miaux_add_color(&total_sigma, &current_sigma);
+		if (density > 0) {
+			// Here is where the equation is solved
+			// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
+			mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
+					rm_data.absorption_shader, nullptr);
+
+			// Restore ray type for total light at point
+			state->type = ray_type;
+
+			miaux_add_color(&total_sigma, &sigma_a);
+
+			// Reset for the density shader calls
+			state->type = static_cast<miRay_type>(DENSITY_CACHE);
+		}
 	}
 
-	// Bigger coefficient, small exp
-	total_sigma.r = exp(-total_sigma.r);
-	total_sigma.g = exp(-total_sigma.g);
-	total_sigma.b = exp(-total_sigma.b);
-	// 0 is completely transparent
-	miaux_add_color(transparency, &total_sigma);
+	result->transparency.r = exp(-total_sigma.r * rm_data.march_increment);
+	result->transparency.g = exp(-total_sigma.g * rm_data.march_increment);
+	result->transparency.b = exp(-total_sigma.b * rm_data.march_increment);
 
-	if (alloc_abso) {
+	if (alloc_absor) {
 		miaux_manage_shader_cach(state, rm_data.absorption_shader, FREE_CACHE);
 	}
-	state->point = original_point;
+	if (alloc_d) {
+		miaux_manage_shader_cach(state, rm_data.density_shader, FREE_CACHE);
+	}
+
 	state->type = ray_type;
+	state->point = original_point;
+	state->pri = original_state_pri;
 }
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,

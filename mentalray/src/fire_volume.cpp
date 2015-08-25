@@ -47,6 +47,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
 // Initialise the data used for ray marching
 void init_ray_march_common_data(RayMarchCommonData& rm_data, miState *state,
 		struct fire_volume *params) {
+	// Transform to object space, as voxel_shader and the voxel object assume
+	// a cube centred at origin of unit width, height and depth
 	mi_point_to_object(state, &rm_data.origin, &state->org);
 	mi_vector_to_object(state, &rm_data.direction, &state->dir);
 	rm_data.march_increment = *mi_eval_scalar(&params->march_increment);
@@ -79,9 +81,8 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			return miFALSE;
 		}
 		RayMarchOcclusionData rm_data;
-		// Transform to object space, as voxel_shader and the voxel object assume
-		// a cube centred at origin of unit width, height and depth
 		init_ray_march_common_data(rm_data, state, params);
+		rm_data.density_shader = *mi_eval_tag(&params->density_shader);
 		rm_data.absorption_shader = *mi_eval_tag(&params->absorption_shader);
 
 		/*
@@ -91,8 +92,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		 */
 
 #ifndef DEBUG_SIGMA_A
-		miaux_fractional_shader_occlusion_at_point(&result->transparency, state,
-				rm_data);
+		miaux_fractional_shader_occlusion_at_point(result, state, rm_data);
 		return miTRUE;
 #else
 		return miFALSE;

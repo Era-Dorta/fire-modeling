@@ -56,6 +56,7 @@ typedef struct RayMarchSigmaData: public RayMarchCommonData {
 } RayMarchSigmaData;
 
 typedef struct RayMarchOcclusionData: public RayMarchCommonData {
+	miTag density_shader;
 	miTag absorption_shader;
 } RayMarchOcclusionData;
 
@@ -142,7 +143,7 @@ void miaux_copy_vector(miVector *result, const miVector *vector);
 
 void miaux_copy_vector_neg(miVector *result, const miVector *vector);
 
-void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
+void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 		miState* state, const RayMarchOcclusionData& rm_data);
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
