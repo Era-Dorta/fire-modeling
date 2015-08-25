@@ -1,0 +1,95 @@
+// Browse file code from https://github.com/ADN-DevTech/Maya-Locator
+
+global proc AEfire_volumeNameNew (string $fileNameAttr) {
+	setUITemplate -pst attributeEditorTemplate;
+		columnLayout -adj true;
+			rowLayout -nc 3 fileNameLayout;
+
+        		text -label "Data file" fileNameText;
+		        textField fileNameField;
+					symbolButton -image "navButtonBrowse.png" browser;
+
+            setParent ..;
+		setParent ..;
+	setParent ..;
+
+	AEfire_volumeNameReplace ($fileNameAttr);
+}
+
+global proc AEfire_volumeNameReplace (string $fileNameAttr) {
+	string $fileName = `getAttr $fileNameAttr`;
+    string $nodeName = `plugNode $fileNameAttr`;
+
+	// file name attribute
+    connectControl -fileName fileNameField $fileNameAttr;
+	button -e -c ("AEfire_volumeNameFileBrowser " + $fileNameAttr) browser;
+}
+
+global proc AEfire_volumeNameFileBrowser (string $fileNameAttr) {
+    // choose a file to import
+    string $result[] = `fileDialog2 -fileMode 1`;
+    
+    if (size($result) == 0 || size($result[0]) == 0) {
+        // cancelled
+        return;
+    }
+
+    // set the file name attribute of the cache node
+    setAttr $fileNameAttr -type "string" $result[0];
+}
+global proc AEfire_volumeTemplate ( string $nodeName )
+{
+	//editorTemplate -beginNoOptimize;
+	
+	editorTemplate -beginLayout "Density File Attributes" -collapse 0;
+
+		editorTemplate -callCustom "AEfire_volumeNameNew" "AEfire_volumeNameReplace" "density_file";
+
+		editorTemplate -addSeparator;
+
+		editorTemplate -addControl "density_read_mode";
+
+		editorTemplate -addControl "density_scale";
+		editorTemplate -addControl "density_offset";
+		
+		editorTemplate -addControl "density_shader";
+		editorTemplate -addControl "absorption_shader";
+	
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Temperature File Attributes" -collapse 0;
+
+		editorTemplate -callCustom "AEfire_volumeNameNew" "AEfire_volumeNameReplace" "temperature_file";
+
+		editorTemplate -addSeparator;
+		
+		editorTemplate -addControl "temperature_read_mode";
+
+		editorTemplate -addControl "temperature_scale";
+		editorTemplate -addControl "temperature_offset";
+		
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Main Attributes" -collapse 0;
+
+		editorTemplate -addControl "interpolation_mode";
+		editorTemplate -addControl "fuel_type";
+		editorTemplate -addControl "visual_adaptation_factor";
+		editorTemplate -addControl "intensity";
+		editorTemplate -addControl "shadow_threshold";
+		editorTemplate -addControl "decay";
+		editorTemplate -addControl "march_increment";
+		editorTemplate -addControl "cast_shadows";
+	
+	editorTemplate -endLayout;
+	
+	editorTemplate -suppress "color";
+	editorTemplate -suppress "glowColor";
+	editorTemplate -suppress "matteOpacity";
+	editorTemplate -suppress "transparency";
+
+	editorTemplate -suppress "caching"; 
+	editorTemplate -suppress "nodeState"; 
+	
+	//editorTemplate -endNoOptimize;
+}
