@@ -72,6 +72,15 @@ extern "C" DLLEXPORT miBoolean voxel_density_exit(miState *state,
 		void *user_pointer = miaux_get_user_memory_pointer(state);
 		((VoxelDatasetFloat *) user_pointer)->~VoxelDatasetFloat();
 		mi_mem_release(user_pointer);
+
+		VoxelDatasetFloat::Accessor **accessors = nullptr;
+		int num = 0;
+		// Delete all the accessor variables that were allocated during run time
+		mi_query(miQ_FUNC_TLS_GETALL, state, miNULLTAG, &accessors, &num);
+		for (int i = 0; i < num; i++) {
+			accessors[i]->~ValueAccessor();
+			mi_mem_release(accessors[i]);
+		}
 	}
 	return miTRUE;
 }
@@ -167,19 +176,24 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		VoxelDatasetFloat::Accessor *accessor = nullptr;
 		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
 
-		// Allocate memory
-		accessor = static_cast<VoxelDatasetFloat::Accessor *>(mi_mem_allocate(
-				sizeof(VoxelDatasetFloat::Accessor)));
+		if (accessor == nullptr) {
+			// Allocate memory
+			accessor =
+					static_cast<VoxelDatasetFloat::Accessor *>(mi_mem_allocate(
+							sizeof(VoxelDatasetFloat::Accessor)));
 
-		// Initialise the memory
-		VoxelDatasetFloat *voxels =
-				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
-		accessor = new (accessor) VoxelDatasetFloat::Accessor(
-				voxels->get_accessor());
+			// Initialise the memory
+			VoxelDatasetFloat *voxels =
+					(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
+			accessor = new (accessor) VoxelDatasetFloat::Accessor(
+					voxels->get_accessor());
 
-		// Save the thread pointer
-		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
-
+			// Save the thread pointer
+			mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
+			*result = 1;
+		} else {
+			*result = 0;
+		}
 		break;
 	}
 	case FREE_CACHE: {
@@ -193,15 +207,9 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 			break;
 		}
 
-		// Call destructor manually because we used placement new
-		accessor->~ValueAccessor();
-		mi_mem_release(accessor);
+		accessor->clear();
 
-		// For some reason miQ_FUNC_TLS_SET does not set the pointer to null,
-		// only changes the address, so we will have to trust that the user
-		// will call alloc and free responsibly
-		accessor = nullptr;
-		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
+		// See comments on voxel_rgb_value FREE_CACHE
 		break;
 	}
 	}

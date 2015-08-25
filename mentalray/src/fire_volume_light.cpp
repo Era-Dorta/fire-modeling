@@ -69,8 +69,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 
 			// Since we are going to call the density shader several times,
 			// tell the shader to cache the values
-			miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
-			miaux_manage_shader_cach(state, sigma_a_shader, ALLOC_CACHE);
+			bool alloc_bb = miaux_manage_shader_cach(state, bb_shader,
+					ALLOC_CACHE);
+			bool alloc_sigma = miaux_manage_shader_cach(state, sigma_a_shader,
+					ALLOC_CACHE);
 
 			unsigned width = 0, height = 0, depth = 0;
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
@@ -115,8 +117,12 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			voxels->sort();
 			voxels->compute_max_voxel_value();
 
-			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
-			miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
+			if (alloc_bb) {
+				miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
+			}
+			if (alloc_sigma) {
+				miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
+			}
 
 			// Restore previous state
 			state->point = original_point;
@@ -144,7 +150,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 
 			// Since we are going to call the density shader several times,
 			// tell the shader to cache the values
-			miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
+			bool alloc_bb;
+			alloc_bb = miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
 
 			unsigned width = 0, height = 0, depth = 0;
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
@@ -182,7 +189,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			voxels->sort();
 			voxels->compute_max_voxel_value();
 
-			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
+			if (alloc_bb) {
+				miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
+			}
 
 			// Restore previous state
 			state->point = original_point;

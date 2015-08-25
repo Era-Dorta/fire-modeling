@@ -44,6 +44,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
 	return miTRUE;
 }
 
+// Initialise the data used for ray marching
 void init_ray_march_common_data(RayMarchCommonData& rm_data, miState *state,
 		struct fire_volume *params) {
 	mi_point_to_object(state, &rm_data.origin, &state->org);
@@ -51,6 +52,7 @@ void init_ray_march_common_data(RayMarchCommonData& rm_data, miState *state,
 	rm_data.march_increment = *mi_eval_scalar(&params->march_increment);
 }
 
+// State argument is used internally by mi_eval_* methods
 template<typename T>
 void init_ray_march_lights_data(T &rm_data, miState *state,
 		struct fire_volume *params) {

@@ -244,7 +244,7 @@ void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
 void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
 		miScalar scale, miScalar offset) {
-	miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
+	bool alloc_d = miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
 	state->type = (miRay_type) DENSITY_RAW_CACHE;
 	voxels->resize(width, height, depth);
 	miColor density = { 0, 0, 0, 0 };
@@ -269,7 +269,9 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 			}
 		}
 	}
-	miaux_manage_shader_cach(state, density_shader, FREE_CACHE);
+	if (alloc_d) {
+		miaux_manage_shader_cach(state, density_shader, FREE_CACHE);
+	}
 }
 
 void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
@@ -335,11 +337,11 @@ void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
 
 void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 		miState* state, const RayMarchOcclusionData& rm_data) {
-
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
 
-	miaux_manage_shader_cach(state, rm_data.absorption_shader, ALLOC_CACHE);
+	bool alloc_abso = miaux_manage_shader_cach(state, rm_data.absorption_shader,
+			ALLOC_CACHE);
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
 	miScalar dist;
@@ -361,8 +363,9 @@ void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
 	// 0 is completely transparent
 	miaux_add_color(transparency, &total_sigma);
 
-	miaux_manage_shader_cach(state, rm_data.absorption_shader, FREE_CACHE);
-
+	if (alloc_abso) {
+		miaux_manage_shader_cach(state, rm_data.absorption_shader, FREE_CACHE);
+	}
 	state->point = original_point;
 	state->type = ray_type;
 }
@@ -382,7 +385,8 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 	// Since we are going to call the density shader several times,
 	// tell the shader to cache the values
-	miaux_manage_shader_cach(state, rm_data.density_shader, ALLOC_CACHE);
+	bool alloc_d = miaux_manage_shader_cach(state, rm_data.density_shader,
+			ALLOC_CACHE);
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
@@ -430,8 +434,9 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	// volumetric 1 is transparent
 	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
 
-	miaux_manage_shader_cach(state, rm_data.density_shader, FREE_CACHE);
-
+	if (alloc_d) {
+		miaux_manage_shader_cach(state, rm_data.density_shader, FREE_CACHE);
+	}
 	state->type = ray_type;
 	state->point = original_point;
 	state->pri = original_state_pri;
@@ -453,8 +458,10 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 
 	// Since we are going to call the density shader several times,
 	// tell the shader to cache the values
-	miaux_manage_shader_cach(state, rm_data.density_shader, ALLOC_CACHE);
-	miaux_manage_shader_cach(state, rm_data.absorption_shader, ALLOC_CACHE);
+	bool alloc_d = miaux_manage_shader_cach(state, rm_data.density_shader,
+			ALLOC_CACHE);
+	bool alloc_absor = miaux_manage_shader_cach(state,
+			rm_data.absorption_shader, ALLOC_CACHE);
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
@@ -528,18 +535,24 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	// volumetric 1 is transparent
 	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
 
-	miaux_manage_shader_cach(state, rm_data.absorption_shader, FREE_CACHE);
-	miaux_manage_shader_cach(state, rm_data.density_shader, FREE_CACHE);
+	if (alloc_absor) {
+		miaux_manage_shader_cach(state, rm_data.absorption_shader, FREE_CACHE);
+	}
+	if (alloc_d) {
+		miaux_manage_shader_cach(state, rm_data.density_shader, FREE_CACHE);
+	}
 
 	state->type = ray_type;
 	state->point = original_point;
 	state->pri = original_state_pri;
 }
 
-void miaux_manage_shader_cach(miState* state, miTag shader,
+bool miaux_manage_shader_cach(miState* state, miTag shader,
 		Voxel_Return action) {
+	miColor res = { 1, 1, 1, 1 };
 	state->type = static_cast<miRay_type>(action);
-	mi_call_shader_x(nullptr, miSHADER_MATERIAL, state, shader, nullptr);
+	mi_call_shader_x(&res, miSHADER_MATERIAL, state, shader, nullptr);
+	return res.r == 1;
 }
 
 void miaux_vector_info(const char* s, const miVector& v) {
