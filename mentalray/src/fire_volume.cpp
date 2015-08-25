@@ -16,9 +16,20 @@ struct fire_volume {
 	miColor transparency;
 	miTag density_shader;
 	miTag absorption_shader;
-	miInteger fuel_type;
+	miTag density_file_tag;
 	miScalar density_scale;
-	miScalar density_scale_for_shadows;
+	miScalar density_offset;
+	miInteger density_read_mode;
+	miTag temperature_file_tag;
+	miScalar temperature_scale;
+	miScalar temperature_offset;
+	miInteger temperature_read_mode;
+	miInteger interpolation_mode;
+	miInteger fuel_type;
+	miScalar visual_adaptation_factor;
+	miScalar intensity;
+	miScalar shadow_threshold;
+	miScalar decay;
 	miScalar march_increment;
 	miBoolean cast_shadows;
 	miInteger i_light;	// index of first light
