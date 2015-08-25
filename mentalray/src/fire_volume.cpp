@@ -44,6 +44,21 @@ extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
 	return miTRUE;
 }
 
+void init_ray_march_common_data(RayMarchCommonData& rm_data, miState *state,
+		struct fire_volume *params) {
+	mi_point_to_object(state, &rm_data.origin, &state->org);
+	mi_vector_to_object(state, &rm_data.direction, &state->dir);
+	rm_data.march_increment = *mi_eval_scalar(&params->march_increment);
+}
+
+template<typename T>
+void init_ray_march_lights_data(T &rm_data, miState *state,
+		struct fire_volume *params) {
+	rm_data.i_light = *mi_eval_integer(&params->i_light);
+	rm_data.n_light = *mi_eval_integer(&params->n_light);
+	rm_data.light = mi_eval_tag(&params->light) + rm_data.i_light;
+}
+
 extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		miState *state, struct fire_volume *params) {
 
@@ -52,24 +67,18 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		return miTRUE;
 	}
 
-	miScalar march_increment = *mi_eval_scalar(&params->march_increment);
-
-	// Transform to object space, as voxel_shader and the voxel object assume
-	// a cube centred at origin of unit width, height and depth
-	miVector origin, direction;
-	mi_point_to_object(state, &origin, &state->org);
-	mi_vector_to_object(state, &direction, &state->dir);
-
 	// Shadows, light being absorbed
 	if (state->type == miRAY_SHADOW) {
 		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
 		if (!cast_shadows) { // Object is fully transparent, do nothing
 			return miFALSE;
 		}
-		miScalar shadow_d_scale = *mi_eval_scalar(
-				&params->density_scale_for_shadows);
-		shadow_d_scale = pow(10, shadow_d_scale);
-		miTag absorption_shader = *mi_eval_tag(&params->absorption_shader);
+		RayMarchOcclusionData rm_data;
+		// Transform to object space, as voxel_shader and the voxel object assume
+		// a cube centred at origin of unit width, height and depth
+		init_ray_march_common_data(rm_data, state, params);
+		rm_data.absorption_shader = *mi_eval_tag(&params->absorption_shader);
+
 		/*
 		 * Seems to be affected only by transparency, 0 to not produce hard
 		 * shadows (default) effect, 1 to let that colour pass
@@ -78,8 +87,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 
 #ifndef DEBUG_SIGMA_A
 		miaux_fractional_shader_occlusion_at_point(&result->transparency, state,
-				&origin, &direction, state->dist, march_increment,
-				shadow_d_scale, absorption_shader);
+				rm_data);
 		return miTRUE;
 #else
 		return miFALSE;
@@ -97,25 +105,31 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		//miColor *glowColor = mi_eval_color(&params->glowColor);
 		//miColor *matteOpacity = mi_eval_color(&params->matteOpacity);
 		//miColor *transparency = mi_eval_color(&params->transparency);
-		miTag density_shader = *mi_eval_tag(&params->density_shader);
-		miTag absorption_shader = *mi_eval_tag(&params->absorption_shader);
-		miScalar march_increment = *mi_eval_scalar(&params->march_increment);
+
 		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
 
-		miInteger i_light = *mi_eval_integer(&params->i_light);
-		miInteger n_light = *mi_eval_integer(&params->n_light);
-		miTag *light = mi_eval_tag(&params->light) + i_light;
-
-		// Only the light specified in the light list will be used
-		mi_inclusive_lightlist(&n_light, &light, state);
-
 		if (fuel_type == FuelType::BlackBody) {
-			miaux_ray_march_simple(result, state, march_increment,
-					density_shader, light, n_light, origin, direction);
+			RayMarchSimpleData rm_data;
+			init_ray_march_common_data(rm_data, state, params);
+			init_ray_march_lights_data(rm_data, state, params);
+			rm_data.density_shader = *mi_eval_tag(&params->density_shader);
+
+			// Only the light specified in the light list will be used
+			mi_inclusive_lightlist(&rm_data.n_light, &rm_data.light, state);
+
+			miaux_ray_march_simple(result, state, rm_data);
 		} else {
-			miaux_ray_march_with_sigma_a(result, state, march_increment,
-					density_shader, absorption_shader, light, n_light, origin,
-					direction);
+			RayMarchSigmaData rm_data;
+			init_ray_march_common_data(rm_data, state, params);
+			init_ray_march_lights_data(rm_data, state, params);
+			rm_data.density_shader = *mi_eval_tag(&params->density_shader);
+			rm_data.absorption_shader = *mi_eval_tag(
+					&params->absorption_shader);
+
+			// Only the light specified in the light list will be used
+			mi_inclusive_lightlist(&rm_data.n_light, &rm_data.light, state);
+
+			miaux_ray_march_with_sigma_a(result, state, rm_data);
 		}
 	}
 	return miTRUE;

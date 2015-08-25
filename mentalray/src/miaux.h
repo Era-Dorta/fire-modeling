@@ -33,6 +33,32 @@ enum Voxel_Return {
 	FREE_CACHE
 };
 
+// Structs to hold data used for ray marching in fire volume shader
+typedef struct RayMarchCommonData {
+	miVector origin;
+	miVector direction;
+	miScalar march_increment;
+} RayMarchCommonData;
+
+typedef struct RayMarchSimpleData: public RayMarchCommonData {
+	miTag density_shader;
+	miInteger i_light;
+	miInteger n_light;
+	miTag *light;
+} RayMarchSimpleData;
+
+typedef struct RayMarchSigmaData: public RayMarchCommonData {
+	miTag density_shader;
+	miTag absorption_shader;
+	miInteger i_light;
+	miInteger n_light;
+	miTag *light;
+} RayMarchSigmaData;
+
+typedef struct RayMarchOcclusionData: public RayMarchCommonData {
+	miTag absorption_shader;
+} RayMarchOcclusionData;
+
 void miaux_initialize_external_libs();
 
 const char* miaux_tag_to_string(miTag tag, const char *default_value);
@@ -67,11 +93,6 @@ void miaux_add_scaled_color(miColor *result, const miColor *color,
 void miaux_invert_rgb_color(miColor *result);
 
 void miaux_scale_color(miColor *result, miScalar scale);
-
-void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
-		miState* state, const miVector *start_point, const miVector *direction,
-		miScalar total_distance, miScalar march_increment,
-		miScalar shadow_scale, miTag sigma_a_shader);
 
 void miaux_multiply_colors(miColor *result, const miColor *x, const miColor *y);
 
@@ -121,13 +142,14 @@ void miaux_copy_vector(miVector *result, const miVector *vector);
 
 void miaux_copy_vector_neg(miVector *result, const miVector *vector);
 
+void miaux_fractional_shader_occlusion_at_point(miColor *transparency,
+		miState* state, const RayMarchOcclusionData& rm_data);
+
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
-		miScalar march_increment, miTag density_shader, miTag *light,
-		miInteger n_light, miVector &origin, miVector &direction);
+		const RayMarchSimpleData& rm_data);
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
-		miScalar march_increment, miTag density_shader, miTag sigma_a_shader,
-		miTag *light, miInteger n_light, miVector &origin, miVector &direction);
+		const RayMarchSigmaData& rm_data);
 
 void miaux_manage_shader_cach(miState* state, miTag shader,
 		Voxel_Return action);
