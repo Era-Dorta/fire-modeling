@@ -214,7 +214,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	// Get the maximum value and say this light has that colour
 	miaux_copy_color_scaled(result, &voxels->get_max_voxel_value(), intensity);
 
-	if (state->type != miRAY_LIGHT) { /* visible area light set */
+	// If a shape were associated with the light this would handle the calls if
+	// the light was set to visible, in our case it never happens, but it is a
+	// safe check
+	if (state->type != miRAY_LIGHT) {
 		return (miTRUE);
 	}
 

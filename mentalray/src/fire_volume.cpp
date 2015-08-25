@@ -62,7 +62,10 @@ void init_ray_march_lights_data(T &rm_data, miState *state,
 extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		miState *state, struct fire_volume *params) {
 
-	// Early return with ray lights to avoid infinite recursion
+	// Early return with ray lights to avoid infinite recursion, actually not
+	// necessary as it never gets called, light rays are solved in
+	// fire_volume_light, but it's a safe check and it does not affect
+	// performance too much
 	if (state->type == miRAY_LIGHT) {
 		return miTRUE;
 	}
