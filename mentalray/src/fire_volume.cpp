@@ -82,7 +82,6 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		}
 		RayMarchOcclusionData rm_data;
 		init_ray_march_common_data(rm_data, state, params);
-		rm_data.density_shader = *mi_eval_tag(&params->density_shader);
 		rm_data.absorption_shader = *mi_eval_tag(&params->absorption_shader);
 
 		/*

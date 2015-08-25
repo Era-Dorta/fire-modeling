@@ -339,47 +339,27 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 		miState* state, const RayMarchOcclusionData& rm_data) {
 	miColor total_sigma = { 0, 0, 0, 0 }, sigma_a;
 
-	miScalar distance, density;
-	miColor volume_color = { 0, 0, 0, 0 };
-
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
-	// Primitive intersection is the bounding box, set to null to be able
-	// to do the ray marching
-	struct miRc_intersection* original_state_pri = state->pri;
-	state->pri = NULL;
 
 	// Since we are going to call the density shader several times,
 	// tell the shader to cache the values
-	bool alloc_d = miaux_manage_shader_cach(state, rm_data.density_shader,
-			ALLOC_CACHE);
 	bool alloc_absor = miaux_manage_shader_cach(state,
 			rm_data.absorption_shader, ALLOC_CACHE);
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
-	for (distance = state->dist; distance >= 0;
+	for (float distance = state->dist; distance >= 0;
 			distance -= rm_data.march_increment) {
+
 		miaux_march_point(&state->point, &rm_data.origin, &rm_data.direction,
 				distance);
 
-		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
-				rm_data.density_shader, nullptr);
+		// Get all the sigmas along the shadow ray
+		mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
+				rm_data.absorption_shader, nullptr);
 
-		if (density > 0) {
-			// Here is where the equation is solved
-			// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
-			mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
-					rm_data.absorption_shader, nullptr);
-
-			// Restore ray type for total light at point
-			state->type = ray_type;
-
-			miaux_add_color(&total_sigma, &sigma_a);
-
-			// Reset for the density shader calls
-			state->type = static_cast<miRay_type>(DENSITY_CACHE);
-		}
+		miaux_add_color(&total_sigma, &sigma_a);
 	}
 
 	result->transparency.r = exp(-total_sigma.r * rm_data.march_increment);
@@ -389,13 +369,9 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 	if (alloc_absor) {
 		miaux_manage_shader_cach(state, rm_data.absorption_shader, FREE_CACHE);
 	}
-	if (alloc_d) {
-		miaux_manage_shader_cach(state, rm_data.density_shader, FREE_CACHE);
-	}
 
 	state->type = ray_type;
 	state->point = original_point;
-	state->pri = original_state_pri;
 }
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
