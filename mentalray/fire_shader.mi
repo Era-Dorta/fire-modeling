@@ -87,18 +87,55 @@ declare shader
 				#: hidden true
 			shader "density_shader",
 			shader "absorption_shader",
+			string "density_file",
+			scalar "density_scale",
+				#: default 1
+				#: softmin 0.0
+				#: softmax 10000.0
+			scalar "density_offset",
+				#: default 0
+				#: softmin 0.0
+				#: softmax 100.0
+			integer "density_read_mode",
+				#: default 1
+				#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB:ASCII Uintah"
+			string "temperature_file",
+			scalar "temperature_scale",
+				#: default 1
+				#: softmin 0.0
+				#: softmax 10000.0
+			scalar "temperature_offset",
+				#: default 0
+				#: softmin 0.0
+				#: softmax 100.0
+			integer "temperature_read_mode",
+				#: default 2
+				#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB:ASCII Uintah"				
+			integer "interpolation_mode",
+				#: default 1
+				#: enum "None:Trilinear"
 			integer "fuel_type",
 				#: default 0
 				#: enum "Black Body:Propane:Acetylene:Copper-Blue:Sulfur-Purple"
-			scalar "density_scale", 
-				#: default 5
+				#: hidden true
+			scalar "visual_adaptation_factor",
+				#: default 0.0
+				#: min 0.0
+				#: max 1.0	
+			scalar "intensity",
+				#: default 1.0
 				#: softmin 0.0
 				#: softmax 10.0
-			scalar "density_scale_for_shadows", 
-				#: default 1e1 # This scale is an exponential parameter
-				#: softmin 9.0
-				#: softmax 12.0
-				#: min 0.0
+				#: min 0.0	
+			scalar "shadow_threshold",
+				#: default 0.005
+				#: softmin 0.0
+				#: softmax 0.01	
+			scalar "decay",
+				#: default 2.0
+				#: softmin 0.0
+				#: softmax 3.0
+				#: min 0.0					
 			scalar "march_increment", 
 				#: default 0.05
 				#: softmin 0.0
