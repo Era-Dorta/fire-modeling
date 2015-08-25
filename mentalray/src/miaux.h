@@ -19,6 +19,7 @@ typedef struct VolumeShader_R {
 	miColor transparency;
 } VolumeShader_R;
 
+// Return options for voxel_density and voxel_rgb_value shaders
 enum Voxel_Return {
 	DENSITY,
 	DENSITY_CACHE,
