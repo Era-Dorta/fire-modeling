@@ -16,7 +16,7 @@ VoxelDatasetFloat::VoxelDatasetFloat(float scale, float offset) :
 	this->offset = offset;
 }
 
-VoxelDatasetFloat::VoxelDatasetFloat(const char* filename, float scale,
+VoxelDatasetFloat::VoxelDatasetFloat(const std::string& filename, float scale,
 		float offset, FILE_FORMAT file_format) :
 		VoxelDataset<float, openvdb::FloatTree>(0) {
 	this->scale = scale;
@@ -24,7 +24,7 @@ VoxelDatasetFloat::VoxelDatasetFloat(const char* filename, float scale,
 	initialize_with_file(filename, file_format);
 }
 
-void VoxelDatasetFloat::initialize_with_file(const char* filename,
+void VoxelDatasetFloat::initialize_with_file(const std::string& filename,
 		FILE_FORMAT file_format) {
 	switch (file_format) {
 	case ASCII_SINGLE_VALUE: {
@@ -87,10 +87,11 @@ float VoxelDatasetFloat::linear_interp(float t, const float&c0,
 	return c0 * (1 - t) + c1 * t;
 }
 
-void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
+void VoxelDatasetFloat::initialize_with_file_acii_single(
+		const std::string& filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename);
+		mi_fatal("Error opening file \"%s\".", filename.c_str());
 	}
 
 	// Read width height and depth
@@ -122,11 +123,12 @@ void VoxelDatasetFloat::initialize_with_file_acii_single(const char* filename) {
 	fp.close();
 }
 
-void VoxelDatasetFloat::initialize_with_file_acii_uintah(const char* filename) {
+void VoxelDatasetFloat::initialize_with_file_acii_uintah(
+		const std::string& filename) {
 
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename);
+		mi_fatal("Error opening file \"%s\".", filename.c_str());
 	}
 
 	// Read width height and depth
@@ -165,11 +167,11 @@ void VoxelDatasetFloat::initialize_with_file_acii_uintah(const char* filename) {
 }
 
 void VoxelDatasetFloat::initialize_with_file_bin_only_red(
-		const char* filename) {
+		const std::string& filename) {
 
 	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename);
+		mi_fatal("Error opening file \"%s\".", filename.c_str());
 	}
 
 	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
@@ -202,10 +204,11 @@ void VoxelDatasetFloat::initialize_with_file_bin_only_red(
 	fp.close();
 }
 
-void VoxelDatasetFloat::initialize_with_file_bin_max(const char* filename) {
+void VoxelDatasetFloat::initialize_with_file_bin_max(
+		const std::string& filename) {
 	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename);
+		mi_fatal("Error opening file \"%s\".", filename.c_str());
 	}
 
 	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
@@ -276,10 +279,10 @@ void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, T &output) {
 }
 
 void VoxelDatasetFloat::check_index_range(unsigned x, unsigned y, unsigned z,
-		std::ifstream& fp, const char* filename) {
+		std::ifstream& fp, const std::string& filename) {
 	if (x >= width || y >= height || z >= depth) {
 		fp.close();
 		mi_fatal("Invalid voxel index %d, %d, %d when reading file %s", x, y, z,
-				filename);
+				filename.c_str());
 	}
 }

@@ -27,9 +27,8 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 		miaux_initialize_external_libs();
 	} else {
 		/* Instance initialization: */
-		const char* filename = miaux_tag_to_string(
-				*mi_eval_tag(&params->filename_tag),
-				NULL);
+		std::string filename;
+		miaux_tag_to_string(filename, *mi_eval_tag(&params->filename));
 		miScalar scale = *mi_eval_scalar(&params->scale);
 		miScalar offset = *mi_eval_scalar(&params->offset);
 
@@ -46,10 +45,10 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 		voxels->setInterpolationMode(
 				(VoxelDatasetFloat::InterpolationMode) interpolation_mode);
 
-		if (filename) {
+		if (!filename.empty()) {
 			int mode = *mi_eval_integer(&params->read_mode);
 			mi_info("\tReading voxel datase mode %d, filename %s", mode,
-					filename);
+					filename.c_str());
 			voxels->initialize_with_file(filename,
 					(VoxelDatasetFloat::FILE_FORMAT) mode);
 
@@ -57,9 +56,10 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 
 			mi_info("\tDone reading voxel dataset: %dx%dx%d %s",
 					voxels->getWidth(), voxels->getHeight(), voxels->getDepth(),
-					filename);
+					filename.c_str());
 		} else {
-			mi_fatal("Voxel density needs a filename, current is %s", filename);
+			mi_fatal("Voxel density needs a filename, current is %s",
+					filename.c_str());
 		}
 	}
 	return miTRUE;

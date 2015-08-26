@@ -15,13 +15,11 @@ void miaux_initialize_external_libs() {
 	openvdb::initialize();
 }
 
-const char* miaux_tag_to_string(miTag tag, const char *default_value) {
-	const char *result = default_value;
+void miaux_tag_to_string(std::string& tag_str, miTag tag) {
 	if (tag != 0) {
-		result = (const char*) mi_db_access(tag);
+		tag_str = std::string(static_cast<const char*>(mi_db_access(tag)));
 		mi_db_unpin(tag);
 	}
-	return result;
 }
 
 double miaux_fit(double v, double oldmin, double oldmax, double newmin,

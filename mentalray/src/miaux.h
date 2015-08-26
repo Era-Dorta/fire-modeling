@@ -61,7 +61,7 @@ typedef struct RayMarchOcclusionData: public RayMarchCommonData {
 
 void miaux_initialize_external_libs();
 
-const char* miaux_tag_to_string(miTag tag, const char *default_value);
+void miaux_tag_to_string(std::string& tag_str, miTag tag);
 
 double miaux_fit(double v, double oldmin, double oldmax, double newmin,
 		double newmax);
