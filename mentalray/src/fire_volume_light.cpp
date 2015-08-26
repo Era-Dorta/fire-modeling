@@ -36,7 +36,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		/* Instance initialization: */
 		FuelType fuel_type = static_cast<FuelType>(*mi_eval_integer(
 				&params->fuel_type));
-		if (fuel_type != BlackBody) {
+		if (fuel_type != FuelType::BlackBody) {
 			mi_info("Premultiplying bb radiation and sigma_a");
 
 			miVector original_point = state->point;

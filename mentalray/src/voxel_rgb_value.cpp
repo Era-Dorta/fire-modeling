@@ -92,7 +92,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 		case ABSORPTION: {
 			miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
 
-			if (fuel_type == BlackBody) {
+			if (fuel_type == FuelType::BlackBody) {
 				break;
 			}
 
@@ -100,7 +100,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 			assert(static_cast<unsigned>(fuel_type) < FuelTypeStr.size());
 
 			// Soot absorption
-			if (fuel_type <= SootMax) {
+			if (fuel_type <= FuelType::SootMax) {
 				miTag density_shader = *mi_eval_tag(&params->density_shader);
 
 				miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
