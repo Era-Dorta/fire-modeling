@@ -391,7 +391,7 @@ void VoxelDatasetColor::clamp_0_1(float &v) {
 void VoxelDatasetColor::read_spectral_line_file(const char* filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename);
+		mi_fatal("Error opening spectral line file \"%s\".", filename);
 	}
 	unsigned num_lines = 0;
 	safe_ascii_read(fp, num_lines);
@@ -409,7 +409,7 @@ void VoxelDatasetColor::read_spectral_line_file(const char* filename) {
 void VoxelDatasetColor::read_optical_constants_file(const char* filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename);
+		mi_fatal("Error opening optical constant file \"%s\".", filename);
 	}
 	unsigned num_lines = 0;
 	safe_ascii_read(fp, num_lines);

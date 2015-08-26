@@ -46,6 +46,14 @@ void VoxelDatasetColorSorted::get_i_j_k_from_sorted(miVector &ijk,
 }
 
 void VoxelDatasetColorSorted::sort() {
+	// If there are no active voxels, initialise to 0,0,0
+	if (block->activeVoxelCount() == 0) {
+		sorted_ind.resize(1);
+		sorted_ind[0] = openvdb::Coord();
+		mi_warning("Maximum value in voxel dataset is background, check scale");
+		return;
+	}
+
 	// initialise original index locations
 	sorted_ind.resize(block->activeVoxelCount());
 	unsigned i = 0;
@@ -83,4 +91,8 @@ void VoxelDatasetColorSorted::compute_max_voxel_value() {
 	max_color.r = accessor.getValue(sorted_ind[0]).x();
 	max_color.g = accessor.getValue(sorted_ind[0]).y();
 	max_color.b = accessor.getValue(sorted_ind[0]).z();
+}
+
+int VoxelDatasetColorSorted::getTotal() const {
+	return sorted_ind.size();
 }
