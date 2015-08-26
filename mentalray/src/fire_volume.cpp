@@ -91,27 +91,25 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 	// Shadows, light being absorbed
 	if (state->type == miRAY_SHADOW) {
 		miBoolean cast_shadows = *mi_eval_boolean(&params->cast_shadows);
-		if (!cast_shadows) { // Object is fully transparent, do nothing
+		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
+
+		// Object is fully transparent, do nothing
+		if (!cast_shadows || fuel_type == FuelType::BlackBody) {
 			return miFALSE;
 		}
+
 		RayMarchOcclusionData rm_data;
 		init_ray_march_common_data(rm_data, state, params);
 		rm_data.absorption_shader = *mi_eval_tag(&params->absorption_shader);
-
 		/*
 		 * Seems to be affected only by transparency, 0 to not produce hard
 		 * shadows (default) effect, 1 to let that colour pass
 		 * result->transparency.r = 1; // Red shadow
 		 */
-
-#ifndef DEBUG_SIGMA_A
 		miaux_fractional_shader_occlusion_at_point(result, state, rm_data);
 		return miTRUE;
-#else
-		return miFALSE;
-#endif
-		// Eye rays, final colour at point, ray marching
 	} else {
+		// Eye rays, final colour at point, ray marching
 		if (state->dist == 0.0) { /* infinite dist: outside volume */
 			return (miTRUE);
 		}
