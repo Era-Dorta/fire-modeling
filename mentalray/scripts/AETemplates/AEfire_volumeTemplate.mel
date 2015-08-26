@@ -51,10 +51,7 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 
 		editorTemplate -addControl "density_scale";
 		editorTemplate -addControl "density_offset";
-		
-		editorTemplate -addControl "density_shader";
-		editorTemplate -addControl "absorption_shader";
-	
+			
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Temperature File Attributes" -collapse 0;
@@ -81,6 +78,11 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 		editorTemplate -addControl "march_increment";
 		editorTemplate -addControl "cast_shadows";
 	
+		editorTemplate -addSeparator;
+		
+		editorTemplate -addControl "density_shader";
+		editorTemplate -addControl "absorption_shader";
+		
 	editorTemplate -endLayout;
 	
 	editorTemplate -suppress "color";
