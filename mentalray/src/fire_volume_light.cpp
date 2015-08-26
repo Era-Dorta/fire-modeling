@@ -243,6 +243,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	if (state->count >= voxels->getTotal()) {
 		return ((miBoolean) 2);
 	}
+
+	// TODO Can use thread local storage to put the accessor, as in voxel_rgb
 	VoxelDatasetColorSorted::Accessor accessor = voxels->get_accessor();
 	miColor voxel_c = voxels->get_sorted_voxel_value(state->count, accessor);
 
@@ -288,9 +290,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	// origin -> point, but for the shaders to work, it has to be
 	// point -> origin, options include switching the normal or changing the
 	// direction again after calling mi_trace_shadow
-	miVector aux;
-	miaux_copy_vector_neg(&aux, &state->dir);
-	state->dot_nd = mi_vector_dot(&aux, &state->normal);
+	state->dot_nd = -mi_vector_dot(&state->dir, &state->normal);
 
 	// Distance falloff
 	miScalar decay = *mi_eval_scalar(&params->decay);
