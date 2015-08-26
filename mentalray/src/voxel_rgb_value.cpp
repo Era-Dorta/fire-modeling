@@ -213,14 +213,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
 		VoxelDatasetColor::Accessor *accessor = nullptr;
 		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
-
-		VoxelDatasetColor::Accessor *accessor1 = nullptr;
-		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor1);
-		if (accessor == accessor1) {
-
-		}
-
 		assert(accessor != nullptr);
+
 		openvdb::Vec3f res_vec3 = voxels->get_voxel_value(
 				(unsigned) state->point.x, (unsigned) state->point.y,
 				(unsigned) state->point.z, *accessor);
