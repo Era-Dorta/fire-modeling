@@ -49,6 +49,8 @@ global proc AEvoxel_densityTemplate ( string $nodeName )
 		
 		editorTemplate -addControl "read_mode";
 		editorTemplate -addControl "interpolation_mode";
+		editorTemplate -addControl "scale";
+		editorTemplate -addControl "offset";
 		
 	editorTemplate -endLayout;
 	

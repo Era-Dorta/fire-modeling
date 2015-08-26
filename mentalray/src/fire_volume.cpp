@@ -38,7 +38,7 @@ struct fire_volume {
 };
 
 extern "C" DLLEXPORT int fire_volume_version(void) {
-	return 1;
+	return 2;
 }
 
 extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
