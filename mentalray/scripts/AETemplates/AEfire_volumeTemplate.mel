@@ -47,10 +47,10 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 
 		editorTemplate -addSeparator;
 
-		editorTemplate -addControl "density_read_mode";
+		editorTemplate  -annotation "File input format" -addControl "density_read_mode";
 
-		editorTemplate -addControl "density_scale";
-		editorTemplate -addControl "density_offset";
+		editorTemplate -annotation "Scales inputs data with this value" -addControl "density_scale";
+		editorTemplate -annotation "Offsets inputs data with this value" -addControl "density_offset";
 			
 	editorTemplate -endLayout;
 	
@@ -60,28 +60,28 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 
 		editorTemplate -addSeparator;
 		
-		editorTemplate -addControl "temperature_read_mode";
+		editorTemplate -annotation "File input format" -addControl "temperature_read_mode";
 
-		editorTemplate -addControl "temperature_scale";
-		editorTemplate -addControl "temperature_offset";
+		editorTemplate -annotation "Scales inputs data with this value" -addControl "temperature_scale";
+		editorTemplate -annotation "Offsets inputs data with this value" -addControl "temperature_offset";
 		
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Main Attributes" -collapse 0;
 
-		editorTemplate -addControl "interpolation_mode";
-		editorTemplate -addControl "fuel_type";
-		editorTemplate -addControl "visual_adaptation_factor";
-		editorTemplate -addControl "intensity";
-		editorTemplate -addControl "shadow_threshold";
-		editorTemplate -addControl "decay";
-		editorTemplate -addControl "march_increment";
-		editorTemplate -addControl "cast_shadows";
+		editorTemplate -annotation "Interpolation method to be used when querying for points between voxels" -addControl "interpolation_mode";
+		editorTemplate -annotation "Variety of fuel used for the fire" -addControl "fuel_type";
+		editorTemplate -annotation "Controls how much a human eye has adapted to the rendered fire" -addControl "visual_adaptation_factor";
+		editorTemplate -annotation "How intense is the emitted fire light" -addControl "intensity";
+		editorTemplate -annotation "If the contribution is smaller than the threshold, no shadow rays for the sample will be computed" -addControl "shadow_threshold";
+		editorTemplate -annotation "Light extinction over distance" -addControl "decay";
+		editorTemplate -annotation "Quality parameter, ideally it should be set to half the voxel size" -addControl "march_increment";
+		editorTemplate -annotation "If true, computes how light varies when traversing the medium" -addControl "cast_shadows";
 	
 		editorTemplate -addSeparator;
 		
-		editorTemplate -addControl "density_shader";
-		editorTemplate -addControl "absorption_shader";
+		editorTemplate -annotation "Input auxiliary shader, safe to ignore" -addControl "density_shader";
+		editorTemplate -annotation "Input auxiliary shader, safe to ignore" -addControl "absorption_shader";
 		
 	editorTemplate -endLayout;
 	
