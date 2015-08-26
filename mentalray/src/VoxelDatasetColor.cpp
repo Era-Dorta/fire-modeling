@@ -167,8 +167,7 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 		density = iter.getValue();
 		if (density.x() > 0.0) {
 			for (unsigned j = 0; j < spec_values.size(); j++) {
-				// TODO 1e12 is a magic number to get the right scale
-				spec_values.at(j) = density.x() * 1e12 * input_data[j];
+				spec_values.at(j) = density.x() * input_data[j];
 			}
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres

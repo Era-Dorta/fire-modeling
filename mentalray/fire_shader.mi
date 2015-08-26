@@ -48,7 +48,7 @@ declare shader
 			#: min 0.0
 			#: max 1.0
 		integer "fuel_type",
-			#: default 0
+			#: default 1
 			#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple"
 		vector "min_point",
 			#: default -1 -1 -1
@@ -85,9 +85,9 @@ declare shader
 			shader "absorption_shader",
 			string "density_file",
 			scalar "density_scale",
-				#: default 1
+				#: default 1e12 # As the density is in molecules, a large scale is needed
 				#: softmin 0.0
-				#: softmax 10000.0
+				#: softmax 1e15
 			scalar "density_offset",
 				#: default 0
 				#: softmin 0.0
@@ -97,7 +97,7 @@ declare shader
 				#: enum "ASCII Single Value:Binary Only Red:Binary Max RGB:ASCII Uintah"
 			string "temperature_file",
 			scalar "temperature_scale",
-				#: default 1
+				#: default 500
 				#: softmin 0.0
 				#: softmax 10000.0
 			scalar "temperature_offset",
@@ -111,7 +111,7 @@ declare shader
 				#: default 1
 				#: enum "None:Trilinear"
 			integer "fuel_type",
-				#: default 0
+				#: default 1
 				#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple"
 				#: hidden true
 			scalar "visual_adaptation_factor",
@@ -153,15 +153,15 @@ declare shader
 		shader "bb_shader",
 		shader "sigma_a_shader",
 		integer "fuel_type",
-			#: default 0
+			#: default 1
 			#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple"
 			#: hidden true
 		scalar "temperature_scale", 
-			#: default 2500 # Usually temperatures are from 0 to 10000K
+			#: default 500
 			#: softmin 0.0
 			#: softmax 10000.0
 		scalar "temperature_offset",
-			#: default 500 # Additional displacement in the temperature
+			#: default 0 
 			#: softmin 0.0
 			#: softmax 1000.0
 		scalar "visual_adaptation_factor",
