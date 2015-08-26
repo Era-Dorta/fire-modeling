@@ -16,11 +16,11 @@ struct fire_volume {
 	miColor transparency;
 	miTag density_shader;
 	miTag absorption_shader;
-	miTag density_file_tag;
+	miTag density_file;
 	miScalar density_scale;
 	miScalar density_offset;
 	miInteger density_read_mode;
-	miTag temperature_file_tag;
+	miTag temperature_file;
 	miScalar temperature_scale;
 	miScalar temperature_offset;
 	miInteger temperature_read_mode;

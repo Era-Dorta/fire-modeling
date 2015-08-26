@@ -7,7 +7,7 @@
 #include "VoxelDatasetFloat.h"
 
 struct voxel_density {
-	miTag filename_tag;
+	miTag filename;
 	miInteger read_mode; // 0 ascii, 1 binary red, 2 binary max, 3 ascii unintah
 	miInteger interpolation_mode; // 0 none, 1 trilinear
 	miScalar scale;
