@@ -165,7 +165,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		state->point = original_point;
 		state->type = ray_type;
 
-		mi_info("Done initialising fire light shader");
+		mi_info("Done initialising fire light shader, max samples %d",
+				voxels->getTotal());
 	}
 	return miTRUE;
 }
@@ -177,6 +178,15 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 		void * user_pointer = miaux_get_user_memory_pointer(state);
 		((VoxelDatasetColorSorted *) user_pointer)->~VoxelDatasetColorSorted();
 		mi_mem_release(user_pointer);
+
+		VoxelDatasetColorSorted::Accessor **accessors = nullptr;
+		int num = 0;
+		// Delete all the accessor variables that were allocated during run time
+		mi_query(miQ_FUNC_TLS_GETALL, state, miNULLTAG, &accessors, &num);
+		for (int i = 0; i < num; i++) {
+			accessors[i]->~ValueAccessor();
+			mi_mem_release(accessors[i]);
+		}
 	}
 	return miTRUE;
 }
@@ -217,9 +227,30 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		return ((miBoolean) 2);
 	}
 
-	// TODO Can use thread local storage to put the accessor, as in voxel_rgb
-	VoxelDatasetColorSorted::Accessor accessor = voxels->get_accessor();
-	miColor voxel_c = voxels->get_sorted_voxel_value(state->count, accessor);
+	// Get the accessor for this thread, if it has not been created yet, then
+	// create a new one
+	VoxelDatasetColorSorted::Accessor *accessor = nullptr;
+	mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+
+	if (accessor == nullptr) {
+		// Allocate memory
+		accessor =
+				static_cast<VoxelDatasetColorSorted::Accessor *>(mi_mem_allocate(
+						sizeof(VoxelDatasetColorSorted::Accessor)));
+
+		// Initialise the memory
+		VoxelDatasetColorSorted *voxels =
+				(VoxelDatasetColorSorted *) miaux_get_user_memory_pointer(
+						state);
+		accessor = new (accessor) VoxelDatasetColorSorted::Accessor(
+				voxels->get_accessor());
+
+		// Save the accessor in the thread pointer
+		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
+	}
+
+	// Get the colour for the chosen sample
+	miColor voxel_c = voxels->get_sorted_voxel_value(state->count, *accessor);
 
 	// If the contribution is too small return early
 	if (voxel_c.r < shadow_threshold && voxel_c.g < shadow_threshold
