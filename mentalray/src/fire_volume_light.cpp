@@ -34,22 +34,35 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miaux_initialize_external_libs();
 	} else {
 		/* Instance initialization: */
+		miVector original_point = state->point;
+		miRay_type ray_type = state->type;
+
+		miTag bb_shader = *mi_eval_tag(&params->bb_shader);
+
+		// Get background values
+		miColor background_bb;
+		state->type = static_cast<miRay_type>(BACKGROUND);
+		mi_call_shader_x(&background_bb, miSHADER_MATERIAL, state, bb_shader,
+				nullptr);
+
+		VoxelDatasetColorSorted *voxels =
+				(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
+						sizeof(VoxelDatasetColorSorted));
+
+		// Since we are going to call the density shader several times,
+		// tell the shader to cache the values
+		bool alloc_bb = miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
+
+		unsigned width = 0, height = 0, depth = 0;
+		miaux_get_voxel_dataset_dims(&width, &height, &depth, state, bb_shader);
+
 		FuelType fuel_type = static_cast<FuelType>(*mi_eval_integer(
 				&params->fuel_type));
+
 		if (fuel_type != FuelType::BlackBody) {
 			mi_info("Premultiplying bb radiation and sigma_a");
 
-			miVector original_point = state->point;
-			miRay_type ray_type = state->type;
-
-			miTag bb_shader = *mi_eval_tag(&params->bb_shader);
 			miTag sigma_a_shader = *mi_eval_tag(&params->sigma_a_shader);
-
-			// Get background values
-			miColor background_bb;
-			state->type = static_cast<miRay_type>(BACKGROUND);
-			mi_call_shader_x(&background_bb, miSHADER_MATERIAL, state,
-					bb_shader, nullptr);
 
 			miColor background_sigma;
 			state->type = static_cast<miRay_type>(BACKGROUND);
@@ -60,24 +73,14 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			miaux_multiply_colors(&background, &background_bb,
 					&background_sigma);
 
-			VoxelDatasetColorSorted *voxels =
-					(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
-							sizeof(VoxelDatasetColorSorted));
-
 			// Placement new, initialisation of malloc memory block
 			voxels = new (voxels) VoxelDatasetColorSorted(background);
+			voxels->resize(width, height, depth);
 
 			// Since we are going to call the density shader several times,
 			// tell the shader to cache the values
-			bool alloc_bb = miaux_manage_shader_cach(state, bb_shader,
-					ALLOC_CACHE);
 			bool alloc_sigma = miaux_manage_shader_cach(state, sigma_a_shader,
 					ALLOC_CACHE);
-
-			unsigned width = 0, height = 0, depth = 0;
-			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
-					bb_shader);
-			voxels->resize(width, height, depth);
 
 			state->type = static_cast<miRay_type>(DENSITY_RAW_CACHE);
 
@@ -112,55 +115,22 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 				}
 			}
 
-			// Since we copied the data manually, we need to call sort and
-			// maximum voxel so that the VoxelDataset is correctly initialized
-			voxels->sort();
-			voxels->compute_max_voxel_value();
-
-			if (alloc_bb) {
-				miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
-			}
 			if (alloc_sigma) {
 				miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
 			}
 
-			// Restore previous state
-			state->point = original_point;
-			state->type = ray_type;
-
 			mi_info("Done premultiplying bb radiation and sigma_a");
 		} else {
-			miVector original_point = state->point;
-			miRay_type ray_type = state->type;
-
-			miTag bb_shader = *mi_eval_tag(&params->bb_shader);
-
-			// Get background values
-			miColor background_bb;
-			state->type = static_cast<miRay_type>(BACKGROUND);
-			mi_call_shader_x(&background_bb, miSHADER_MATERIAL, state,
-					bb_shader, nullptr);
-
-			VoxelDatasetColorSorted *voxels =
-					(VoxelDatasetColorSorted *) miaux_alloc_user_memory(state,
-							sizeof(VoxelDatasetColorSorted));
+			// Input is black body radiation, copy the data to allow sorting
 
 			// Placement new, initialisation of malloc memory block
 			voxels = new (voxels) VoxelDatasetColorSorted(background_bb);
-
-			// Since we are going to call the density shader several times,
-			// tell the shader to cache the values
-			bool alloc_bb;
-			alloc_bb = miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
-
-			unsigned width = 0, height = 0, depth = 0;
-			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
-					bb_shader);
+			voxels->resize(width, height, depth);
 
 			state->type = static_cast<miRay_type>(DENSITY_RAW_CACHE);
-			voxels->resize(width, height, depth);
 			miColor bb_radiation = { 0, 0, 0, 0 };
 			openvdb::Vec3f bb_radiation_v = openvdb::Vec3f::zero();
+
 			for (unsigned i = 0; i < width; i++) {
 				for (unsigned j = 0; j < height; j++) {
 					for (unsigned k = 0; k < depth; k++) {
@@ -183,20 +153,20 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 					}
 				}
 			}
-
-			// Since we copied the data manually, we need to call sort and
-			// maximum voxel so that the VoxelDataset is correctly initialized
-			voxels->sort();
-			voxels->compute_max_voxel_value();
-
-			if (alloc_bb) {
-				miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
-			}
-
-			// Restore previous state
-			state->point = original_point;
-			state->type = ray_type;
 		}
+
+		// Since we copied the data manually, we need to call sort and
+		// maximum voxel so that the VoxelDataset is correctly initialized
+		voxels->sort();
+		voxels->compute_max_voxel_value();
+
+		if (alloc_bb) {
+			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
+		}
+
+		// Restore previous state
+		state->point = original_point;
+		state->type = ray_type;
 	}
 	return miTRUE;
 }
