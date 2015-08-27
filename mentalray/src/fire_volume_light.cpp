@@ -263,22 +263,17 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 
 	// Move the light origin to the voxel position
 	const miVector minus_one = { -1, -1, -1 };
-	miVector offset_light, offset_internal;
+	miVector offset_light;
 
 	voxels->get_i_j_k_from_sorted(offset_light, state->count);
 
-	// The voxel data set goes from {-1,-1,-1} to {1,1,1}, so with
-	// i,j,k = (SIZE / 2) it should be 1, to cancel the offset and
-	// with i,j,k = SIZE, then it should be 2, to be 1 above the offset
+	// Transform voxel index from [0..255] space to [-1...1]
 	mi_vector_mul(&offset_light, INV_SIZE);
-
 	mi_vector_add(&offset_light, &offset_light, &minus_one);
 
-	// {-1,-,1,-1} is for a light at origin without rotation, so transform
-	// from light space to internal, to account for that
-	mi_vector_from_light(state, &offset_internal, &offset_light);
-
-	mi_vector_add(&state->org, &state->org, &offset_internal);
+	// Since the origin in in light(object) space, we can add the offset without
+	// any transformation
+	mi_vector_add(&state->org, &state->org, &offset_light);
 
 	// dir is vector from light origin to primitive intersection point
 	mi_vector_sub(&state->dir, &state->point, &state->org);
