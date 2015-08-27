@@ -96,3 +96,7 @@ void VoxelDatasetColorSorted::compute_max_voxel_value() {
 int VoxelDatasetColorSorted::getTotal() const {
 	return sorted_ind.size();
 }
+
+openvdb::Vec3SGrid::ValueOnIter VoxelDatasetColorSorted::get_on_values_iter() const {
+	return block->beginValueOn();
+}

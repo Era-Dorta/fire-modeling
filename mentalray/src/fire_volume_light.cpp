@@ -85,7 +85,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		state->type = static_cast<miRay_type>(DENSITY_RAW_CACHE);
 
 		miColor bb_radiation = { 0, 0, 0, 0 }, sigma_a = { 0, 0, 0, 0 };
-		openvdb::Vec3f bb_radiation_v = openvdb::Vec3f::zero();
+		openvdb::Vec3f bb_radiation_v(0);
 		for (unsigned i = 0; i < width; i++) {
 			for (unsigned j = 0; j < height; j++) {
 				for (unsigned k = 0; k < depth; k++) {
@@ -98,13 +98,21 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 					// value is zero
 					mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL, state,
 							bb_shader, NULL);
+
 					if (fuel_type != FuelType::BlackBody) {
+						// With absorption coefficient do not copy values that
+						// when multiplied with sigma_a they will be zero
 						mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
 								sigma_a_shader, NULL);
 
-						miaux_multiply_colors(&bb_radiation, &bb_radiation,
+						miColor bb_sigma;
+						miaux_multiply_colors(&bb_sigma, &bb_radiation,
 								&sigma_a);
+						if (miaux_color_is_black(&bb_sigma)) {
+							continue;
+						}
 					}
+
 					bb_radiation_v.x() = bb_radiation.r;
 					bb_radiation_v.y() = bb_radiation.g;
 					bb_radiation_v.z() = bb_radiation.b;
@@ -116,6 +124,35 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			}
 		}
 
+		// Since we copied the data manually, we need to call sort and
+		// maximum voxel so that the VoxelDataset is correctly initialized
+		voxels->sort();
+
+		if (fuel_type != FuelType::BlackBody) {
+			// Now that the data is sorted by temperature, add the absorption
+			// coefficients
+			bb_radiation = {0, 0, 0, 0};
+			sigma_a = {0, 0, 0, 0};
+			bb_radiation_v.setZero();
+			for (auto iter = voxels->get_on_values_iter(); iter; ++iter) {
+				auto coord = iter.getCoord();
+				state->point.x = coord.x();
+				state->point.y = coord.y();
+				state->point.z = coord.z();
+
+				mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
+						sigma_a_shader, NULL);
+
+				bb_radiation_v.x() = iter->x() * sigma_a.r;
+				bb_radiation_v.y() = iter->y() * sigma_a.g;
+				bb_radiation_v.z() = iter->z() * sigma_a.b;
+
+				voxels->set_voxel_value(coord.x(), coord.y(), coord.z(), bb_radiation_v);
+			}
+		}
+
+		voxels->compute_max_voxel_value();
+
 		if (alloc_bb) {
 			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
 		}
@@ -123,11 +160,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		if (alloc_sigma) {
 			miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
 		}
-
-		// Since we copied the data manually, we need to call sort and
-		// maximum voxel so that the VoxelDataset is correctly initialized
-		voxels->sort();
-		voxels->compute_max_voxel_value();
 
 		// Restore previous state
 		state->point = original_point;

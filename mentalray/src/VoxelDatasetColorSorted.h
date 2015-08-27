@@ -27,6 +27,7 @@ public:
 	void get_i_j_k_from_sorted(miVector &ijk, const unsigned &index) const;
 	virtual void compute_max_voxel_value() override;
 	virtual int getTotal() const override;
+	openvdb::Vec3SGrid::ValueOnIter get_on_values_iter() const;
 private:
 	std::vector<openvdb::Coord> sorted_ind;
 };
