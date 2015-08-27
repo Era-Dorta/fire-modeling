@@ -63,8 +63,20 @@ void init_ray_march_common_data(RayMarchCommonData& rm_data, miState *state,
 		struct fire_volume *params) {
 	// Transform to object space, as voxel_shader and the voxel object assume
 	// a cube centred at origin of unit width, height and depth
+
+	// Start point of ray intersection with the volume
 	mi_point_to_object(state, &rm_data.origin, &state->org);
-	mi_vector_to_object(state, &rm_data.direction, &state->dir);
+
+	// End point of ray intersection with the volume
+	miVector end_point;
+	mi_point_to_object(state, &end_point, &state->point);
+
+	// Ray length and direction
+	mi_vector_sub(&rm_data.direction, &end_point, &rm_data.origin);
+	rm_data.dist = mi_vector_norm(&rm_data.direction);
+
+	mi_vector_div(&rm_data.direction, rm_data.dist);
+
 	rm_data.march_increment = *mi_eval_scalar(&params->march_increment);
 }
 

@@ -37,6 +37,7 @@ enum Voxel_Return {
 typedef struct RayMarchCommonData {
 	miVector origin;
 	miVector direction;
+	miScalar dist;
 	miScalar march_increment;
 } RayMarchCommonData;
 

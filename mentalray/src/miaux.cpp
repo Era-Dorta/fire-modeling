@@ -347,8 +347,10 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
-	for (float distance = state->dist; distance >= 0;
-			distance -= rm_data.march_increment) {
+	int steps = static_cast<int>(rm_data.dist / rm_data.march_increment);
+	for (int i = steps; i >= 0; i--) {
+		// Compute the distance on each time step to avoid numerical errors
+		float distance = rm_data.march_increment * i;
 
 		miaux_march_point(&state->point, &rm_data.origin, &rm_data.direction,
 				distance);
@@ -375,7 +377,6 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		const RayMarchSimpleData& rm_data) {
 
-	miScalar distance, density;
 	miColor volume_color = { 0, 0, 0, 0 }, point_color;
 
 	miVector original_point = state->point;
@@ -392,11 +393,15 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
-	for (distance = state->dist; distance >= 0;
-			distance -= rm_data.march_increment) {
+	int steps = static_cast<int>(rm_data.dist / rm_data.march_increment);
+	for (int i = steps; i >= 0; i--) {
+		// Compute the distance on each time step to avoid numerical errors
+		float distance = rm_data.march_increment * i;
+
 		miaux_march_point(&state->point, &rm_data.origin, &rm_data.direction,
 				distance);
 
+		float density;
 		mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
 				rm_data.density_shader, nullptr);
 
@@ -446,9 +451,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		const RayMarchSigmaData& rm_data) {
-	miColor sigma_a;
 
-	miScalar distance;
 	miColor volume_color = { 0, 0, 0, 0 }, light_color = { 0, 0, 0, 0 };
 
 	miVector original_point = state->point;
@@ -465,13 +468,16 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
-	for (distance = state->dist; distance >= 0;
-			distance -= rm_data.march_increment) {
+	int steps = static_cast<int>(rm_data.dist / rm_data.march_increment);
+	for (int i = steps; i >= 0; i--) {
+		// Compute the distance on each time step to avoid numerical errors
+		float distance = rm_data.march_increment * i;
 		miaux_march_point(&state->point, &rm_data.origin, &rm_data.direction,
 				distance);
 
 		// Here is where the equation is solved
 		// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
+		miColor sigma_a;
 		mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
 				rm_data.absorption_shader, nullptr);
 
