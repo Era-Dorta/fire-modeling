@@ -1,3 +1,32 @@
+global proc fireFrameUpdate( string $fireShader, string $densityFileName, string $temperatureFileName) {
+
+	if(`objExists $fireShader`){
+		$currentFrame = `currentTime -query`;
+	
+		$tokenFilename = `stringToStringArray $densityFileName "."`;
+		$nameSize = `size $tokenFilename[0]`;
+		$fileName = `substring $tokenFilename[0] 1 ($nameSize - 3)`;
+		$fileNumberStr = `substring $tokenFilename[0] ($nameSize - 2) $nameSize`;
+		$fileNumber = (int)$fileNumberStr;
+		$fileNumber = $fileNumber + $currentFrame - 1;
+		$fileNumberStr = (string)$fileNumber;
+		$newFile = $fileName + $fileNumberStr + "." + $tokenFilename[1];
+		setAttr -type "string" ($fireShader + ".density_file") $newFile;
+	
+		$tokenFilename = `stringToStringArray $temperatureFileName "."`;
+		$nameSize = `size $tokenFilename[0]`;
+		$fileName = `substring $tokenFilename[0] 1 ($nameSize - 3)`;
+		$fileNumberStr = `substring $tokenFilename[0] ($nameSize - 2) $nameSize`;
+		$fileNumber = (int)$fileNumberStr;
+		$fileNumber = $fileNumber + $currentFrame - 1;
+		$fileNumberStr = (string)$fileNumber;
+		$newFile = $fileName + $fileNumberStr + "." + $tokenFilename[1];
+		setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
+	} else {
+		//TODO Don't know how to kill the expression
+	}
+}
+
 global proc string createFireVolume( string $temperature_file, string $density_file){
 	select -cl; // Clear selection
 
@@ -105,6 +134,10 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -l true { ($area_light + ".r") };
 	setAttr -l true { ($area_light + ".s") };
 	setAttr -l true { ($area_light + ".sh") };
+
+	// Launch a script to update the file names
+	$cmd = "fireFrameUpdate( \"" + $fire_shader + "\", \"" + $temperature_file + "\", \"" + $density_file + "\")";
+	expression -string $cmd;
 
 	select -r $cube_transform;
 	return $cube_transform;
