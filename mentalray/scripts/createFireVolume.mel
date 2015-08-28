@@ -12,6 +12,16 @@ proc string fireNewFileName(string $filename, int $currentFrame){
 	$fileNumber = (int)$fileNumberStr;
 	$fileNumber = $fileNumber + $currentFrame - 1;
 	$fileNumberStr = (string)$fileNumber;
+	$newNumSize = `size $fileNumberStr`;
+	
+	if($newNumSize < $fileNumberSize){
+		// Add extra zeros to get the same size
+		int $size = $fileNumberSize - $newNumSize;
+		int $i;
+		for ($i = 0; $i < $size; $i++) {
+			$fileNumberStr = `stringAddPrefix $fileNumberStr "0"`;
+		}
+	}
 	
 	// Put together the new file name
 	$newFile = $fileName + $fileNumberStr + "." + $tokenFilename[1];
@@ -25,7 +35,7 @@ global proc fireFrameUpdate( string $fireShader, string $densityFileName, string
 		$currentFrame = `currentTime -query`;
 	
 		$newFile = `fireNewFileName $densityFileName $currentFrame`;
-		
+
 		if(`filetest -r $newFile`){ // If file does not exits, do not update
 			setAttr -type "string" ($fireShader + ".density_file") $newFile;
 		}
