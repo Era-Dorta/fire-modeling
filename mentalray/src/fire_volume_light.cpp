@@ -271,7 +271,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	mi_vector_mul(&offset_light, INV_SIZE);
 	mi_vector_add(&offset_light, &offset_light, &minus_one);
 
-	// Since the origin in in light(object) space, we can add the offset without
+	// Since the origin is in light(object) space, we can add the offset without
 	// any transformation
 	mi_vector_add(&state->org, &state->org, &offset_light);
 

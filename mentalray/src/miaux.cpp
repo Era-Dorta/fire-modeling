@@ -335,7 +335,7 @@ void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
 
 void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 		miState* state, const RayMarchOcclusionData& rm_data) {
-	miColor total_sigma = { 0, 0, 0, 0 }, sigma_a;
+	miColor total_sigma = { 0, 0, 0, 0 };
 
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
@@ -348,13 +348,14 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
 	int steps = static_cast<int>(rm_data.dist / rm_data.march_increment);
-	for (int i = steps; i >= 0; i--) {
+	for (int i = 0; i <= steps; i++) {
 		// Compute the distance on each time step to avoid numerical errors
 		float distance = rm_data.march_increment * i;
 
 		miaux_march_point(&state->point, &rm_data.origin, &rm_data.direction,
 				distance);
 
+		miColor sigma_a;
 		// Get all the sigmas along the shadow ray
 		mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
 				rm_data.absorption_shader, nullptr);
