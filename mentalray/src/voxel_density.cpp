@@ -138,7 +138,7 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		*result = voxels->getBackground();
 		break;
 	}
-	case DENSITY_RAW: {
+	case VOXEL_DATA_COPY: {
 		VoxelDatasetFloat *voxels = nullptr;
 		VoxelDatasetFloat::Accessor *accessor = nullptr;
 		get_stored_data(voxels, accessor, state);
@@ -148,7 +148,7 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 				*accessor);
 		break;
 	}
-	case DENSITY: {
+	case VOXEL_DATA: {
 		miVector *min_point = mi_eval_vector(&params->min_point);
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;

@@ -21,7 +21,7 @@ typedef struct VolumeShader_R {
 
 // Return options for voxel_density and voxel_rgb_value shaders
 enum Voxel_Return {
-	DENSITY, DENSITY_RAW, WIDTH, HEIGHT, DEPTH, BACKGROUND
+	VOXEL_DATA, VOXEL_DATA_COPY, WIDTH, HEIGHT, DEPTH, BACKGROUND
 };
 
 // Structs to hold data used for ray marching in fire volume shader

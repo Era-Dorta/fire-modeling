@@ -222,7 +222,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		result->b = res_vec3.z();
 		break;
 	}
-	case DENSITY_RAW: {
+	case VOXEL_DATA_COPY: {
 		VoxelDatasetColor *voxels = nullptr;
 		VoxelDatasetColor::Accessor *accessor = nullptr;
 		get_stored_data(voxels, accessor, state);
@@ -236,7 +236,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 
 		break;
 	}
-	case DENSITY: {
+	case VOXEL_DATA: {
 		miVector *min_point = mi_eval_vector(&params->min_point);
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;
