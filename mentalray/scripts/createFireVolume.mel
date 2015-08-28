@@ -1,27 +1,40 @@
+proc string fireNewFileName(string $filename, int $currentFrame){
+	// Separate filename in name and extension
+	$tokenFilename = `stringToStringArray $filename "."`;
+	
+	// Get the last numbers
+	$nameSize = `size $tokenFilename[0]`;		
+	$fileName = `substring $tokenFilename[0] 1 ($nameSize - 3)`;
+	$fileNumberStr = `substring $tokenFilename[0] ($nameSize - 2) $nameSize`;
+	$fileNumberSize = `size $fileNumberStr`;
+	
+	// Increment to next file
+	$fileNumber = (int)$fileNumberStr;
+	$fileNumber = $fileNumber + $currentFrame - 1;
+	$fileNumberStr = (string)$fileNumber;
+	
+	// Put together the new file name
+	$newFile = $fileName + $fileNumberStr + "." + $tokenFilename[1];
+	
+	return $newFile;
+}
+
 global proc fireFrameUpdate( string $fireShader, string $densityFileName, string $temperatureFileName) {
 
 	if(`objExists $fireShader`){
 		$currentFrame = `currentTime -query`;
 	
-		$tokenFilename = `stringToStringArray $densityFileName "."`;
-		$nameSize = `size $tokenFilename[0]`;
-		$fileName = `substring $tokenFilename[0] 1 ($nameSize - 3)`;
-		$fileNumberStr = `substring $tokenFilename[0] ($nameSize - 2) $nameSize`;
-		$fileNumber = (int)$fileNumberStr;
-		$fileNumber = $fileNumber + $currentFrame - 1;
-		$fileNumberStr = (string)$fileNumber;
-		$newFile = $fileName + $fileNumberStr + "." + $tokenFilename[1];
-		setAttr -type "string" ($fireShader + ".density_file") $newFile;
-	
-		$tokenFilename = `stringToStringArray $temperatureFileName "."`;
-		$nameSize = `size $tokenFilename[0]`;
-		$fileName = `substring $tokenFilename[0] 1 ($nameSize - 3)`;
-		$fileNumberStr = `substring $tokenFilename[0] ($nameSize - 2) $nameSize`;
-		$fileNumber = (int)$fileNumberStr;
-		$fileNumber = $fileNumber + $currentFrame - 1;
-		$fileNumberStr = (string)$fileNumber;
-		$newFile = $fileName + $fileNumberStr + "." + $tokenFilename[1];
-		setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
+		$newFile = `fireNewFileName $densityFileName $currentFrame`;
+		
+		if(`filetest -r $newFile`){ // If file does not exits, do not update
+			setAttr -type "string" ($fireShader + ".density_file") $newFile;
+		}
+		
+		$newFile = `fireNewFileName $temperatureFileName $currentFrame`;
+		
+		if(`filetest -r $newFile`){ 
+			setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
+		}
 	} else {
 		//TODO Don't know how to kill the expression
 	}
