@@ -28,9 +28,7 @@ enum Voxel_Return {
 	WIDTH,
 	HEIGHT,
 	DEPTH,
-	BACKGROUND,
-	ALLOC_CACHE,
-	FREE_CACHE
+	BACKGROUND
 };
 
 // Structs to hold data used for ray marching in fire volume shader
@@ -150,9 +148,6 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		const RayMarchSigmaData& rm_data);
-
-bool miaux_manage_shader_cach(miState* state, miTag shader,
-		Voxel_Return action);
 
 void miaux_vector_info(const char* s, const miVector& v);
 

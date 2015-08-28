@@ -165,6 +165,32 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_exit(miState *state,
 	return miTRUE;
 }
 
+// As we need to modify the pointers, the input are references to pointers
+void get_stored_data(VoxelDatasetColor*& voxels,
+		VoxelDatasetColor::Accessor*& accessor, miState *state) {
+
+	voxels = (VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+
+	accessor = nullptr;
+	mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+
+	if (accessor != nullptr) {
+		return;
+	}
+
+	// Allocate memory
+	accessor = static_cast<VoxelDatasetColor::Accessor *>(mi_mem_allocate(
+			sizeof(VoxelDatasetColor::Accessor)));
+
+	// Initialise the memory
+	accessor = new (accessor) VoxelDatasetColor::Accessor(
+			voxels->get_accessor());
+
+	// Save the thread pointer
+	mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
+
+}
+
 extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		struct voxel_rgb_value *params) {
 
@@ -209,10 +235,10 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		break;
 	}
 	case DENSITY_RAW_CACHE: {
-		VoxelDatasetColor *voxels =
-				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
+		VoxelDatasetColor *voxels = nullptr;
 		VoxelDatasetColor::Accessor *accessor = nullptr;
-		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+		get_stored_data(voxels, accessor, state);
+		assert(voxels != nullptr);
 		assert(accessor != nullptr);
 
 		openvdb::Vec3f res_vec3 = voxels->get_voxel_value(
@@ -247,12 +273,10 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;
 		if (miaux_point_inside(p, min_point, max_point)) {
-			VoxelDatasetColor *voxels =
-					(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
-			// Get previously allocated accessor
+			VoxelDatasetColor *voxels = nullptr;
 			VoxelDatasetColor::Accessor *accessor = nullptr;
-			mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
-
+			get_stored_data(voxels, accessor, state);
+			assert(voxels != nullptr);
 			assert(accessor != nullptr);
 
 			openvdb::Vec3f res_vec3 = voxels->get_fitted_voxel_value(p,
@@ -263,54 +287,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		} else {
 			miaux_set_rgb(result, 0);
 		}
-		break;
-	}
-	case ALLOC_CACHE: {
-		// Get thread pointer
-		VoxelDatasetColor::Accessor *accessor = nullptr;
-		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
-
-		if (accessor == nullptr) {
-			// Allocate memory
-			accessor =
-					static_cast<VoxelDatasetColor::Accessor *>(mi_mem_allocate(
-							sizeof(VoxelDatasetColor::Accessor)));
-
-			// Initialise the memory
-			VoxelDatasetColor *voxels =
-					(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
-			accessor = new (accessor) VoxelDatasetColor::Accessor(
-					voxels->get_accessor());
-
-			// Save the thread pointer
-			mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
-
-			// Allocation success, caller is responsible of free the mem now
-			result->r = 1;
-		} else {
-			// Memory was already allocated for this thread, caller should not
-			// free the memory, as it will be by whoever allocated it before
-			result->r = 0;
-		}
-		break;
-	}
-	case FREE_CACHE: {
-		// Get thread pointer
-		VoxelDatasetColor::Accessor *accessor = nullptr;
-		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
-		if (accessor == nullptr) {
-			mi_warning(
-					"Tried to free accessor but not memory found, possible\
-					memory leak");
-			break;
-		}
-
-		accessor->clear();
-
-		// Ideally we would call the destructor here and free the whole memory
-		// but for some reason miQ_FUNC_TLS_SET does not set the pointer to null,
-		// only changes the address, so we only free the cache internal memory,
-		// and let the exit function free the rest
 		break;
 	}
 	}

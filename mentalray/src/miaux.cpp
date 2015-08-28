@@ -242,7 +242,6 @@ void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
 void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
 		miScalar scale, miScalar offset) {
-	bool alloc_d = miaux_manage_shader_cach(state, density_shader, ALLOC_CACHE);
 	state->type = (miRay_type) DENSITY_RAW_CACHE;
 	voxels->resize(width, height, depth);
 	miColor density = { 0, 0, 0, 0 };
@@ -266,9 +265,6 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 				}
 			}
 		}
-	}
-	if (alloc_d) {
-		miaux_manage_shader_cach(state, density_shader, FREE_CACHE);
 	}
 }
 
@@ -340,11 +336,6 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
 
-	// Since we are going to call the density shader several times,
-	// tell the shader to cache the values
-	bool alloc_absor = miaux_manage_shader_cach(state,
-			rm_data.absorption_shader, ALLOC_CACHE);
-
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
@@ -367,10 +358,6 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 	result->transparency.g = exp(-total_sigma.g * rm_data.march_increment);
 	result->transparency.b = exp(-total_sigma.b * rm_data.march_increment);
 
-	if (alloc_absor) {
-		miaux_manage_shader_cach(state, rm_data.absorption_shader, FREE_CACHE);
-	}
-
 	state->type = ray_type;
 	state->point = original_point;
 }
@@ -386,11 +373,6 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	// to do the ray marching
 	struct miRc_intersection* original_state_pri = state->pri;
 	state->pri = NULL;
-
-	// Since we are going to call the density shader several times,
-	// tell the shader to cache the values
-	bool alloc_d = miaux_manage_shader_cach(state, rm_data.density_shader,
-			ALLOC_CACHE);
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
@@ -444,9 +426,6 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	// volumetric 1 is transparent
 	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
 
-	if (alloc_d) {
-		miaux_manage_shader_cach(state, rm_data.density_shader, FREE_CACHE);
-	}
 	state->type = ray_type;
 	state->point = original_point;
 	state->pri = original_state_pri;
@@ -463,11 +442,6 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	// to do the ray marching
 	struct miRc_intersection* original_state_pri = state->pri;
 	state->pri = NULL;
-
-	// Since we are going to call the density shader several times,
-	// tell the shader to cache the values
-	bool alloc_absor = miaux_manage_shader_cach(state,
-			rm_data.absorption_shader, ALLOC_CACHE);
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
@@ -519,14 +493,6 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	// has no effect, the transparency is controlled with the transparency
 	// rgb channels
 	miaux_copy_color(&result->color, &volume_color);
-
-	// In RGBA, 0 alpha is transparent, but in in transparency for maya
-	// volumetric 1 is transparent
-	//miaux_set_rgb(&result->transparency, 1 - volume_color.a);
-
-	if (alloc_absor) {
-		miaux_manage_shader_cach(state, rm_data.absorption_shader, FREE_CACHE);
-	}
 
 	state->type = ray_type;
 	state->point = original_point;

@@ -50,7 +50,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 				nullptr);
 
 		miTag sigma_a_shader = miNULLTAG;
-		bool alloc_sigma = false;
 		if (fuel_type != FuelType::BlackBody) {
 			sigma_a_shader = *mi_eval_tag(&params->sigma_a_shader);
 
@@ -60,16 +59,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 					sigma_a_shader, nullptr);
 
 			miaux_multiply_colors(&background, &background, &background_sigma);
-
-			// Since we are going to call the density shader several times,
-			// tell the shader to cache the values
-			alloc_sigma = miaux_manage_shader_cach(state, sigma_a_shader,
-					ALLOC_CACHE);
 		}
-
-		// Since we are going to call the density shader several times,
-		// tell the shader to cache the values
-		bool alloc_bb = miaux_manage_shader_cach(state, bb_shader, ALLOC_CACHE);
 
 		unsigned width = 0, height = 0, depth = 0;
 		miaux_get_voxel_dataset_dims(&width, &height, &depth, state, bb_shader);
@@ -152,14 +142,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		}
 
 		voxels->compute_max_voxel_value();
-
-		if (alloc_bb) {
-			miaux_manage_shader_cach(state, bb_shader, FREE_CACHE);
-		}
-
-		if (alloc_sigma) {
-			miaux_manage_shader_cach(state, sigma_a_shader, FREE_CACHE);
-		}
 
 		// Restore previous state
 		state->point = original_point;

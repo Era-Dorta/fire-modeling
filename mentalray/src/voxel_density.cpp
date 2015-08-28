@@ -20,6 +20,31 @@ extern "C" DLLEXPORT int voxel_density_version(void) {
 	return 1;
 }
 
+// As we need to modify the pointers, the input are references to pointers
+void get_stored_data(VoxelDatasetFloat*& voxels,
+		VoxelDatasetFloat::Accessor*& accessor, miState *state) {
+
+	voxels = (VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
+
+	accessor = nullptr;
+	mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+
+	if (accessor != nullptr) {
+		return;
+	}
+
+	// Allocate memory
+	accessor = static_cast<VoxelDatasetFloat::Accessor *>(mi_mem_allocate(
+			sizeof(VoxelDatasetFloat::Accessor)));
+
+	// Initialise the memory
+	accessor = new (accessor) VoxelDatasetFloat::Accessor(
+			voxels->get_accessor());
+
+	// Save the thread pointer
+	mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
+}
+
 extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 		struct voxel_density *params, miBoolean *instance_init_required) {
 	if (!params) { /* Main shader init (not an instance): */
@@ -122,12 +147,10 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		break;
 	}
 	case DENSITY_RAW_CACHE: {
-		VoxelDatasetFloat *voxels =
-				(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
-		// Get previously allocated accessor
+		VoxelDatasetFloat *voxels = nullptr;
 		VoxelDatasetFloat::Accessor *accessor = nullptr;
-		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
-
+		get_stored_data(voxels, accessor, state);
+		assert(voxels != nullptr);
 		assert(accessor != nullptr);
 
 		*result = voxels->get_voxel_value((unsigned) state->point.x,
@@ -155,13 +178,10 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;
 		if (miaux_point_inside(p, min_point, max_point)) {
-			VoxelDatasetFloat *voxels =
-					(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
-
-			// Get previously allocated accessor
+			VoxelDatasetFloat *voxels = nullptr;
 			VoxelDatasetFloat::Accessor *accessor = nullptr;
-			mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
-
+			get_stored_data(voxels, accessor, state);
+			assert(voxels != nullptr);
 			assert(accessor != nullptr);
 
 			*result = voxels->get_fitted_voxel_value(p, min_point, max_point,
@@ -169,47 +189,6 @@ extern "C" DLLEXPORT miBoolean voxel_density(miScalar *result, miState *state,
 		} else {
 			*result = 0.0;
 		}
-		break;
-	}
-	case ALLOC_CACHE: {
-		// Get thread pointer
-		VoxelDatasetFloat::Accessor *accessor = nullptr;
-		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
-
-		if (accessor == nullptr) {
-			// Allocate memory
-			accessor =
-					static_cast<VoxelDatasetFloat::Accessor *>(mi_mem_allocate(
-							sizeof(VoxelDatasetFloat::Accessor)));
-
-			// Initialise the memory
-			VoxelDatasetFloat *voxels =
-					(VoxelDatasetFloat *) miaux_get_user_memory_pointer(state);
-			accessor = new (accessor) VoxelDatasetFloat::Accessor(
-					voxels->get_accessor());
-
-			// Save the thread pointer
-			mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
-			*result = 1;
-		} else {
-			*result = 0;
-		}
-		break;
-	}
-	case FREE_CACHE: {
-		// Get thread pointer
-		VoxelDatasetFloat::Accessor *accessor = nullptr;
-		mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
-		if (accessor == nullptr) {
-			mi_warning(
-					"Tried to free accessor but not memory found, possible\
-					memory leak");
-			break;
-		}
-
-		accessor->clear();
-
-		// See comments on voxel_rgb_value FREE_CACHE
 		break;
 	}
 	}
