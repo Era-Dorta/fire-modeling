@@ -20,4 +20,9 @@ Fire Shader for Mental Ray in Maya
 #### Using the shaders
 * Select Render Settings -> Render Using -> Mental Ray
 * Run ```createFireVolume("/path-to-temperature-file.raw", "/path-to-density-file.raw");```
+  * Both paths should be for the first file in a data sequence
+  * The file name format requires the frame number to be located in the end of the name, e.g. ```my-file-001.raw```
+* The shader will automatically advance to new data files when the playback frame changes in Maya
+* All the parameters that affect the result of the shading network can be modified from the ```fire_volume_shader``` attribute editor
+  * The only exception are the number of samples per ray, which are located under the mental ray section in the area light shape, ```High Samples, High Sample Limit, Low Samples```; on each execution the shader will output the upper limit for ```High Samples``` for the current data in the mental ray console.
 * Additionally create new instances with ```instance -smartTransform;```
