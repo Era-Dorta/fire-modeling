@@ -347,7 +347,7 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
-	int steps = static_cast<int>(rm_data.dist / rm_data.march_increment);
+	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = 0; i <= steps; i++) {
 		// Compute the distance on each time step to avoid numerical errors
 		float distance = rm_data.march_increment * i;
@@ -394,7 +394,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
-	int steps = static_cast<int>(rm_data.dist / rm_data.march_increment);
+	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = steps; i >= 0; i--) {
 		// Compute the distance on each time step to avoid numerical errors
 		float distance = rm_data.march_increment * i;
@@ -469,7 +469,7 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 
 	state->type = static_cast<miRay_type>(DENSITY_CACHE);
 
-	int steps = static_cast<int>(rm_data.dist / rm_data.march_increment);
+	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = steps; i >= 0; i--) {
 		// Compute the distance on each time step to avoid numerical errors
 		float distance = rm_data.march_increment * i;
