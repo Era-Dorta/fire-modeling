@@ -2,13 +2,17 @@ proc string fireNewFileName(string $filename, int $currentFrame){
 	// Separate filename in name and extension
 	$tokenFilename = `stringToStringArray $filename "."`;
 	
-	// Get the last numbers
-	$nameSize = `size $tokenFilename[0]`;		
-	$fileName = `substring $tokenFilename[0] 1 ($nameSize - 3)`;
-	$fileNumberStr = `substring $tokenFilename[0] ($nameSize - 2) $nameSize`;
+	// Get the file number
+	string $numberExpr = "[0-9]+$"; // A bunch of digits at the end of the string
+	string $fileNumberStr = `match $numberExpr $tokenFilename[0]`;
 	$fileNumberSize = `size $fileNumberStr`;
 	
-	// Increment to next file
+	// Get the name without the numbers
+	$nameSize = `size $tokenFilename[0]`;
+	$nameSize = $nameSize - $fileNumberSize;
+	$fileName = `substring $tokenFilename[0] 1 $nameSize`;
+	
+	// Increment to current frame
 	$fileNumber = (int)$fileNumberStr;
 	$fileNumber = $fileNumber + $currentFrame - 1;
 	$fileNumberStr = (string)$fileNumber;
