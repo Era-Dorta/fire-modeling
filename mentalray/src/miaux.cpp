@@ -494,20 +494,22 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			miaux_total_light_at_point(&light_color, state, rm_data.light,
 					rm_data.n_light);
 
-			// (1 - exp(sigma_a * Dx) * L_e
-			light_color.r *= 1.0 - exp(-sigma_a.r * rm_data.march_increment);
-			light_color.g *= 1.0 - exp(-sigma_a.g * rm_data.march_increment);
-			light_color.b *= 1.0 - exp(-sigma_a.b * rm_data.march_increment);
+			// Compute exp(-sigma_a * Dx)
+			miColor exp_sigma_dx;
+			exp_sigma_dx.r = exp(-sigma_a.r * rm_data.march_increment);
+			exp_sigma_dx.g = exp(-sigma_a.g * rm_data.march_increment);
+			exp_sigma_dx.b = exp(-sigma_a.b * rm_data.march_increment);
 
-			// exp(sigma_a * Dx) * L(x + Dx)
-			volume_color.r *= exp(-sigma_a.r * rm_data.march_increment);
-			volume_color.g *= exp(-sigma_a.g * rm_data.march_increment);
-			volume_color.b *= exp(-sigma_a.b * rm_data.march_increment);
+			// (1 - exp(-sigma_a * Dx) * L_e
+			light_color.r *= 1.0 - exp_sigma_dx.r;
+			light_color.g *= 1.0 - exp_sigma_dx.g;
+			light_color.b *= 1.0 - exp_sigma_dx.b;
+
+			// exp(-sigma_a * Dx) * L(x + Dx)
+			miaux_multiply_colors(&volume_color, &volume_color, &exp_sigma_dx);
 
 			// Sum previous and current contributions
-			volume_color.r += light_color.r;
-			volume_color.g += light_color.g;
-			volume_color.b += light_color.b;
+			miaux_add_color(&volume_color, &light_color);
 
 			// Reset for the density shader calls
 			state->type = static_cast<miRay_type>(DENSITY_CACHE);
