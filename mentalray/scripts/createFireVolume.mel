@@ -48,6 +48,9 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	// Set the files paths in the shader nodes
 	setAttr -type "string" ($fire_shader + ".temperature_file") $temperature_file;
 	setAttr -type "string" ($fire_shader + ".density_file") $density_file;
+	
+	setAttr -type "string" ($fire_shader + ".temperature_file_first") $temperature_file;
+	setAttr -type "string" ($fire_shader + ".density_file_first") $density_file;
 
 	// Fire shader as volume shader for the shading group
 	connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
@@ -132,7 +135,7 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -l true { ($area_light + ".sh") };
 
 	// Launch a script to update the file names
-	$cmd = "fireFrameUpdate( \"" + $fire_shader + "\", \"" + $temperature_file + "\", \"" + $density_file + "\")";
+	$cmd = "fireFrameUpdate( \"" + $fire_shader + "\")";
 	expression -string $cmd;
 	
 	// Set the total number of frames of the playback bar

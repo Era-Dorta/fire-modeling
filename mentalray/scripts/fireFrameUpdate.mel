@@ -33,7 +33,7 @@ proc string fireNewFileName(string $filename, int $currentFrame){
 	return $newFile;
 }
 
-global proc fireFrameUpdate( string $fireShader, string $densityFileName, string $temperatureFileName) {
+global proc fireFrameUpdate(string $fireShader) {
 
 	if(!`objExists $fireShader`){
 		// Object was deleted, do nothing
@@ -42,12 +42,14 @@ global proc fireFrameUpdate( string $fireShader, string $densityFileName, string
 	
 	$currentFrame = `currentTime -query`;
 
+	$densityFileName = `getAttr ($fireShader + ".density_file_first")`;
 	$newFile = `fireNewFileName $densityFileName $currentFrame`;
 
 	if(`filetest -r $newFile`){ // If file does not exits, do not update
 		setAttr -type "string" ($fireShader + ".density_file") $newFile;
 	}
 	
+	$temperatureFileName = `getAttr ($fireShader + ".temperature_file_first")`;
 	$newFile = `fireNewFileName $temperatureFileName $currentFrame`;
 	
 	if(`filetest -r $newFile`){ 

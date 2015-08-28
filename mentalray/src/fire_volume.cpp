@@ -20,10 +20,12 @@ struct fire_volume {
 	miTag density_shader;
 	miTag absorption_shader;
 	miTag density_file; // Dummy
+	miTag density_file_first; // Dummy
 	miScalar density_scale; // Dummy
 	miScalar density_offset; // Dummy
 	miInteger density_read_mode; // Dummy
 	miTag temperature_file; // Dummy
+	miTag temperature_file_first; // Dummy
 	miScalar temperature_scale; // Dummy
 	miScalar temperature_offset; // Dummy
 	miInteger temperature_read_mode; // Dummy

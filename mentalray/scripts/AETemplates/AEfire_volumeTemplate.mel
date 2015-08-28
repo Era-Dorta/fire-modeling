@@ -1,5 +1,30 @@
 // Browse file code from https://github.com/ADN-DevTech/Maya-Locator
 
+proc int numFilesInFolder(string $fileNamePath){
+	$directory = `dirname( $fileNamePath)`;
+	$fileShort = `stringRemovePrefix $fileNamePath $directory`;
+	$filelist = `getFileList -folder $directory -filespec ($fileShort + "*")`;
+	$filesize = `size $filelist`;
+	return $filesize;
+}
+
+proc string fireFileNameNoNumber(string $filename){
+	// Separate filename in name and extension
+	$tokenFilename = `stringToStringArray $filename "."`;
+	
+	// Get the file number
+	string $numberExpr = "[0-9]+$"; // A bunch of digits at the end of the string
+	string $fileNumberStr = `match $numberExpr $tokenFilename[0]`;
+	$fileNumberSize = `size $fileNumberStr`;
+	
+	// Get the name without the numbers
+	$nameSize = `size $tokenFilename[0]`;
+	$nameSize = $nameSize - $fileNumberSize;
+	$fileName = `substring $tokenFilename[0] 1 $nameSize`;
+	
+	return $fileName;
+}
+
 global proc AEfire_volumeNameNew (string $fileNameAttr) {
 	setUITemplate -pst attributeEditorTemplate;
 		columnLayout -adj true;
@@ -36,7 +61,25 @@ global proc AEfire_volumeNameFileBrowser (string $fileNameAttr) {
 
     // set the file name attribute of the cache node
     setAttr $fileNameAttr -type "string" $result[0];
+    setAttr ($fileNameAttr + "_first") -type "string" $result[0];
+    
+    // Set the total number of frames of the playback bar
+	$fileNameNPath = `fireFileNameNoNumber $result[0]`;
+	$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
+
+	$currentMaxFrame = `playbackOptions -query -maxTime`;
+
+	// If we have less data, then make the play bar smaller
+	if($currentMaxFrame > $maxNumberDataFiles){
+		playbackOptions -maxTime $maxNumberDataFiles;
+	}
+	
+	// TODO This is an ugly hack to force ui updates
+	$ctime = `currentTime -query`;
+	currentTime 1;
+	currentTime $ctime;
 }
+
 global proc AEfire_volumeTemplate ( string $nodeName )
 {
 	//editorTemplate -beginNoOptimize;
