@@ -1,4 +1,12 @@
-proc string fireNewFileName(string $filename, int $currentFrame){
+proc int numFilesInFolder(string $fileNamePath){
+	$directory = `dirname( $fileNamePath)`;
+	$fileShort = `stringRemovePrefix $fileNamePath $directory`;
+	$filelist = `getFileList -folder $directory -filespec ($fileShort + "*")`;
+	$filesize = `size $filelist`;
+	return $filesize;
+}
+
+proc string fireFileNameNoNumber(string $filename){
 	// Separate filename in name and extension
 	$tokenFilename = `stringToStringArray $filename "."`;
 	
@@ -12,47 +20,7 @@ proc string fireNewFileName(string $filename, int $currentFrame){
 	$nameSize = $nameSize - $fileNumberSize;
 	$fileName = `substring $tokenFilename[0] 1 $nameSize`;
 	
-	// Increment to current frame
-	$fileNumber = (int)$fileNumberStr;
-	$fileNumber = $fileNumber + $currentFrame - 1;
-	$fileNumberStr = (string)$fileNumber;
-	$newNumSize = `size $fileNumberStr`;
-	
-	if($newNumSize < $fileNumberSize){
-		// Add extra zeros to get the same size
-		int $size = $fileNumberSize - $newNumSize;
-		int $i;
-		for ($i = 0; $i < $size; $i++) {
-			$fileNumberStr = `stringAddPrefix $fileNumberStr "0"`;
-		}
-	}
-	
-	// Put together the new file name
-	$newFile = $fileName + $fileNumberStr + "." + $tokenFilename[1];
-	
-	return $newFile;
-}
-
-global proc fireFrameUpdate( string $fireShader, string $densityFileName, string $temperatureFileName) {
-
-	if(!`objExists $fireShader`){
-		// Object was deleted, do nothing
-		return;
-	}
-	
-	$currentFrame = `currentTime -query`;
-
-	$newFile = `fireNewFileName $densityFileName $currentFrame`;
-
-	if(`filetest -r $newFile`){ // If file does not exits, do not update
-		setAttr -type "string" ($fireShader + ".density_file") $newFile;
-	}
-	
-	$newFile = `fireNewFileName $temperatureFileName $currentFrame`;
-	
-	if(`filetest -r $newFile`){ 
-		setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
-	}
+	return $fileName;
 }
 
 global proc string createFireVolume( string $temperature_file, string $density_file){
@@ -166,7 +134,25 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	// Launch a script to update the file names
 	$cmd = "fireFrameUpdate( \"" + $fire_shader + "\", \"" + $temperature_file + "\", \"" + $density_file + "\")";
 	expression -string $cmd;
-
+	
+	// Set the total number of frames of the playback bar
+	$fileNameNPath = `fireFileNameNoNumber $density_file`;
+	$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
+	
+	$fileNameNPath = `fireFileNameNoNumber $temperature_file`;
+	$temperatureNumberDataFiles = `numFilesInFolder $fileNameNPath`;
+	
+	if($maxNumberDataFiles < $temperatureNumberDataFiles){
+		$maxNumberDataFiles = $temperatureNumberDataFiles;
+	}
+	
+	$currentMaxFrame = `playbackOptions -query -maxTime`;
+	
+	// If we have less data, then make the play bar smaller
+	if($currentMaxFrame > $maxNumberDataFiles){
+		playbackOptions -maxTime $maxNumberDataFiles;
+	}
+	
 	select -r $cube_transform;
 	return $cube_transform;
 }
