@@ -35,22 +35,23 @@ proc string fireNewFileName(string $filename, int $currentFrame){
 
 global proc fireFrameUpdate( string $fireShader, string $densityFileName, string $temperatureFileName) {
 
-	if(`objExists $fireShader`){
-		$currentFrame = `currentTime -query`;
+	if(!`objExists $fireShader`){
+		// Object was deleted, do nothing
+		return;
+	}
 	
-		$newFile = `fireNewFileName $densityFileName $currentFrame`;
+	$currentFrame = `currentTime -query`;
 
-		if(`filetest -r $newFile`){ // If file does not exits, do not update
-			setAttr -type "string" ($fireShader + ".density_file") $newFile;
-		}
-		
-		$newFile = `fireNewFileName $temperatureFileName $currentFrame`;
-		
-		if(`filetest -r $newFile`){ 
-			setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
-		}
-	} else {
-		//TODO Don't know how to kill the expression
+	$newFile = `fireNewFileName $densityFileName $currentFrame`;
+
+	if(`filetest -r $newFile`){ // If file does not exits, do not update
+		setAttr -type "string" ($fireShader + ".density_file") $newFile;
+	}
+	
+	$newFile = `fireNewFileName $temperatureFileName $currentFrame`;
+	
+	if(`filetest -r $newFile`){ 
+		setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
 	}
 }
 
