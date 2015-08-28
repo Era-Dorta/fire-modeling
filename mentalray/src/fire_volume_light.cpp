@@ -72,7 +72,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		voxels = new (voxels) VoxelDatasetColorSorted(background);
 		voxels->resize(width, height, depth);
 
-		state->type = static_cast<miRay_type>(DENSITY_RAW_CACHE);
+		state->type = static_cast<miRay_type>(DENSITY_RAW);
 
 		miColor bb_radiation = { 0, 0, 0, 0 }, sigma_a = { 0, 0, 0, 0 };
 		openvdb::Vec3f bb_radiation_v(0);

@@ -242,7 +242,7 @@ void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
 void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 		miTag density_shader, unsigned width, unsigned height, unsigned depth,
 		miScalar scale, miScalar offset) {
-	state->type = (miRay_type) DENSITY_RAW_CACHE;
+	state->type = (miRay_type) DENSITY_RAW;
 	voxels->resize(width, height, depth);
 	miColor density = { 0, 0, 0, 0 };
 	openvdb::Vec3f density_v = openvdb::Vec3f::zero();
@@ -336,7 +336,7 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
 
-	state->type = static_cast<miRay_type>(DENSITY_CACHE);
+	state->type = static_cast<miRay_type>(DENSITY);
 
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = 0; i <= steps; i++) {
@@ -374,7 +374,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	struct miRc_intersection* original_state_pri = state->pri;
 	state->pri = NULL;
 
-	state->type = static_cast<miRay_type>(DENSITY_CACHE);
+	state->type = static_cast<miRay_type>(DENSITY);
 
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = steps; i >= 0; i--) {
@@ -410,7 +410,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 			miaux_add_transparent_color(&volume_color, &point_color, density);
 
 			// Reset for the density shader calls
-			state->type = static_cast<miRay_type>(DENSITY_CACHE);
+			state->type = static_cast<miRay_type>(DENSITY);
 		}
 		if (volume_color.a == 1.0) {
 			break;
@@ -443,7 +443,7 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	struct miRc_intersection* original_state_pri = state->pri;
 	state->pri = NULL;
 
-	state->type = static_cast<miRay_type>(DENSITY_CACHE);
+	state->type = static_cast<miRay_type>(DENSITY);
 
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = steps; i >= 0; i--) {
@@ -486,7 +486,7 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			miaux_add_color(&volume_color, &light_color);
 
 			// Reset for the density shader calls
-			state->type = static_cast<miRay_type>(DENSITY_CACHE);
+			state->type = static_cast<miRay_type>(DENSITY);
 		}
 	}
 	// Note changing result->color or result->transparecy alpha channel

@@ -223,23 +223,9 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		break;
 	}
 	case DENSITY_RAW: {
-		VoxelDatasetColor *voxels =
-				(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
-		VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
-		openvdb::Vec3f res_vec3 = voxels->get_voxel_value(
-				(unsigned) state->point.x, (unsigned) state->point.y,
-				(unsigned) state->point.z, accessor);
-		result->r = res_vec3.x();
-		result->g = res_vec3.y();
-		result->b = res_vec3.z();
-		break;
-	}
-	case DENSITY_RAW_CACHE: {
 		VoxelDatasetColor *voxels = nullptr;
 		VoxelDatasetColor::Accessor *accessor = nullptr;
 		get_stored_data(voxels, accessor, state);
-		assert(voxels != nullptr);
-		assert(accessor != nullptr);
 
 		openvdb::Vec3f res_vec3 = voxels->get_voxel_value(
 				(unsigned) state->point.x, (unsigned) state->point.y,
@@ -255,29 +241,9 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value(miColor *result, miState *state,
 		miVector *max_point = mi_eval_vector(&params->max_point);
 		miVector *p = &state->point;
 		if (miaux_point_inside(p, min_point, max_point)) {
-			VoxelDatasetColor *voxels =
-					(VoxelDatasetColor *) miaux_get_user_memory_pointer(state);
-			VoxelDatasetColor::Accessor accessor = voxels->get_accessor();
-			openvdb::Vec3f res_vec3 = voxels->get_fitted_voxel_value(p,
-					min_point, max_point, accessor);
-			result->r = res_vec3.x();
-			result->g = res_vec3.y();
-			result->b = res_vec3.z();
-		} else {
-			miaux_set_rgb(result, 0);
-		}
-		break;
-	}
-	case DENSITY_CACHE: {
-		miVector *min_point = mi_eval_vector(&params->min_point);
-		miVector *max_point = mi_eval_vector(&params->max_point);
-		miVector *p = &state->point;
-		if (miaux_point_inside(p, min_point, max_point)) {
 			VoxelDatasetColor *voxels = nullptr;
 			VoxelDatasetColor::Accessor *accessor = nullptr;
 			get_stored_data(voxels, accessor, state);
-			assert(voxels != nullptr);
-			assert(accessor != nullptr);
 
 			openvdb::Vec3f res_vec3 = voxels->get_fitted_voxel_value(p,
 					min_point, max_point, *accessor);
