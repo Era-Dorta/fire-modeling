@@ -421,6 +421,8 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 			// Here is where the equation is solved
 			// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
 			density *= rm_data.march_increment;
+			// Convert point to internal space before calling the light shader
+			mi_point_from_object(state, &state->point, &state->point);
 			miaux_total_light_at_point(&point_color, state, rm_data.light,
 					rm_data.n_light);
 			miaux_add_transparent_color(&volume_color, &point_color, density);
@@ -486,6 +488,8 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			// Restore ray type for total light at point
 			state->type = ray_type;
 
+			// Convert point to internal space before calling the light shader
+			mi_point_from_object(state, &state->point, &state->point);
 			// Get L_e
 			miaux_total_light_at_point(&light_color, state, rm_data.light,
 					rm_data.n_light);

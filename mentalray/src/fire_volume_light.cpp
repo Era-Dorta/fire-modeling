@@ -212,11 +212,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
 
 	// Set light position from the handler, this comes in internal space
-	miVector light_org_obj;
-	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &light_org_obj);
-
-	// Light ray origin needs to be in light(object) space
-	mi_point_to_light(state, &state->org, &light_org_obj);
+	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
 
 	// TODO If asked for more samples than we have in the voxel, we could start
 	// interpolating between the value the interpolation code is there, what is
@@ -271,8 +267,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	mi_vector_mul(&offset_light, INV_SIZE);
 	mi_vector_add(&offset_light, &offset_light, &minus_one);
 
-	// Since the origin is in light(object) space, we can add the offset without
-	// any transformation
+	// Convert the offset from light(object) space to internal space
+	mi_vector_from_light(state, &offset_light, &offset_light);
+
+	// Add the offset to the light origin
 	mi_vector_add(&state->org, &state->org, &offset_light);
 
 	// dir is vector from light origin to primitive intersection point
