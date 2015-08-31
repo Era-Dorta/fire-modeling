@@ -135,8 +135,9 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -l true { ($area_light + ".sh") };
 
 	// Launch a script to update the file names
-	$cmd = "fireFrameUpdate( \"" + $fire_shader + "\")";
-	expression -string $cmd;
+	$updateScript = "fireFrameUpdate( \"" + $fire_shader + "\");";
+	$expression_name = ($fire_shader + "FrameUpdate");
+	expression -string $updateScript -object $fire_shader -name $expression_name -alwaysEvaluate 1;
 	
 	// Set the total number of frames of the playback bar
 	$fileNameNPath = `fireFileNameNoNumber $density_file`;
