@@ -22,7 +22,7 @@ public:
 	VoxelDatasetFloat(float scale, float offset);
 	VoxelDatasetFloat(const std::string& filename, float scale, float offset,
 			FILE_FORMAT file_format = BIN_ONLY_RED);
-	void initialize_with_file(const std::string& filename,
+	bool initialize_with_file(const std::string& filename,
 			FILE_FORMAT file_format = BIN_ONLY_RED);
 	void apply_sin_perturbation();
 protected:
@@ -31,10 +31,10 @@ protected:
 	virtual float linear_interp(float t, const float& c0,
 			const float& c1) const;
 private:
-	void initialize_with_file_acii_single(const std::string& filename);
-	void initialize_with_file_acii_uintah(const std::string& filename);
-	void initialize_with_file_bin_only_red(const std::string& filename);
-	void initialize_with_file_bin_max(const std::string& filename);
+	bool initialize_with_file_acii_single(const std::string& filename);
+	bool initialize_with_file_acii_uintah(const std::string& filename);
+	bool initialize_with_file_bin_only_red(const std::string& filename);
+	bool initialize_with_file_bin_max(const std::string& filename);
 	void read_bin_xyz(std::ifstream& fp, unsigned& x, unsigned& y, unsigned& z);
 	void read_bin_rgba(std::ifstream& fp, double& r, double& g, double& b,
 			double& a);

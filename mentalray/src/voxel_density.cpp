@@ -74,8 +74,11 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 			int mode = *mi_eval_integer(&params->read_mode);
 			mi_info("\tReading voxel datase mode %d, filename %s", mode,
 					filename.c_str());
-			voxels->initialize_with_file(filename,
-					(VoxelDatasetFloat::FILE_FORMAT) mode);
+			if (!voxels->initialize_with_file(filename,
+					(VoxelDatasetFloat::FILE_FORMAT) mode)) {
+				// If there was an error clear all for early exit
+				voxels->clear();
+			}
 
 			//voxels->apply_sin_perturbation();
 
@@ -83,8 +86,7 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 					voxels->getWidth(), voxels->getHeight(), voxels->getDepth(),
 					filename.c_str());
 		} else {
-			mi_fatal("Voxel density needs a filename, current is %s",
-					filename.c_str());
+			mi_error("Voxel density filename is empty");
 		}
 	}
 	return miTRUE;

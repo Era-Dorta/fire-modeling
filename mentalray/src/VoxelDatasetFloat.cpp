@@ -24,26 +24,23 @@ VoxelDatasetFloat::VoxelDatasetFloat(const std::string& filename, float scale,
 	initialize_with_file(filename, file_format);
 }
 
-void VoxelDatasetFloat::initialize_with_file(const std::string& filename,
+bool VoxelDatasetFloat::initialize_with_file(const std::string& filename,
 		FILE_FORMAT file_format) {
 	switch (file_format) {
-	case ASCII_SINGLE_VALUE: {
-		initialize_with_file_acii_single(filename);
-		break;
+	case FILE_FORMAT::ASCII_SINGLE_VALUE: {
+		return initialize_with_file_acii_single(filename);
 	}
-	case BIN_ONLY_RED: {
-		initialize_with_file_bin_only_red(filename);
-		break;
+	case FILE_FORMAT::BIN_ONLY_RED: {
+		return initialize_with_file_bin_only_red(filename);
 	}
-	case BIN_MAX: {
-		initialize_with_file_bin_max(filename);
-		break;
+	case FILE_FORMAT::BIN_MAX: {
+		return initialize_with_file_bin_max(filename);
 	}
-	case ASCII_UINTAH: {
-		initialize_with_file_acii_uintah(filename);
-		break;
+	case FILE_FORMAT::ASCII_UINTAH: {
+		return initialize_with_file_acii_uintah(filename);
 	}
 	}
+	return false;
 }
 
 void VoxelDatasetFloat::apply_sin_perturbation() {
@@ -87,161 +84,194 @@ float VoxelDatasetFloat::linear_interp(float t, const float&c0,
 	return c0 * (1 - t) + c1 * t;
 }
 
-void VoxelDatasetFloat::initialize_with_file_acii_single(
+bool VoxelDatasetFloat::initialize_with_file_acii_single(
 		const std::string& filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename.c_str());
+		mi_error("Could not open file \"%s\".", filename.c_str());
+		return false;
 	}
 
 	// Read width height and depth
 	unsigned width, height, depth;
-	safe_ascii_read(fp, width);
-	safe_ascii_read(fp, height);
-	safe_ascii_read(fp, depth);
+	try {
+		safe_ascii_read(fp, width);
+		safe_ascii_read(fp, height);
+		safe_ascii_read(fp, depth);
 
-	clear();
-	resize(width, height, depth);
+		clear();
+		resize(width, height, depth);
 
-	for (unsigned i = 0; i < width; i++) {
-		for (unsigned j = 0; j < height; j++) {
-			for (unsigned k = 0; k < depth; k++) {
-				float read_val;
-				safe_ascii_read(fp, read_val);
+		for (unsigned i = 0; i < width; i++) {
+			for (unsigned j = 0; j < height; j++) {
+				for (unsigned k = 0; k < depth; k++) {
+					float read_val;
+					safe_ascii_read(fp, read_val);
 
-				// Ignore zeros
-				if (read_val != 0) {
-					read_val = read_val * scale + offset;
-					if (read_val != block->background()) {
-						accessor.setValue(openvdb::Coord(i, j, k), read_val);
+					// Ignore zeros
+					if (read_val != 0) {
+						read_val = read_val * scale + offset;
+						if (read_val != block->background()) {
+							accessor.setValue(openvdb::Coord(i, j, k),
+									read_val);
+						}
 					}
 				}
 			}
 		}
-	}
 
-	fp.close();
+		fp.close();
+		return true;
+	} catch (const std::ios_base::failure& e) {
+		fp.close();
+		mi_error("Wrong format in file \"%s\".", filename.c_str());
+		return false;
+	}
 }
 
-void VoxelDatasetFloat::initialize_with_file_acii_uintah(
+bool VoxelDatasetFloat::initialize_with_file_acii_uintah(
 		const std::string& filename) {
 
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename.c_str());
+		mi_error("Could not open file \"%s\".", filename.c_str());
+		return false;
 	}
 
-	// Read width height and depth
-	unsigned width, height, depth;
-	safe_ascii_read(fp, width);
-	safe_ascii_read(fp, height);
-	safe_ascii_read(fp, depth);
+	try {
+		// Read width height and depth
+		unsigned width, height, depth;
+		safe_ascii_read(fp, width);
+		safe_ascii_read(fp, height);
+		safe_ascii_read(fp, depth);
 
-	resize(width, height, depth);
+		resize(width, height, depth);
 
-	int count;
-	// Number of points in the file
-	safe_ascii_read(fp, count);
+		int count;
+		// Number of points in the file
+		safe_ascii_read(fp, count);
 
-	float background;
-	safe_ascii_read(fp, background);
+		float background;
+		safe_ascii_read(fp, background);
 
-	// TODO Add GUI option to ignore the background
-	//block->setBackground(background * scale + offset);
+		// TODO Add GUI option to ignore the background
+		//block->setBackground(background * scale + offset);
 
-	for (int i = 0; i < count; i++) {
-		openvdb::Coord coord;
-		safe_ascii_read(fp, coord.x());
-		safe_ascii_read(fp, coord.y());
-		safe_ascii_read(fp, coord.z());
+		for (int i = 0; i < count; i++) {
+			openvdb::Coord coord;
+			safe_ascii_read(fp, coord.x());
+			safe_ascii_read(fp, coord.y());
+			safe_ascii_read(fp, coord.z());
 
-		float read_val;
-		safe_ascii_read(fp, read_val);
+			float read_val;
+			safe_ascii_read(fp, read_val);
 
-		read_val = read_val * scale + offset;
-		if (read_val != block->background()) {
-			accessor.setValue(coord, read_val);
+			read_val = read_val * scale + offset;
+			if (read_val != block->background()) {
+				accessor.setValue(coord, read_val);
+			}
 		}
-	}
 
-	fp.close();
+		fp.close();
+		return true;
+	} catch (const std::ios_base::failure& e) {
+		fp.close();
+		mi_error("Wrong format in file \"%s\".", filename.c_str());
+		return false;
+	}
 }
 
-void VoxelDatasetFloat::initialize_with_file_bin_only_red(
+bool VoxelDatasetFloat::initialize_with_file_bin_only_red(
 		const std::string& filename) {
 
 	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename.c_str());
+		mi_error("Could not open file \"%s\".", filename.c_str());
+		return false;
 	}
 
 	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
 	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
 
-	int count;
-	// Number of points in the file, integer, 4 bytes
-	safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
+	try {
+		int count;
+		// Number of points in the file, integer, 4 bytes
+		safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
 
-	unsigned x, y, z;
-	double r, g, b, a;
+		unsigned x, y, z;
+		double r, g, b, a;
 
-	for (int i = 0; i < count; i++) {
-		// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-		read_bin_xyz(fp, x, z, y);
+		for (int i = 0; i < count; i++) {
+			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+			read_bin_xyz(fp, x, z, y);
 
-		// RGBA components, double, 8 bytes
-		read_bin_rgba(fp, r, g, b, a);
+			// RGBA components, double, 8 bytes
+			read_bin_rgba(fp, r, g, b, a);
 
-		// Make sure the indices are in a valid range
-		check_index_range(x, y, z, fp, filename);
+			// Make sure the indices are in a valid range
+			check_index_range(x, y, z, fp, filename);
 
-		r = r * scale + offset;
-		// For the moment assume the red component is the density
-		if (r != block->background()) {
-			set_voxel_value(x, y, z, r);
+			r = r * scale + offset;
+			// For the moment assume the red component is the density
+			if (r != block->background()) {
+				set_voxel_value(x, y, z, r);
+			}
 		}
-	}
 
-	fp.close();
+		fp.close();
+		return true;
+	} catch (const std::ios_base::failure& e) {
+		fp.close();
+		mi_error("Wrong format in file \"%s\".", filename.c_str());
+		return false;
+	}
 }
 
-void VoxelDatasetFloat::initialize_with_file_bin_max(
+bool VoxelDatasetFloat::initialize_with_file_bin_max(
 		const std::string& filename) {
 	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening file \"%s\".", filename.c_str());
+		mi_error("Could not open file \"%s\".", filename.c_str());
+		return false;
 	}
 
 	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
 	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
 
-	int count;
-	// Number of points in the file, integer, 4 bytes
-	safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
+	try {
+		int count;
+		// Number of points in the file, integer, 4 bytes
+		safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
 
-	unsigned x, y, z;
-	double r, g, b, a;
+		unsigned x, y, z;
+		double r, g, b, a;
 
-	for (int i = 0; i < count; i++) {
-		// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
-		read_bin_xyz(fp, x, z, y);
+		for (int i = 0; i < count; i++) {
+			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+			read_bin_xyz(fp, x, z, y);
 
-		// RGBA components, double, 8 bytes
-		read_bin_rgba(fp, r, g, b, a);
+			// RGBA components, double, 8 bytes
+			read_bin_rgba(fp, r, g, b, a);
 
-		// Make sure the indices are in a valid range
-		check_index_range(x, y, z, fp, filename);
+			// Make sure the indices are in a valid range
+			check_index_range(x, y, z, fp, filename);
 
-		float max_val = std::max(std::max(r, g), b);
+			float max_val = std::max(std::max(r, g), b);
 
-		max_val = max_val * scale + offset;
-		// For the temperature, use the channel with maximum intensity
-		if (r != block->background()) {
-			set_voxel_value(x, y, z, max_val);
+			max_val = max_val * scale + offset;
+			// For the temperature, use the channel with maximum intensity
+			if (r != block->background()) {
+				set_voxel_value(x, y, z, max_val);
+			}
 		}
-	}
 
-	fp.close();
+		fp.close();
+		return true;
+	} catch (const std::ios_base::failure& e) {
+		fp.close();
+		mi_error("Wrong format in file \"%s\".", filename.c_str());
+		return false;
+	}
 }
 
 void VoxelDatasetFloat::read_bin_xyz(std::ifstream& fp, unsigned& x,
@@ -265,8 +295,7 @@ void VoxelDatasetFloat::safe_binary_read(std::ifstream& fp, char *output,
 		long int byte_size) {
 	fp.read(output, byte_size);
 	if (!fp) {
-		fp.close();
-		mi_fatal("Error reading file");
+		fp.exceptions(fp.failbit);
 	}
 }
 
@@ -274,16 +303,15 @@ template<typename T>
 void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, T &output) {
 	fp >> output;
 	if (!fp) {
-		fp.close();
-		mi_fatal("Error reading file");
+		fp.exceptions(fp.failbit);
 	}
 }
 
 void VoxelDatasetFloat::check_index_range(unsigned x, unsigned y, unsigned z,
 		std::ifstream& fp, const std::string& filename) {
 	if (x >= width || y >= height || z >= depth) {
-		fp.close();
-		mi_fatal("Invalid voxel index %d, %d, %d when reading file %s", x, y, z,
+		mi_error("Invalid voxel index %d, %d, %d when reading file %s", x, y, z,
 				filename.c_str());
+		throw std::ios_base::failure("Invalid voxel index");
 	}
 }
