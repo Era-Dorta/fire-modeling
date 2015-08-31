@@ -42,7 +42,8 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 	return true;
 }
 
-bool VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
+bool VoxelDatasetColor::compute_soot_absorption_threaded(
+		const std::string& filename) {
 	if (!read_optical_constants_file(filename)) {
 		return false;
 	}
@@ -59,7 +60,7 @@ bool VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
 }
 
 bool VoxelDatasetColor::compute_chemical_absorption_threaded(
-		float visual_adaptation_factor, const char* filename) {
+		float visual_adaptation_factor, const std::string& filename) {
 	if (!read_spectral_line_file(filename)) {
 		return false;
 	}
@@ -397,10 +398,10 @@ void VoxelDatasetColor::clamp_0_1(float &v) {
 	}
 }
 
-bool VoxelDatasetColor::read_spectral_line_file(const char* filename) {
+bool VoxelDatasetColor::read_spectral_line_file(const std::string& filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_error("Could not open spectral line file \"%s\".", filename);
+		mi_error("Could not open spectral line file \"%s\".", filename.c_str());
 		return false;
 	}
 	unsigned num_lines = 0;
@@ -418,15 +419,17 @@ bool VoxelDatasetColor::read_spectral_line_file(const char* filename) {
 		return true;
 	} catch (const std::ios_base::failure& e) {
 		fp.close();
-		mi_error("Wrong format in file \"%s\".", filename);
+		mi_error("Wrong format in file \"%s\".", filename.c_str());
 		return false;
 	}
 }
 
-bool VoxelDatasetColor::read_optical_constants_file(const char* filename) {
+bool VoxelDatasetColor::read_optical_constants_file(
+		const std::string& filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_error("Could not open optical constant file \"%s\".", filename);
+		mi_error("Could not open optical constant file \"%s\".",
+				filename.c_str());
 		return false;
 	}
 	unsigned num_lines = 0;
@@ -449,7 +452,7 @@ bool VoxelDatasetColor::read_optical_constants_file(const char* filename) {
 		return true;
 	} catch (const std::ios_base::failure& e) {
 		fp.close();
-		mi_error("Wrong format in file \"%s\".", filename);
+		mi_error("Wrong format in file \"%s\".", filename.c_str());
 		return false;
 	}
 }

@@ -18,7 +18,7 @@ VoxelDatasetColorSorted::VoxelDatasetColorSorted(const miColor& background) :
 }
 
 bool VoxelDatasetColorSorted::compute_soot_absorption_threaded(
-		const char* filename) {
+		const std::string& filename) {
 	if (!VoxelDatasetColor::compute_soot_absorption_threaded(filename)) {
 		return false;
 	}
@@ -37,7 +37,7 @@ bool VoxelDatasetColorSorted::compute_black_body_emission_threaded(
 }
 
 bool VoxelDatasetColorSorted::compute_chemical_absorption_threaded(
-		float visual_adaptation_factor, const char* filename) {
+		float visual_adaptation_factor, const std::string& filename) {
 	if (!VoxelDatasetColor::compute_chemical_absorption_threaded(
 			visual_adaptation_factor, filename)) {
 		return false;

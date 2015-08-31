@@ -118,8 +118,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 				data_file = data_file + "/" + FuelTypeStr[fuel_type]
 						+ ".optconst";
-				if (!voxels->compute_soot_absorption_threaded(
-						data_file.c_str())) {
+				if (!voxels->compute_soot_absorption_threaded(data_file)) {
 					// If there was an error clear all for early exit
 					voxels->clear();
 				}
@@ -137,7 +136,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				data_file = data_file + "/" + FuelTypeStr[fuel_type]
 						+ ".specline";
 				if (!voxels->compute_chemical_absorption_threaded(
-						visual_adaptation_factor, data_file.c_str())) {
+						visual_adaptation_factor, data_file)) {
 					// If there was an error clear all for early exit
 					voxels->clear();
 				}

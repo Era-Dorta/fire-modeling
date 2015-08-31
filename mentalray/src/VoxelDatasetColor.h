@@ -20,9 +20,9 @@ public:
 	VoxelDatasetColor(const miColor& background);
 	virtual bool compute_black_body_emission_threaded(
 			float visual_adaptation_factor);
-	virtual bool compute_soot_absorption_threaded(const char* filename);
+	virtual bool compute_soot_absorption_threaded(const std::string& filename);
 	virtual bool compute_chemical_absorption_threaded(
-			float visual_adaptation_factor, const char* filename);
+			float visual_adaptation_factor, const std::string& filename);
 	const miColor& get_max_voxel_value();
 	virtual void compute_max_voxel_value();
 protected:
@@ -45,8 +45,8 @@ private:
 	void fill_lambda_vector();
 	static void clamp_0_1(openvdb::Vec3f& v);
 	static void clamp_0_1(float &v);
-	bool read_spectral_line_file(const char* filename);
-	bool read_optical_constants_file(const char* filename);
+	bool read_spectral_line_file(const std::string& filename);
+	bool read_optical_constants_file(const std::string& filename);
 	template<typename T>
 	void safe_ascii_read(std::ifstream& fp, T &output);
 
