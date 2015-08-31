@@ -14,9 +14,6 @@
 
 #include "shader.h"
 
-#define MAX_DATASET_DIM 256
-#define MAX_DATASET_SIZE (MAX_DATASET_DIM * MAX_DATASET_DIM * MAX_DATASET_DIM)
-
 template<typename DataT, typename TreeT>
 class VoxelDataset {
 public:
@@ -36,7 +33,7 @@ public:
 			const VoxelDataset<DataT, TreeT> &other);
 
 	void clear();
-	void resize(unsigned width, unsigned height, unsigned depth);
+	virtual void resize(unsigned width, unsigned height, unsigned depth);
 	float getMemFootPrint() const;
 	void pre_cach_all();
 	Accessor get_accessor() const;

@@ -10,6 +10,8 @@
 #include <fstream>
 #include <algorithm>
 
+#define MAX_DATASET_DIM 256
+
 VoxelDatasetFloat::VoxelDatasetFloat(float scale, float offset) :
 		VoxelDataset<float, openvdb::FloatTree>(0) {
 	this->scale = scale;

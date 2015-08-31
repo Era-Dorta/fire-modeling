@@ -11,10 +11,18 @@
 
 VoxelDatasetColorSorted::VoxelDatasetColorSorted() :
 		VoxelDatasetColor() {
+	set_inv_width_1_by_2();
 }
 
 VoxelDatasetColorSorted::VoxelDatasetColorSorted(const miColor& background) :
 		VoxelDatasetColor(background) {
+	set_inv_width_1_by_2();
+}
+
+void VoxelDatasetColorSorted::resize(unsigned width, unsigned height,
+		unsigned depth) {
+	VoxelDatasetColor::resize(width, height, depth);
+	set_inv_width_1_by_2();
 }
 
 bool VoxelDatasetColorSorted::compute_soot_absorption_threaded(
@@ -108,4 +116,16 @@ int VoxelDatasetColorSorted::getTotal() const {
 
 openvdb::Vec3SGrid::ValueOnIter VoxelDatasetColorSorted::get_on_values_iter() const {
 	return block->beginValueOn();
+}
+
+float VoxelDatasetColorSorted::get_inv_width_1_by_2() const {
+	return inv_width_1_by_2;
+}
+
+void VoxelDatasetColorSorted::set_inv_width_1_by_2() {
+	if (width > 0) {
+		inv_width_1_by_2 = (1.0 / (width - 1.0)) * 2;
+	} else {
+		inv_width_1_by_2 = 0;
+	}
 }

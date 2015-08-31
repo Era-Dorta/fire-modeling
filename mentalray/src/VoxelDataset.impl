@@ -71,12 +71,6 @@ void VoxelDataset<DataT, TreeT>::resize(unsigned width, unsigned height,
 	this->height = height;
 	this->depth = depth;
 	count = width * height * depth;
-
-	if (count > MAX_DATASET_SIZE) {
-		mi_fatal(
-				"Voxel dataset, max size is %d but tried to initialise with %d",
-				MAX_DATASET_SIZE, count);
-	}
 }
 
 template<typename DataT, typename TreeT>
@@ -112,7 +106,7 @@ DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y, float z,
 		const Accessor& accessor) const {
 	assert(
 			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
-					+ ((int ) (x + .5)) < MAX_DATASET_SIZE);
+					+ ((int ) (x + .5)) < count);
 	return interpolate_function(*this, x, y, z, accessor);
 }
 

@@ -9,8 +9,6 @@
 
 //#define DEBUG_SIGMA_A
 
-#define INV_SIZE (1.0 / (MAX_DATASET_DIM - 1.0)) * 2
-
 struct fire_volume_light {
 	miTag bb_shader;
 	miTag sigma_a_shader;
@@ -245,8 +243,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 
 	voxels->get_i_j_k_from_sorted(offset_light, state->count);
 
+	// TODO Use the miaux_fit function instead of this
 	// Transform voxel index from [0..255] space to [-1...1]
-	mi_vector_mul(&offset_light, INV_SIZE);
+	mi_vector_mul(&offset_light, voxels->get_inv_width_1_by_2());
 	mi_vector_add(&offset_light, &offset_light, &minus_one);
 
 	// Convert the offset from light(object) space to internal space

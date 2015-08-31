@@ -14,6 +14,8 @@ class VoxelDatasetColorSorted: public VoxelDatasetColor {
 public:
 	VoxelDatasetColorSorted();
 	VoxelDatasetColorSorted(const miColor& background);
+	virtual void resize(unsigned width, unsigned height, unsigned depth)
+			override;
 	void sort();
 	virtual bool compute_black_body_emission_threaded(
 			float visual_adaptation_factor) override;
@@ -29,8 +31,12 @@ public:
 	virtual void compute_max_voxel_value() override;
 	virtual int getTotal() const override;
 	openvdb::Vec3SGrid::ValueOnIter get_on_values_iter() const;
+	float get_inv_width_1_by_2() const;
+private:
+	void set_inv_width_1_by_2();
 private:
 	std::vector<openvdb::Coord> sorted_ind;
+	float inv_width_1_by_2;
 };
 
 #endif /* VOXELDATASETCOLORSORTED_H_ */
