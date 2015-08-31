@@ -28,7 +28,7 @@ VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
 	alpha_lambda = 0;
 }
 
-void VoxelDatasetColor::compute_black_body_emission_threaded(
+bool VoxelDatasetColor::compute_black_body_emission_threaded(
 		float visual_adaptation_factor) {
 
 	fill_lambda_vector();
@@ -38,10 +38,14 @@ void VoxelDatasetColor::compute_black_body_emission_threaded(
 	normalize_bb_radiation(visual_adaptation_factor);
 
 	lambdas.clear();
+
+	return true;
 }
 
-void VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
-	read_optical_constants_file(filename);
+bool VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
+	if (!read_optical_constants_file(filename)) {
+		return false;
+	}
 
 	compute_soot_constant_coefficients();
 
@@ -50,11 +54,15 @@ void VoxelDatasetColor::compute_soot_absorption_threaded(const char* filename) {
 	input_data.clear();
 	extra_data.clear();
 	lambdas.clear();
+
+	return true;
 }
 
-void VoxelDatasetColor::compute_chemical_absorption_threaded(
+bool VoxelDatasetColor::compute_chemical_absorption_threaded(
 		float visual_adaptation_factor, const char* filename) {
-	read_spectral_line_file(filename);
+	if (!read_spectral_line_file(filename)) {
+		return false;
+	}
 
 	compute_function_threaded(&VoxelDatasetColor::compute_chemical_absorption);
 
@@ -62,6 +70,8 @@ void VoxelDatasetColor::compute_chemical_absorption_threaded(
 
 	input_data.clear();
 	lambdas.clear();
+
+	return true;
 }
 
 const miColor& VoxelDatasetColor::get_max_voxel_value() {
@@ -387,52 +397,67 @@ void VoxelDatasetColor::clamp_0_1(float &v) {
 	}
 }
 
-void VoxelDatasetColor::read_spectral_line_file(const char* filename) {
+bool VoxelDatasetColor::read_spectral_line_file(const char* filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening spectral line file \"%s\".", filename);
+		mi_error("Could not open spectral line file \"%s\".", filename);
+		return false;
 	}
 	unsigned num_lines = 0;
-	safe_ascii_read(fp, num_lines);
+	try {
+		safe_ascii_read(fp, num_lines);
 
-	lambdas.resize(num_lines);
-	input_data.resize(num_lines);
+		lambdas.resize(num_lines);
+		input_data.resize(num_lines);
 
-	for (unsigned i = 0; i < num_lines; i++) {
-		safe_ascii_read(fp, lambdas[i]);
-		safe_ascii_read(fp, input_data[i]);
+		for (unsigned i = 0; i < num_lines; i++) {
+			safe_ascii_read(fp, lambdas[i]);
+			safe_ascii_read(fp, input_data[i]);
+		}
+		fp.close();
+		return true;
+	} catch (const std::ios_base::failure& e) {
+		fp.close();
+		mi_error("Wrong format in file \"%s\".", filename);
+		return false;
 	}
-	fp.close();
 }
 
-void VoxelDatasetColor::read_optical_constants_file(const char* filename) {
+bool VoxelDatasetColor::read_optical_constants_file(const char* filename) {
 	std::ifstream fp(filename, std::ios_base::in);
 	if (!fp.is_open()) {
-		mi_fatal("Error opening optical constant file \"%s\".", filename);
+		mi_error("Could not open optical constant file \"%s\".", filename);
+		return false;
 	}
 	unsigned num_lines = 0;
-	safe_ascii_read(fp, num_lines);
+	try {
+		safe_ascii_read(fp, num_lines);
 
-	safe_ascii_read(fp, soot_radius);
-	safe_ascii_read(fp, alpha_lambda);
+		safe_ascii_read(fp, soot_radius);
+		safe_ascii_read(fp, alpha_lambda);
 
-	lambdas.resize(num_lines);
-	input_data.resize(num_lines);
-	extra_data.resize(num_lines);
+		lambdas.resize(num_lines);
+		input_data.resize(num_lines);
+		extra_data.resize(num_lines);
 
-	for (unsigned i = 0; i < num_lines; i++) {
-		safe_ascii_read(fp, lambdas[i]);
-		safe_ascii_read(fp, input_data[i]);
-		safe_ascii_read(fp, extra_data[i]);
+		for (unsigned i = 0; i < num_lines; i++) {
+			safe_ascii_read(fp, lambdas[i]);
+			safe_ascii_read(fp, input_data[i]);
+			safe_ascii_read(fp, extra_data[i]);
+		}
+		fp.close();
+		return true;
+	} catch (const std::ios_base::failure& e) {
+		fp.close();
+		mi_error("Wrong format in file \"%s\".", filename);
+		return false;
 	}
-	fp.close();
 }
 
 template<typename T>
 void VoxelDatasetColor::safe_ascii_read(std::ifstream& fp, T &output) {
 	fp >> output;
 	if (!fp) {
-		fp.close();
-		mi_fatal("Error reading file");
+		fp.exceptions(fp.failbit);
 	}
 }

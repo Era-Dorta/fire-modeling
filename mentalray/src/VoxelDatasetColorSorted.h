@@ -15,11 +15,11 @@ public:
 	VoxelDatasetColorSorted();
 	VoxelDatasetColorSorted(const miColor& background);
 	void sort();
-	virtual void compute_black_body_emission_threaded(
+	virtual bool compute_black_body_emission_threaded(
 			float visual_adaptation_factor) override;
-	virtual void compute_soot_absorption_threaded(const char* filename)
+	virtual bool compute_soot_absorption_threaded(const char* filename)
 			override;
-	virtual void compute_chemical_absorption_threaded(
+	virtual bool compute_chemical_absorption_threaded(
 			float visual_adaptation_factor, const char* filename) override;
 	miColor get_sorted_voxel_value(unsigned index) const;
 	miColor get_sorted_voxel_value(unsigned index,

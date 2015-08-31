@@ -83,8 +83,11 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 			miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
 					width, height, depth, 1, 0);
 
-			voxels->compute_black_body_emission_threaded(
-					visual_adaptation_factor);
+			if (!voxels->compute_black_body_emission_threaded(
+					visual_adaptation_factor)) {
+				// If there was an error clear all for early exit
+				voxels->clear();
+			}
 			mi_info("Done precomputing bb radiation with dataset size %dx%dx%d",
 					width, height, depth);
 			break;
@@ -115,7 +118,11 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 				data_file = data_file + "/" + FuelTypeStr[fuel_type]
 						+ ".optconst";
-				voxels->compute_soot_absorption_threaded(data_file.c_str());
+				if (!voxels->compute_soot_absorption_threaded(
+						data_file.c_str())) {
+					// If there was an error clear all for early exit
+					voxels->clear();
+				}
 			} else {
 				miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 						temperature_shader);
@@ -129,8 +136,11 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 				data_file = data_file + "/" + FuelTypeStr[fuel_type]
 						+ ".specline";
-				voxels->compute_chemical_absorption_threaded(
-						visual_adaptation_factor, data_file.c_str());
+				if (!voxels->compute_chemical_absorption_threaded(
+						visual_adaptation_factor, data_file.c_str())) {
+					// If there was an error clear all for early exit
+					voxels->clear();
+				}
 			}
 			mi_info("Done precomputing absorption with dataset size %dx%dx%d",
 					width, height, depth);

@@ -17,24 +17,33 @@ VoxelDatasetColorSorted::VoxelDatasetColorSorted(const miColor& background) :
 		VoxelDatasetColor(background) {
 }
 
-void VoxelDatasetColorSorted::compute_soot_absorption_threaded(
+bool VoxelDatasetColorSorted::compute_soot_absorption_threaded(
 		const char* filename) {
-	VoxelDatasetColor::compute_soot_absorption_threaded(filename);
+	if (!VoxelDatasetColor::compute_soot_absorption_threaded(filename)) {
+		return false;
+	}
 	sort();
+	return true;
 }
 
-void VoxelDatasetColorSorted::compute_black_body_emission_threaded(
+bool VoxelDatasetColorSorted::compute_black_body_emission_threaded(
 		float visual_adaptation_factor) {
-	VoxelDatasetColor::compute_black_body_emission_threaded(
-			visual_adaptation_factor);
+	if (!VoxelDatasetColor::compute_black_body_emission_threaded(
+			visual_adaptation_factor)) {
+		return false;
+	}
 	sort();
+	return true;
 }
 
-void VoxelDatasetColorSorted::compute_chemical_absorption_threaded(
+bool VoxelDatasetColorSorted::compute_chemical_absorption_threaded(
 		float visual_adaptation_factor, const char* filename) {
-	VoxelDatasetColor::compute_chemical_absorption_threaded(
-			visual_adaptation_factor, filename);
+	if (!VoxelDatasetColor::compute_chemical_absorption_threaded(
+			visual_adaptation_factor, filename)) {
+		return false;
+	}
 	sort();
+	return true;
 }
 
 void VoxelDatasetColorSorted::get_i_j_k_from_sorted(miVector &ijk,
