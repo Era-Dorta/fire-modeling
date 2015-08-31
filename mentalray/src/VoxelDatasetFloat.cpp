@@ -146,7 +146,8 @@ void VoxelDatasetFloat::initialize_with_file_acii_uintah(
 	float background;
 	safe_ascii_read(fp, background);
 
-	block->setBackground(background * scale + offset);
+	// TODO Add GUI option to ignore the background
+	//block->setBackground(background * scale + offset);
 
 	for (int i = 0; i < count; i++) {
 		openvdb::Coord coord;
