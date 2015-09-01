@@ -174,14 +174,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		miState *state, struct fire_volume_light *params) {
 
-	VoxelDatasetColorSorted *voxels =
-			(VoxelDatasetColorSorted *) miaux_get_user_memory_pointer(state);
-
-	miScalar intensity = *mi_eval_scalar(&params->intensity);
-
-	// Get the maximum value and say this light has that colour
-	miaux_copy_color_scaled(result, &voxels->get_max_voxel_value(), intensity);
-
 	// If a shape were associated with the light this would handle the calls if
 	// the light was set to visible, in our case it never happens, but it is a
 	// safe check
@@ -189,19 +181,20 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		return (miTRUE);
 	}
 
-	miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
-
-	// Set light position from the handler, this comes in internal space
-	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
-
 	// TODO If asked for more samples than we have in the voxel, we could start
 	// interpolating between the value the interpolation code is there, what is
 	// needed is to decide where to place the points
+
+	VoxelDatasetColorSorted *voxels =
+			(VoxelDatasetColorSorted *) miaux_get_user_memory_pointer(state);
 
 	// If no more voxel data then return early
 	if (state->count >= voxels->getTotal()) {
 		return ((miBoolean) 2);
 	}
+
+	miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
+	miScalar intensity = *mi_eval_scalar(&params->intensity);
 
 	// Get the accessor for this thread, if it has not been created yet, then
 	// create a new one
@@ -215,9 +208,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 						sizeof(VoxelDatasetColorSorted::Accessor)));
 
 		// Initialise the memory
-		VoxelDatasetColorSorted *voxels =
-				(VoxelDatasetColorSorted *) miaux_get_user_memory_pointer(
-						state);
 		accessor = new (accessor) VoxelDatasetColorSorted::Accessor(
 				voxels->get_accessor());
 
@@ -236,6 +226,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 			&& result->b < shadow_threshold) {
 		return ((miBoolean) 2);
 	}
+
+	// Set light position from the handler, this comes in internal space
+	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
 
 	// Move the light origin to the voxel position
 	const miVector minus_one = { -1, -1, -1 };
