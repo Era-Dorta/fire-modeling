@@ -40,7 +40,10 @@ build
 *.dvi
 *.synctex.gz
 *.bbl
+*.snm
 *.toc
+*.nav
+*.out
 *.bak
 
 # Phyton compiled files 
