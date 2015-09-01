@@ -25,5 +25,5 @@ Fire Shader for Mental Ray in Maya
   * Batch rendering is not supported with the GUI, the input files will not update; instead render from the command line with the ```Render``` command with the ```-perframe``` flag.
 * The shader will automatically advance to new data files when the playback frame changes in Maya
 * All the parameters that affect the result of the shading network can be modified from the ```fire_volume_shader``` attribute editor
-  * The only exception are the number of samples per ray, which are located under the mental ray section in the area light shape, ```High Samples, High Sample Limit, Low Samples```; on each execution the shader will output the upper limit for ```High Samples``` for the current data in the mental ray console.
+  * The only exception are the number of samples per ray, which are located under the mental ray section in the area light shape, [```High Samples, High Sample Limit, Low Samples```](http://help.autodesk.com/cloudhelp/2015/ENU/Maya/files/GUID-7BE54954-3C58-46A7-AD3A-E150ED406D34.htm#GUID-7BE54954-3C58-46A7-AD3A-E150ED406D34); on each execution the shader will output the upper limit for ```High Samples``` for the current data in the mental ray console.
 * New instances can be created with the command ```instance -smartTransform;```
