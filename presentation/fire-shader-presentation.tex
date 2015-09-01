@@ -1,0 +1,260 @@
+\documentclass{beamer}
+% \usepackage{lmodern}
+%=====================================================================
+% Color definition
+\definecolor{jvagreen}{RGB}{0,104,	139}
+\definecolor{jvagold}{RGB}{255, 255, 255}
+\setbeamercolor{section in head/foot}{fg = jvagold, bg = jvagreen}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{picture}
+\usepackage{amsmath}
+\usepackage{multimedia}
+\DeclareMathOperator{\Tr}{Tr}
+\graphicspath{{../}}
+%\setbeameroption{show notes}
+\usepackage{multicol}
+\usepackage{caption}
+\usepackage{textpos}
+\setbeamercovered{dynamic}
+
+\usebackgroundtemplate
+{
+    \includegraphics[width=\paperwidth,height=\paperheight]{img/blank.jpg}%
+}
+\beamertemplatenavigationsymbolsempty
+
+%=====================================================================
+% Templates - headline, frametitle
+
+\makeatletter
+% Komprimiert die miniframe Kreise auf eine Linie
+\beamer@compresstrue
+\makeatother
+
+% Definiert die headline
+\setbeamertemplate{headline}
+{ 
+%\includegraphics[width=\paperwidth]{pic} % test logo
+\begin{beamercolorbox}[wd=\paperwidth,right]{section in head/foot}
+    \rule{\paperwidth}{1pt}
+    %Vertikaler Abstand
+    \vskip20pt
+    %Fügt die Standard-Navi ein (miniframes)
+    %\insertnavigation{\paperwidth}
+    \vskip8pt
+    %\rule{\paperwidth}{0.5pt}
+    %\vskip25.5pt % same height of the example provided, but IMHO is too much
+    \rule{\paperwidth}{1pt}
+\end{beamercolorbox} 
+}
+\setbeamertemplate{footline}
+{ 
+%\includegraphics[width=\paperwidth]{pic} % test logo
+\begin{beamercolorbox}[wd=\paperwidth,right]{section in head/foot}
+    \rule{\paperwidth}{1pt}
+    %Vertikaler Abstand
+    \vskip10pt
+    %Fügt die Standard-Navi ein (miniframes)
+    \insertnavigation{\paperwidth}
+    \vskip8pt
+    \rule{\paperwidth}{0.5pt}
+    %\vskip25.5pt % same height of the example provided, but IMHO is too much
+    %\rule{\paperwidth}{1pt}
+\end{beamercolorbox} 
+}
+
+% definition of the frametitle
+\setbeamertemplate{frametitle}
+{
+\vskip-24pt % to shift up the frametitle
+\hbox{ 
+ \begin{beamercolorbox}[wd=.0675\textwidth]{} % left shift
+ \end{beamercolorbox} 
+ \begin{beamercolorbox}[sep=4pt]{section in head/foot}
+ \insertframetitle
+ \end{beamercolorbox} 
+ }
+}
+
+\mode<presentation>
+{
+    \setbeamertemplate{itemize item}[circle]
+    \setbeamercolor{itemize item}{fg = jvagreen}
+    \setbeamertemplate{itemize subitem}[circle]
+    \setbeamercolor{itemize subitem}{fg = jvagreen}
+}
+
+\renewcommand\footnoterule{}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+%\logo{\includegraphics[height=0.6cm]{img/cde_basic_green}}
+%\let\oldequation=\equation
+%\let\endoldequation=\endequation
+%\renewenvironment{equation}{\vspace{1cm}\begin{oldequation}}{\end{oldequation}\vspace{15mm}}
+
+\begin{document}
+
+\addtobeamertemplate{frametitle}{}{%
+\begin{textblock*}{100mm}(-0.9cm,-0.6cm)
+\includegraphics[height=0.5cm,width=1.5cm]{img/uob-logo-white-transparent}
+\end{textblock*}
+\begin{textblock*}{100mm}(0.98\textwidth,-0.6cm)
+\includegraphics[height=0.5cm,width=1cm]{img/cde_tag_white}
+\end{textblock*}
+}
+
+\title[Realistic fire rendering]{
+ Realistic fire rendering}
+
+% Optional: a subtitle to be dispalyed on the title slide
+% \subtitle{Show where you're from}
+% \subtitle{Presented by: Ieva Kazlauskaite}
+% The author(s) of the presentation:
+%  - again first a short version to be displayed at the bottom;
+%  - next the full list of authors, which may include contact information;
+\author[Garoe Dorta Perez]{
+   Garoe Dorta Perez } 
+
+
+% The institute:
+%  - to start the name of the university as displayed on the top of each slide
+%    this can be adjusted such that you can also create a Dutch version
+%  - next the institute information as displayed on the title slide
+\institute[University of Bath]{
+University of Bath \\
+Centre For Digital Entertainment
+}
+
+% Add a date and possibly the name of the event to the slides
+%  - again first a short version to be shown at the bottom of each slide
+%  - second the full date and event name for the title slide
+
+%\date{Presented by Ieva Kazlauskaite, 30 April 2015}
+
+% TITLE PAGE
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+%\section{Overview}
+% CONTENT PAGE
+\begin{frame}
+  \frametitle{Overview}
+  \tableofcontents
+\end{frame}
+
+%----------------------------------------------------------------------
+\section{Introduction}
+\subsection{ }
+
+\begin{frame}{Introduction}
+\begin{equation*}  
+L_o (\mathbf{p}, \boldsymbol{\omega_o}) = L_e(\mathbf{p}, \boldsymbol{\omega_o}) + \int_\Omega f(\mathbf{p}, \boldsymbol{\omega_o}, \boldsymbol{\omega_i}) L_i(\mathbf{p}, \boldsymbol{\omega_i}) | \cos \theta_i | d \boldsymbol{\omega_i}
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{The problem}
+\begin{itemize}
+\setlength\itemsep{0.5em}
+\item Render fire realistically 
+		\begin{itemize}
+		\setlength\itemsep{0.5em}
+		\item Participating media 
+		\item Emission is important
+		\item Varied fuel types
+		\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Previous work}
+
+\begin{multicols}{2}
+
+\begin{itemize}
+\setlength\itemsep{0.5em}
+\item Ray-tracing-based
+		\begin{itemize}
+		\setlength\itemsep{0.5em}
+		\item Data acquisition
+		\item BRDF fitting
+		\item Not flexible but fast
+		\end{itemize}
+\item Raster-based
+		\begin{itemize}
+		\setlength\itemsep{0.5em}
+		\item Extending BRDF
+		\item Flexible but slow
+		\end{itemize}
+\end{itemize}
+
+
+\end{multicols}
+
+
+
+\end{frame}
+
+\section{Chosen Model}
+
+\subsection{Appearance Model}
+
+\section{Results and Conclusion}
+\subsection{ }
+
+\begin{frame}{Results}
+
+
+\end{frame}
+
+\begin{frame}{Conclusions and Future Work}
+
+\begin{itemize}
+\setlength\itemsep{0.5em}
+\item Limitations
+	\begin{itemize}
+	\setlength\itemsep{0.5em}
+	\item Requires captured data
+	\item Difficult parametrization
+	\end{itemize}
+\item Future work
+	\begin{itemize}
+	\setlength\itemsep{0.5em}
+	\item Implement full model
+	\item Importance sampling extensions by [MI] and [WXK]
+	\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\section*{}
+
+\begin{frame}[plain,c]
+\begin{center}
+\huge Thank you
+\\~\\
+\Large Questions?
+\end{center}
+
+\let\thefootnote\relax\footnotetext{
+\textbf{References} \newline \newline
+\tiny{
+[JAM*10] Jackob W. et al. A radiative transfer framework for rendering materials with anisotropic structure. ACM 2010 \newline
+[SBD*13] Sadeghi, I. et al. A practical microcylinder appearance model for cloth rendering. ACM 2013 \newline
+[PH10] Pharr, M. et al. Physically based rendering: From theory to implementation, Morgan Kaufmann, 2010 \newline
+[MI] Mizutani K. et al. Importance Sampling for Cloth Rendering under Environment Light, Mathematical Progress in Expressive Image Synthesis I, 2014 \newline 
+[WXK] Wang J. et al. Importance Sampling for a Microcylinder Based Cloth Bsdf, SIGGRAPH Talks, 2014\\~\\}}
+\end{frame}
+
+%----------------------------------------------------------------------
+
+\end{document}
