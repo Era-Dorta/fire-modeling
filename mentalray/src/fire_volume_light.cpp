@@ -228,14 +228,14 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	// Get the colour for the chosen sample
 	miColor voxel_c = voxels->get_sorted_voxel_value(state->count, *accessor);
 
-	// If the contribution is too small return early
-	if (voxel_c.r < shadow_threshold && voxel_c.g < shadow_threshold
-			&& voxel_c.b < shadow_threshold) {
-		return ((miBoolean) 2);
-	}
-
 	// Set the colour using the next value
 	miaux_copy_color_scaled(result, &voxel_c, intensity);
+
+	// If the contribution is too small return early
+	if (result->r < shadow_threshold && result->g < shadow_threshold
+			&& result->b < shadow_threshold) {
+		return ((miBoolean) 2);
+	}
 
 	// Move the light origin to the voxel position
 	const miVector minus_one = { -1, -1, -1 };
