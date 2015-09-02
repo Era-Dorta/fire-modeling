@@ -76,7 +76,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		voxels = new (voxels) VoxelDatasetColorSorted(background);
 		voxels->resize(width, height, depth);
 
-		miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
 		miScalar intensity = *mi_eval_scalar(&params->intensity);
 
 		state->type = static_cast<miRay_type>(VOXEL_DATA_COPY);
@@ -109,11 +108,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 					// in the main shader calls
 					miaux_scale_color(&bb_radiation, intensity);
 
-					// If the final color is dimmer than the threshold we
-					// won't use on the shader, so don't bother storing it
-					if (!miaux_color_is_black(&bb_radiation)
-							&& miaux_color_is_ge(bb_radiation,
-									shadow_threshold)) {
+					// If the final color is not black, then this is a valid
+					// sample to use on the shader
+					if (!miaux_color_is_black(&bb_radiation)) {
 
 						bb_radiation_v.x() = bb_radiation.r;
 						bb_radiation_v.y() = bb_radiation.g;
