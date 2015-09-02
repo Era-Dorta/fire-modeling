@@ -119,6 +119,8 @@ miBoolean miaux_color_is_black(const miColor *c);
 
 miBoolean miaux_color_is_ge(const miColor& c, miScalar x);
 
+miBoolean miaux_color_is_lt(const miColor& c, miScalar x);
+
 void miaux_initialize_volume_output(VolumeShader_R* result);
 
 void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,

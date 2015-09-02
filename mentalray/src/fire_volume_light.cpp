@@ -255,12 +255,16 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	miScalar decay = *mi_eval_scalar(&params->decay);
 	miaux_scale_color(result, 1.0 / (4 * M_PI * pow(state->dist, decay)));
 
-	if (miaux_color_is_ge(*result, shadow_threshold)) {
-		return mi_trace_shadow(result, state);
-	} else {
-		// If the contribution is too small don't bother with tracing shadows
-		// Don't change to return miBoolean(2), as we are random sampling, so
-		// the next sample could be more relevant than this one
+	/*
+	 * Extract from mental ray physlight.cpp shader example
+	 * Return false without checking occlusion (shadow ray) if
+	 * color is very dark. (This introduces bias which could be
+	 * avoided if probabilities were used to decide whether to
+	 * carry on or return here.)
+	 */
+	if (miaux_color_is_lt(*result, shadow_threshold)) {
 		return miFALSE;
 	}
+
+	return mi_trace_shadow(result, state);
 }
