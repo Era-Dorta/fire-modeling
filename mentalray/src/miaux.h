@@ -87,6 +87,9 @@ void miaux_scale_color(miColor *result, miScalar scale);
 
 void miaux_multiply_colors(miColor *result, const miColor *x, const miColor *y);
 
+void miaux_multiply_scaled_colors(miColor *result, const miColor *x,
+		const miColor *y, miScalar scale);
+
 void miaux_set_channels(miColor *c, miScalar new_value);
 
 void miaux_set_rgb(miColor *c, miScalar new_value);
@@ -113,6 +116,8 @@ void miaux_copy_color_rgb(miColor *result, const miColor *color);
 miBoolean miaux_all_channels_equal(const miColor *c, miScalar v);
 
 miBoolean miaux_color_is_black(const miColor *c);
+
+miBoolean miaux_color_is_ge(const miColor& c, miScalar x);
 
 void miaux_initialize_volume_output(VolumeShader_R* result);
 

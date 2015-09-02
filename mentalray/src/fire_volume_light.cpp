@@ -70,6 +70,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		voxels = new (voxels) VoxelDatasetColorSorted(background);
 		voxels->resize(width, height, depth);
 
+		miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
+		miScalar intensity = *mi_eval_scalar(&params->intensity);
+
 		state->type = static_cast<miRay_type>(VOXEL_DATA_COPY);
 
 		miColor bb_radiation = { 0, 0, 0, 0 }, sigma_a = { 0, 0, 0, 0 };
@@ -87,26 +90,43 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 					mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL, state,
 							bb_shader, NULL);
 
-					if (fuel_type != FuelType::BlackBody) {
+					if (fuel_type == FuelType::BlackBody) {
+						// Premultiply the intensity here so we don't have to do it
+						// in the main shader calls
+						miaux_scale_color(&bb_radiation, intensity);
+
+						// If the final color is dimmer than the threshold we
+						// won't use on the shader, so don't bother storing it
+						if (!miaux_color_is_black(&bb_radiation)
+								&& miaux_color_is_ge(bb_radiation,
+										shadow_threshold)) {
+
+							bb_radiation_v.x() = bb_radiation.r;
+							bb_radiation_v.y() = bb_radiation.g;
+							bb_radiation_v.z() = bb_radiation.b;
+
+							voxels->set_voxel_value(i, j, k, bb_radiation_v);
+						}
+					} else {
 						// With absorption coefficient do not copy values that
 						// when multiplied with sigma_a they will be zero
 						mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
 								sigma_a_shader, NULL);
 
 						miColor bb_sigma;
-						miaux_multiply_colors(&bb_sigma, &bb_radiation,
-								&sigma_a);
-						if (miaux_color_is_black(&bb_sigma)) {
-							continue;
+						miaux_multiply_scaled_colors(&bb_sigma, &bb_radiation,
+								&sigma_a, intensity);
+
+						if (!miaux_color_is_black(&bb_sigma)
+								&& miaux_color_is_ge(bb_sigma,
+										shadow_threshold)) {
+
+							bb_radiation_v.x() = bb_radiation.r;
+							bb_radiation_v.y() = bb_radiation.g;
+							bb_radiation_v.z() = bb_radiation.b;
+
+							voxels->set_voxel_value(i, j, k, bb_radiation_v);
 						}
-					}
-
-					bb_radiation_v.x() = bb_radiation.r;
-					bb_radiation_v.y() = bb_radiation.g;
-					bb_radiation_v.z() = bb_radiation.b;
-
-					if (!miaux_color_is_black(&bb_radiation)) {
-						voxels->set_voxel_value(i, j, k, bb_radiation_v);
 					}
 				}
 			}
@@ -194,7 +214,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	}
 
 	miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
-	miScalar intensity = *mi_eval_scalar(&params->intensity);
 
 	// Get the accessor for this thread, if it has not been created yet, then
 	// create a new one
@@ -215,17 +234,8 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
 	}
 
-	// Get the colour for the chosen sample
-	miColor voxel_c = voxels->get_sorted_voxel_value(state->count, *accessor);
-
-	// Set the colour using the next value
-	miaux_copy_color_scaled(result, &voxel_c, intensity);
-
-	// If the contribution is too small return early
-	if (result->r < shadow_threshold && result->g < shadow_threshold
-			&& result->b < shadow_threshold) {
-		return ((miBoolean) 2);
-	}
+	// Set the colour for the chosen sample
+	*result = voxels->get_sorted_voxel_value(state->count, *accessor);
 
 	// Set light position from the handler, this comes in internal space
 	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
