@@ -96,76 +96,40 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 					mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL, state,
 							bb_shader, NULL);
 
-					if (fuel_type == FuelType::BlackBody) {
-						// Premultiply the intensity here so we don't have to do it
-						// in the main shader calls
-						miaux_scale_color(&bb_radiation, intensity);
-
-						// If the final color is dimmer than the threshold we
-						// won't use on the shader, so don't bother storing it
-						if (!miaux_color_is_black(&bb_radiation)
-								&& miaux_color_is_ge(bb_radiation,
-										shadow_threshold)) {
-
-							bb_radiation_v.x() = bb_radiation.r;
-							bb_radiation_v.y() = bb_radiation.g;
-							bb_radiation_v.z() = bb_radiation.b;
-
-							voxels->set_voxel_value(i, j, k, bb_radiation_v);
-						}
-					} else {
-						// With absorption coefficient do not copy values that
-						// when multiplied with sigma_a they will be zero
+					if (fuel_type != FuelType::BlackBody) {
+						// Premultiply the absorption coefficient
 						mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
 								sigma_a_shader, NULL);
 
-						miColor bb_sigma;
-						miaux_multiply_scaled_colors(&bb_sigma, &bb_radiation,
-								&sigma_a, intensity);
+						miaux_multiply_colors(&bb_radiation, &bb_radiation,
+								&sigma_a);
+					}
 
-						if (!miaux_color_is_black(&bb_sigma)
-								&& miaux_color_is_ge(bb_sigma,
-										shadow_threshold)) {
+					// Premultiply the intensity here so we don't have to do it
+					// in the main shader calls
+					miaux_scale_color(&bb_radiation, intensity);
 
-							bb_radiation_v.x() = bb_radiation.r;
-							bb_radiation_v.y() = bb_radiation.g;
-							bb_radiation_v.z() = bb_radiation.b;
+					// If the final color is dimmer than the threshold we
+					// won't use on the shader, so don't bother storing it
+					if (!miaux_color_is_black(&bb_radiation)
+							&& miaux_color_is_ge(bb_radiation,
+									shadow_threshold)) {
 
-							voxels->set_voxel_value(i, j, k, bb_radiation_v);
-						}
+						bb_radiation_v.x() = bb_radiation.r;
+						bb_radiation_v.y() = bb_radiation.g;
+						bb_radiation_v.z() = bb_radiation.b;
+
+						voxels->set_voxel_value(i, j, k, bb_radiation_v);
 					}
 				}
 			}
 		}
 
-		// TODO Sorting is no longer needed
+		// TODO Sorting is no longer needed, but it would break the single index
+		// calls to get sorted value
 		// Since we copied the data manually, we need to call sort and
 		// maximum voxel so that the VoxelDataset is correctly initialized
 		voxels->sort();
-
-		if (fuel_type != FuelType::BlackBody) {
-			// Now that the data is sorted by temperature, add the absorption
-			// coefficients
-			bb_radiation = {0, 0, 0, 0};
-			sigma_a = {0, 0, 0, 0};
-			bb_radiation_v.setZero();
-			for (auto iter = voxels->get_on_values_iter(); iter; ++iter) {
-				auto coord = iter.getCoord();
-				state->point.x = coord.x();
-				state->point.y = coord.y();
-				state->point.z = coord.z();
-
-				mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
-						sigma_a_shader, NULL);
-
-				bb_radiation_v.x() = iter->x() * sigma_a.r;
-				bb_radiation_v.y() = iter->y() * sigma_a.g;
-				bb_radiation_v.z() = iter->z() * sigma_a.b;
-
-				voxels->set_voxel_value(coord.x(), coord.y(), coord.z(), bb_radiation_v);
-			}
-		}
-
 		voxels->compute_max_voxel_value();
 
 		// Restore previous state
