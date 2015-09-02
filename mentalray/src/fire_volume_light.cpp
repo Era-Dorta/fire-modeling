@@ -21,6 +21,12 @@ struct fire_volume_light {
 	miScalar decay;
 };
 
+// Struct with thread local data for this shader
+typedef struct FireLightTLD {
+	VoxelDatasetColorSorted::Accessor accessor;
+	unsigned sampling_start;
+} FireLightTLD;
+
 extern "C" DLLEXPORT int fire_volume_light_version(void) {
 	return 1;
 }
@@ -179,13 +185,13 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_exit(miState *state,
 		((VoxelDatasetColorSorted *) user_pointer)->~VoxelDatasetColorSorted();
 		mi_mem_release(user_pointer);
 
-		VoxelDatasetColorSorted::Accessor **accessors = nullptr;
+		FireLightTLD **tld = nullptr;
 		int num = 0;
 		// Delete all the accessor variables that were allocated during run time
-		mi_query(miQ_FUNC_TLS_GETALL, state, miNULLTAG, &accessors, &num);
+		mi_query(miQ_FUNC_TLS_GETALL, state, miNULLTAG, &tld, &num);
 		for (int i = 0; i < num; i++) {
-			accessors[i]->~ValueAccessor();
-			mi_mem_release(accessors[i]);
+			tld[i]->accessor.~ValueAccessor();
+			mi_mem_release(tld[i]);
 		}
 	}
 	return miTRUE;
@@ -213,29 +219,37 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		return ((miBoolean) 2);
 	}
 
-	miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
-
 	// Get the accessor for this thread, if it has not been created yet, then
 	// create a new one
-	VoxelDatasetColorSorted::Accessor *accessor = nullptr;
-	mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &accessor);
+	FireLightTLD *tld = nullptr;
+	mi_query(miQ_FUNC_TLS_GET, state, miNULLTAG, &tld);
 
-	if (accessor == nullptr) {
+	if (tld == nullptr) {
 		// Allocate memory
-		accessor =
-				static_cast<VoxelDatasetColorSorted::Accessor *>(mi_mem_allocate(
-						sizeof(VoxelDatasetColorSorted::Accessor)));
+		tld =
+				static_cast<FireLightTLD *>(mi_mem_allocate(
+						sizeof(FireLightTLD)));
 
 		// Initialise the memory
-		accessor = new (accessor) VoxelDatasetColorSorted::Accessor(
+		new (&tld->accessor) VoxelDatasetColorSorted::Accessor(
 				voxels->get_accessor());
 
 		// Save the accessor in the thread pointer
-		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &accessor);
+		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &tld);
 	}
 
+	if (state->count == 0) {
+		// This is the first sample so pick a sampling start at random
+		tld->sampling_start = mi_random() * voxels->getTotal();
+	}
+
+	miUshort c_count = (state->count + tld->sampling_start)
+			% voxels->getTotal();
+
+	miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
+
 	// Set the colour for the chosen sample
-	*result = voxels->get_sorted_voxel_value(state->count, *accessor);
+	*result = voxels->get_sorted_voxel_value(c_count, tld->accessor);
 
 	// Set light position from the handler, this comes in internal space
 	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
@@ -244,7 +258,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	const miVector minus_one = { -1, -1, -1 };
 	miVector offset_light;
 
-	voxels->get_i_j_k_from_sorted(offset_light, state->count);
+	voxels->get_i_j_k_from_sorted(offset_light, c_count);
 
 	// TODO Use the miaux_fit function instead of this
 	// Transform voxel index from [0..255] space to [-1...1]
@@ -279,8 +293,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 
 	if (result->r < shadow_threshold && result->g < shadow_threshold
 			&& result->b < shadow_threshold) {
-		// If the contribution is too small return early
-		return ((miBoolean) 2);
+		// If the contribution is too small don't bother with tracing shadows
+		// Don't change to return miBoolean(2), as we are random sampling, so
+		// the next sample could be more relevant than this one
+		return miFALSE;
 	} else {
 		return mi_trace_shadow(result, state);
 	}
