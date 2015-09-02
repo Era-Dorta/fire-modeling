@@ -138,6 +138,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			}
 		}
 
+		// TODO Sorting is no longer needed
 		// Since we copied the data manually, we need to call sort and
 		// maximum voxel so that the VoxelDataset is correctly initialized
 		voxels->sort();
@@ -239,8 +240,10 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	}
 
 	if (state->count == 0) {
-		// This is the first sample so pick a sampling start at random
-		tld->sampling_start = mi_random() * voxels->getTotal();
+		// This is the first sample so pick a sampling start at random,
+		// using mi_par_random instead of mi_random guarantees that two
+		// consecutive renders produce the same result
+		tld->sampling_start = mi_par_random(state) * voxels->getTotal();
 	}
 
 	miUshort c_count = (state->count + tld->sampling_start)
@@ -291,13 +294,12 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	miScalar decay = *mi_eval_scalar(&params->decay);
 	miaux_scale_color(result, 1.0 / (4 * M_PI * pow(state->dist, decay)));
 
-	if (result->r < shadow_threshold && result->g < shadow_threshold
-			&& result->b < shadow_threshold) {
+	if (miaux_color_is_ge(*result, shadow_threshold)) {
+		return mi_trace_shadow(result, state);
+	} else {
 		// If the contribution is too small don't bother with tracing shadows
 		// Don't change to return miBoolean(2), as we are random sampling, so
 		// the next sample could be more relevant than this one
 		return miFALSE;
-	} else {
-		return mi_trace_shadow(result, state);
 	}
 }
