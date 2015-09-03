@@ -266,19 +266,36 @@ L_{\x} = e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 
 \end{frame}
 
+\section{Implementation}
+\subsection{ }
+
+\begin{frame}{Implementation}
+
+\begin{itemize}
+\setlength\itemsep{0.5em}
+\item MentalRay shader in Maya
+	\begin{itemize}
+	\setlength\itemsep{0.5em}
+	\item Ray marching divides the RTE into
+		\begin{itemize}
+		\setlength\itemsep{0.5em}
+		\item Light Ray $\rightarrow \sigma_a L_e$
+		\item Shadow Ray $\rightarrow e^{-\sigma_t \deltax} L_{\x + \Delta\x}$
+		\item Eye Ray $\rightarrow L_{\x} = L_{\x + \Delta\x} + L_e$
+		\end{itemize}
+	\item OpenVDB $\rightarrow$ sparse voxel data
+	\item Uintah $\rightarrow$ fire simulation data
+	\item Nist $\rightarrow$ atomic spectra
+	\item von Kries transformation $\rightarrow$ visual adaptation
+	\end{itemize}
+\end{itemize}
+
+\end{frame}
+
 \section{Results and Conclusion}
 \subsection{ }
 
 \begin{frame}{Results}
-
-\begin{itemize}
-\setlength\itemsep{0.5em}
-\item Implementation
-	\begin{itemize}
-	\setlength\itemsep{0.5em}
-	\item \MentalRay shader in \Maya
-	\end{itemize}
-\end{itemize}
 
 \end{frame}
 
