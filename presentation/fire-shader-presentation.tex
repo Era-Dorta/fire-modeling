@@ -18,6 +18,24 @@
 \usepackage{textpos}
 \setbeamercovered{dynamic}
 
+% Common math symbols used in the presentation
+\newcommand{\phim}{\mathbf{\phi}}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\Y}{\mathbf{Y}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\w}{\mathbf{w}}
+\newcommand{\Z}{\mathbf{Z}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\h}{\mathbf{h}}
+\newcommand{\omegam}{\boldsymbol{\omega}}
+\newcommand{\deltax}{\left \|  \Delta \x \right \|}
+\newcommand{\lxo}{\lambda, \x, \omegam}
+\newcommand{\C}{\,^{\circ}{\rm C}}
+\newcommand{\Maya}{Maya\textsuperscript\textregistered~}
+\newcommand{\MentalRay}{Mental Ray\textsuperscript\textregistered~}
+\newcommand{\Matlab}{Matlab\textsuperscript\textregistered~}
+
 \usebackgroundtemplate
 {
     \includegraphics[width=\paperwidth,height=\paperheight]{img/blank.jpg}%
@@ -160,6 +178,8 @@ Centre For Digital Entertainment
 L_o (\mathbf{p}, \boldsymbol{\omega_o}) = L_e(\mathbf{p}, \boldsymbol{\omega_o}) + \int_\Omega f(\mathbf{p}, \boldsymbol{\omega_o}, \boldsymbol{\omega_i}) L_i(\mathbf{p}, \boldsymbol{\omega_i}) | \cos \theta_i | d \boldsymbol{\omega_i}
 \end{equation*}
 
+
+
 \end{frame}
 
 \begin{frame}{The problem}
@@ -204,15 +224,61 @@ L_o (\mathbf{p}, \boldsymbol{\omega_o}) = L_e(\mathbf{p}, \boldsymbol{\omega_o})
 
 \end{frame}
 
-\section{Chosen Model}
+\begin{frame}{Previous work: Results}
 
-\subsection{Physically-based Model}
+Add images of Prev work
+
+\end{frame}
+
+\section{Methodology}
+\subsection{ }
+
+\begin{frame}{The model: RTE}
+
+\begin{equation*}
+(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_{\x} \Phi d \omegam_i,
+\end{equation*}
+
+Analytical solution
+
+\begin{equation*}
+L_{\x} = e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t},
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{The model: Additional quantities}
+
+\begin{itemize}
+\setlength\itemsep{0.5em}
+\item Scattering function
+\item Fuel type
+	\begin{itemize}
+	\setlength\itemsep{0.5em}
+	\item Burning soot emissions (Propane, Methane, ...)
+	\item Exotic chemicals (Copper, Lithium, ...)
+	\end{itemize}
+\item Black Body radiation
+\item Refraction
+\item Visual Adaptation
+\end{itemize}
+
+\end{frame}
 
 \section{Results and Conclusion}
 \subsection{ }
 
 \begin{frame}{Results}
 
+\begin{itemize}
+\setlength\itemsep{0.5em}
+\item Implementation
+	\begin{itemize}
+	\setlength\itemsep{0.5em}
+	\item \MentalRay shader in \Maya
+	\end{itemize}
+\end{itemize}
 
 \end{frame}
 
@@ -223,14 +289,15 @@ L_o (\mathbf{p}, \boldsymbol{\omega_o}) = L_e(\mathbf{p}, \boldsymbol{\omega_o})
 \item Limitations
 	\begin{itemize}
 	\setlength\itemsep{0.5em}
-	\item Requires captured data
 	\item Difficult parametrization
+	\item Relies on tabulated data
+	\item Computationally intensive
+	\item Spherical particles
 	\end{itemize}
 \item Future work
 	\begin{itemize}
 	\setlength\itemsep{0.5em}
-	\item Implement full model
-	\item Importance sampling extensions by [MI] and [WXK]
+	\item Importance sampling 
 	\end{itemize}
 \end{itemize}
 
