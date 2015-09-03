@@ -368,8 +368,9 @@ L_{\x} = e^{-\sigma_a \deltax} L_{\x + \Delta\x} +
 
 \end{frame}
 
-\begin{frame}{Implementation}
+\begin{frame}{Implementation overview}
 
+\begin{multicols}{2}
 \begin{itemize}
 \setlength\itemsep{0.5em}
 \item MentalRay shader in Maya
@@ -382,11 +383,30 @@ L_{\x} = e^{-\sigma_a \deltax} L_{\x + \Delta\x} +
 		\item Shadow Ray $\rightarrow e^{-\sigma_a \deltax} L_{\x + \Delta\x}$
 		\item Eye Ray $\rightarrow L_{\x} = e^{-\sigma_a \deltax} L_{\x + \Delta\x} + L_e$
 		\end{itemize}
-	\item OpenVDB $\rightarrow$ sparse voxel data
-	\item Uintah $\rightarrow$ fire simulation data
-	\item Nist $\rightarrow$ atomic spectra
-	\item von Kries transformation $\rightarrow$ visual adaptation
+	\item Light shader
+	\item Volume/Shadow shader
+	\item Utility scripts		
 	\end{itemize}
+\end{itemize}
+
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{img/mental_ray_model} 
+\caption*{\tiny{Rays diagram for a sample intersection point.}}
+\end{center}
+\end{figure}
+\end{multicols}
+
+\end{frame}
+
+\begin{frame}{Other details}
+
+\begin{itemize}
+\setlength\itemsep{0.5em}
+\item OpenVDB $\rightarrow$ sparse voxel data
+\item Uintah $\rightarrow$ fire simulation data
+\item Nist $\rightarrow$ atomic spectra
+\item von Kries transformation $\rightarrow$ visual adaptation
 \end{itemize}
 
 \end{frame}
