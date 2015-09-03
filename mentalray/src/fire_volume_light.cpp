@@ -133,8 +133,9 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		state->point = original_point;
 		state->type = ray_type;
 
-		mi_info("Done initialising fire light shader, max samples %d",
-				voxels->getTotal());
+		const miColor& max = voxels->get_max_voxel_value();
+		mi_info("Done initialising fire light shader, got %d samples, with max "
+				"[%f, %f, %f]", voxels->getTotal(), max.r, max.g, max.b);
 	}
 	return miTRUE;
 }
