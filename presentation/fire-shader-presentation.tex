@@ -17,6 +17,8 @@
 \usepackage{caption}
 \usepackage{textpos}
 \setbeamercovered{dynamic}
+\usepackage[makeroom]{cancel}
+
 
 % Common math symbols used in the presentation
 \newcommand{\phim}{\mathbf{\phi}}
@@ -174,15 +176,22 @@ Centre For Digital Entertainment
 \subsection{ }
 
 \begin{frame}{Introduction}
-\begin{equation*}  
-L_o (\mathbf{p}, \boldsymbol{\omega_o}) = L_e(\mathbf{p}, \boldsymbol{\omega_o}) + \int_\Omega f(\mathbf{p}, \boldsymbol{\omega_o}, \boldsymbol{\omega_i}) L_i(\mathbf{p}, \boldsymbol{\omega_i}) | \cos \theta_i | d \boldsymbol{\omega_i}
-\end{equation*}
 
+\begin{figure}[b!]
+\includegraphics[width=0.8\textwidth]{img/render_definition}
+\caption*{\tiny{Diagram of light emitted from $\mathbf{p}$, image taken from [PH10].}}
+\end{figure}
 
+\vfill
+
+\small{where $\mathbf{p}$ is the surface point, $\boldsymbol{\omega_i}$ is the incident light direction, $\boldsymbol{\omega_o}$ is the outgoing light direction and $n$ is the surface normal. }
 
 \end{frame}
 
 \begin{frame}{The problem}
+
+\begin{multicols}{2}
+
 \begin{itemize}
 \setlength\itemsep{0.5em}
 \item Render fire realistically 
@@ -193,6 +202,15 @@ L_o (\mathbf{p}, \boldsymbol{\omega_o}) = L_e(\mathbf{p}, \boldsymbol{\omega_o})
 		\item Varied fuel types
 		\end{itemize}
 \end{itemize}
+
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=0.3\textwidth]{img/real_fire1} 
+\caption*{\tiny{Real fire with paper as fuel, image courtesy of [JAM*10].}}
+\end{center}
+\end{figure}
+\end{multicols}
+
 
 \end{frame}
 
@@ -241,39 +259,114 @@ L_o (\mathbf{p}, \boldsymbol{\omega_o}) = L_e(\mathbf{p}, \boldsymbol{\omega_o})
 
 \begin{frame}{The model: RTE}
 
+\only<1,6,7>{
 \begin{equation*}
 (\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_{\x} \Phi d \omegam_i,
 \end{equation*}
+}
 
+\only<2>{
+\begin{equation*}
+\boxed{ (\nabla) L_{\x}} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_{\x} \Phi d \omegam_i,
+\end{equation*}
+\vfill
+Differential of radiance over a segment}
+
+\only<3>{
+\begin{equation*}
+(\nabla) L_{\x} = - \boxed{\sigma_a} L_{\x} + \boxed{\sigma_a} L_e - \boxed{\sigma_s} L_{\x} + \boxed{\sigma_s} \int L_{\x} \Phi d \omegam_i,
+\end{equation*}
+\vfill
+Absorption and scattering}
+
+\only<4>{
+\begin{equation*}
+(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a \boxed{L_e} - \sigma_s L_{\x} + \sigma_s \int L_{\x} \Phi d \omegam_i,
+\end{equation*}
+\vfill
+Emitted light}
+
+\only<5>{
+\begin{equation*}
+(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_{\x} \boxed{\Phi} d \omegam_i,
+\end{equation*}
+\vfill
+Scattering function}
+
+\only<6>{
 Analytical solution
 
 \begin{equation*}
-L_{\x} = e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
+\begin{split}
+L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t}, \\
+ \sigma_t &= \sigma_a + \sigma_s.
+\end{split}
+\end{equation*}}
+
+\only<7>{
+Analytical solution
+
+\begin{equation*}
+L_{\x} = e^{-\sigma_t \deltax} L_{\x + \boxed{\Delta\x}} + 
  \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t},
 \end{equation*}
+\vfill
+Segment increment}
 
 \end{frame}
 
-\begin{frame}{The model: Additional quantities}
+\begin{frame}{The model: Important quantities}
 
 \begin{itemize}
 \setlength\itemsep{0.5em}
-\item Scattering function
-\item Fuel type
+\item Scattering function $\Rightarrow \Phi$
+\item Fuel type $\Rightarrow \sigma_a$, $\sigma_s$
 	\begin{itemize}
 	\setlength\itemsep{0.5em}
 	\item Burning soot emissions (Propane, Methane, ...)
 	\item Exotic chemicals (Copper, Lithium, ...)
 	\end{itemize}
-\item Black Body radiation
-\item Refraction
-\item Visual Adaptation
+\item Black Body radiation $\Rightarrow L_e$
+\item Refraction $\Rightarrow \Delta\x$
+\item Visual Adaptation $\Rightarrow L_{\x}$
 \end{itemize}
 
 \end{frame}
 
 \section{Implementation}
 \subsection{ }
+
+\begin{frame}{Prior simplifications}
+
+\only<+>{
+\begin{equation*}
+L_{\x} = e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t}
+\end{equation*}}
+
+\only<+>{
+\begin{equation*}
+\begin{split}
+L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t}, \\
+ \sigma_a &= 0.
+\end{split}
+\end{equation*}}
+
+\only<+>{
+\begin{equation*}
+L_{\x} = e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\xcancel{\sigma_a} L_e + \xcancel{\sigma_s \int L_{\x} \Phi d \omegam_i}}{\xcancel{\sigma_t}}
+\end{equation*}}
+
+\only<+>{
+\begin{equation*}
+L_{\x} = e^{-\sigma_a \deltax} L_{\x + \Delta\x} + 
+ \left(1 - e^{-\sigma_a \deltax} \right)  L_e
+\end{equation*}}
+
+\end{frame}
 
 \begin{frame}{Implementation}
 
@@ -285,9 +378,9 @@ L_{\x} = e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 	\item Ray marching divides the RTE into
 		\begin{itemize}
 		\setlength\itemsep{0.5em}
-		\item Light Ray $\rightarrow \sigma_a L_e$
-		\item Shadow Ray $\rightarrow e^{-\sigma_t \deltax} L_{\x + \Delta\x}$
-		\item Eye Ray $\rightarrow L_{\x} = L_{\x + \Delta\x} + L_e$
+		\item Light Ray $\rightarrow L_e$
+		\item Shadow Ray $\rightarrow e^{-\sigma_a \deltax} L_{\x + \Delta\x}$
+		\item Eye Ray $\rightarrow L_{\x} = e^{-\sigma_a \deltax} L_{\x + \Delta\x} + L_e$
 		\end{itemize}
 	\item OpenVDB $\rightarrow$ sparse voxel data
 	\item Uintah $\rightarrow$ fire simulation data
