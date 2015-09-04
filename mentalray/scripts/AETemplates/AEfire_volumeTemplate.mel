@@ -1,139 +1,13 @@
-// Browse file code from https://github.com/ADN-DevTech/Maya-Locator
-
-proc int numFilesInFolder(string $fileNamePath){
-	$directory = `dirname( $fileNamePath)`;
-	$fileShort = `stringRemovePrefix $fileNamePath $directory`;
-	$filelist = `getFileList -folder $directory -filespec ($fileShort + "*")`;
-	$filesize = `size $filelist`;
-	return $filesize;
-}
-
-proc string fireFileNameNoNumber(string $filename){
-	// Separate filename in name and extension
-	$tokenFilename = `stringToStringArray $filename "."`;
-	
-	// If the file has several dots, puts the parts together
-	$tokeNum = `size $tokenFilename`;
-	for( $i=1; $i<$tokeNum-1; ++$i )
-	{
-		$tokenFilename[0] = $tokenFilename[0] + "." + $tokenFilename[$i];
-	}
-	$tokenFilename[1] = $tokenFilename[$tokeNum - 1];
-	
-	// Get the file number
-	string $numberExpr = "[0-9]+$"; // A bunch of digits at the end of the string
-	string $fileNumberStr = `match $numberExpr $tokenFilename[0]`;
-	$fileNumberSize = `size $fileNumberStr`;
-	
-	// Get the name without the numbers
-	$nameSize = `size $tokenFilename[0]`;
-	$nameSize = $nameSize - $fileNumberSize;
-	$fileName = `substring $tokenFilename[0] 1 $nameSize`;
-	
-	return $fileName;
-}
-
-global proc AEfire_volumeNameNew (string $fileNameAttr) {
-	setUITemplate -pst attributeEditorTemplate;
-		columnLayout -adj true;
-			rowLayout -nc 3 fileNameLayout;
-
-        		text -label "Data file" fileNameText;
-		        textField fileNameField;
-					symbolButton -image "navButtonBrowse.png" browser;
-
-            setParent ..;
-		setParent ..;
-	setParent ..;
-
-	AEfire_volumeNameReplace ($fileNameAttr);
-}
-
-global proc AEfire_volumeNameReplace (string $fileNameAttr) {
-	string $fileName = `getAttr $fileNameAttr`;
-    string $nodeName = `plugNode $fileNameAttr`;
-
-	// file name attribute
-    connectControl -fileName fileNameField $fileNameAttr;
-	button -e -c ("AEfire_volumeNameFileBrowser " + $fileNameAttr) browser;
-}
-
-global proc AEfire_volumeNameFileBrowser (string $fileNameAttr) {
-    // choose a file to import
-    string $result[] = `fileDialog2 -fileMode 1`;
-    
-    if (size($result) == 0 || size($result[0]) == 0) {
-        // cancelled
-        return;
-    }
-
-	$file_abs = `workspace -expandName $result[0]`;
-	$file_rel = `workspace -projectPath $result[0]`;
-	
-    // set the file name attribute of the cache node
-    setAttr $fileNameAttr -type "string" $file_abs;
-    setAttr ($fileNameAttr + "_first") -type "string" $file_rel;
-    
-    // Set the total number of frames of the playback bar
-	$fileNameNPath = `fireFileNameNoNumber $file_abs`;
-	$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
-
-	$currentMaxFrame = `playbackOptions -query -maxTime`;
-
-	// If we have less data, then make the play bar smaller
-	if($currentMaxFrame > $maxNumberDataFiles){
-		playbackOptions -maxTime $maxNumberDataFiles;
-	}
-	
-	// TODO This is an ugly hack to force ui updates
-	$ctime = `currentTime -query`;
-	currentTime 1;
-	currentTime $ctime;
-}
-
 global proc AEfire_volumeTemplate ( string $nodeName )
 {
-	//editorTemplate -beginNoOptimize;
-	
-	editorTemplate -beginLayout "Density File Attributes" -collapse 0;
 
-		editorTemplate -callCustom "AEfire_volumeNameNew" "AEfire_volumeNameReplace" "density_file";
+	editorTemplate -beginLayout "Fire Volume Attributes" -collapse 0;
 
-		editorTemplate -addSeparator;
-
-		editorTemplate  -annotation "File input format" -addControl "density_read_mode";
-
-		editorTemplate -annotation "Scales inputs data with this value, final values should be in the 0..10 range" -addControl "density_scale";
-		editorTemplate -annotation "Offsets inputs data with this value" -addControl "density_offset";
-			
-	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Temperature File Attributes" -collapse 0;
-
-		editorTemplate -callCustom "AEfire_volumeNameNew" "AEfire_volumeNameReplace" "temperature_file";
-
-		editorTemplate -addSeparator;
-		
-		editorTemplate -annotation "File input format" -addControl "temperature_read_mode";
-
-		editorTemplate -annotation "Scales inputs data with this value, final values should be around 1000K, and 5000K for exotic chemicals" -addControl "temperature_scale";
-		editorTemplate -annotation "Offsets inputs data with this value" -addControl "temperature_offset";
-		
-	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Main Attributes" -collapse 0;
-
-		editorTemplate -annotation "Interpolation method to be used when querying for points between voxels" -addControl "interpolation_mode";
 		editorTemplate -annotation "Variety of fuel used for the fire" -addControl "fuel_type";
-		editorTemplate -annotation "Controls how much a human eye has adapted to the rendered fire" -addControl "visual_adaptation_factor";
-		editorTemplate -annotation "How intense is the emitted fire light" -addControl "intensity";
-		editorTemplate -annotation "Transparency scale, 0.5 double transparency, 1 default transparency, 2 double opacity" -label "Opacity" -addControl "transparency";
-		editorTemplate -annotation "If the contribution is smaller than the threshold, no shadow rays for the sample will be computed" -addControl "shadow_threshold";
-		editorTemplate -annotation "Light extinction over distance, physical fall-off is 2" -addControl "decay";
-		editorTemplate -annotation "Number of light samples per ray, values from 1 to 256" -addControl "high_samples";
 		editorTemplate -annotation "Quality parameter, ideally it should be set to half the voxel size" -addControl "march_increment";
 		editorTemplate -annotation "If true, computes how light varies when traversing the medium" -addControl "cast_shadows";
-			
+        editorTemplate -annotation "Transparency scale, 0.5 double transparency, 1 default transparency, 2 double opacity" -label "Opacity" -addControl "transparency";
+		
 	editorTemplate -endLayout;
 	
 	editorTemplate -suppress "color";
@@ -145,6 +19,4 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 
 	editorTemplate -suppress "caching"; 
 	editorTemplate -suppress "nodeState"; 
-	
-	//editorTemplate -endNoOptimize;
 }
