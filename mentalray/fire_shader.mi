@@ -186,6 +186,10 @@ declare shader
 			#: softmin 0.0
 			#: softmax 3.0
 			#: min 0.0
+		integer "high_samples",
+			#: default 8
+			#: min 0
+			#: softmax 500
 	)
 	version 1
 	apply light

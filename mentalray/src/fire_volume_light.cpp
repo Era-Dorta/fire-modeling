@@ -19,6 +19,7 @@ struct fire_volume_light {
 	miScalar shadow_threshold;
 	miScalar intensity;
 	miScalar decay;
+	miInteger high_samples;
 };
 
 // Struct with thread local data for this shader
@@ -214,7 +215,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &light_pos);
 
 	// TODO Add as a shader parameter, which will be the same as high samples
-	const unsigned max_iter_retry = 8;
+	const unsigned high_samples = *mi_eval_integer(&params->high_samples);
 	bool invalid_sample = true;
 
 	// A return false would stop sampling, so if one sample fails try with a
@@ -227,7 +228,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 
 		// Check if we have drawn enough samples from the voxel or reached the
 		// maximum allowed number of iterations for the current sample
-		if (tld->count_samples > max_iter_retry
+		if (tld->count_samples > high_samples
 				|| tld->count_samples > voxels->getTotal()) {
 			return ((miBoolean) 2);
 		}
