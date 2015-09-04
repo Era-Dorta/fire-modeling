@@ -38,6 +38,8 @@ public:
 	static MObject intensity;
 	static MObject shadow_threshold;
 	static MObject decay;
+	static MObject march_increment;
+	static MObject cast_shadows;
 
 	// Outputs
 	static MObject density_file_out;
@@ -54,6 +56,8 @@ public:
 	static MObject intensity_out;
 	static MObject shadow_threshold_out;
 	static MObject decay_out;
+	static MObject march_increment_out;
+	static MObject cast_shadows_out;
 
 private:
 	static MObject density_file_first;
