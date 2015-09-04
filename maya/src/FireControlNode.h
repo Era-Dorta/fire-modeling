@@ -21,6 +21,7 @@ public:
 
 private:
 	static void do_output(MFnAttribute& attr);
+	static void do_input(MFnAttribute& attr);
 
 public:
 	// Inputs

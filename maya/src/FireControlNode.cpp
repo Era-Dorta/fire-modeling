@@ -244,45 +244,54 @@ MStatus FireControlNode::initialize() {
 
 	density_file = tAttr.create("density_file", "df", MFnData::kString,
 			stringFn.create("Density file path"));
+	do_input(tAttr);
 
 	density_scale = nAttr.create("density_scale", "ds", MFnNumericData::kFloat,
 			1e12f);
 	nAttr.setSoftMin(0);
 	nAttr.setSoftMax(1e15);
+	do_input(nAttr);
 
 	density_offset = nAttr.create("density_offset", "do",
 			MFnNumericData::kFloat, 0.0f);
 	nAttr.setSoftMin(0);
 	nAttr.setSoftMax(100);
+	do_input(nAttr);
 
 	density_read_mode = eAttr.create("density_read_mode", "drm", 1);
 	eAttr.addField("ASCII Single Value", 0);
 	eAttr.addField("Binary Only Red", 1);
 	eAttr.addField("Binary Max RGB", 2);
 	eAttr.addField("ASCII Uintah", 3);
+	do_input(eAttr);
 
 	temperature_file = tAttr.create("temperature_file", "tf", MFnData::kString,
 			stringFn.create("Temperature file path"));
+	do_input(tAttr);
 
 	temperature_scale = nAttr.create("temperature_scale", "ts",
 			MFnNumericData::kFloat, 500.0f);
 	nAttr.setSoftMin(0);
 	nAttr.setSoftMax(10000);
+	do_input(nAttr);
 
 	temperature_offset = nAttr.create("temperature_offset", "to",
 			MFnNumericData::kFloat, 0.0f);
 	nAttr.setSoftMin(0);
 	nAttr.setSoftMax(100);
+	do_input(nAttr);
 
 	temperature_read_mode = eAttr.create("temperature_read_mode", "trm", 2);
 	eAttr.addField("ASCII Single Value", 0);
 	eAttr.addField("Binary Only Red", 1);
 	eAttr.addField("Binary Max RGB", 2);
 	eAttr.addField("ASCII Uintah", 3);
+	do_input(eAttr);
 
 	interpolation_mode = eAttr.create("interpolation_mode", "im", 1);
 	eAttr.addField("None", 0);
 	eAttr.addField("Trilinear", 1);
+	do_input(eAttr);
 
 	fuel_type = eAttr.create("fuel_type", "ft", 1);
 	eAttr.addField("Black Body", 0);
@@ -290,36 +299,44 @@ MStatus FireControlNode::initialize() {
 	eAttr.addField("Acetylene", 2);
 	eAttr.addField("Copper-Green", 3);
 	eAttr.addField("Sulfur-Purple", 4);
+	do_input(eAttr);
 
 	visual_adaptation_factor = nAttr.create("visual_adaptation_factor", "vaf",
 			MFnNumericData::kFloat, 0);
 	nAttr.setMin(0);
 	nAttr.setMax(1);
+	do_input(nAttr);
 
 	intensity = nAttr.create("intensity", "int", MFnNumericData::kFloat, 1.0f);
 	nAttr.setSoftMin(0);
 	nAttr.setSoftMax(10);
+	do_input(nAttr);
 
 	shadow_threshold = nAttr.create("shadow_threshold", "st",
 			MFnNumericData::kFloat, 0.0f);
 	nAttr.setSoftMin(0);
 	nAttr.setSoftMax(0.01);
+	do_input(nAttr);
 
 	decay = nAttr.create("decay", "d", MFnNumericData::kFloat, 2.0f);
 	nAttr.setMin(0);
 	nAttr.setSoftMax(3);
+	do_input(nAttr);
 
 	march_increment = nAttr.create("march_increment", "mi",
 			MFnNumericData::kFloat, 0.05f);
 	nAttr.setMin(0);
 	nAttr.setSoftMax(1);
+	do_input(nAttr);
 
 	cast_shadows = nAttr.create("cast_shadows", "cs", MFnNumericData::kBoolean,
 			false);
+	do_input(nAttr);
 
 	high_samples = nAttr.create("high_samples", "hs", MFnNumericData::kInt, 8);
 	nAttr.setMin(0);
 	nAttr.setSoftMax(500);
+	do_input(nAttr);
 
 	// Outputs
 	density_file_out = tAttr.create("density_file_out", "df_o",
@@ -459,4 +476,10 @@ MStatus FireControlNode::initialize() {
 void FireControlNode::do_output(MFnAttribute& attr) {
 	attr.setHidden(true);
 	attr.setStorable(false);
+}
+
+void FireControlNode::do_input(MFnAttribute& attr) {
+	attr.setReadable(true);
+	attr.setWritable(true);
+	attr.setStorable(true);
 }
