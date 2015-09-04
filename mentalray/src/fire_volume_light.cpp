@@ -13,9 +13,6 @@ struct fire_volume_light {
 	miTag bb_shader;
 	miTag sigma_a_shader;
 	miInteger fuel_type;
-	miScalar temperature_scale;
-	miScalar temperature_offset;
-	miScalar visual_adaptation_factor;
 	miScalar shadow_threshold;
 	miScalar intensity;
 	miScalar decay;

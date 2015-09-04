@@ -9,9 +9,6 @@
 
 //#define DEBUG_SIGMA_A
 
-// There are several dummy attributes, that allow for easier control of the UI.
-// Those attributes are copies of the other shader attributes, changing them
-// in this shader then also modifies them in the other shaders.
 struct fire_volume {
 	miColor color;
 	miColor glowColor;
@@ -20,25 +17,9 @@ struct fire_volume {
 	miTag density_shader;
 	miTag absorption_shader;
 	miTag emission_shader;
-	miTag density_file; // Dummy
-	miTag density_file_first; // Dummy
-	miScalar density_scale; // Dummy
-	miScalar density_offset; // Dummy
-	miInteger density_read_mode; // Dummy
-	miTag temperature_file; // Dummy
-	miTag temperature_file_first; // Dummy
-	miScalar temperature_scale; // Dummy
-	miScalar temperature_offset; // Dummy
-	miInteger temperature_read_mode; // Dummy
-	miInteger interpolation_mode; // Dummy
 	miInteger fuel_type;
-	miScalar visual_adaptation_factor; // Dummy
-	miScalar intensity;
-	miScalar shadow_threshold; // Dummy
-	miScalar decay; // Dummy
 	miScalar march_increment;
 	miBoolean cast_shadows;
-	miInteger high_samples; // Dummy
 	miInteger i_light;	// index of first light
 	miInteger n_light;	// number of lights
 	miTag light[1];	// list of lights
