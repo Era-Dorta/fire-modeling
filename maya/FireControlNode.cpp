@@ -7,21 +7,10 @@
 
 #include "FireControlNode.h"
 
-#include <maya/MPlug.h>
-#include <maya/MDataBlock.h>
-#include <maya/MDataHandle.h>
-#include <maya/MGlobal.h>
 #include <maya/MFnTypedAttribute.h>
-#include <maya/MFnNurbsSurfaceData.h>
-#include <maya/MFnNurbsSurface.h>
-#include <maya/MPointArray.h>
-#include <maya/MAngle.h>
-#include <maya/MItGeometry.h>
-#include <maya/MMatrix.h>
-#include <maya/MFnStringData.h>
 #include <maya/MFnEnumAttribute.h>
-#include <assert.h>
-#include <float.h>
+#include <maya/MFnNumericAttribute.h>
+#include <maya/MFnStringData.h>
 
 const MTypeId FireControlNode::id(0x00344);
 
@@ -291,7 +280,7 @@ MStatus FireControlNode::initialize() {
 	eAttr.addField("Binary Max RGB", 2);
 	eAttr.addField("ASCII Uintah", 3);
 
-	interpolation_mode = eAttr.create("interpolation_mode", "im", 0);
+	interpolation_mode = eAttr.create("interpolation_mode", "im", 1);
 	eAttr.addField("None", 0);
 	eAttr.addField("Trilinear", 1);
 
@@ -397,6 +386,15 @@ MStatus FireControlNode::initialize() {
 			MFnNumericData::kInt);
 	do_output(nAttr);
 
+	// Extra attributes for automatic file update
+	density_file_first = tAttr.create("density_file_first", "dff",
+			MFnData::kString, stringFn.create("Density first file path"));
+	tAttr.setHidden(true);
+
+	temperature_file_first = tAttr.create("temperature_file_first", "tff",
+			MFnData::kString, stringFn.create("Temperature first file path"));
+	tAttr.setHidden(true);
+
 	addAttribute(density_file);
 	addAttribute(density_scale);
 	addAttribute(density_offset);
@@ -433,6 +431,9 @@ MStatus FireControlNode::initialize() {
 	addAttribute(march_increment_out);
 	addAttribute(cast_shadows_out);
 	addAttribute(high_samples_out);
+
+	addAttribute(density_file_first);
+	addAttribute(temperature_file_first);
 
 	attributeAffects(density_file, density_file_out);
 	attributeAffects(density_scale, density_scale_out);

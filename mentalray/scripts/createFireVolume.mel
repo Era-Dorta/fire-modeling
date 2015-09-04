@@ -67,6 +67,9 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -type "string" ($fire_control + ".temperature_file") $temperature_file;
 	setAttr -type "string" ($fire_control + ".density_file") $density_file;
 	
+	setAttr -type "string" ($fire_control + ".temperature_file_first") $temperature_file;
+	setAttr -type "string" ($fire_control + ".density_file_first") $density_file;
+	
 	// Fire shader as volume shader for the shading group
 	connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
 
@@ -152,27 +155,27 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -l true { ($area_light + ".sh") };
 
 	// Launch a script to update the file names
-	//$updateScript = "fireFrameUpdate( \"" + $fire_shader + "\");";
-	//$expression_name = ($fire_shader + "FrameUpdate");
-	//expression -string $updateScript -object $fire_shader -name $expression_name -alwaysEvaluate 1;
+	$updateScript = "fireFrameUpdate( \"" + $fire_control + "\");";
+	$expression_name = ($fire_control + "FrameUpdate");
+	expression -string $updateScript -object $fire_control -name $expression_name -alwaysEvaluate 1;
 	
 	// Set the total number of frames of the playback bar
-	//$fileNameNPath = `fireFileNameNoNumber $dens_file_abs`;
-	//$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
+	$fileNameNPath = `fireFileNameNoNumber $dens_file_abs`;
+	$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
 	
-	//$fileNameNPath = `fireFileNameNoNumber $temp_file_abs`;
-	//$temperatureNumberDataFiles = `numFilesInFolder $fileNameNPath`;
+	$fileNameNPath = `fireFileNameNoNumber $temp_file_abs`;
+	$temperatureNumberDataFiles = `numFilesInFolder $fileNameNPath`;
 	
-	//if($maxNumberDataFiles < $temperatureNumberDataFiles){
-	//	$maxNumberDataFiles = $temperatureNumberDataFiles;
-	//}
+	if($maxNumberDataFiles < $temperatureNumberDataFiles){
+		$maxNumberDataFiles = $temperatureNumberDataFiles;
+	}
 	
-	//$currentMaxFrame = `playbackOptions -query -maxTime`;
+	$currentMaxFrame = `playbackOptions -query -maxTime`;
 	
 	// If we have less data, then make the play bar smaller
-	//if($currentMaxFrame > $maxNumberDataFiles){
-	//	playbackOptions -maxTime $maxNumberDataFiles;
-	//}
+	if($currentMaxFrame > $maxNumberDataFiles){
+		playbackOptions -maxTime $maxNumberDataFiles;
+	}
 	
 	select -r $fire_control;
 	return $cube_transform;

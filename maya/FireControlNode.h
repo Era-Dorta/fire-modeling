@@ -9,8 +9,7 @@
 #define SRC_FIRECONTROLNODE_H_
 
 #include <maya/MPxNode.h>
-#include <maya/MFnNumericAttribute.h>
-#include <maya/MTypeId.h>
+#include <maya/MFnAttribute.h>
 
 class FireControlNode: public MPxNode {
 public:
@@ -18,7 +17,6 @@ public:
 
 	static void *creator();
 	static MStatus initialize();
-
 	static const MTypeId id;
 
 private:
@@ -63,7 +61,7 @@ public:
 	static MObject cast_shadows_out;
 	static MObject high_samples_out;
 
-private:
+	// Extra attributes for automatic file update
 	static MObject density_file_first;
 	static MObject temperature_file_first;
 };
