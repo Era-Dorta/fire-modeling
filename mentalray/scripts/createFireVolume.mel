@@ -41,6 +41,9 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	$temp_file_rel = `workspace -projectPath $temperature_file`;
 	$dens_file_rel = `workspace -projectPath $density_file`;
 
+	// Create an UI control node
+	$fire_control = `createNode "FireControlNode" -n "fire_control"`;
+
 	// Create all the shading nodes
 	$fire_shader = `shadingNode -name "fire_volume_shader" -asShader "fire_volume"`;
 	$fireSG = `sets -renderable true -noSurfaceShader true -empty -name ($fire_shader + "SG")`;
@@ -60,13 +63,10 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	string $select_list[] = `ls -selection`;
 	string $area_light = $select_list[0];
 
-	// Set the files paths in the shader nodes
-	setAttr -type "string" ($fire_shader + ".temperature_file") $temp_file_abs;
-	setAttr -type "string" ($fire_shader + ".density_file") $dens_file_abs;
+	// Set the files paths in the control
+	setAttr -type "string" ($fire_control + ".temperature_file") $temperature_file;
+	setAttr -type "string" ($fire_control + ".density_file") $density_file;
 	
-	setAttr -type "string" ($fire_shader + ".temperature_file_first") $temp_file_rel;
-	setAttr -type "string" ($fire_shader + ".density_file_first") $dens_file_rel;
-
 	// Fire shader as volume shader for the shading group
 	connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
 
@@ -88,51 +88,49 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	// Fire light shader as light shader of the light
 	connectAttr -f ($fire_light_shader + ".message") ($area_light + ".miLightShader");
 
-	// Connect common inputs for the shaders, so that they change together
-	connectAttr -f ($fire_shader + ".density_file") ($density_shader + ".filename");
-	connectAttr -f ($fire_shader + ".temperature_file") ($temperature_shader + ".filename");
+	// Connect the control to the inputs of the shaders, so that they change together
+	connectAttr -f ($fire_control + ".density_file_out") ($density_shader + ".filename");
+	connectAttr -f ($fire_control + ".temperature_file_out") ($temperature_shader + ".filename");
 	
-	connectAttr -f ($fire_shader + ".interpolation_mode") ($absorption_shader + ".interpolation_mode");
-	connectAttr -f ($fire_shader + ".interpolation_mode") ($black_body_shader + ".interpolation_mode");
-	connectAttr -f ($fire_shader + ".interpolation_mode") ($density_shader + ".interpolation_mode");
-	connectAttr -f ($fire_shader + ".interpolation_mode") ($temperature_shader + ".interpolation_mode");
+	connectAttr -f ($fire_control + ".interpolation_mode_out") ($absorption_shader + ".interpolation_mode");
+	connectAttr -f ($fire_control + ".interpolation_mode_out") ($black_body_shader + ".interpolation_mode");
+	connectAttr -f ($fire_control + ".interpolation_mode_out") ($density_shader + ".interpolation_mode");
+	connectAttr -f ($fire_control + ".interpolation_mode_out") ($temperature_shader + ".interpolation_mode");
 
-	connectAttr -f ($fire_shader + ".visual_adaptation_factor") ($absorption_shader + ".visual_adaptation_factor");
-	connectAttr -f ($fire_shader + ".visual_adaptation_factor") ($black_body_shader + ".visual_adaptation_factor");
-	connectAttr -f ($fire_shader + ".visual_adaptation_factor") ($fire_light_shader + ".visual_adaptation_factor");
+	connectAttr -f ($fire_control + ".visual_adaptation_factor_out") ($absorption_shader + ".visual_adaptation_factor");
+	connectAttr -f ($fire_control + ".visual_adaptation_factor_out") ($black_body_shader + ".visual_adaptation_factor");
 
-	connectAttr -f ($fire_shader + ".fuel_type") ($absorption_shader + ".fuel_type");
-	connectAttr -f ($fire_shader + ".fuel_type") ($black_body_shader + ".fuel_type");
-	connectAttr -f ($fire_shader + ".fuel_type") ($fire_light_shader + ".fuel_type");
+	connectAttr -f ($fire_control + ".fuel_type_out") ($absorption_shader + ".fuel_type");
+	connectAttr -f ($fire_control + ".fuel_type_out") ($black_body_shader + ".fuel_type");
+	connectAttr -f ($fire_control + ".fuel_type_out") ($fire_light_shader + ".fuel_type");
+	connectAttr -f ($fire_control + ".fuel_type_out") ($fire_shader + ".fuel_type");
 
-	connectAttr -f ($fire_shader + ".temperature_scale") ($temperature_shader + ".scale");
-	connectAttr -f ($fire_shader + ".temperature_scale") ($fire_light_shader + ".temperature_scale");
-	connectAttr -f ($fire_shader + ".temperature_offset") ($temperature_shader + ".offset");
-	connectAttr -f ($fire_shader + ".temperature_offset") ($fire_light_shader + ".temperature_offset");
+	connectAttr -f ($fire_control + ".temperature_scale_out") ($temperature_shader + ".scale");
+	connectAttr -f ($fire_control + ".temperature_offset_out") ($temperature_shader + ".offset");
 	
-	connectAttr -f ($fire_shader + ".density_scale") ($density_shader + ".scale");
-	connectAttr -f ($fire_shader + ".density_offset") ($density_shader + ".offset");
+	connectAttr -f ($fire_control + ".density_scale_out") ($density_shader + ".scale");
+	connectAttr -f ($fire_control + ".density_offset_out") ($density_shader + ".offset");
 	
-	connectAttr -f ($fire_shader + ".density_read_mode") ($density_shader + ".read_mode");
-	connectAttr -f ($fire_shader + ".temperature_read_mode") ($temperature_shader + ".read_mode");
+	connectAttr -f ($fire_control + ".density_read_mode_out") ($density_shader + ".read_mode");
+	connectAttr -f ($fire_control + ".temperature_read_mode_out") ($temperature_shader + ".read_mode");
 	
-	connectAttr -f ($fire_shader + ".intensity") ($fire_light_shader + ".intensity");
-	connectAttr -f ($fire_shader + ".shadow_threshold") ($fire_light_shader + ".shadow_threshold");
-	connectAttr -f ($fire_shader + ".decay") ($fire_light_shader + ".decay");
+	connectAttr -f ($fire_control + ".intensity_out") ($fire_light_shader + ".intensity");
+	connectAttr -f ($fire_control + ".shadow_threshold_out") ($fire_light_shader + ".shadow_threshold");
+	connectAttr -f ($fire_control + ".decay_out") ($fire_light_shader + ".decay");
 	
-	connectAttr -f ($fire_shader + ".high_samples") ($area_light + ".areaHiSamples");
-	connectAttr -f ($fire_shader + ".high_samples") ($fire_light_shader + ".high_samples");
+	connectAttr -f ($fire_control + ".high_samples_out") ($fire_light_shader + ".high_samples");
+	connectAttr -f ($fire_control + ".high_samples_out") ($area_light + ".areaHiSamples");
+	connectAttr -f ($fire_control + ".high_samples") ($fire_shader + ".high_samples");
 
+	connectAttr -f ($fire_control + ".march_increment_out") ($fire_shader + ".march_increment");
+	connectAttr -f ($fire_control + ".cast_shadows_out") ($fire_shader + ".cast_shadows");
+	
 	// Fire volume will only be illuminated by its own light
 	connectAttr ($area_light + ".message") ($fire_shader + ".lights[0]");
 
 	// Set computation type for the intermediate shaders, this value defines the kind output
 	setAttr ($black_body_shader + ".compute_mode") 0;
 	setAttr ($absorption_shader + ".compute_mode") 1;
-
-	// Set the read modes for the voxel data
-	setAttr ($fire_shader + ".temperature_read_mode") 2; // Max rgb value
-	setAttr ($fire_shader + ".density_read_mode") 1; // Red channel only
 
 	// Set the material of the cube to be the Shading Group 
 	select -r $cube;
@@ -154,28 +152,28 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -l true { ($area_light + ".sh") };
 
 	// Launch a script to update the file names
-	$updateScript = "fireFrameUpdate( \"" + $fire_shader + "\");";
-	$expression_name = ($fire_shader + "FrameUpdate");
-	expression -string $updateScript -object $fire_shader -name $expression_name -alwaysEvaluate 1;
+	//$updateScript = "fireFrameUpdate( \"" + $fire_shader + "\");";
+	//$expression_name = ($fire_shader + "FrameUpdate");
+	//expression -string $updateScript -object $fire_shader -name $expression_name -alwaysEvaluate 1;
 	
 	// Set the total number of frames of the playback bar
-	$fileNameNPath = `fireFileNameNoNumber $dens_file_abs`;
-	$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
+	//$fileNameNPath = `fireFileNameNoNumber $dens_file_abs`;
+	//$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
 	
-	$fileNameNPath = `fireFileNameNoNumber $temp_file_abs`;
-	$temperatureNumberDataFiles = `numFilesInFolder $fileNameNPath`;
+	//$fileNameNPath = `fireFileNameNoNumber $temp_file_abs`;
+	//$temperatureNumberDataFiles = `numFilesInFolder $fileNameNPath`;
 	
-	if($maxNumberDataFiles < $temperatureNumberDataFiles){
-		$maxNumberDataFiles = $temperatureNumberDataFiles;
-	}
+	//if($maxNumberDataFiles < $temperatureNumberDataFiles){
+	//	$maxNumberDataFiles = $temperatureNumberDataFiles;
+	//}
 	
-	$currentMaxFrame = `playbackOptions -query -maxTime`;
+	//$currentMaxFrame = `playbackOptions -query -maxTime`;
 	
 	// If we have less data, then make the play bar smaller
-	if($currentMaxFrame > $maxNumberDataFiles){
-		playbackOptions -maxTime $maxNumberDataFiles;
-	}
+	//if($currentMaxFrame > $maxNumberDataFiles){
+	//	playbackOptions -maxTime $maxNumberDataFiles;
+	//}
 	
-	select -r $cube_transform;
+	select -r $fire_control;
 	return $cube_transform;
 }

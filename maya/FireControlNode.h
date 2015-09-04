@@ -12,15 +12,17 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MTypeId.h>
 
-class FireControlNode : public MPxNode
-{
+class FireControlNode: public MPxNode {
 public:
 	virtual MStatus compute(const MPlug& plug, MDataBlock& data) override;
 
-	static  void *creator();
-	static  MStatus initialize();
+	static void *creator();
+	static MStatus initialize();
 
 	static const MTypeId id;
+
+private:
+	static void do_output(MFnAttribute& attr);
 
 public:
 	// Inputs
@@ -40,6 +42,7 @@ public:
 	static MObject decay;
 	static MObject march_increment;
 	static MObject cast_shadows;
+	static MObject high_samples;
 
 	// Outputs
 	static MObject density_file_out;
@@ -58,6 +61,7 @@ public:
 	static MObject decay_out;
 	static MObject march_increment_out;
 	static MObject cast_shadows_out;
+	static MObject high_samples_out;
 
 private:
 	static MObject density_file_first;

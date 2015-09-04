@@ -43,6 +43,7 @@ MObject FireControlNode::shadow_threshold;
 MObject FireControlNode::decay;
 MObject FireControlNode::march_increment;
 MObject FireControlNode::cast_shadows;
+MObject FireControlNode::high_samples;
 
 // Outputs
 MObject FireControlNode::density_file_out;
@@ -61,6 +62,7 @@ MObject FireControlNode::shadow_threshold_out;
 MObject FireControlNode::decay_out;
 MObject FireControlNode::march_increment_out;
 MObject FireControlNode::cast_shadows_out;
+MObject FireControlNode::high_samples_out;
 
 MStatus FireControlNode::compute(const MPlug& plug, MDataBlock& data) {
 	MStatus stat;
@@ -227,6 +229,16 @@ MStatus FireControlNode::compute(const MPlug& plug, MDataBlock& data) {
 		data.setClean(plug);
 		return MS::kSuccess;
 	}
+	if (plug == high_samples_out) {
+		MDataHandle input_handle = data.inputValue(high_samples);
+		MDataHandle output_handle = data.outputValue(high_samples_out);
+
+		const int& value = input_handle.asInt();
+		output_handle.set(value);
+
+		data.setClean(plug);
+		return MS::kSuccess;
+	}
 
 	return MS::kUnknownParameter;
 }
@@ -316,67 +328,74 @@ MStatus FireControlNode::initialize() {
 	cast_shadows = nAttr.create("cast_shadows", "cs", MFnNumericData::kBoolean,
 			false);
 
+	high_samples = nAttr.create("high_samples", "hs", MFnNumericData::kInt, 8);
+	nAttr.setMin(0);
+	nAttr.setSoftMax(500);
+
 	// Outputs
 	density_file_out = tAttr.create("density_file_out", "dfo",
 			MFnData::kString);
-	tAttr.setHidden(true);
+	do_output(tAttr);
 
 	density_scale_out = nAttr.create("density_scale_out", "dso",
 			MFnNumericData::kFloat);
-	nAttr.setHidden(true);
+	do_output(nAttr);
 
 	density_offset_out = nAttr.create("density_offset_out", "doo",
 			MFnNumericData::kFloat);
-	nAttr.setHidden(true);
+	do_output(nAttr);
 
 	density_read_mode_out = eAttr.create("density_read_mode_out", "drmo");
-	eAttr.setHidden(true);
+	do_output(nAttr);
 
 	temperature_file_out = tAttr.create("temperature_file_out", "tfo",
 			MFnData::kString);
-	tAttr.setHidden(true);
+	do_output(tAttr);
 
 	temperature_scale_out = nAttr.create("temperature_scale_out", "tso",
 			MFnNumericData::kFloat);
-	nAttr.setHidden(true);
+	do_output(nAttr);
 
 	temperature_offset_out = nAttr.create("temperature_offset_out", "too",
 			MFnNumericData::kFloat);
-	nAttr.setHidden(true);
+	do_output(nAttr);
 
 	temperature_read_mode_out = eAttr.create("temperature_read_mode_out",
 			"trmo");
-	eAttr.setHidden(true);
+	do_output(eAttr);
 
 	interpolation_mode_out = eAttr.create("interpolation_mode_out", "imo");
-	eAttr.setHidden(true);
+	do_output(eAttr);
 
 	fuel_type_out = eAttr.create("fuel_type_out", "fto");
-	eAttr.setHidden(true);
+	do_output(eAttr);
 
 	visual_adaptation_factor_out = nAttr.create("visual_adaptation_factor_out",
 			"vafo", MFnNumericData::kFloat);
-	nAttr.setHidden(true);
+	do_output(nAttr);
 
 	intensity_out = nAttr.create("intensity_out", "into",
 			MFnNumericData::kFloat);
-	nAttr.setHidden(true);
+	do_output(nAttr);
 
 	shadow_threshold_out = nAttr.create("shadow_threshold_out", "sto",
 			MFnNumericData::kFloat);
-	nAttr.setHidden(true);
+	do_output(nAttr);
 
 	decay_out = nAttr.create("decay_out", "do", MFnNumericData::kFloat);
-	nAttr.setHidden(true);
+	do_output(nAttr);
 
-	march_increment_out = nAttr.create("march_increment", "mi",
+	march_increment_out = nAttr.create("march_increment_out", "mio",
 			MFnNumericData::kFloat);
-	nAttr.setHidden(true);
-	;
+	do_output(nAttr);
 
 	cast_shadows_out = nAttr.create("cast_shadows_out", "cso",
 			MFnNumericData::kBoolean);
-	nAttr.setHidden(true);
+	do_output(nAttr);
+
+	high_samples_out = nAttr.create("high_samples_out", "hso",
+			MFnNumericData::kInt);
+	do_output(nAttr);
 
 	addAttribute(density_file);
 	addAttribute(density_scale);
@@ -394,6 +413,7 @@ MStatus FireControlNode::initialize() {
 	addAttribute(decay);
 	addAttribute(march_increment);
 	addAttribute(cast_shadows);
+	addAttribute(high_samples);
 
 	// Outputs
 	addAttribute(density_file_out);
@@ -412,6 +432,7 @@ MStatus FireControlNode::initialize() {
 	addAttribute(decay_out);
 	addAttribute(march_increment_out);
 	addAttribute(cast_shadows_out);
+	addAttribute(high_samples_out);
 
 	attributeAffects(density_file, density_file_out);
 	attributeAffects(density_scale, density_scale_out);
@@ -429,6 +450,12 @@ MStatus FireControlNode::initialize() {
 	attributeAffects(decay, decay_out);
 	attributeAffects(march_increment, march_increment_out);
 	attributeAffects(cast_shadows, cast_shadows_out);
+	attributeAffects(high_samples, high_samples_out);
 
 	return MS::kSuccess;
+}
+
+void FireControlNode::do_output(MFnAttribute& attr) {
+	attr.setHidden(true);
+	attr.setStorable(false);
 }

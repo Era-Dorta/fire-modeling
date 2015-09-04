@@ -6,7 +6,8 @@ MStatus initializePlugin(MObject obj) {
 
 	CHECK_MSTATUS(
 			plugin.registerNode("FireControlNode", FireControlNode::id,
-					FireControlNode::creator, FireControlNode::initialize));
+					FireControlNode::creator, FireControlNode::initialize,
+					MPxNode::kDependNode));
 	return MS::kSuccess;
 }
 
