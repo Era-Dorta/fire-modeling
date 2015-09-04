@@ -333,67 +333,67 @@ MStatus FireControlNode::initialize() {
 	nAttr.setSoftMax(500);
 
 	// Outputs
-	density_file_out = tAttr.create("density_file_out", "dfo",
+	density_file_out = tAttr.create("density_file_out", "df_o",
 			MFnData::kString);
 	do_output(tAttr);
 
-	density_scale_out = nAttr.create("density_scale_out", "dso",
+	density_scale_out = nAttr.create("density_scale_out", "ds_o",
 			MFnNumericData::kFloat);
 	do_output(nAttr);
 
-	density_offset_out = nAttr.create("density_offset_out", "doo",
+	density_offset_out = nAttr.create("density_offset_out", "do_o",
 			MFnNumericData::kFloat);
 	do_output(nAttr);
 
-	density_read_mode_out = eAttr.create("density_read_mode_out", "drmo");
-	do_output(nAttr);
+	density_read_mode_out = eAttr.create("density_read_mode_out", "drm_o");
+	do_output(eAttr);
 
-	temperature_file_out = tAttr.create("temperature_file_out", "tfo",
+	temperature_file_out = tAttr.create("temperature_file_out", "tf_o",
 			MFnData::kString);
 	do_output(tAttr);
 
-	temperature_scale_out = nAttr.create("temperature_scale_out", "tso",
+	temperature_scale_out = nAttr.create("temperature_scale_out", "ts_o",
 			MFnNumericData::kFloat);
 	do_output(nAttr);
 
-	temperature_offset_out = nAttr.create("temperature_offset_out", "too",
+	temperature_offset_out = nAttr.create("temperature_offset_out", "to_o",
 			MFnNumericData::kFloat);
 	do_output(nAttr);
 
 	temperature_read_mode_out = eAttr.create("temperature_read_mode_out",
-			"trmo");
+			"trm_o");
 	do_output(eAttr);
 
-	interpolation_mode_out = eAttr.create("interpolation_mode_out", "imo");
+	interpolation_mode_out = eAttr.create("interpolation_mode_out", "im_o");
 	do_output(eAttr);
 
-	fuel_type_out = eAttr.create("fuel_type_out", "fto");
+	fuel_type_out = eAttr.create("fuel_type_out", "ft_o");
 	do_output(eAttr);
 
 	visual_adaptation_factor_out = nAttr.create("visual_adaptation_factor_out",
-			"vafo", MFnNumericData::kFloat);
+			"vaf_o", MFnNumericData::kFloat);
 	do_output(nAttr);
 
-	intensity_out = nAttr.create("intensity_out", "into",
+	intensity_out = nAttr.create("intensity_out", "int_o",
 			MFnNumericData::kFloat);
 	do_output(nAttr);
 
-	shadow_threshold_out = nAttr.create("shadow_threshold_out", "sto",
+	shadow_threshold_out = nAttr.create("shadow_threshold_out", "st_o",
 			MFnNumericData::kFloat);
 	do_output(nAttr);
 
-	decay_out = nAttr.create("decay_out", "do", MFnNumericData::kFloat);
+	decay_out = nAttr.create("decay_out", "d_o", MFnNumericData::kFloat);
 	do_output(nAttr);
 
-	march_increment_out = nAttr.create("march_increment_out", "mio",
+	march_increment_out = nAttr.create("march_increment_out", "mi_o",
 			MFnNumericData::kFloat);
 	do_output(nAttr);
 
-	cast_shadows_out = nAttr.create("cast_shadows_out", "cso",
+	cast_shadows_out = nAttr.create("cast_shadows_out", "cs_o",
 			MFnNumericData::kBoolean);
 	do_output(nAttr);
 
-	high_samples_out = nAttr.create("high_samples_out", "hso",
+	high_samples_out = nAttr.create("high_samples_out", "hs_o",
 			MFnNumericData::kInt);
 	do_output(nAttr);
 
