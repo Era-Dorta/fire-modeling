@@ -110,7 +110,7 @@ void VoxelDatasetColorSorted::compute_max_voxel_value() {
 	max_color.b = accessor.getValue(sorted_ind[0]).z();
 }
 
-int VoxelDatasetColorSorted::getTotal() const {
+unsigned VoxelDatasetColorSorted::getTotal() const {
 	return sorted_ind.size();
 }
 

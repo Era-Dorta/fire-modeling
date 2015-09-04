@@ -53,7 +53,7 @@ public:
 	int getWidth() const;
 	int getHeight() const;
 	int getDepth() const;
-	virtual int getTotal() const;
+	virtual unsigned getTotal() const;
 	const DataT& getBackground() const;
 
 	InterpolationMode getInterpolationMode() const;

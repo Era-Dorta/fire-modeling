@@ -164,7 +164,7 @@ int VoxelDataset<DataT, TreeT>::getHeight() const {
 }
 
 template<typename DataT, typename TreeT>
-int VoxelDataset<DataT, TreeT>::getTotal() const {
+unsigned VoxelDataset<DataT, TreeT>::getTotal() const {
 	return count;
 }
 

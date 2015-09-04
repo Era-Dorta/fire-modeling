@@ -29,7 +29,7 @@ public:
 			const Accessor& accessor) const;
 	void get_i_j_k_from_sorted(miVector &ijk, const unsigned &index) const;
 	virtual void compute_max_voxel_value() override;
-	virtual int getTotal() const override;
+	virtual unsigned getTotal() const override;
 	openvdb::Vec3SGrid::ValueOnIter get_on_values_iter() const;
 	float get_inv_width_1_by_2() const;
 private:

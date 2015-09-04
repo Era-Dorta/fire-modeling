@@ -223,7 +223,7 @@ miBoolean miaux_color_is_ge(const miColor& c, miScalar x) {
 	return (c.r >= x && c.g >= x && c.b >= x);
 }
 
-miBoolean miaux_color_is_lt(const miColor& c, miScalar x){
+miBoolean miaux_color_is_lt(const miColor& c, miScalar x) {
 	return (c.r < x && c.g < x && c.b < x);
 }
 
