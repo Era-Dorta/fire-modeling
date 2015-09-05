@@ -11,11 +11,13 @@
 
 VoxelDatasetColorSorted::VoxelDatasetColorSorted() :
 		VoxelDatasetColor() {
+	sample_step = 0;
 	set_inv_width_1_by_2();
 }
 
 VoxelDatasetColorSorted::VoxelDatasetColorSorted(const miColor& background) :
 		VoxelDatasetColor(background) {
+	sample_step = 0;
 	set_inv_width_1_by_2();
 }
 
@@ -128,4 +130,22 @@ void VoxelDatasetColorSorted::set_inv_width_1_by_2() {
 	} else {
 		inv_width_1_by_2 = 0;
 	}
+}
+
+void VoxelDatasetColorSorted::compute_sample_step(unsigned high_samples) {
+	if (high_samples > 0) {
+		if (getTotal() > high_samples) {
+			sample_step = getTotal() / high_samples;
+		} else {
+			// If there are not enough voxel samples, set it to 1
+			sample_step = 1;
+		}
+
+	} else {
+		sample_step = 0;
+	}
+}
+
+unsigned VoxelDatasetColorSorted::get_sample_step() const {
+	return sample_step;
 }

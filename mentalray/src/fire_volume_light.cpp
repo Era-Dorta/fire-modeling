@@ -25,7 +25,7 @@ struct fire_volume_light {
 // Struct with thread local data for this shader
 typedef struct FireLightTLD {
 	VoxelDatasetColorSorted::Accessor accessor;
-	unsigned count_samples;
+	unsigned sample_start;
 } FireLightTLD;
 
 extern "C" DLLEXPORT int fire_volume_light_version(void) {
@@ -123,12 +123,15 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 			}
 		}
 
+		const unsigned high_samples = *mi_eval_integer(&params->high_samples);
+
 		// TODO Sorting is no longer needed, but it would break the single index
 		// calls to get sorted value
 		// Since we copied the data manually, we need to call sort and
 		// maximum voxel so that the VoxelDataset is correctly initialized
 		voxels->sort();
 		voxels->compute_max_voxel_value();
+		voxels->compute_sample_step(high_samples);
 
 		// Restore previous state
 		state->point = original_point;
@@ -202,101 +205,80 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 		mi_query(miQ_FUNC_TLS_SET, state, miNULLTAG, &tld);
 	}
 
+	const unsigned sample_step = voxels->get_sample_step();
+
 	if (state->count == 0) {
-		// Reset the internal sample count to 0
-		tld->count_samples = 0;
+		/*
+		 * Chose a sample start index at random, using mi_par_random instead of
+		 * mi_random guarantees that two consecutive renders produce the same
+		 * result. The sampling strategy is to choose every i * sample_step
+		 * from the pool. To avoid bias towards low numbers round is used
+		 */
+		tld->sample_start = std::round(
+				mi_par_random(state) * (sample_step - 1));
 	}
 
 	miScalar shadow_threshold = *mi_eval_scalar(&params->shadow_threshold);
 	miScalar decay = *mi_eval_scalar(&params->decay);
 
+	int c_count = (tld->sample_start + state->count * sample_step);
+
+	// Set the colour for the chosen sample
+	*result = voxels->get_sorted_voxel_value(c_count, tld->accessor);
+
 	// Set light position from the handler, this comes in internal space
-	miVector light_pos;
-	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &light_pos);
+	mi_query(miQ_LIGHT_ORIGIN, state, state->light_instance, &state->org);
 
-	// TODO Add as a shader parameter, which will be the same as high samples
-	const unsigned high_samples = *mi_eval_integer(&params->high_samples);
-	bool invalid_sample = true;
+	// Move the light origin to the voxel position
+	const miVector minus_one = { -1, -1, -1 };
+	miVector offset_light;
 
-	// A return false would stop sampling, so if one sample fails try with a
-	// few others before giving up
-	while (invalid_sample) {
-		invalid_sample = false;
+	voxels->get_i_j_k_from_sorted(offset_light, c_count);
 
-		// Increment internal number of samples taken
-		tld->count_samples++;
+	// TODO Use the miaux_fit function instead of this
+	// Transform voxel index from [0..255] space to [-1...1]
+	mi_vector_mul(&offset_light, voxels->get_inv_width_1_by_2());
+	mi_vector_add(&offset_light, &offset_light, &minus_one);
 
-		// Check if we have drawn enough samples from the voxel or reached the
-		// maximum allowed number of iterations for the current sample
-		if (tld->count_samples > high_samples
-				|| tld->count_samples > voxels->getTotal()) {
-			return ((miBoolean) 2);
-		}
+	// Convert the offset from light(object) space to internal space
+	mi_vector_from_light(state, &offset_light, &offset_light);
 
-		/*
-		 * Chose a sample index at random, using mi_par_random instead of
-		 * mi_random guarantees that two consecutive renders produce the same
-		 * result
-		 */
-		miUshort c_count = mi_par_random(state) * (voxels->getTotal() - 1);
+	// Move the origin to the voxel position using the offset
+	mi_vector_add(&state->org, &state->org, &offset_light);
 
-		// Set the colour for the chosen sample
-		*result = voxels->get_sorted_voxel_value(c_count, tld->accessor);
+	// dir is vector from light origin to primitive intersection point
+	mi_vector_sub(&state->dir, &state->point, &state->org);
 
-		// Move the light origin to the voxel position
-		const miVector minus_one = { -1, -1, -1 };
-		miVector offset_light;
+	// Distance is the norm of dir
+	state->dist = mi_vector_norm(&state->dir);
 
-		voxels->get_i_j_k_from_sorted(offset_light, c_count);
+	// Normalise dir using dist, more efficient than computing directly dir
+	// normalised and computing the norm again for dir
+	mi_vector_div(&state->dir, state->dist);
 
-		// TODO Use the miaux_fit function instead of this
-		// Transform voxel index from [0..255] space to [-1...1]
-		mi_vector_mul(&offset_light, voxels->get_inv_width_1_by_2());
-		mi_vector_add(&offset_light, &offset_light, &minus_one);
+	// N.b. seems like the direction for the shadows to work has to be
+	// origin -> point, but for the shaders to work, it has to be
+	// point -> origin, negating the dot product does the trick
+	state->dot_nd = -mi_vector_dot(&state->dir, &state->normal);
 
-		// Convert the offset from light(object) space to internal space
-		mi_vector_from_light(state, &offset_light, &offset_light);
+	// Distance spherical falloff, the particles are assumed to be spherical
+	miaux_scale_color(result, 1.0 / (4 * M_PI * pow(state->dist, decay)));
 
-		// Set the light centroid as origin
-		state->org = light_pos;
-
-		// Move the origin to the voxel position using the offset
-		mi_vector_add(&state->org, &state->org, &offset_light);
-
-		// dir is vector from light origin to primitive intersection point
-		mi_vector_sub(&state->dir, &state->point, &state->org);
-
-		// Distance is the norm of dir
-		state->dist = mi_vector_norm(&state->dir);
-
-		// Normalise dir using dist, more efficient than computing directly dir
-		// normalised and computing the norm again for dir
-		mi_vector_div(&state->dir, state->dist);
-
-		// N.b. seems like the direction for the shadows to work has to be
-		// origin -> point, but for the shaders to work, it has to be
-		// point -> origin, negating the dot product does the trick
-		state->dot_nd = -mi_vector_dot(&state->dir, &state->normal);
-
-		// Distance spherical falloff, the particles are assumed to be spherical
-		miaux_scale_color(result, 1.0 / (4 * M_PI * pow(state->dist, decay)));
-
-		/*
-		 * Extract from mental ray physlight.cpp shader example
-		 * Return false without checking occlusion (shadow ray) if
-		 * color is very dark. (This introduces bias which could be
-		 * avoided if probabilities were used to decide whether to
-		 * carry on or return here.)
-		 */
-		if (miaux_color_is_lt(*result, shadow_threshold)) {
-			invalid_sample = true;
-			continue;
-		}
-
-		// If the sample does not contribute, pick a new one
-		if (miaux_color_is_black(result) || !mi_trace_shadow(result, state)) {
-			invalid_sample = true;
-		}
+	/*
+	 * Extract from mental ray physlight.cpp shader example
+	 * Return false without checking occlusion (shadow ray) if
+	 * color is very dark. (This introduces bias which could be
+	 * avoided if probabilities were used to decide whether to
+	 * carry on or return here.) Only applies to the shadow threshold side
+	 */
+	if (miaux_color_is_black(result)
+			|| miaux_color_is_lt(*result, shadow_threshold)) {
+		return miTRUE;
 	}
+
+	// Dim or set to black if there are obstacles in the path
+	mi_trace_shadow(result, state);
+
+	// Always return true as we don't know if future samples will contribute
 	return miTRUE;
 }
