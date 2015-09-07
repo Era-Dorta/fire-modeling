@@ -18,6 +18,7 @@
 \usepackage{textpos}
 \setbeamercovered{dynamic}
 \usepackage[makeroom]{cancel}
+\usepackage{natbib}
 
 
 % Common math symbols used in the presentation
@@ -179,7 +180,7 @@ Centre For Digital Entertainment
 
 \begin{figure}[b!]
 \includegraphics[width=0.8\textwidth]{img/render_definition}
-\caption*{\tiny{Diagram of light emitted from $\mathbf{p}$, image taken from [PH10].}}
+\caption*{\tiny{Diagram of light emitted from $\mathbf{p}$, image courtesy of from \cite{Pharr:2004}}}
 \end{figure}
 
 \vfill
@@ -206,7 +207,7 @@ Centre For Digital Entertainment
 \begin{figure}[t!]
 \begin{center}
 \includegraphics[width=0.3\textwidth]{img/real_fire1} 
-\caption*{\tiny{Real fire with paper as fuel, image courtesy of [JAM*10].}}
+\caption*{\tiny{Real fire with paper as fuel, image courtesy of~\cite{real_fire1}.}}
 \end{center}
 \end{figure}
 \end{multicols}
@@ -248,7 +249,7 @@ Centre For Digital Entertainment
 \includegraphics[width=0.3\textwidth]{img/pegoraro_2006} 
 ~
 \includegraphics[width=0.59\textwidth]{img/hong_2007}
-\caption*{\tiny{Left, methane fire pool [P06]; right, a dragon emits a flame[H07].}}
+\caption*{\tiny{Left, methane fire pool~\cite{Pegoraro:2006}; right, a dragon emits a flame~\cite{Hong:2007}.}}
 \end{center}
 \end{figure}
 
@@ -324,7 +325,7 @@ Segment increment}
 \item Fuel type $\Rightarrow \sigma_a$, $\sigma_s$
 	\begin{itemize}
 	\setlength\itemsep{0.5em}
-	\item Burning soot emissions (Propane, Methane, ...)
+	\item Burning soot emission (Propane, Methane, ...)
 	\item Exotic chemicals (Copper, Lithium, ...)
 	\end{itemize}
 \item Black Body radiation $\Rightarrow L_e$
@@ -451,7 +452,7 @@ L_{\x} = e^{-\sigma_a \deltax} L_{\x + \Delta\x} +
 	\setlength\itemsep{0.5em}
 	\item Camera sensitivity
 	\end{itemize}
-\item Previous work ...
+\item Previous work,~\cite{Smits:1999},~\cite{Sun2001},~\cite{Drew:2003}
 \end{itemize}
 
 \end{frame}
@@ -474,6 +475,16 @@ L_{\x} = e^{-\sigma_a \deltax} L_{\x + \Delta\x} +
 [MI] Mizutani K. et al. Importance Sampling for Cloth Rendering under Environment Light, Mathematical Progress in Expressive Image Synthesis I, 2014 \newline 
 [WXK] Wang J. et al. Importance Sampling for a Microcylinder Based Cloth Bsdf, SIGGRAPH Talks, 2014\\~\\}}
 \end{frame}
+
+
+\begin{frame}[allowframebreaks]{References}
+
+\bibliographystyle{apalike}
+\bibliography{bibliography}
+
+\end{frame}
+
+
 
 %----------------------------------------------------------------------
 
