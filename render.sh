@@ -3,4 +3,17 @@
 # Flag to show mental ray info messages -mr:v 4 
 # -r renderer, -v verbosity, -s start_frame, -e end_frame, -fnc output_name_format, -pad padding_of_frame_num, -im output_name, -of output_extension
 # The -perframe options needs to be added or mental ray will not update the filenames on each frame in batch render
-Render -r mr -v 5 -cam camera1 -perframe -s 1 -e 1  -fnc 3 -pad 3 -rd ~/maya/projects/fire/images -im outputim -of tif ~/maya/projects/fire/scenes/test37*.ma
+if [ "$#" -le 0 ]; then
+	echo ""
+	echo "Missing file to render"
+	echo ""
+	echo "Usage: render <path_to_file.ma>"
+	echo ""
+	exit 0 
+fi
+
+fullName=$1
+fileName=$(basename "$fullName")
+SceneName="${fileName%.*}"
+
+Render -r mr -v 5 -cam camera1 -perframe -s 1 -e 1  -fnc 3 -pad 3 -rd ~/maya/projects/fire/images -im $SceneName -of tif $fullName
