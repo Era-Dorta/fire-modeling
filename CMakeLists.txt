@@ -88,7 +88,7 @@ MARK_AS_ADVANCED(PREV_CMAKE_INSTALL_PREFIX)
 # Already used the prefix variable, set to false
 SET(IS_DEFAULT_PREFIX FALSE CACHE BOOLEAN "using defaul prefix" FORCE)
 
-SET(PROJECT_DATA_INSTALL_PREFIX "${SHADERS_INSTALL_PREFIX}/${PROJECT_NAME}Data")
+SET(PROJECT_DATA_INSTALL_PREFIX "${SHADERS_INSTALL_PREFIX}/${PROJECT_NAME}_data")
 # Pass to the source code were it will be installed, so it can access the data files
 ADD_DEFINITIONS(-DLIBRARY_DATA_PATH="${PROJECT_DATA_INSTALL_PREFIX}")
 
