@@ -89,31 +89,33 @@ Using two images from orthographic camera views,~\cite{Hasinoff:2003} reconstruc
 \cite{Zhang:2011} presented a method to synthesize new animation sequences based on previously simulated data.
 A flow graph whose nodes connect resembling simulation states is built, similarity between nodes is measured based on flow pathline distances.
 New frames with smooth transitions are created by traversing the graph through different paths.
+\cite{Okabe:2015} proposed a reconstruction technique using a set of sparse images, that can also be applied to generate novel animations.
+The authors approach is to define an optimization problem in terms of colour histograms and steerable coefficients, which they can use to retrieve an approximation of the appearance of the volume at new viewing angles.
 
 \begin{figure}[htpb!]
         \centering
-        \begin{subfigure}[t]{0.2\textwidth}
-                \includegraphics[width=\textwidth]{img/rushmeier_1995}
-                \caption{\cite{Rushmeier:1995}.}
-        \end{subfigure}%
-        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
-          %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.162\textwidth}
+        \begin{subfigure}[t]{0.106\textwidth}
                 \includegraphics[width=\textwidth]{img/hasinoff_2003}
                 \caption{\cite{Hasinoff:2003}.}
         \end{subfigure}  
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.21\textwidth}
+        \begin{subfigure}[t]{0.19\textwidth}
                 \includegraphics[width=\textwidth]{img/ihrke_2004}
                 \caption{\cite{Ihrke:2004}.}
         \end{subfigure}      
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.38\textwidth}
+        \begin{subfigure}[t]{0.29\textwidth}
                 \includegraphics[width=\textwidth]{img/zhang_2011}
                 \caption{\cite{Zhang:2011}.}
-        \end{subfigure}                   
+        \end{subfigure}     
+        \begin{subfigure}[t]{0.33\textwidth}
+                \includegraphics[width=\textwidth]{img/okabe_2015}
+                \caption{\cite{Okabe:2015}.}
+        \end{subfigure}%
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)                      
         \caption{Date driven fire examples.}
         \label{fig:data_driven}
 \end{figure}
@@ -213,7 +215,9 @@ The splats are projected in front-to-back order and alpha-blended to produce the
 \cite{Bridault:2006} used a spectrophotometer to capture photometric distributions of candles.
 The intensities are stored on a texture and changes in illumination over time are introduced with an attenuation factor which is proportional to the size of the flame.
 \cite{Zhang:2011} proposed a method were fire particles and their attributes are first projected onto a set of slicing planes, which are orthogonal to the camera direction. 
-The planes are then blended in back-to-front order, and a one-dimensional colour texture is used as a transfer function to convert flow attributes to colours and opacities.
+The planes are then blended in back-to-front order, and a one-dimensional colour texture is used as a transfer function to convert flow attributes to colours and opacities. 
+\cite{Jamriska:2015} recently proposed a texture synthesis method to generate fire animations.
+The method requires a hand made motion field and an alpha mask of the desired result, both are used to generate the new sequence using data from an existing video exemplar.
 
 \begin{figure}[htpb!]
         \centering
@@ -222,10 +226,15 @@ The planes are then blended in back-to-front order, and a one-dimensional colour
                 \caption{\cite{Wei:2002}.}
         \end{subfigure}%
         ~        
-        \begin{subfigure}[t]{0.3\textwidth}
+        \begin{subfigure}[t]{0.285\textwidth}
                 \includegraphics[width=\textwidth]{img/zhao_2003}
                 \caption{\cite{Zhao:2003}.}
         \end{subfigure}% 
+		~        
+        \begin{subfigure}[t]{0.36\textwidth}
+                \includegraphics[width=\textwidth]{img/jamriska_2015}
+                \caption{\cite{Jamriska:2015}.}
+        \end{subfigure}%         
         \caption{Raster-based techniques.}
         \label{fig:raster_based}
 \end{figure}
