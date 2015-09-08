@@ -25,6 +25,13 @@ proc string fireFileNameNoNumber(string $filename){
 
 global proc string createFireVolume( string $temperature_file, string $density_file){
 	select -cl; // Clear selection
+	
+	// Get project relative and absolute paths for the files
+	$temp_file_abs = `workspace -expandName $temperature_file`;
+	$dens_file_abs = `workspace -expandName $density_file`;
+	
+	$temp_file_rel = `workspace -projectPath $temperature_file`;
+	$dens_file_rel = `workspace -projectPath $density_file`;
 
 	// Create all the shading nodes
 	$fire_shader = `shadingNode -name "fire_volume_shader" -asShader "fire_volume"`;
@@ -46,11 +53,11 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	string $area_light = $select_list[0];
 
 	// Set the files paths in the shader nodes
-	setAttr -type "string" ($fire_shader + ".temperature_file") $temperature_file;
-	setAttr -type "string" ($fire_shader + ".density_file") $density_file;
+	setAttr -type "string" ($fire_shader + ".temperature_file") $temp_file_abs;
+	setAttr -type "string" ($fire_shader + ".density_file") $dens_file_abs;
 	
-	setAttr -type "string" ($fire_shader + ".temperature_file_first") $temperature_file;
-	setAttr -type "string" ($fire_shader + ".density_file_first") $density_file;
+	setAttr -type "string" ($fire_shader + ".temperature_file_first") $temp_file_rel;
+	setAttr -type "string" ($fire_shader + ".density_file_first") $temp_file_rel;
 
 	// Fire shader as volume shader for the shading group
 	connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
@@ -142,10 +149,10 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	expression -string $updateScript -object $fire_shader -name $expression_name -alwaysEvaluate 1;
 	
 	// Set the total number of frames of the playback bar
-	$fileNameNPath = `fireFileNameNoNumber $density_file`;
+	$fileNameNPath = `fireFileNameNoNumber $dens_file_abs`;
 	$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
 	
-	$fileNameNPath = `fireFileNameNoNumber $temperature_file`;
+	$fileNameNPath = `fireFileNameNoNumber $temp_file_abs`;
 	$temperatureNumberDataFiles = `numFilesInFolder $fileNameNPath`;
 	
 	if($maxNumberDataFiles < $temperatureNumberDataFiles){

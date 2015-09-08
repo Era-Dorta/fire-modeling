@@ -43,6 +43,7 @@ global proc fireFrameUpdate(string $fireShader) {
 	$currentFrame = `currentTime -query`;
 
 	$densityFileName = `getAttr ($fireShader + ".density_file_first")`;
+	$densityFileName = `workspace -expandName $densityFileName`;
 	$newFile = `fireNewFileName $densityFileName $currentFrame`;
 
 	if(`filetest -r $newFile`){ // If file does not exits, do not update
@@ -50,6 +51,7 @@ global proc fireFrameUpdate(string $fireShader) {
 	}
 	
 	$temperatureFileName = `getAttr ($fireShader + ".temperature_file_first")`;
+	$temperatureFileName = `workspace -expandName $temperatureFileName`;
 	$newFile = `fireNewFileName $temperatureFileName $currentFrame`;
 	
 	if(`filetest -r $newFile`){ 

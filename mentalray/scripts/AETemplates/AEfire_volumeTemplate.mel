@@ -59,12 +59,15 @@ global proc AEfire_volumeNameFileBrowser (string $fileNameAttr) {
         return;
     }
 
+	$file_abs = `workspace -expandName $result[0]`;
+	$file_rel = `workspace -projectPath $result[0]`;
+	
     // set the file name attribute of the cache node
-    setAttr $fileNameAttr -type "string" $result[0];
-    setAttr ($fileNameAttr + "_first") -type "string" $result[0];
+    setAttr $fileNameAttr -type "string" $file_abs;
+    setAttr ($fileNameAttr + "_first") -type "string" $file_rel;
     
     // Set the total number of frames of the playback bar
-	$fileNameNPath = `fireFileNameNoNumber $result[0]`;
+	$fileNameNPath = `fireFileNameNoNumber $file_abs`;
 	$maxNumberDataFiles = `numFilesInFolder $fileNameNPath`;
 
 	$currentMaxFrame = `playbackOptions -query -maxTime`;
