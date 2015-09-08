@@ -119,7 +119,18 @@ Note that a single point light is used in the diagram to avoid clutter, yet in o
 \section{Shaders}
 \label{sec:shaders}
 
-Talk about things like which parts are written in parallel code, instance support, shader internal memory, sparse data, how the software escalates, memory consumption, Maya integration, spectrum to RGB integration, maybe more details about units for black body radiation and everything that was not explained before
+Talk about things like which parts are written in parallel code, instance support, shader internal memory, sparse data, how the software escalates, memory consumption, Maya integration, spectrum to RGB integration, maybe more details about units for black body radiation and everything that was not explained before.
+
+In order to be able to implement the different parts of our architecture, input data, voxel constant data, etc, without a monolithic design, lead to shader organization depicted in Figure~\ref{fig:shaders_diagram}.
+The temperature and density shaders will read the raw input values, the emission and absorption shaders will compute respectively, black body radiation and absorption coefficients.
+The fire light shader will sample and compute emitted light $L_e$, and the fire volume shader is in charge of adding absorption from light to interest point and to perform the main ray marching computations. 
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.4\textwidth]{img/shaders_diagram}
+	\caption{Diagram depicting the shaders and their interconnections.}
+	\label{fig:shaders_diagram}
+\end{figure}
 
 \begin{figure}[htpb!]
         \centering
@@ -138,12 +149,12 @@ Talk about things like which parts are written in parallel code, instance suppor
         \caption{Colour matching curves for RGB and XYZ spaces.}
 \end{figure}
 
-In order to speed up the render time, all spectrum related computations are integrated to RGB coefficients.
+To speed up the render time, all spectrum related computations are integrated at source to RGB coefficients.
 Our spectrum class has a number of samples that can be set at compile time, 30 samples were used in all of our renderings.
-To compute the absorption coefficients, Section~\ref{sec:absorption_coefficients}, data from Table~\ref{tb:soot_absorption_coefficients} is used.
-Since, there is not enough data to cover the 30 spectrum coefficients, linear interpolation is used to fill the missing values.
-RGB coefficients are the standard colour representation used in computer screens, however not every colour visible by the human eye can be reproduced in the RGB space.
-A further disadvantage, is that for certain colours negative values for the $\bar{r}(\lambda)$ coefficient are needed, as shown in Figure~\ref{fig:cie_rgb}.
+To compute the absorption coefficients that were introduced in Section~\ref{sec:absorption_coefficients}, data from Table~\ref{tb:soot_absorption_coefficients} is used.
+As there is not enough data to compute the 30 spectrum coefficients, a linear interpolation is used to fill the missing values.
+RGB coefficients are the standard colour representation in computer screens, however not every colour visible by the human eye can be reproduced in RGB space.
+There are further disadvantages inherent to this representation, for example certain colours visible by the human eye would require negative values for the $\bar{r}(\lambda)$ coefficient, as shown in Figure~\ref{fig:cie_rgb}.
 The XYZ colour space is built using three sets of imaginary primaries, which have a series of favourable properties.
 Any colour which can be seen by the human eye can be represented with some $x(\lambda)$, $y(\lambda)$, $z(\lambda)$ coefficients, the Y channel is equal to the photopic luminous efficiency function $V(\lambda)$, which models the variation of perceived brightness, and as shown in Figure~\ref{fig:cie_xyz}, the coefficients are always positive.
 
