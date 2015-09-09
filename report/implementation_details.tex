@@ -213,7 +213,7 @@ In order to achieve smoother rendering results, a trilinear interpolation is com
 Computing the interpolation smoothed the shape of the flames and reduced the effects of outliers is the input data.
 Tricubic interpolation was also considered, however it was discarded due to the significant increase in computational overhead.
 
-The implementation of the eye visual adaptation to the colours in fire, described in Equation~\ref{eq:visual_adaptation} is performed as described in~\cite{Nguyen:2002}, which uses Von Kries model~\cite{Fairchild:2005} 
+The implementation of the eye visual adaptation to the colours in fire, described in Equation~\ref{eq:visual_adaptation} is performed as described in~\cite{Nguyen:2002}, which uses the Von Kries model~\cite{Fairchild:2005} 
 
 \begin{equation}
 \begin{split}
@@ -236,9 +236,9 @@ The implementation of the eye visual adaptation to the colours in fire, describe
 
 where $\x_a = \left[ x_a, y_a, z_a \right]^{T}$ is a column vector with the XYZ adapted coefficients, $\mathbf{T}_w$ is the Von Kries transformation, $x_{max}$ are the coefficients for the maximum temperature present in the fire,  $\mathbf{l}_{max} = \left[ l_{max}, m_{max}, s_{max} \right]^{T}$ are the LMS coefficients of $x_{max}$, $\mathbf{M}$ is a XYZ to LMS transformation matrix and, $\x_i = \left[ x_i, y_i, z_i \right]^{T}$ is a column vector with the XYZ input coefficients.
 The XYZ to LMS $\mathbf{M}$ matrix is a Hunt-Pointer-Estevez transformation, proposed by~\cite{Hunt:1985}, which has been normalized to the CIE Standard Illuminant D65.
-The coefficients for $M^{-1}$ are not given in the CIE specification.
-Given that $M$ is a small $3 \times 3$ matrix, the inversion can be performed with any of the standard methods, in our case the default algorithm in \Matlab \textit{inv()} function was used, and the result was hard-coded in the shader.
-Solving the aforementioned equation in the XYZ space, instead of the RGB, will improve the quality of the final rendered image.
+The coefficients for $M^{-1}$ are not provided in the CIE specification.
+Given that $M$ is a small $3 \times 3$ matrix, the coefficients of $M^{-1}$ can be evaluated with any of the standard matrix inversion methods, in our case the default algorithm in \Matlab \textit{inv()} function was used, and the output was hard-coded in the shader.
+The aforementioned equation is solved in the XYZ space, in order to delay clamping coefficients to RGB as much as possible.
 
 \subsection{Fire Light Shader}
 \label{sec:fire_light_shader}
