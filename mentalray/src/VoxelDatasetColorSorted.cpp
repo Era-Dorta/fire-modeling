@@ -12,18 +12,21 @@
 VoxelDatasetColorSorted::VoxelDatasetColorSorted() :
 		VoxelDatasetColor() {
 	sample_step = 0;
+	set_inv_width();
 	set_inv_width_1_by_2();
 }
 
 VoxelDatasetColorSorted::VoxelDatasetColorSorted(const miColor& background) :
 		VoxelDatasetColor(background) {
 	sample_step = 0;
+	set_inv_width();
 	set_inv_width_1_by_2();
 }
 
 void VoxelDatasetColorSorted::resize(unsigned width, unsigned height,
 		unsigned depth) {
 	VoxelDatasetColor::resize(width, height, depth);
+	set_inv_width();
 	set_inv_width_1_by_2();
 }
 
@@ -124,11 +127,23 @@ float VoxelDatasetColorSorted::get_inv_width_1_by_2() const {
 	return inv_width_1_by_2;
 }
 
+float VoxelDatasetColorSorted::get_inv_width() const {
+	return inv_width;
+}
+
 void VoxelDatasetColorSorted::set_inv_width_1_by_2() {
 	if (width > 0) {
 		inv_width_1_by_2 = (1.0 / (width - 1.0)) * 2;
 	} else {
 		inv_width_1_by_2 = 0;
+	}
+}
+
+void VoxelDatasetColorSorted::set_inv_width() {
+	if (width > 0) {
+		inv_width = 1.0 / width;
+	} else {
+		inv_width = 0;
 	}
 }
 

@@ -261,6 +261,11 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	// point -> origin, negating the dot product does the trick
 	state->dot_nd = -mi_vector_dot(&state->dir, &state->normal);
 
+	// The distance to the sample cannot be smaller than half a voxel size
+	float h_voxel = voxels->get_inv_width();
+	if (state->dist < h_voxel) {
+		state->dist = h_voxel;
+	}
 	// Distance spherical falloff, the particles are assumed to be spherical
 	miaux_scale_color(result, 1.0 / (4 * M_PI * pow(state->dist, decay)));
 

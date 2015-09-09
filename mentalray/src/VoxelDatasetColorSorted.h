@@ -32,13 +32,16 @@ public:
 	virtual unsigned getTotal() const override;
 	openvdb::Vec3SGrid::ValueOnIter get_on_values_iter() const;
 	float get_inv_width_1_by_2() const;
+	float get_inv_width() const;
 	void compute_sample_step(unsigned high_samples);
 	unsigned get_sample_step() const;
 private:
 	void set_inv_width_1_by_2();
+	void set_inv_width();
 private:
 	std::vector<openvdb::Coord> sorted_ind;
 	float inv_width_1_by_2;
+	float inv_width;
 	unsigned sample_step;
 };
 
