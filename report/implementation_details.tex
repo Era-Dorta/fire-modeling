@@ -89,6 +89,9 @@ Under this assumptions, the steps required to solve the RTE, Equation~\ref{eq:rt
 \item Compute eye visual adaptation to fire colour.
 \end{enumerate}
 
+\section{Simplifications}
+\label{sec:simplifications}
+
 Equation~\ref{eq:rte_solution_paper} provides a radiance value, $L(\lambda, \x + \Delta\x, \omegam)$ for the next march increment, however it is more intuitive to think about the final radiance $L(\lambda, \x, \omegam)$, for the first intersection point.
 The radiance at the interest point is given by 
 
@@ -111,6 +114,9 @@ L(\lambda, \x, \omegam) = e^{-\sigma_a(\lambda, \x) \deltax} L(\lambda, x + \Del
 
 A visual representation of the implications of the aforementioned simplification is shown in Figure~\ref{fig:ray_marching}.
 Note that a single point light is used in the diagram to avoid clutter, yet in our implementation there is a point light located at the centre of each voxel whose temperature is high enough to be emissive.
+The non-linear trajectories of the photons, of the rays in practice, due to varying refraction indices in the media were also outside of the scope of this project.
+Deformations produced by the refraction phenomena can be noticeable, however there are important simplifications in the implementation if we choose to ignore them.
+Namely, we can reduce the recursiveness significantly, instead of starting in the first intersection and recursively solve the equation, we can start from the end point and accumulate the result backwards with a loop, as computing the end point is this situation is trivial.
 
 \begin{figure}[htbp!]
 	\centering
