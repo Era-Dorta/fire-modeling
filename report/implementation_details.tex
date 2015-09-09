@@ -260,7 +260,35 @@ The aforementioned equation is solved in the XYZ space, in order to delay clampi
 \subsection{Voxel Dataset Shader}
 \label{sec:voxel_dataset_shader}
 
-\subsection{Other}
-\label{sec:other}
+\section{Miscellaneous}
+\label{sec:miscellaneous}
 
-Talk about the maya command and matlab script
+\subsection{Utilities}
+\label{sec:utilities}
+
+Several auxiliary scripts have been developed in order to aid and provide some automation while using the software.
+A bash render script ``render.sh" is provided, this script batch renders a given \Maya scene and creates a video with the output images.
+
+New fuel types can be added to extend the default selection using spectral lines from the NIST database~\cite{Nist}.
+A \Matlab script ``save\_nist\_data.m" can be used to download and save new ``.specline" files for new atoms.
+Once a new file has been added to the data folder, the files ``fire\_shader.mi" and ``FuelTypes.h" have to be updated to include the name of the new data.
+
+Uintah~\cite{Uintah} is the combustion simulator used by~\cite{Pegoraro:2006} as input for their rendering method.
+Detailed instructions for its installation on Ubuntu, how to run examples, as well as scripts to convert from their output data format to a format compatible with the shaders is provided with the source code.
+
+\subsection{Known bugs and workarounds}
+\label{sec:known_bugs_and_workarounds}
+
+Batch rendering through the \Maya GUI does not automatically update the input files for the shaders.
+A workaround is to use the command line render utility as shown below
+
+\begin{lstlisting}[language=bash,caption={Batch render command}]
+$ Render -r mr -perframe -s <start_frame_number> -e <end_frame_number> <path_to_scene_file>
+\end{lstlisting}
+
+Saving images, either from batch render or single frame gui render, will produce unexpected results, normally a completely white output, if the image format natively supports transparency, such as tif, tga or exr.
+In order to get consistent results, the scene should be surrounded by solid objects.
+
+Any \Maya scene which uses the shaders should be saved in \Maya ASCII format, ``{\textless}scene{\textgreater}.ma".
+The saved files are not platform independent, as the input file names for the shaders use absolute paths.
+If the scene is to be opened in a new environment, the file paths have to be modified to match the current locations.
