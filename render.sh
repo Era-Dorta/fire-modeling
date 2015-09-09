@@ -16,21 +16,23 @@ fi
 fullName=$1
 fileName=$(basename "$fullName")
 SceneName="${fileName%.*}"
-projectPath=~/maya/projects/fire/images
+projectPath=$(dirname $(dirname "${fullName}"))
+outputImPath="$projectPath/images"
+outputMoviePath="$projectPath/movies"
 extension="tif"
 
-if [ ! -d "$projectPath/$SceneName" ]; then
-	mkdir "$projectPath/$SceneName"
+if [ ! -d "$outputImPath/$SceneName" ]; then
+	mkdir "$outputImPath/$SceneName"
 fi
 
 # Delete the log file if it exits
-if [ -f "$projectPath/$SceneName/$SceneName.log" ]; then
-	rm "$projectPath/$SceneName/$SceneName.log"
+if [ -f "$outputImPath/$SceneName/$SceneName.log" ]; then
+	rm "$outputImPath/$SceneName/$SceneName.log"
 fi
 
-touch "$projectPath/$SceneName/$SceneName.log"
+touch "$outputImPath/$SceneName/$SceneName.log"
 
-Render -r mr -v 5 -cam camera1 -perframe -autoRenderThreads -s 1 -e 1  -fnc 3 -pad 3 -rd "$projectPath/$SceneName" -im "$SceneName" -of $extension -log "$projectPath/$SceneName/$SceneName.log" "$fullName"
+Render -r mr -v 5 -cam camera1 -perframe -autoRenderThreads -s 1 -e 1  -fnc 3 -pad 3 -rd "$outputImPath/$SceneName" -im "$SceneName" -of $extension -log "$outputImPath/$SceneName/$SceneName.log" "$fullName"
 
-avconv -framerate 2 -i "$projectPath/$SceneName/$SceneName.%03d.$extension" -c:v h264 -crf 1 "$SceneName.mp4"
+avconv -framerate 2 -i "$outputImPath/$SceneName/$SceneName.%03d.$extension" -c:v h264 -crf 1 "$outputMoviePath/$SceneName.mp4"
 
