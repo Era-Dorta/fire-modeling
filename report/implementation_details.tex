@@ -89,21 +89,24 @@ Under this assumptions, the steps required to solve the RTE, Equation~\ref{eq:rt
 \item Compute eye visual adaptation to fire colour.
 \end{enumerate}
 
-Equation~\ref{eq:rte_solution_paper} provides a radiance value for the next march increment, however we want to compute the value at the ray intersection with the volume, i.e. at the ray origin.
-So we need to rewrite the equation as
+Equation~\ref{eq:rte_solution_paper} provides a radiance value, $L(\lambda, \x + \Delta\x, \omegam)$ for the next march increment, however it is more intuitive to think about the final radiance $L(\lambda, \x, \omegam)$, for the first intersection point.
+The radiance at the interest point is given by 
 
 \begin{equation}
 \begin{split}
-L(\lambda, \x, \omegam) &= e^{\sigma_t(\lambda, \x) \deltax} L(\lambda, \x + \Delta\x, \omegam) +  \\
-& (1 - e^{\sigma_t(\lambda, \x) \deltax} ) \frac{\sigma_a(\lambda, \x) L_e(\lxo) + \sigma_s(\lambda, \x) L_i(\lxo)}{\sigma_t(\lambda, \x)}.
+L(\lambda, \x, \omegam) &= e^{-\sigma_t(\lambda, \x) \deltax} L(\lambda, \x + \Delta\x, \omegam) +  \\
+& \left(1 - e^{-\sigma_t(\lambda, \x) \deltax} \right) \frac{\sigma_a(\lambda, \x) L_e(\lxo) + \sigma_s(\lambda, \x) L_i(\lxo)}{\sigma_t(\lambda, \x)}.
 \end{split}
 \end{equation}
 
 In fire phenomena the effect of scattered light in the final image is practically imperceptible~\cite{Pegoraro:2006}.
-Exploiting the previous prior knowledge, the scattering contributions can be safely ignored by setting the coefficient $\sigma_s$ equal to zero, which simplifies the previous equation to
+Intuitively, it means that as the medium is highly emissive and thin, most of the emitted photons have their initial paths unaltered.
+The scattering directions $\omegam_i$ are in essence sampling directions over a sphere of scattered light $L_i$.
+In practice, the simplification will significantly decrease rendering time, as $\omegam_i$ would have to be sampled by means of a computationally expensive Monte Carlo approximation. 
+Exploiting the previous prior knowledge, the scattering contributions can be safely ignored by setting $\sigma_s = 0$, which simplifies the previous equation to
 
 \begin{equation}
-L(\lambda, \x, \omegam) = e^{\sigma_a(\lambda, \x) \deltax} L(\lambda, x + \Delta\x, \omegam) +  (1 - e^{\sigma_a(\lambda, \x) \deltax}) L_e(\lxo).
+L(\lambda, \x, \omegam) = e^{-\sigma_a(\lambda, \x) \deltax} L(\lambda, x + \Delta\x, \omegam) +  \left(1 - e^{-\sigma_a(\lambda, \x) \deltax} \right) L_e(\lxo).
 \end{equation}
 
 A visual representation of the implications of the aforementioned simplification is shown in Figure~\ref{fig:ray_marching}.
