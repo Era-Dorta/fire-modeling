@@ -158,6 +158,10 @@ The fire light shader will sample and compute emitted light $L_e$, and the fire 
         \caption{Colour matching curves for RGB and XYZ spaces.}
 \end{figure}
 
+Volumetric data tends to be quite sparse, and usually we are working with volumes of $256 \times 256 \times 256$, which assuming a standard 32 bits floating point value per voxel, accumulates to 64 megabytes of data.
+With the shader architecture shown in Figure~\ref{fig:shaders_diagram}, there will be at least four copies of those structures per fire in the scene.
+A total of 256 megabytes per voxel dataset is unacceptable, we dealt with the problem using an open source sparse voxel dataset library~\cite{OpenVDB}.
+
 To speed up the render time, all spectrum related computations are integrated at source to RGB coefficients.
 Our spectrum class has a number of samples that can be set at compile time, 30 samples were used in all of our renderings.
 To compute the absorption coefficients that were introduced in Section~\ref{sec:absorption_coefficients}, data from Table~\ref{tb:soot_absorption_coefficients} is used.
