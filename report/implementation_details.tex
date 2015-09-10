@@ -12,11 +12,37 @@ An overview of the pipeline is shown in Figure~\ref{fig:pipeline_simplified}, no
 	\label{fig:pipeline_simplified}
 \end{figure}
 
+The implementation of the model was realised with several shaders for \MentalRay to be used in \Maya.
+Using a rendering engine like \MentalRay, which provides the basic functionality needed for ray tracing, reduces bugs in the code and increases productivity.
+The integration with \Maya is desirable, as the software gives the user an intuitive environment in which to create complex scenes, which are compatible with off-the-shelf effects like cloth or fluid simulations. 
+
 \section{Application Overview}
 \label{sec:application_overview}
 
-The model chosen for our data is that of a three-dimensional voxel dataset, a cube in space is uniformly divided and a data value is stored for each voxel.
-This data is either a soot density estimate for the \textit{fire volume shader} or a temperature estimate for the \textit{fire light shader}.
+\begin{figure}[htpb!]
+        \centering
+        \begin{subfigure}[t]{\textwidth}
+                \includegraphics[width=\textwidth]{img/application_example}
+                \caption{Example scene, note on the right the shader interface.}
+                \label{fig:application_example}
+        \end{subfigure}%
+        \\  %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{\textwidth}
+                \includegraphics[width=\textwidth]{img/application_example_render}
+                \caption{Low quality rendered imaged from the scene above.}
+                \label{fig:application_example_render}
+        \end{subfigure}
+        \label{fig:application_example_full}
+\end{figure}
+
+A test scene in \Maya with objects using our shaders is shown in Figure~\ref{fig:application_example}.
+From the user view point the volumetric data is enclosed in a cube, that they can manipulate as if it were any other object in the scene.
+The GUI for the shader includes two input files and  sliders for the numeric parameters. 
+The scene rendered from the camera viewpoint is shown in Figure~\ref{fig:application_example_render}.
+
+The model chosen for our inputs is that of a three-dimensional voxel dataset, a cube in space is uniformly divided and a value is stored for each voxel.
+This data in the voxel is either a soot density estimate for the \textit{fire volume shader} or a temperature estimate for the \textit{fire light shader}.
 Three file formats are supported, dense and sparse float voxel data is ASCII, and sparse binary RGBA values, as shown in Figure~\ref{fig:file_format}.
 In the ASCII dense format, the file first line are three integers, separated by spaces, declaring the width, height and depth of the data, followed by $w \cdot h \cdot d$ lines with a single floating point values.
 The ASCII sparse format, has two extra parameters in the first line, $c$ is the number of data points in the file and $b$ is the default value for any voxel that is not specified in the file.
