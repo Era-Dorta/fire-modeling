@@ -39,3 +39,52 @@ Thus, requiring more advanced optimization methods, such as genetic programming.
 \subsection{Spectrum reconstruction}
 \label{sec:spectrum_reconstruction}
 
+A captured image $I_f$ has for each pixel the RGB values that were captured by the sensor at that position.
+When a sensor is exposed to a spectral signal, the spectrum is collapsed to RGB using the sensitivity curves for each color, shown in Figure~\ref{fig:camera_sensitivity}.
+In continuous form, the collapsing of the signal is driven by
+
+\begin{figure}[htbp!]
+\centering
+\includegraphics[width=0.8\textwidth]{img/camera_sensitivity}
+	\caption{Spectral sensitivity curves for the sensors in our cameras.}
+	\label{fig:camera_sensitivity}
+\end{figure}
+
+\begin{equation}
+\begin{split}
+r &= \int i(\lambda) s_r(\lambda) d \lambda, \\
+g &= \int i(\lambda) s_g(\lambda) d \lambda, \\
+b &= \int i(\lambda) s_b(\lambda) d \lambda,
+\end{split}
+\label{eq:spectrum_collapse_cont}
+\end{equation}
+
+where $r$, $g$ and $b$ are the output coefficients, $i$ is the input spectrum, $s_r$, $s_g$ and $s_b$ are the spectral sensitivity curves and $\lambda$ is a wavelength number.
+Discretized for $n$ samples the previous equation can be written as  
+
+\begin{equation}
+\begin{bmatrix}
+r \\
+g \\
+b
+\end{bmatrix}
+= 
+\begin{bmatrix}
+s_r(\lambda_0) & s_r(\lambda_1) & \cdots & s_r(\lambda_n) \\
+s_g(\lambda_0) & s_g(\lambda_1) & \cdots & s_g(\lambda_n) \\
+s_b(\lambda_0) & s_b(\lambda_1) & \cdots & s_b(\lambda_n) 
+\end{bmatrix}
+\begin{bmatrix}
+i(\lambda_0) \\
+i(\lambda_1) \\
+\vdots \\
+i(\lambda_n) 
+\end{bmatrix}.
+\label{eq:spectrum_collapse_disc}
+\end{equation}
+
+If the original signal $i(\lambda)$ were to be reconstructed, the physical parameters could be computed using the equations presented in Chapter~\ref{ch:methodology}.
+An image rendered with those parameters would closely resemble the original data.
+The main challenge in this situation lies in the highly underconstrained nature of the problem, $n$ unknowns in $i(\lambda)$ are to be solved with only three equations from $r$, $g$ and $b$.
+Fortunately, several methods have been proposed,~\cite{Smits:1999},~\cite{Sun2001} and~\cite{Drew:2003}, to compute an approximation of $i(\lambda)$ using optimization techniques with a set of prior constrains, such as smooth spectral curves and spatial coherency within the image.
+
