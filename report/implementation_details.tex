@@ -78,11 +78,9 @@ Values not included in the file are considered to be initialized to zero.
 \section{\MentalRay Rendering Approach}
 \label{sec:mental_ray_rendering_approach}
 
-How mental ray shoots rays around and what is its paradigm.
-
 \MentalRay approach to solving the rendering equation is based on path tracing, as shown in Figure~\ref{fig:mental_ray_model}, for each pixel in the camera view, an eye ray will be shot in the scene.
 On an intersection with an object in the scene, its material shader will be called, this shader will shoot a light ray for each light in the scene, which in effects calls the light shader of the given light.
-In order to compute the irradiance at the intersection point, the light shader will probably trace a shadow ray from the light to the intersection point.
+In order to compute the irradiance at the intersection point, the light shader will trace a shadow ray from the light to the intersection point.
 Eventually, the material shader will compute the final colour with the information received from the light shader. 
 
 \begin{figure}[htbp!]
@@ -95,30 +93,30 @@ Eventually, the material shader will compute the final colour with the informati
 Under this assumptions, the steps required to solve the RTE, Equation~\ref{eq:rte_solution_paper}, are:
 
 \begin{enumerate}
-\item Shoot a ray from the eye into the scene.
-\item If the ray intersects the fire volume, perform ray marching in the volume.
+\item Shoot a ray from the eye into the scene
+\item If the ray intersects the fire volume, perform ray marching in the volume
 	\begin{enumerate}
-	\item Compute direct illumination at the current point.
+	\item Compute direct illumination at the current point
 		\begin{enumerate}
-		\item Get initial radiance using black body radiation.
-		\item Attenuate with absorption coefficient.
+		\item Sample all the lights $\rightarrow L_e$
+		\item Attenuate each with its own absorption coefficient $\rightarrow \left( 1 - e^{-\sigma_a} \right) L_e$
 		\end{enumerate}	
-	{\color{gray} \item Compute indirect illumination at the current point.
+	{\color{gray} \item Compute indirect illumination at the current point $\rightarrow \sigma_s L_i$
 		\begin{enumerate}
-		\item Use phase function to get the scattered light distribution.
+		\item Use phase function to get the scattered light distribution $\rightarrow \Phi$
 		\end{enumerate}}
-	\item Advance to next point in ray marching.
+	\item Add current contribution to accumulated color $\rightarrow e^{-\sigma_t}L + \left( 1 - e^{-\sigma_a} \right) L_e$
+	\item Advance to next point in ray marching $\rightarrow \x = \x + \Delta \x$
 		\begin{enumerate}
-		{\color{gray} \item Change ray direction using refraction index.}
+		{\color{gray} \item Change ray direction using refraction index $\rightarrow \Delta \x = refract (\Delta \x)$}
 		\end{enumerate}	
 	\end{enumerate}
-\item Compute eye visual adaptation to fire colour.
 \end{enumerate}
 
 \section{Simplifications}
 \label{sec:simplifications}
 
-Equation~\ref{eq:rte_solution_paper} provides a radiance value, $L(\lambda, \x + \Delta\x, \omegam)$ for the next march increment, however it is more intuitive to think about the final radiance $L(\lambda, \x, \omegam)$, for the first intersection point.
+Equation~\ref{eq:rte_solution_paper} provides a radiance value $L(\lambda, \x + \Delta\x, \omegam)$ for the next march increment, however it is more intuitive to think about the final radiance $L(\lambda, \x, \omegam)$ for the first intersection point.
 The radiance at the interest point is given by 
 
 \begin{equation}
@@ -158,7 +156,7 @@ Talk about things like which parts are written in parallel code, instance suppor
 
 In order to be able to implement the different parts of our architecture, input data, voxel constant data, etc, without a monolithic design, lead to shader organization depicted in Figure~\ref{fig:shaders_diagram}.
 The temperature and density shaders will read the raw input values, the emission and absorption shaders will compute respectively, black body radiation and absorption coefficients.
-The fire light shader will sample and compute emitted light $L_e$, and the fire volume shader is in charge of adding absorption from light to interest point and to perform the main ray marching computations. 
+The fire light shader will sample and compute emitted light $L_e$ with light rays, and the fire volume shader is in charge of adding absorption from light to interest point, shadow rays, and to perform the main ray marching computations, eye rays. 
 
 \begin{figure}[htbp!]
 	\centering
@@ -184,9 +182,10 @@ The fire light shader will sample and compute emitted light $L_e$, and the fire 
         \caption{Colour matching curves for RGB and XYZ spaces.}
 \end{figure}
 
-Volumetric data tends to be quite sparse, and usually we are working with volumes of $256 \times 256 \times 256$, which assuming a standard 32 bits floating point value per voxel, accumulates to 64 megabytes of data.
-With the shader architecture shown in Figure~\ref{fig:shaders_diagram}, there will be at least four copies of those structures per fire in the scene.
-A total of 256 megabytes per voxel dataset is unacceptable, we dealt with the problem using an open source sparse voxel dataset library~\cite{OpenVDB}.
+Volumetric data tends to be quite sparse, and usually we are working with volumes of $256 \times 256 \times 256$ voxels, which assuming a 32 bits floating point value per voxel in the density and temperature shader, and three floating point values for the emission and absorption shaders, accumulates respectively to 64 and 192 megabytes of data.
+With the shader architecture shown in Figure~\ref{fig:shaders_diagram}, there will be at least two copies of each structure per fire in the scene.
+A total of 512 megabytes per voxel dataset is unacceptable, we dealt with the problem using an open source sparse voxel dataset library~\cite{OpenVDB}.
+The sparse data structure reduced the total memory consumption to approximately 20 megabytes per dataset, while increasing the total rendering time by less than 10 seconds on average.
 
 To speed up the render time, all spectrum related computations are integrated at source to RGB coefficients.
 Our spectrum class has a number of samples that can be set at compile time, 30 samples were used in all of our renderings.
