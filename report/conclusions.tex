@@ -21,6 +21,21 @@ Another factor which should be considered is the relative intensity emitted at s
 \subsection{Image differences}
 \label{sec:image_differences}
 
+Given a ground truth captured image $I_f$, we would like to transform an image $I_0$, rendered with our method, so that it resembles $I_f$.
+Formally the transformation is defined as
+
+\begin{equation}
+I_{i+1} = t(I_i,~d(I_i,~I_f)),
+\end{equation}
+
+where $I_i$ is the image in the $i^{th}$ step, $d$ is an image difference function and $t$ is a function that transform $I_i$ in the direction of the gradient given by $d$.
+There are several terms in the aforementioned equation that can be explored in more detail.
+A number of image difference filters have been proposed, such as the Sobel and the Scharr filters.
+The transformation function, $t$, must convert from image derivatives space, to the physical parameter space that our shaders use, temperature, density, light falloff rate, etc.
+The simplest technique to compute the next step in the parameter space would be gradient descent.
+As there are several parameters to modify, and their behaviour is non-linear, it is reasonable to expect that the function will have a number of local minima. 
+Thus, requiring more advanced optimization methods, such as genetic programming.
+
 \subsection{Spectrum reconstruction}
 \label{sec:spectrum_reconstruction}
 
