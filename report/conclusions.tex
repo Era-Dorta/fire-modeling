@@ -6,17 +6,17 @@
 
 \section{Future Work}
 
-The main area of future work lies in automatically setting the parameters for a given scene.
+An interesting area of future work involves automatically setting the shader parameters for a given scene.
 There are at least two paths that be used to give a good parameter estimation, if we have captured data.
 The methods are, gradient descent using image derivatives or reconstructing the spectrum which produced the cameras RGB responses.
 Both techniques will be explained in greater detail in the Sections~\ref{sec:image_differences} and~\ref{sec:spectrum_reconstruction}.
 
 A common line of work in the computer graphics community is the development of importance sampling for a bxdf rendering models~\cite{Lawrence:2004},~\cite{Ou:2012} and~\cite{Wang:2014}.
-The main idea lies in sampling more often the values that contribute more to the final image, using a biased distribution instead of an uniform sampling scheme.
+The core idea is to sample more often the values that contribute more to the final image, by means of a biased distribution instead of an uniform sampling scheme.
 In our implementation the emitted radiance $L_e$ is uniformly sampled, and in the general case the $\omegam_i$ directions for in-scattering light $L_i$ would have been naively sampled as well.
 In order to design a ``good" biased distribution, prior knowledge of the location of the important regions is needed. 
-For $L_e$ and $L_i$ we have some intuitive insight on were such regions could be, samples whose origin is close to the interest point should have greater contributions, as the influence of further ones will be diminished by light distance falloff.
-Another factor which should be considered is the relative intensity emitted at source by a sample, it is expected that brighter points will have a larger contributions. 
+For $L_e$ and $L_i$ we have some intuitive insight on were would such regions lie, samples whose origin is close to the interest point should have greater contributions, as the influence of further ones will be diminished by the light distance falloff effect.
+Another factor which must be considered is the relative intensity emitted at source by a sample, as it is expected that brighter points will have larger contributions. 
 
 \subsection{Image differences}
 \label{sec:image_differences}
@@ -28,19 +28,19 @@ Formally the transformation is defined as
 I_{i+1} = t(I_i,~d(I_i,~I_f)),
 \end{equation}
 
-where $I_i$ is the image in the $i^{th}$ step, $d$ is an image difference function and $t$ is a function that transform $I_i$ in the direction of the gradient given by $d$.
+where $I_i$ is the image in the $i^{th}$ step, $d$ is an image difference function, and $t$ is a function that transform $I_i$ in the direction of the gradient given by $d$.
 There are several terms in the aforementioned equation that can be explored in more detail.
 A number of image difference filters have been proposed, such as the Sobel and the Scharr filters.
-The transformation function, $t$, must convert from image derivatives space, to the physical parameter space that our shaders use, temperature, density, light falloff rate, etc.
+The transformation function $t$ must convert from image derivatives space, to the physical parameter space that our shaders use, temperature, density, light falloff rate, etc.
 The simplest technique to compute the next step in the parameter space would be gradient descent.
-As there are several parameters to modify, and their behaviour is non-linear, it is reasonable to expect that the function will have a number of local minima. 
+As there are several parameters to explore, and their behaviour is non-linear, it is reasonable to expect that the function will have a number of local minima. 
 Thus, requiring more advanced optimization methods, such as genetic programming.
 
 \subsection{Spectrum reconstruction}
 \label{sec:spectrum_reconstruction}
 
-A captured image $I_f$ has for each pixel the RGB values that were captured by the sensor at that position.
-When a sensor is exposed to a spectral signal, the spectrum is collapsed to RGB using the sensitivity curves for each color, shown in Figure~\ref{fig:camera_sensitivity}.
+In a captured image $I_f$, each pixel stores the RGB values that were measured by the sensor at that position.
+When the camera is exposed to a spectral signal, the spectrum is collapsed to RGB space using the sensor spectral sensitivity curves for each color, the curves are shown in Figure~\ref{fig:camera_sensitivity}.
 In continuous form, the collapsing of the signal is driven by
 
 \begin{figure}[htbp!]
@@ -59,7 +59,7 @@ b &= \int i(\lambda) s_b(\lambda) d \lambda,
 \label{eq:spectrum_collapse_cont}
 \end{equation}
 
-where $r$, $g$ and $b$ are the output coefficients, $i$ is the input spectrum, $s_r$, $s_g$ and $s_b$ are the spectral sensitivity curves and $\lambda$ is a wavelength number.
+where $r$, $g$ and $b$ are the output coefficients, $i(\lambda)$ is the input spectrum, $s_r(\lambda)$, $s_g(\lambda)$ and $s_b(\lambda)$ are the spectral sensitivity curves and $\lambda$ is a wavelength number.
 Discretized for $n$ samples the previous equation can be written as  
 
 \begin{equation}
