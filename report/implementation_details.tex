@@ -149,10 +149,8 @@ Namely, we can reduce the recursiveness significantly, instead of starting in th
 	\label{fig:ray_marching}
 \end{figure}
 
-\section{Shaders}
-\label{sec:shaders}
-
-Talk about things like which parts are written in parallel code, instance support, shader internal memory, sparse data, how the software escalates, memory consumption, Maya integration, spectrum to RGB integration, maybe more details about units for black body radiation and everything that was not explained before.
+\section{Shaders Overview}
+\label{sec:shaders_overview}
 
 In order to be able to implement the different parts of our architecture, input data, voxel constant data, etc, without a monolithic design, lead to shader organization depicted in Figure~\ref{fig:shaders_diagram}.
 The temperature and density shaders will read the raw input values, the emission and absorption shaders will compute respectively, black body radiation and absorption coefficients.
@@ -182,10 +180,8 @@ The fire light shader will sample and compute emitted light $L_e$ with light ray
         \caption{Colour matching curves for RGB and XYZ spaces.}
 \end{figure}
 
-Volumetric data tends to be quite sparse, and usually we are working with volumes of $256 \times 256 \times 256$ voxels, which assuming a 32 bits floating point value per voxel in the density and temperature shader, and three floating point values for the emission and absorption shaders, accumulates respectively to 64 and 192 megabytes of data.
-With the shader architecture shown in Figure~\ref{fig:shaders_diagram}, there will be at least two copies of each structure per fire in the scene.
-A total of 512 megabytes per voxel dataset is unacceptable, we dealt with the problem using an open source sparse voxel dataset library~\cite{OpenVDB}.
-The sparse data structure reduced the total memory consumption to approximately 20 megabytes per dataset, while increasing the total rendering time by less than 10 seconds on average.
+\section{Spectrum to RGB}
+\label{sec:spectrum_to_rgb}
 
 To speed up the render time, all spectrum related computations are integrated at source to RGB coefficients.
 Our spectrum class has a number of samples that can be set at compile time, 30 samples were used in all of our renderings.
@@ -244,12 +240,23 @@ z
 where $R(\lambda)$, $G(\lambda)$, $B(\lambda)$ are the spectral curves for the red, green and blue colours respectively.
 Note that all the factors in the transformation matrix are constants and they can be precomputed for efficiency.
 
-\subsection{Fire Volume Shader}
-\label{sec:fire_volume_shader}
+\subsection{Performance considerations}
+\label{sec:performance_considerations}
+
+Volumetric data tends to be quite sparse, and usually we are working with volumes of $256 \times 256 \times 256$ voxels, which assuming a 32 bits floating point value per voxel in the density and temperature shader, and three floating point values for the emission and absorption shaders, accumulates respectively to 64 and 192 megabytes of data.
+With the shader architecture shown in Figure~\ref{fig:shaders_diagram}, there will be at least two copies of each structure per fire in the scene.
+A total of 512 megabytes per voxel dataset is unacceptable, we dealt with the problem using an open source sparse voxel dataset library~\cite{OpenVDB}.
+The sparse data structure reduced the total memory consumption to approximately 20 megabytes per dataset, while increasing the total rendering time by less than 10 seconds on average.
 
 In order to achieve smoother rendering results, a trilinear interpolation is computed in each step in the ray-marching algorithm.
 Computing the interpolation smoothed the shape of the flames and reduced the effects of outliers is the input data.
 Tricubic interpolation was also considered, however it was discarded due to the significant increase in computational overhead.
+
+Our system follows the recommendations of the \MentalRay API, which allows performance to scale automatically as the number of hardware processors increases.
+Batch rendering for animations is also supported, the shaders will automatically choose the correct input files for each frame. 
+
+\section{Visual Adaptation}
+\label{sec:visual_adaptation_imp}
 
 The implementation of the eye visual adaptation to the colours in fire, described in Equation~\ref{eq:visual_adaptation} is performed as described in~\cite{Nguyen:2002}, which uses the Von Kries model~\cite{Fairchild:2005} 
 
@@ -277,13 +284,6 @@ The XYZ to LMS $\mathbf{M}$ matrix is a Hunt-Pointer-Estevez transformation, pro
 The coefficients for $M^{-1}$ are not provided in the CIE specification.
 Given that $M$ is a small $3 \times 3$ matrix, the coefficients of $M^{-1}$ can be evaluated with any of the standard matrix inversion methods, in our case the default algorithm in \Matlab \textit{inv()} function was used, and the output was hard-coded in the shader.
 The aforementioned equation is solved in the XYZ space, in order to delay clamping coefficients to RGB as much as possible.
-
-\subsection{Fire Light Shader}
-\label{sec:fire_light_shader}
-
-
-\subsection{Voxel Dataset Shader}
-\label{sec:voxel_dataset_shader}
 
 \section{Miscellaneous}
 \label{sec:miscellaneous}
