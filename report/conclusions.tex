@@ -1,3 +1,26 @@
 %------------------------------------------------------------------------------
 \chapter{Conclusions and Future work}
 \label{ch:conclusions}
+
+\section{Conclusions}
+
+\section{Future Work}
+
+The main area of future work lies in automatically setting the parameters for a given scene.
+There are at least two paths that be used to give a good parameter estimation, if we have captured data.
+The methods are, gradient descent using image derivatives or reconstructing the spectrum which produced the cameras RGB responses.
+Both techniques will be explained in greater detail in the Sections~\ref{sec:image_differences} and~\ref{sec:spectrum_reconstruction}.
+
+A common line of work in the computer graphics community is the development of importance sampling for a bxdf rendering models~\cite{Lawrence:2004},~\cite{Ou:2012} and~\cite{Wang:2014}.
+The main idea lies in sampling more often the values that contribute more to the final image, using a biased distribution instead of an uniform sampling scheme.
+In our implementation the emitted radiance $L_e$ is uniformly sampled, and in the general case the $\omegam_i$ directions for in-scattering light $L_i$ would have been naively sampled as well.
+In order to design a ``good" biased distribution, prior knowledge of the location of the important regions is needed. 
+For $L_e$ and $L_i$ we have some intuitive insight on were such regions could be, samples whose origin is close to the interest point should have greater contributions, as the influence of further ones will be diminished by light distance falloff.
+Another factor which should be considered is the relative intensity emitted at source by a sample, it is expected that brighter points will have a larger contributions. 
+
+\subsection{Image differences}
+\label{sec:image_differences}
+
+\subsection{Spectrum reconstruction}
+\label{sec:spectrum_reconstruction}
+
