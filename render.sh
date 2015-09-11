@@ -13,10 +13,10 @@ if [ "$#" -le 0 ]; then
 	exit 0 
 fi
 
-fullName=$1
-fileName=$(basename "$fullName")
-SceneName="${fileName%.*}"
-projectPath=$(dirname $(dirname "${fullName}"))
+fullName=$(readlink -f "$1") # Get the absolute path, relative ones would save the images in the default project
+fileName=$(basename "$fullName") # Get the name of the file
+SceneName="${fileName%.*}"  # Take the extension out
+projectPath=$(dirname $(dirname "${fullName}")) # Get the project folder path
 outputImPath="$projectPath/images"
 outputMoviePath="$projectPath/movies"
 extension="tif"
