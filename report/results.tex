@@ -15,8 +15,8 @@ The result of rendering the scene with \Mayash's software renderer is shown in F
 If \MentalRay is used to render the same scene, the image shown in Figure~\ref{fig:maya_fire_mental_ray} is generated.
 Although the fire itself looks more realistic, the only alteration in neighbouring objects  is the appearance of erroneous shadows.
 Placing on the flame examples provided by \Maya in our test scene produced the result shown in Figure~\ref{fig:result_maya_fire_example}.
-The file used was ``Flame.ma" fluid example, on the 14th frame of the simulation.
-Note that a point light had to be placed in the centre of the flame, and the emitted colour had to be manually matched to the flame to be able to produce the desired effect.
+More specifically, the 14th frame of the simulation in the file fire fluid examples ``Flame.ma" was used.
+Note that a point light had to be placed in the centre of the flame, and the emitted colour had to be matched manually to the fire colour, to be able to produce the desired effect.
 
 All the images generated with our shader use 256 light samples, the volumes have resolutions of $256 \times 256 \times 256$ voxels and a ray march step size of half a voxel size.
 To give some perspective of the evolution of the software, an image from an early stage of the application is shown in Figure~\ref{fig:result_early_stage}.
@@ -28,9 +28,11 @@ For the next step, we assume that our flame is a black body radiator, as shown i
 In each step of the ray marching, the 256 lights scattered throughout the fire are sampled to compute the colour.
 Since no fuel is burning, there is no absorption coefficient to be computed, so the alpha blending is still used.
 
-If we model the fire with a real fuel, for example propane, the image shown in Figure~\ref{fig:result_propane} is generated.
-At this point we are rendering with the simplified RTE Equation~\ref{eq:rte_simplified}. 
-
+If we model the fire with a real fuel, for example propane, the image shown in Figure~\ref{fig:result_propane_shadows} is generated.
+At this point we are rendering with the simplified RTE Equation~\ref{eq:rte_simplified}.
+Note how the appearance of the flame improves significantly with respect to the previous result.
+If we omit the computation of the attenuation factor for the emitted light $L_e$, rendering times are reduced significantly.
+The result is shown in Figure~\ref{fig:result_propane}, the error incurred with this simplification is not unreasonable, as shown in Figures~\ref{fig:result_diff_shadow} and~\ref{fig:result_diff_shadow_x5}, computed as the absolute of the difference between both images.
 
 \begin{figure}[htbp!]
 	\centering
@@ -92,16 +94,30 @@ At this point we are rendering with the simplified RTE Equation~\ref{eq:rte_simp
 
 \begin{figure}[htbp!]
 	\centering
+	\includegraphics[width=0.8\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_propane_shadows}
+	\caption{Result propane full model.}
+	\label{fig:result_propane_shadows}
+\end{figure}
+
+\begin{figure}[htbp!]
+	\centering
 	\includegraphics[width=0.8\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_propane}
-	\caption{result propane.}
+	\caption{result propane without shadows.}
 	\label{fig:result_propane}
 \end{figure}
 
 \begin{figure}[htbp!]
 	\centering
-	\includegraphics[width=0.8\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_propane_shadows}
-	\caption{result propane shadows.}
-	\label{fig:result_propane_shadows}
+	\includegraphics[width=0.8\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_diff_shadow}
+	\caption{Error introduced when the attenuation is not computed.}
+	\label{fig:result_diff_shadow}
+\end{figure}
+
+\begin{figure}[htbp!]
+	\centering
+	\includegraphics[width=0.8\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_diff_shadow_x5}
+	\caption{Previous error highlighted by a factor of 5.}
+	\label{fig:result_diff_shadow_x5}
 \end{figure}
 
 \begin{figure}[htbp!]
