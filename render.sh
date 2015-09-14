@@ -34,5 +34,7 @@ touch "$outputImPath/$SceneName/$SceneName.log"
 
 Render -r mr -v 5 -cam camera1 -perframe -autoRenderThreads -s 1 -e 1  -fnc 3 -pad 3 -rd "$outputImPath/$SceneName" -im "$SceneName" -of $extension -log "$outputImPath/$SceneName/$SceneName.log" "$fullName"
 
-avconv -framerate 2 -i "$outputImPath/$SceneName/$SceneName.%03d.$extension" -c:v h264 -crf 1 "$outputMoviePath/$SceneName.mp4"
+# -r is the frame rate
+ffmpeg -r 4 -i "$outputImPath/$SceneName/$SceneName.%03d.$extension" "$outputMoviePath/$SceneName.avi"
+
 
