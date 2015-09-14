@@ -14,6 +14,23 @@ A simple scene with plane, a sphere, a cylinder and a light was created, as show
 The result of rendering the scene with \Mayash's software renderer is shown in Figure~\ref{fig:maya_fire}, note how the sphere and cylinder do not experience any change in their illumination with respect to the scene without the fire.
 If \MentalRay is used to render the same scene, the image shown in Figure~\ref{fig:maya_fire_mental_ray} is generated.
 Although the fire itself looks more realistic, the only alteration in neighbouring objects  is the appearance of erroneous shadows.
+Placing on the flame examples provided by \Maya in our test scene produced the result shown in Figure~\ref{fig:result_maya_fire_example}.
+The file used was ``Flame.ma" fluid example, on the 14th frame of the simulation.
+Note that a point light had to be placed in the centre of the flame, and the emitted colour had to be manually matched to the flame to be able to produce the desired effect.
+
+All the images generated with our shader use 256 light samples, the volumes have resolutions of $256 \times 256 \times 256$ voxels and a ray march step size of half a voxel size.
+To give some perspective of the evolution of the software, an image from an early stage of the application is shown in Figure~\ref{fig:result_early_stage}.
+At that point standard ray marching was used, a white point light source was placed in the centre of the cube, and the colour of the volume was set manually to orange.
+The final colour of each pixel was computed using alpha blending with the densities along the direction of the ray.
+The shadows form due to an attenuation factor being computed in the shadow rays.
+
+For the next step, we assume that our flame is a black body radiator, as shown in Figure~\ref{fig:result_blackbody}.
+In each step of the ray marching, the 256 lights scattered throughout the fire are sampled to compute the colour.
+Since no fuel is burning, there is no absorption coefficient to be computed, so the alpha blending is still used.
+
+If we model the fire with a real fuel, for example propane, the image shown in Figure~\ref{fig:result_propane} is generated.
+At this point we are rendering with the simplified RTE Equation~\ref{eq:rte_simplified}. 
+
 
 \begin{figure}[htbp!]
 	\centering
