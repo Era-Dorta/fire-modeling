@@ -91,7 +91,8 @@ If we model the fire with a real fuel, for example propane, the image shown in F
 At this point we are rendering with the simplified RTE Equation~\ref{eq:rte_simplified}.
 Note how the appearance of the flame improves significantly with respect to the previous result.
 If we omit the computation of the attenuation factor for the emitted light $L_e$, rendering times are reduced significantly.
-The result is shown in Figure~\ref{fig:result_propane}, the error incurred with this simplification is not unreasonable, as shown in Figures~\ref{fig:result_diff_shadow} and~\ref{fig:result_diff_shadow_x5}, computed as the absolute of the difference between both images.
+The result is shown in Figure~\ref{fig:result_propane}, the error incurred with this simplification s shown in Figures~\ref{fig:result_diff_shadow} and~\ref{fig:result_diff_shadow_x5}, computed as the absolute of the difference between both images.
+The bias introduced is recognizable when there is a ground truth image to compare to, yet if only one image were to be shown, it would be challenging to notice the difference. 
 
 \begin{figure}[htbp]
 	\centering
@@ -121,6 +122,9 @@ The result is shown in Figure~\ref{fig:result_propane}, the error incurred with 
 	\label{fig:result_diff_shadow_x5}
 \end{figure}
 
+More exotic fuels are also supported by our system, images with copper and sulphur as the burning chemicals are shown in Figures~\ref{fig:result_copper} and~\ref{fig:result_sulfur}.
+To be able to render this data, the temperature of the flame must be increased, otherwise the emitted radiation would be outside of the visible spectrum.
+
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.8\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_copper}
@@ -135,9 +139,22 @@ The result is shown in Figure~\ref{fig:result_propane}, the error incurred with 
 	\label{fig:result_sulfur}
 \end{figure}
 
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.25\textwidth]{img/result_synthetic}
-	\caption{Our shader, two flames superimposed.}
-	\label{fig:result_synthetic}
+An interesting phenomena is the visual appearance of flames which are superimposed, as addition of the colours and transparency is not trivial, as shown in Figure~\ref{fig:result_synthetic}.
+To better illustrate this effect, an image of similar situation  with real flames captured with our system is shown in 
+
+\begin{figure}[htpb]
+        \centering
+        \begin{subfigure}[t]{0.2\textwidth}
+                \includegraphics[width=\textwidth]{img/result_synthetic}
+                \caption{Our shader, two flames superimposed.}
+                \label{fig:result_synthetic}
+        \end{subfigure}%
+        \qquad %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.15\textwidth}
+                \includegraphics[width=\textwidth]{img/vox0087}
+                \caption{Captured image of real flames.}
+                \label{fig:vox0087}
+        \end{subfigure}
+        \caption{Superimposed fire effects.}
 \end{figure}
