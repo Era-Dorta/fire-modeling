@@ -140,7 +140,7 @@ To be able to render this data, the temperature of the flame must be increased, 
 \end{figure}
 
 The effects of the visual adaptation transformation are shown in Figure~\ref{fig:visual_adaptation_states}.
-As expected, when the visual adaptation factor increases, the centre of the flame shifts to a lighter colour.
+As expected, when the visual adaptation factor increases, the centre of the flame shifts to a whiter colour.
 
 \begin{figure}[htpb]
         \centering
@@ -172,13 +172,32 @@ As expected, when the visual adaptation factor increases, the centre of the flam
         \label{fig:visual_adaptation_states}
 \end{figure}
 
-In the work of \cite{Pegoraro:2006}, the authors use data from \cite{Uintah} as the base input for their rendering results.
-We have ran some of the example simulations provided with the software, and the data was rendered with our shaders, as shown in Figure \textbf{ADD FIGURE, DRAW CONCLUSIONS FROM IT}.    
-
-An interesting phenomena is the visual appearance of flames which are superimposed, as addition of the colours and transparency is not trivial, as shown in Figure~\ref{fig:result_synthetic}.
-To better illustrate this effect, an image of similar situation  with real flames captured with our system is shown in 
+In the work of Pegoraro and Parker, the authors use data from the Uintah library~\cite{Uintah} as the base input for their rendering results.
+We have ran some of the example simulations provided with the software, and the data was rendered with our shaders, as shown in Figure~\ref{fig:pegoraro_data_simulation_overview}.
+The data was also rendered using the VisIt volumetric visualization software, that was developed by the Lawrence Livermore National Laboratory~\cite{VisIt}.
+Figure\ref{fig:pegoraro_data_simulation_visit} shows the result in VisIt using texture splats, densities are shown using green and temperatures with orange, darker colours implies a higher voxel values.
 
 \begin{figure}[htpb]
+		\begin{subfigure}[t]{0.45\textwidth}
+                \includegraphics[width=\textwidth]{img/pegoraro_data_visit}
+                \caption{Visualization using VisIt.}
+                \label{fig:pegoraro_data_simulation_visit}
+        \end{subfigure}%        
+		~
+ 		\begin{subfigure}[t]{0.45\textwidth}
+                \includegraphics[width=\textwidth]{img/pegoraro_data_visit}
+                \caption{Visualization using our shader.}
+                \label{fig:pegoraro_data_simulation_shader}
+        \end{subfigure}%             
+        \caption{Simulation data from the heptane example in the Uintah software\cite{Uintah}.}
+        \label{fig:pegoraro_data_simulation_overview}
+\end{figure}
+
+
+An interesting phenomena is the visual appearance of flames which are superimposed, as the addition of the colours and transparency is not trivial, as shown in Figure~\ref{fig:result_synthetic}.
+To better illustrate this effect, an image of similar situation  with real flames captured with our system is shown in Figure~\ref{fig:vox0087}.
+
+\begin{figure}[h!]
         \centering
         \begin{subfigure}[t]{0.2\textwidth}
                 \includegraphics[width=\textwidth]{img/result_synthetic}
@@ -187,7 +206,7 @@ To better illustrate this effect, an image of similar situation  with real flame
         \end{subfigure}%
         \qquad %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.15\textwidth}
+        \begin{subfigure}[t]{0.135\textwidth}
                 \includegraphics[width=\textwidth]{img/vox0087}
                 \caption{Captured image of real flames.}
                 \label{fig:vox0087}
