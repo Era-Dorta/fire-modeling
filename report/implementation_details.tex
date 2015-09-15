@@ -44,11 +44,12 @@ The scene rendered from the camera viewpoint is shown in Figure~\ref{fig:applica
 
 The model chosen for our inputs is that of a three-dimensional voxel dataset, a cube in space is uniformly divided and a value is stored for each voxel.
 This data in the voxel is either a soot density estimate for the \textit{fire volume shader} or a temperature estimate for the \textit{fire light shader}.
-Three file formats for floating point data are supported, dense or sparse values in plain ASCII files, and sparse RGBA values in binary files, as shown in Figure~\ref{fig:file_format}.
-In the ASCII dense format, the first line of the file are three integers, separated by spaces, declaring the width, height and depth of the data, followed by $w \times h \times d$ lines with floating point values.
+Three file formats for single-precision floating-point data are supported, dense or sparse values in plain ASCII files, and sparse RGBA values in binary files, as shown in Figure~\ref{fig:file_format}.
+In the ASCII dense format, the first line of the file contains three integers (separated by spaces) declaring the width, height and depth of the voxel volume. 
+This is followed by $w \times h \times d$ lines with the values for each voxel.
 The ASCII sparse format, has two extra parameters in the first line, $c$ is the number of data points in the file and $b$ is the default value for any voxel that is not specified in the file.
-Each data line has the $x,y,z$ coordinates and the data value separated by spaces.
-The RGBA binary sparse format starts with a 4 bytes integer declaring how many data points are in the file, each voxel has its coordinates $x,y,z$ as 4 bytes integers and a RGBA colour, where each channel is encoded with an 8 bytes floating point value.
+The data values in this case are preceded by the $x,y,z$ coordinates separated by spaces.
+The RGBA binary sparse format starts with a 4 bytes integer declaring how many data points are in the file, the $x,y,z$ coordinates are each stored as 4 bytes integers, followed by an RGBA colour where each channel is encoded as double-precision floating-point value with 8 bytes.
 Any voxel that is not included in the file is considered to be initialized to zero. 
 
 \begin{figure}[htpb!]
@@ -72,14 +73,14 @@ Any voxel that is not included in the file is considered to be initialized to ze
                 \caption{Binary sparse (*.raw).}
                 \label{fig:file_format_binary}
         \end{subfigure}
-        \caption{Suported file formats, $\_$ represent the character space.}
+        \caption{Suported file formats, $\_$ represents the character space.}
         \label{fig:file_format}
 \end{figure}
 
 \section{\MentalRay Rendering Approach}
 \label{sec:mental_ray_rendering_approach}
 
-\MentalRay approach to solving the rendering equation is based on path tracing, as shown in Figure~\ref{fig:mental_ray_model}, for each pixel in the camera view, an eye ray will be shot in the scene.
+\MentalRay approach to solving the rendering equation is based on path tracing, as shown in Figure~\ref{fig:mental_ray_model}, for each pixel in the camera view, an eye ray will be shot into the scene.
 On an intersection with an object in the scene, its material shader will be called, this shader will shoot a light ray for each light in the scene, which in effect calls the light shader of the given light.
 In order to compute the irradiance at the intersection point, the light shader will trace a shadow ray from the light to the intersection point.
 Eventually, the material shader will compute the final colour with the information received from the light shader. 
@@ -107,7 +108,7 @@ Under this assumptions, the steps required to solve the RTE, Equation~\ref{eq:rt
 		\item Use phase function to get the scattered light distribution $\rightarrow \Phi$
 		\end{enumerate}}
 	\item Add current contribution to accumulated color $\rightarrow e^{-\sigma_t}L + \left( 1 - e^{-\sigma_a} \right) L_e$
-	\item Advance to next point in ray marching $\rightarrow \x = \x + \Delta \x$
+	\item Advance to the next point in ray marching $\rightarrow \x = \x + \Delta \x$
 		\begin{enumerate}
 		{\color{gray} \item Change ray direction using refraction index $\rightarrow \Delta \x = refract (\Delta \x)$}
 		\end{enumerate}	
@@ -156,7 +157,7 @@ Namely, we can reduce the recursiveness significantly, instead of starting in th
 
 Given the complexity of the task at hand, a modular architecture for the system was chosen.
 As depicted in Figure~\ref{fig:shaders_diagram}, the main shader (Fire Volume) delegates the computation of several values to other auxiliary shaders.   
-The temperature and density shaders read the raw input values, the emission and absorption shaders compute respectively, black body radiation and absorption coefficients.
+The temperature and density shaders read the raw input values, the emission and absorption shaders compute black body radiation and absorption coefficients, respectively.
 The fire light shader manages light rays by precomputing and sampling the emitted light $L_e$.
 The fire volume shader is in charge of including the absorption coefficient with shadow rays, and to perform the main ray marching computations, eye rays. 
 
@@ -192,16 +193,16 @@ The fire volume shader is in charge of including the absorption coefficient with
 \section{Spectrum to RGB}
 \label{sec:spectrum_to_rgb}
 
-To speed up the render time, all spectrum related computations are integrated at source to RGB coefficients.
+To speed up the render time, the precomputed spectral values are converted to RGB coefficients before ray marching.
 Our spectrum class has a number of samples that can be set at compile time, 30 samples were used in all of our renderings.
 To compute the absorption coefficients that were introduced in Section~\ref{sec:absorption_coefficients}, data from Table~\ref{tb:soot_absorption_coefficients} is used.
-As there is not enough data to compute the 30 spectrum coefficients, a linear interpolation is used to fill the missing values.
-RGB coefficients are the standard colour representation in computer screens, however not every colour visible by the human eye can be reproduced in RGB space.
+As there is not enough data to compute the 30 spectrum coefficients, a linear interpolation is used to fill in the missing values.
+RGB coefficients are the standard colour representation used by computer screens, however not every colour visible by the human eye can be expressed in RGB space.
 There are further disadvantages inherent to this representation, for example certain colours visible by the human eye would require negative values for the $\bar{r}(\lambda)$ coefficient, as shown in Figure~\ref{fig:cie_rgb}.
 The XYZ colour space is built using three sets of imaginary primaries, which have a series of favourable properties.
 Any colour which can be seen by the human eye can be represented with some $x(\lambda)$, $y(\lambda)$, $z(\lambda)$ coefficients, the Y channel is equal to the photopic luminous efficiency function $V(\lambda)$, which models the variation of perceived brightness, and as shown in Figure~\ref{fig:cie_xyz}, the coefficients are always positive.
 
-Given a Spectral Power Distribution (SPD) $S(\lambda)$, the $x$, $y$, $z$ coefficients for $S(\lambda)$ in the XYZ space are defined with respect to spectral matching curves $X(\lambda)$, $Y(\lambda)$ and $Z(\lambda)$, such that
+Given a Spectral Power Distribution (SPD) $S(\lambda)$, the $x$, $y$, $z$ coefficients for $S(\lambda)$ in the XYZ space are defined with respect to spectral matching curves $X(\lambda)$, $Y(\lambda)$ and $Z(\lambda)$, as depicted in Equation~\ref{eq:xyz_to_rgb_int}.
 
 \begin{equation}
 \begin{split}
@@ -209,6 +210,7 @@ x &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) X(\lambda) d\lam
 y &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) Y(\lambda) d\lambda, \\
 z &= \frac{1}{\int Y(\lambda) d\lambda} \int_\lambda S(\lambda) Z(\lambda) d\lambda.
 \end{split}
+\label{eq:xyz_to_rgb_int}
 \end{equation}
 
 The term $1 / \int Y(\lambda) d\lambda$ is added in each equation to act as a normalization factor for the colour brightness. 
@@ -222,7 +224,7 @@ z &\approx \frac{1}{\int Y(\lambda) d\lambda} \sum_i Z_i c_i,
 \end{split}
 \end{equation}
 
-where $c_i$ is the $i^{th}$ coefficient in the SPD, $X_i$ is the area for the corresponding sample range in the $X(\lambda)$ curve and equivalently for $Y_i$ and $Z_i$.
+where $c_i$ is the $i^{th}$ coefficient in the SPD, $X_i$ is the area for the corresponding sample range of the $X(\lambda)$ curve and equivalently for $Y_i$ and $Z_i$.
 Note that $1 / \left(\int Y(\lambda) d\lambda \right)$, $X_i$, $Y_i$ and $Z_i$ are constants and they can be precomputed for efficiency.
 For the Riemann sum, the area under the samples is approximated using piecewise linear interpolation.
 The conversion from XYZ to RGB space is performed using
@@ -258,7 +260,7 @@ Since a total of 512 megabytes per voxel dataset is unacceptable, we use an open
 The sparse data structure reduced the total memory consumption to approximately 20 megabytes per dataset, while increasing the total rendering time by less than 10 seconds on average.
 
 In order to achieve smoother rendering results, a trilinear interpolation is computed in each step in the ray-marching algorithm.
-Computing the interpolation smoothed the shape of the flames and reduced the effects of outliers is the input data.
+Computing the interpolation smoothed the shape of the flames and reduced the effects of outliers in the input data.
 Tricubic interpolation was also considered, however it was discarded due to the significant increase in computational overhead.
 
 Our system follows the recommendations of the \MentalRay API, which allows performance to scale automatically as the number of hardware processors increases.
@@ -292,7 +294,7 @@ where $\x_a = \left[ x_a, y_a, z_a \right]^{T}$ is a column vector with the XYZ 
 The $\mathbf{M}$ matrix is a Hunt-Pointer-Estevez transformation, proposed by~\cite{Hunt:1985}, which has been normalized to the CIE Standard Illuminant D65.
 The coefficients for $\mathbf{M}^{-1}$ are not provided in the CIE specification.
 Given that $\mathbf{M}$ is a small $3 \times 3$ matrix, the coefficients of $\mathbf{M}^{-1}$ can be evaluated with any of the standard matrix inversion methods, in our case the default algorithm in \Matlab \textit{inv()} function was used, and the output was hard-coded in the shader.
-The aforementioned equation is solved in the XYZ space, in order to delay clamping coefficients to RGB as much as possible.
+The aforementioned equation is solved in the XYZ space, in order to delay clamping coefficients to RGB as long as possible.
 
 \section{Miscellaneous}
 \label{sec:miscellaneous}
