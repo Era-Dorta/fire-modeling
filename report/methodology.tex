@@ -36,7 +36,7 @@ There could also be other \textbf{lights} in the scene, several types are suppor
 \end{figure}
 
 In order to generate an image from the camera view, path tracing is used to compute the colour of each pixel, as shown in Figure~\ref{fig:path_tracing}.
-For each pixel in the camera view, a \textbf{ray} is shot into the scene; whose direction is defined by the camera origin and the pixel position.
+For each pixel in the camera view, a \textbf{ray} is shot into the scene; whose direction is defined by the camera origin, orientation and the pixel position.
 When the ray hits a primitive in the scene, it will be reflected and the colour will depend on the contribution of further intersections along the path.
 The final point in the path will be directly connected to a light in the scene, in Figure~\ref{fig:path_tracing}, $p_{i - 1}$ is the final intersection and $p_i$ is the light position.
 
@@ -293,7 +293,7 @@ v = e^{AT^2 + BT + C + D/T},
 
 where $A$, $B$, $C$ and $D$ are constants.
 This equation is relatively easy to compute, however incorrect results will be obtained for temperatures below $0\C$.
-As we are concerned with fire rendering, which entails high temperatures, this method was chosen for its simplicity.
+As we are concerned with fire rendering, which entails high temperatures, this method is preferred due to its simplicity.
 
 \subsection{Huang's Saturation Vapour Pressure}
 \label{subsec:huang_v}
