@@ -2,10 +2,7 @@
 \chapter{Results}
 \label{ch:results}
 
-Images everywhere and proper analysis of what the user is seeing, what is failing and why.
-Include default Maya fire effect, pictures of fire from the papers mentioned in the previous work section and a historical overview on the improvements in the shaders.
-Could also add some graphs with rendering times per light sample, decreased step, and with and without shadows.
-
+In this chapter we will show several tests that were executed using our shaders under different conditions.
 In order to provide a wider perspective, one that is not only limited to academic results, we will also compare our results with images generated using industry software.
 FumeFX~\cite{FumeFX} is a popular tool for modelling volumetric effects, it has been used in several films and video games, e.g. Ghost Rider 2, Thor, Green Lantern, Warhammer Online and Tomb Raider: Underworld.
 A frame from a fire scene in Ghost Rider 2 is shown in Figure~\ref{fig:fumefx}.
@@ -19,6 +16,8 @@ A frame from a fire scene in Ghost Rider 2 is shown in Figure~\ref{fig:fumefx}.
 
 Since \Maya was used as the base platform for the development of our software, an interesting comparison should include \Mayash's fire effect.
 A simple scene with plane, a sphere, a cylinder and a light was created, as shown in Figure~\ref{fig:maya_no_fire_mental_ray}.
+For the majority of the results that will be presented in the rest of the chapter, the scene shown in Figure~\ref{fig:test_scene_view} was used.
+The scene was chosen because it has a few external objects for the flame to interact with, yet it is simple enough so that multiple tests can be executed within reasonable render times.
 The result of rendering the scene with \Mayash's software renderer is shown in Figure~\ref{fig:maya_fire}, note how the sphere and cylinder do not experience any change in their illumination with respect to the scene without the fire.
 If \MentalRay is used to render the same scene, the image shown in Figure~\ref{fig:maya_fire_mental_ray} is generated.
 Although the fire itself looks more realistic, the only alteration in neighbouring objects  is the appearance of erroneous shadows.
@@ -54,6 +53,13 @@ Note that a point light had to be placed in the centre of the flame, and the emi
         \end{subfigure}%             
         \caption{Render tests for \Maya default fire effect.}
         \label{fig:maya_fire_scenes}
+\end{figure}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{img/test_scene_view}
+	\caption{Our test scene in \Mayash.}
+	\label{fig:test_scene_view}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -173,9 +179,12 @@ As expected, when the visual adaptation factor increases, the centre of the flam
 \end{figure}
 
 In the work of Pegoraro and Parker, the authors use data from the Uintah library~\cite{Uintah} as the base input for their rendering results.
-We have ran some of the example simulations provided with the software, and the data was rendered with our shaders, as shown in Figure~\ref{fig:pegoraro_data_simulation_overview}.
-The data was also rendered using the VisIt volumetric visualization software, that was developed by the Lawrence Livermore National Laboratory~\cite{VisIt}.
-Figure\ref{fig:pegoraro_data_simulation_visit} shows the result in VisIt using texture splats, densities are shown using green and temperatures with orange, darker colours implies a higher voxel values.
+We have ran some of the example simulations provided with their simulation tools.
+The data was first rendered using the VisIt volumetric visualization software, that was developed by the Lawrence Livermore National Laboratory~\cite{VisIt}.
+Figure~\ref{fig:pegoraro_data_simulation_visit} shows the result in VisIt using texture splats, densities are depicted using green and temperatures with orange, darker colours indicate higher densities/temperatures.
+Some ranges of data values were manually set to be fully transparent, as the whole cube is filled with voxels which occlude the view of the simulation. 
+The data rendered with our shaders is shown in Figure~\ref{fig:pegoraro_data_simulation_overview}.
+The obvious differences between both images are due to several factors, the camera position and orientation is not the same, and the parameters for our shader have been poorly chosen in this case.
 
 \begin{figure}[htpb]
 		\begin{subfigure}[t]{0.45\textwidth}
@@ -185,9 +194,9 @@ Figure\ref{fig:pegoraro_data_simulation_visit} shows the result in VisIt using t
         \end{subfigure}%        
 		~
  		\begin{subfigure}[t]{0.45\textwidth}
-                \includegraphics[width=\textwidth]{img/pegoraro_data_visit}
+                \includegraphics[width=\textwidth]{img/result_pegoraro_data_test}
                 \caption{Visualization using our shader.}
-                \label{fig:pegoraro_data_simulation_shader}
+                \label{fig:result_pegoraro_data_test}
         \end{subfigure}%             
         \caption{Simulation data from the heptane example in the Uintah software\cite{Uintah}.}
         \label{fig:pegoraro_data_simulation_overview}
