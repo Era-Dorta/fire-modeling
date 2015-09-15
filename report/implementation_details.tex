@@ -171,18 +171,23 @@ The fire volume shader is in charge of including the absorption coefficient with
         \centering
         \begin{subfigure}[b]{0.7\textwidth}
                 \includegraphics[width=\textwidth]{img/CIE_RGB}
-                \caption{Spectral tristimulus values for CIE RGB~\cite{CIE_RGB}.}
+                \caption{Spectral tristimulus values for CIE RGB\footnotemark.}
                 \label{fig:cie_rgb}
         \end{subfigure}%
         \quad %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.7\textwidth}
                 \includegraphics[width=\textwidth]{img/CIE_XYZ}
-                \caption{Spectral tristimulus values for CIE XYZ~\cite{CIE_XYZ}.}
+                \caption{Spectral tristimulus values for CIE XYZ\footnotemark.}
                 \label{fig:cie_xyz}
         \end{subfigure}
-        \caption{Colour matching curves for RGB and XYZ spaces.}
-\end{figure}
+        \begin{minipage}{\linewidth}
+        		\renewcommand{\thempfootnote}{\arabic{mpfootnote}} % Reset footnote counter to number, as in minipage is with letters
+	        \footnotetext[1]{https://commons.wikimedia.org/wiki/File:CIE1931\_RGBCMF.svg\#/media/File:CIE1931\_RGBCMF.svg}
+			\footnotetext[2]{https://commons.wikimedia.org/wiki/File:CIE\_1931\_XYZ\_Color\_Matching\_Functions.svg\#/media/\\ File:CIE\_1931\_XYZ\_Color\_Matching\_Functions.svg}
+	        		\caption{Colour matching curves for RGB and XYZ spaces.}
+        	\end{minipage}
+\end{figure} 
 
 \section{Spectrum to RGB}
 \label{sec:spectrum_to_rgb}
