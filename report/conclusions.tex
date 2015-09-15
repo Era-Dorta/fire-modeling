@@ -16,7 +16,6 @@ This is an implementation, so present the same conclusions that Pegoraro has in 
 Presented a physically-based realistic fire shader with visual adaptation and different fuel types.
 
 Have not been tested with full spectrum representation against real flames.
- 
 
 \section{Future Work}
 
@@ -29,7 +28,7 @@ A common line of work in the computer graphics community is the development of i
 The core idea is to sample more often the values that contribute more to the final image, by means of a biased distribution instead of an uniform sampling scheme.
 In our implementation the emitted radiance $L_e$ is uniformly sampled, and in the general case the $\omegam_i$ directions for in-scattering light $L_i$ would have been naively sampled as well.
 In order to design a ``good" biased distribution, prior knowledge of the location of the important regions is needed. 
-For $L_e$ and $L_i$ we have some intuitive insight on were would such regions lie, samples whose origin is close to the interest point should have greater contributions, as the influence of further ones will be diminished by the light distance falloff effect.
+For $L_e$ and $L_i$ we have some intuitive insight on were such regions would lie, samples whose origin is close to the interest point should have greater contributions, as the influence of further ones will be diminished by the light distance falloff effect.
 Another factor which must be considered is the relative intensity emitted at source by a sample, as it is expected that brighter points will have larger contributions. 
 
 \subsection{Image differences}
@@ -47,7 +46,7 @@ There are several terms in the aforementioned equation that can be explored in m
 A number of image difference filters have been proposed, such as the Sobel and the Scharr filters.
 The transformation function $t$ must convert from image derivatives space to the physical parameter space that our shaders use, e.g temperature and density.
 The simplest technique to compute the next step in the parameter space would be gradient descent.
-As there are several parameters to explore, and their behaviour is non-linear, it is reasonable to expect that the function will have a number of local minima, thus requiring more advanced optimization methods, such as genetic programming.
+As there are several parameters to explore, and their behaviour is non-linear, it is reasonable to expect that the function will have a number of local minima, thus requiring more advanced optimization methods, such as genetic programming~\cite{Dobashi:2012}.
 
 \subsection{Spectrum reconstruction}
 \label{sec:spectrum_reconstruction}
