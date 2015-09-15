@@ -5,11 +5,11 @@
 In order to display a realistic fire scene in a computer generated world, two differentiated stages are needed.
 Firstly, the fire dynamics have to be collected, this can either be done through a data capture session or simulated using fluid-based solvers.
 Present techniques in the area are discussed below. 
-Secondly, the previously gathered data will be visualized on the screen using some rendering method, a brief state-of-the-art review of fire rendering procedures is presented in Section~\ref{sec:rendering}.
+Secondly, the gathered data will be visualized on the screen using some rendering method, a brief state-of-the-art review of fire rendering procedures is presented in Section~\ref{sec:rendering}.
 We refer the interested readers to the more detailed survey on the topic, which has been recently presented by~\cite{Huang:2014}.
 
 Fire simulation has received significantly more attention from the computer graphics community than fire rendering.
-As the output data of the simulation methods is used by the rendering stage, an outline of the different simulation techniques is given below. 
+As the output data of the simulation methods is used in the rendering stage, an outline of the different simulation techniques is given below. 
 Still, the main focus of this report lies in the rendering phase of the combustion simulation pipeline.
 
 \section{Simulation}
@@ -120,7 +120,7 @@ The authors approach is to define an optimization problem in terms of colour his
         \label{fig:data_driven}
 \end{figure}
 
-\textbf{Physically based} methods simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products, as shown in Figures~\ref{fig:horvath_2009} and~\ref{fig:physically_based}.  
+\textbf{Physically-based} methods simulate the fire combustion processes, including flame propagation or the chemical reactions that convert fuel into gaseous products, as shown in Figures~\ref{fig:horvath_2009} and~\ref{fig:physically_based}.  
 Incompressible flow equations were used by~\cite{Stam:1995} to drive a fire simulation.
 Given initial fuel conditions, the fire spread is advected on a grid using an advection-diffusion type equation.
 Building on a semi-Lagrangian fluid solver of~\cite{Stam:1999}, a model which includes gaseous fuel and gaseous byproducts was proposed by~\cite{Nguyen:2002}.
@@ -245,7 +245,7 @@ The method requires a hand made motion field and an alpha mask of the desired re
 \label{sec:ray_tracing_based}
 
 Volume ray-tracing techniques offer astonishing results, however the associated computational costs are considerable.
-Rays are shot from the view plane and evaluated at small increments; the total radiance at the origin of the ray is computed by integrating the radiance at each step size.
+Rays are shot from the view plane and evaluated at small increments; the total radiance at the origin of the ray is computed by integrating the radiance at each step.
 A further drawback of ray tracing techniques, in comparison to raster-based methods, is the lack of a standard ray-tracing pipeline.
 
 \cite{Rushmeier:1995} presented a method to perform accurate ray casting on sparse measured data.

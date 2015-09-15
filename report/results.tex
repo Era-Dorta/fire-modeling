@@ -6,7 +6,7 @@ Images everywhere and proper analysis of what the user is seeing, what is failin
 Include default Maya fire effect, pictures of fire from the papers mentioned in the previous work section and a historical overview on the improvements in the shaders.
 Could also add some graphs with rendering times per light sample, decreased step, and with and without shadows.
 
-In order to provide a wider comparison that is not only limited to academic results, we will also confront our results with work from industry software.
+In order to provide a wider perspective, one that is not only limited to academic results, we will also compare our results with images generated using industry software.
 FumeFX~\cite{FumeFX} is a popular tool for modelling volumetric effects, it has been used in several films and video games, e.g. Ghost Rider 2, Thor, Green Lantern, Warhammer Online and Tomb Raider: Underworld.
 A frame from a fire scene in Ghost Rider 2 is shown in Figure~\ref{fig:fumefx}.
 
@@ -59,7 +59,7 @@ Note that a point light had to be placed in the centre of the flame, and the emi
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.8\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_maya_fire_example}
-	\caption{One of the \Maya fire fluid examples is our test scene.}
+	\caption{One of the \Maya fire fluid examples in our test scene.}
 	\label{fig:result_maya_fire_example}
 \end{figure}
 
@@ -91,7 +91,7 @@ If we model the fire with a real fuel, for example propane, the image shown in F
 At this point we are rendering with the simplified RTE Equation~\ref{eq:rte_simplified}.
 Note how the appearance of the flame improves significantly with respect to the previous result.
 If we omit the computation of the attenuation factor for the emitted light $L_e$, rendering times are reduced significantly.
-The result is shown in Figure~\ref{fig:result_propane}, the error incurred with this simplification s shown in Figures~\ref{fig:result_diff_shadow} and~\ref{fig:result_diff_shadow_x5}, computed as the absolute of the difference between both images.
+The result is shown in Figure~\ref{fig:result_propane}, the error incurred with this simplification is shown in Figures~\ref{fig:result_diff_shadow} and~\ref{fig:result_diff_shadow_x5}, computed as the absolute of the difference between both images.
 The bias introduced is recognizable when there is a ground truth image to compare to, yet if only one image were to be shown, it would be challenging to notice the difference. 
 
 \begin{figure}[htbp]

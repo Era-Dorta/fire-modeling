@@ -23,50 +23,51 @@ The integration with \Maya is desirable, as the software gives the user an intui
         \centering
         \begin{subfigure}[t]{\textwidth}
                 \includegraphics[width=\textwidth]{img/application_example}
-                \caption{Example scene, note on the right the shader interface.}
+                \caption{Test scene, note on the right the shader interface.}
                 \label{fig:application_example}
         \end{subfigure}%
         \\  %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[t]{\textwidth}
                 \includegraphics[width=\textwidth]{img/application_example_render}
-                \caption{Low quality rendered imaged from the scene above.}
+                \caption{Low quality rendered image from the scene above.}
                 \label{fig:application_example_render}
         \end{subfigure}
+        \caption{Application interface in \Mayash.}
         \label{fig:application_example_full}
 \end{figure}
 
-A test scene in \Maya with objects using our shaders is shown in Figure~\ref{fig:application_example}.
+Figure~\ref{fig:application_example} shows the \Maya interface for our shaders in a test scene.
 From the user view point the volumetric data is enclosed in a cube, that can be manipulated like any other object in the scene.
 The GUI for the shader includes two input files and  sliders for the numeric parameters. 
 The scene rendered from the camera viewpoint is shown in Figure~\ref{fig:application_example_render}.
 
 The model chosen for our inputs is that of a three-dimensional voxel dataset, a cube in space is uniformly divided and a value is stored for each voxel.
 This data in the voxel is either a soot density estimate for the \textit{fire volume shader} or a temperature estimate for the \textit{fire light shader}.
-Three file formats are supported, dense and sparse float voxel data is ASCII, and sparse binary RGBA values, as shown in Figure~\ref{fig:file_format}.
-In the ASCII dense format, the file first line are three integers, separated by spaces, declaring the width, height and depth of the data, followed by $w \cdot h \cdot d$ lines with a single floating point values.
+Three file formats for floating point data are supported, dense or sparse values in plain ASCII files, and sparse RGBA values in binary files, as shown in Figure~\ref{fig:file_format}.
+In the ASCII dense format, the first line of the file are three integers, separated by spaces, declaring the width, height and depth of the data, followed by $w \times h \times d$ lines with floating point values.
 The ASCII sparse format, has two extra parameters in the first line, $c$ is the number of data points in the file and $b$ is the default value for any voxel that is not specified in the file.
-Each data line has the $x,y,z$ coordinates and the data values are separated by spaces.
-The binary sparse format starts with a 4 byte integer declaring how many data points are in the file, each voxel has its coordinates $x,y,z$ as 4 bytes integers and a rgb alpha colour, where each channel is an 8 bytes floating point double value.
-Values not included in the file are considered to be initialized to zero. 
+Each data line has the $x,y,z$ coordinates and the data value separated by spaces.
+The RGBA binary sparse format starts with a 4 bytes integer declaring how many data points are in the file, each voxel has its coordinates $x,y,z$ as 4 bytes integers and a RGBA colour, where each channel is encoded with an 8 bytes floating point value.
+Any voxel that is not included in the file is considered to be initialized to zero. 
 
 \begin{figure}[htpb!]
         \centering
-        \begin{subfigure}[t]{0.2\textwidth}
+        \begin{subfigure}[t]{0.16\textwidth}
                 \includegraphics[width=\textwidth]{img/file_format_ascii_dense}
                 \caption{ASCII dense (*.vol).}
                 \label{fig:file_format_ascii_dense}
         \end{subfigure}%
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.3\textwidth}
+        \begin{subfigure}[t]{0.24\textwidth}
                 \includegraphics[width=\textwidth]{img/file_format_ascii_sparse}
                 \caption{ASCII sparse (*.uintah).}
                 \label{fig:file_format_ascii_sparse}
         \end{subfigure}
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
-        \begin{subfigure}[t]{0.282\textwidth}
+        \begin{subfigure}[t]{0.2256\textwidth}
                 \includegraphics[width=\textwidth]{img/file_format_binary}
                 \caption{Binary sparse (*.raw).}
                 \label{fig:file_format_binary}
@@ -79,7 +80,7 @@ Values not included in the file are considered to be initialized to zero.
 \label{sec:mental_ray_rendering_approach}
 
 \MentalRay approach to solving the rendering equation is based on path tracing, as shown in Figure~\ref{fig:mental_ray_model}, for each pixel in the camera view, an eye ray will be shot in the scene.
-On an intersection with an object in the scene, its material shader will be called, this shader will shoot a light ray for each light in the scene, which in effects calls the light shader of the given light.
+On an intersection with an object in the scene, its material shader will be called, this shader will shoot a light ray for each light in the scene, which in effect calls the light shader of the given light.
 In order to compute the irradiance at the intersection point, the light shader will trace a shadow ray from the light to the intersection point.
 Eventually, the material shader will compute the final colour with the information received from the light shader. 
 
@@ -93,10 +94,10 @@ Eventually, the material shader will compute the final colour with the informati
 Under this assumptions, the steps required to solve the RTE, Equation~\ref{eq:rte_solution_paper}, are:
 
 \begin{enumerate}
-\item Shoot a ray from the eye into the scene
-\item If the ray intersects the fire volume, perform ray marching in the volume
+\item Shoot a ray from the eye into the scene.
+\item If the ray intersects the fire volume, perform ray marching in the volume.
 	\begin{enumerate}
-	\item Compute direct illumination at the current point
+	\item Compute direct illumination at the current point.
 		\begin{enumerate}
 		\item Sample all the lights $\rightarrow L_e$
 		\item Attenuate each with its own absorption coefficient $\rightarrow \left( 1 - e^{-\sigma_a} \right) L_e$
@@ -130,7 +131,7 @@ In fire phenomena the effect of scattered light in the final image is practicall
 Intuitively, it means that as the medium is highly emissive and thin, most of the emitted photons have their initial paths unaltered.
 The scattering directions $\omegam_i$ are in essence sampling directions over a sphere of scattered light $L_i$.
 In practice, the simplification will significantly decrease rendering time, as $\omegam_i$ would have to be sampled by means of a computationally expensive Monte Carlo approximation. 
-Exploiting the previous prior knowledge, the scattering contributions can be safely ignored by setting $\sigma_s = 0$, which simplifies the previous equation to
+Exploiting that prior knowledge, the scattering contributions can be safely ignored by setting $\sigma_s = 0$, which simplifies the previous equation to
 
 \begin{equation}
 L(\lambda, \x, \omegam) = e^{-\sigma_a(\lambda, \x) \deltax} L(\lambda, x + \Delta\x, \omegam) +  \left(1 - e^{-\sigma_a(\lambda, \x) \deltax} \right) L_e(\lxo).
@@ -141,7 +142,7 @@ A visual representation of the implications of the aforementioned simplification
 Note that a single point light is used in the diagram to avoid clutter, yet in our implementation there is a point light located at the centre of each voxel whose temperature is high enough to be emissive.
 The non-linear trajectories of the photons, of the rays in practice, due to varying refraction indices in the media were also outside of the scope of this project.
 Deformations produced by the refraction phenomena can be noticeable, however there are important simplifications in the implementation if we choose to ignore them.
-Namely, we can reduce the recursiveness significantly, instead of starting in the first intersection and recursively solve the equation, we can start from the end point and accumulate the result backwards with a loop, as computing the end point is this situation is trivial.
+Namely, we can reduce the recursiveness significantly, instead of starting in the first intersection and recursively solving the equation, we can start from the end point and accumulate the result backwards with a loop, as computing the end point in this situation is trivial.
 
 \begin{figure}[htbp!]
 	\centering
@@ -153,9 +154,11 @@ Namely, we can reduce the recursiveness significantly, instead of starting in th
 \section{Shaders Overview}
 \label{sec:shaders_overview}
 
-In order to be able to implement the different parts of our architecture, input data, voxel constant data, etc, without a monolithic design, lead to shader organization depicted in Figure~\ref{fig:shaders_diagram}.
-The temperature and density shaders will read the raw input values, the emission and absorption shaders will compute respectively, black body radiation and absorption coefficients.
-The fire light shader will sample and compute emitted light $L_e$ with light rays, and the fire volume shader is in charge of adding absorption from light to interest point, shadow rays, and to perform the main ray marching computations, eye rays. 
+Given the complexity of the task at hand, a modular architecture for the system was chosen.
+As depicted in Figure~\ref{fig:shaders_diagram}, the main shader (Fire Volume) delegates the computation of several values to other auxiliary shaders.   
+The temperature and density shaders read the raw input values, the emission and absorption shaders compute respectively, black body radiation and absorption coefficients.
+The fire light shader manages light rays by precomputing and sampling the emitted light $L_e$.
+The fire volume shader is in charge of including the absorption coefficient with shadow rays, and to perform the main ray marching computations, eye rays. 
 
 \begin{figure}[htbp!]
 	\centering
@@ -214,7 +217,7 @@ z &\approx \frac{1}{\int Y(\lambda) d\lambda} \sum_i Z_i c_i,
 \end{split}
 \end{equation}
 
-where $c_i$ is the $i^{th}$ coefficient in the SPD, $X_i$ is area for the the corresponding sample range the $X(\lambda)$ curve and equivalently for $Y_i$ and $Z_i$.
+where $c_i$ is the $i^{th}$ coefficient in the SPD, $X_i$ is the area for the corresponding sample range in the $X(\lambda)$ curve and equivalently for $Y_i$ and $Z_i$.
 Note that $1 / \left(\int Y(\lambda) d\lambda \right)$, $X_i$, $Y_i$ and $Z_i$ are constants and they can be precomputed for efficiency.
 For the Riemann sum, the area under the samples is approximated using piecewise linear interpolation.
 The conversion from XYZ to RGB space is performed using
@@ -246,7 +249,7 @@ Note that all the factors in the transformation matrix are constants and they ca
 
 Volumetric data tends to be quite sparse, and usually we are working with volumes of $256 \times 256 \times 256$ voxels, which assuming a 32 bits floating point value per voxel in the density and temperature shader, and three floating point values for the emission and absorption shaders, accumulates respectively to 64 and 192 megabytes of data.
 With the shader architecture shown in Figure~\ref{fig:shaders_diagram}, there will be at least two copies of each structure per fire in the scene.
-A total of 512 megabytes per voxel dataset is unacceptable, we dealt with the problem using an open source sparse voxel dataset library~\cite{OpenVDB}.
+Since a total of 512 megabytes per voxel dataset is unacceptable, we use an open source sparse voxel dataset library~\cite{OpenVDB}.
 The sparse data structure reduced the total memory consumption to approximately 20 megabytes per dataset, while increasing the total rendering time by less than 10 seconds on average.
 
 In order to achieve smoother rendering results, a trilinear interpolation is computed in each step in the ray-marching algorithm.
@@ -281,9 +284,9 @@ The implementation of the eye visual adaptation to the colours in fire, describe
 \end{equation}
 
 where $\x_a = \left[ x_a, y_a, z_a \right]^{T}$ is a column vector with the XYZ adapted coefficients, $\mathbf{T}_w$ is the Von Kries transformation, $x_{max}$ are the coefficients for the maximum temperature present in the fire,  $\mathbf{l}_{max} = \left[ l_{max}, m_{max}, s_{max} \right]^{T}$ are the LMS coefficients of $x_{max}$, $\mathbf{M}$ is a XYZ to LMS transformation matrix and, $\x_i = \left[ x_i, y_i, z_i \right]^{T}$ is a column vector with the XYZ input coefficients.
-The XYZ to LMS $\mathbf{M}$ matrix is a Hunt-Pointer-Estevez transformation, proposed by~\cite{Hunt:1985}, which has been normalized to the CIE Standard Illuminant D65.
-The coefficients for $M^{-1}$ are not provided in the CIE specification.
-Given that $M$ is a small $3 \times 3$ matrix, the coefficients of $M^{-1}$ can be evaluated with any of the standard matrix inversion methods, in our case the default algorithm in \Matlab \textit{inv()} function was used, and the output was hard-coded in the shader.
+The $\mathbf{M}$ matrix is a Hunt-Pointer-Estevez transformation, proposed by~\cite{Hunt:1985}, which has been normalized to the CIE Standard Illuminant D65.
+The coefficients for $\mathbf{M}^{-1}$ are not provided in the CIE specification.
+Given that $\mathbf{M}$ is a small $3 \times 3$ matrix, the coefficients of $\mathbf{M}^{-1}$ can be evaluated with any of the standard matrix inversion methods, in our case the default algorithm in \Matlab \textit{inv()} function was used, and the output was hard-coded in the shader.
 The aforementioned equation is solved in the XYZ space, in order to delay clamping coefficients to RGB as much as possible.
 
 \section{Miscellaneous}
@@ -312,7 +315,7 @@ A workaround is to use the command line render utility as shown below
 $ Render -r mr -perframe -s <start_frame_number> -e <end_frame_number> <path_to_scene_file>
 \end{lstlisting}
 
-Saving images, either from batch render or single frame gui render, will produce unexpected results, normally a completely white output, if the image format natively supports transparency, such as tif, tga or exr.
+Saving images, either from batch render or single frame GUI render, will produce unexpected results, normally a completely white output, if the image format natively supports transparency, such as tif, tga or exr.
 In order to get consistent results, the scene should be surrounded by solid objects.
 
 Any \Maya scene which uses the shaders should be saved in \Maya ASCII format, ``{\textless}scene{\textgreater}.ma".
