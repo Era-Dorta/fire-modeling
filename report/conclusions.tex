@@ -4,18 +4,18 @@
 
 \section{Conclusions}
 
-Without a reference it is quite difficult to judge what looks like real fire and what does not.
+We have presented a physically-based rendering algorithm for flames, the model uses the Radiative Transport Equation, which describes heat transfer in real flames; the variations produced when using different types of fuels, and the effects of the visual adaptation processes in the human eye.
+The model carries all the limitations inherent to ray-tracing techniques, such as large computational costs, with render times per frame varying from a few seconds in low quality settings, to several hours for converged images.
 
-Volume tracing is quite computationally expensive, intrinsic problems due to gamma correction and limited rgb space on the monitor.
-Fire actually saturates our cones and the visual adaptation is just an aproximation of that.
+The method assumes a spectral representation of the world, however even if we were to compute the final result using the spectral domain, a final transformation to RGB space and gamma correction is always needed in order to display the image on a monitor.
+The RGB conversion incurs in an unavoidable loss of information, moreover in order to achieve practical rendering times, the transformation is often computed earlier.
 
-The quality of the final image depends significantly on the shape of the fire, ..., Pegoraro images look worse than Hong, even though Hong is using a simpler rendering technique.
+Several authors such as~\cite{Hong:2007},~\cite{Horvath:2009} and~\cite{Jamriska:2015} use simpler rendering techniques than the one discussed in this report~\cite{Pegoraro:2006}.
+Nevertheless, the results obtained by Pegoraro and Parker appear to be surpassed by the aforementioned authors; superior input data seems to be the cause of the disparity in quality.
+This effect is more evident in the case of~\cite{Hong:2007}, where data with added ``vorticity" gives the impression of a significant output improvement, even if it is not based on any physical phenomena, .
 
-This is an implementation, so present the same conclusions that Pegoraro has in his paper.
-
-Presented a physically-based realistic fire shader with visual adaptation and different fuel types.
-
-Have not been tested with full spectrum representation against real flames.
+Although the method is physically based, Pegoraro and Parker did not conduct any formal analysis of the validity of their model.
+Such study would require the measurement of the physical properties of a real flame, such as densities, temperatures and spectral emissions; and comparing the data with values computed using the authors' technique.
 
 \section{Future Work}
 
