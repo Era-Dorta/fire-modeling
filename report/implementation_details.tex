@@ -42,9 +42,30 @@ From the user view point the volumetric data is enclosed in a cube, that can be 
 The GUI for the shader includes two input files and  sliders for the numeric parameters. 
 The scene rendered from the camera viewpoint is shown in Figure~\ref{fig:application_example_render}.
 
-The model chosen for our inputs is that of a three-dimensional voxel dataset, a cube in space is uniformly divided and a value is stored for each voxel.
+Although the focus of the project is to render any input data as realistic as possible, as brief overview of the system used to record the flames gives a better idea of the full pipeline, from an initial capture session to a final render.
+Our input data was captured with a six mvBlueCOUGAR-XD104 cameras, as shown in Figure~\ref{fig:capture_system}.
+We experimented with during several capture sessions with different illumination conditions, sensor gains, flame types, and other parameters.
+The captured data was reconstructed and edited using techniques that are out of the scope of this report.
+
+\begin{figure}[htpb!]
+        \centering
+        \begin{subfigure}[t]{0.45\textwidth}
+                \includegraphics[width=\textwidth]{img/system1}
+                \caption{Overview.}
+        \end{subfigure}%
+        ~  %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[t]{0.45\textwidth}
+                \includegraphics[width=\textwidth]{img/system2}
+                \caption{Close up.}
+        \end{subfigure}
+        \caption{Our capture system.}
+        \label{fig:capture_system}
+\end{figure}
+
+The model used for our input data is that of a three-dimensional voxel dataset, a cube in space is uniformly divided and a value is stored for each voxel.
 This data in the voxel is either a soot density estimate for the \textit{fire volume shader} or a temperature estimate for the \textit{fire light shader}.
-Three file formats for single-precision floating-point data are supported, dense or sparse values in plain ASCII files, and sparse RGBA values in binary files, as shown in Figure~\ref{fig:file_format}.
+Three input file formats for single-precision floating-point data are supported, dense or sparse values in plain ASCII files, and sparse RGBA values in binary files, as shown in Figure~\ref{fig:file_format}.
 In the ASCII dense format, the first line of the file contains three integers (separated by spaces) declaring the width, height and depth of the voxel volume. 
 This is followed by $w \times h \times d$ lines with the values for each voxel.
 The ASCII sparse format, has two extra parameters in the first line, $c$ is the number of data points in the file and $b$ is the default value for any voxel that is not specified in the file.
