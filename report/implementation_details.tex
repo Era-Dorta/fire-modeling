@@ -43,9 +43,9 @@ The GUI for the shader includes two input files and  sliders for the numeric par
 The scene rendered from the camera viewpoint is shown in Figure~\ref{fig:application_example_render}.
 
 Although the focus of the project is to render any input data as realistic as possible, as brief overview of the system used to record the flames gives a better idea of the full pipeline, from an initial capture session to a final render.
-Our input data was captured with a six mvBlueCOUGAR-XD104 cameras, as shown in Figure~\ref{fig:capture_system}.
-We experimented with during several capture sessions with different illumination conditions, sensor gains, flame types, and other parameters.
-The captured data was reconstructed and edited using techniques that are out of the scope of this report.
+Our input data was captured with six mvBlueCOUGAR-XD104 cameras, as shown in Figure~\ref{fig:capture_system}.
+We experimented during several capture sessions with different illumination conditions, sensor gains, flame types, and other parameters.
+The captured data was reconstructed and edited using techniques that are outside of the scope of this report.
 
 \begin{figure}[htpb!]
         \centering
@@ -98,6 +98,7 @@ Any voxel that is not included in the file is considered to be initialized to ze
         \label{fig:file_format}
 \end{figure}
 
+\FloatBarrier
 \section{\MentalRay Rendering Approach}
 \label{sec:mental_ray_rendering_approach}
 
