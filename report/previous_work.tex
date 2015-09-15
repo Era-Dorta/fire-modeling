@@ -2,7 +2,7 @@
 \chapter{Previous Work}
 \label{ch:previous_work}
 
-In order to display a realistic fire scene in a computer generated world, two differentiated stages are needed.
+In order to display a realistic fire scene in a computer generated world, two procedures need to be performed.
 Firstly, the fire dynamics have to be collected, this can either be done through a data capture session or simulated using fluid-based solvers.
 Present techniques in the area are discussed below. 
 Secondly, the gathered data will be visualized on the screen using some rendering method, a brief state-of-the-art review of fire rendering procedures is presented in Section~\ref{sec:rendering}.
@@ -38,8 +38,9 @@ The transparency of each triangle increases towards the outer vertices, thus pro
 \textbf{Noise-based} methods focus on synthesizing the high fluctuation present in fire procedurally, as shown in Figure~\ref{fig:noise_based}.
 The objective is to approximate the turbulence present in fire with an appropriate statistical model.
 Using a variation of Perlin noise,~\cite{Perlin:1985} presented images of a corona of flames.
-However, the method is limited to 2D, where the color is a combination of non-linear arbitrary functions.
+The method is limited to 2D, where the color is a combination of non-linear arbitrary functions.
 This work was extended by~\cite{Perlin:1989} to 3D, where they used volumetric rendering to achieve improved results.
+However, both methods have difficulties to handle interactions with other objects, and the variations in the synthesized images makes them incompatible for animation production. 
 
 \begin{figure}[htpb!]
         \centering
@@ -59,7 +60,7 @@ This work was extended by~\cite{Perlin:1989} to 3D, where they used volumetric r
 
 \textbf{Geometry skeleton} are driven by rendering primitives that represent the main features of fire, the high frequency details are built on top of the geometry structure, as shown in Figures~\ref{fig:lamorlette_2002} and~\ref{fig:geometry_skeleton}.
 \cite{Lee:2001} presented a technique to animate fire on meshes, the flame front propagation is based on a geodesic flow field on the surface.
-Merging and separating of multiple fronts is achieved, however the animators have no control over the fire evolution. 
+Although they achieved the effects of merging and separation of multiple flame fronts, the animators have no control over the evolution of the fire, as the only parameters are the initial fire conditions.
 \cite{Lamorlette:2002} proposed a B-Spline curves interpolation method, details are added from a library of images which are then cast onto the profile of the flame.
 The authors' technique supports a range of flame behaviour, such as spreading, flickering, and flame separation and merging.
 In order to achieve real time simulations,~\cite{Bridault:2006} modelled the flame shape on NURBS surfaces on which a transparent 2D texture were mapped.
@@ -80,8 +81,8 @@ In order to achieve real time simulations,~\cite{Bridault:2006} modelled the fla
         \label{fig:geometry_skeleton}
 \end{figure}
 
-\textbf{Data driven} methods are use to simulate fire with data from real flames, as shown in Figure~\ref{fig:data_driven}.
-The quality of the animation depends directly on the data, and by avoiding the simulation stage the computation overhead is reduced significantly.
+\textbf{Data driven} methods are used to simulate fire with data from real flames, as shown in Figure~\ref{fig:data_driven}.
+The quality of the animation depends directly on the data, and by avoiding the simulation stage the computational overhead is reduced significantly, as solving the underlying heat transport and other chemical equations is no longer needed.
 However, there are severe limitations when producing new animations and interactions with other objects.
 \cite{Rushmeier:1995} captured a heptane pool fire with water-cooled nitrogen-purged probes.
 Using two images from orthographic camera views,~\cite{Hasinoff:2003} reconstructed 3D volumetric fire using tomographic techniques.
@@ -211,7 +212,8 @@ For each particle an intermediate emitting value is computed, and the final colo
 Direct illumination is approximated by rendering the fire particles separately to create a light image, which is texture projected into the surrounding objects.
 \cite{Zhao:2003} also proposed a method with flame particle splats, which are added with splats from other objects and sorted based on their distance to the screen plane.
 The splats are projected in front-to-back order and alpha-blended to produce the end result.
-\cite{Ihrke:2004} render fire realistically using a technique based on tomography reconstructions of real flames. 
+\cite{Ihrke:2004} rendered fire realistically using a technique based on tomography reconstructions of real flames.
+Precomputed ray-marching data is stored in a matrix, that is later used for fast reconstruction of new view points.
 \cite{Bridault:2006} used a spectrophotometer to capture photometric distributions of candles.
 The intensities are stored on a texture and changes in illumination over time are introduced with an attenuation factor which is proportional to the size of the flame.
 \cite{Zhang:2011} proposed a method were fire particles and their attributes are first projected onto a set of slicing planes, which are orthogonal to the camera direction. 
@@ -256,7 +258,7 @@ The emitted light is computed using Planck's formula of black body radiation, sc
 \cite{Feldman:2003} also included black body radiation in their animation of fire with suspended particles, however the mapping to RGB was manually adjusted to match the images of real explosions.
 Direct illumination shadows were computed using deep shadow maps~\cite{Lokovic:2000}, while scattering and illumination by other objects in the scene used the technique proposed by~\cite{Jensen:2002}.
 An extension to~\cite{Nguyen:2002} was presented by~\cite{Pegoraro:2006}, the authors' model has physically-based absorption, emission and scattering properties.
-The spectroscopy characteristics of different fuels are achieved by modelling the electronic transitions between states in the molecules.
+The spectroscopy characteristics of different fuels are achieved by modelling the transitions of electrons between different states in the molecules.
 Non-linear trajectories of light in the medium due to light refraction effects are included as well.
 In order to minimize the effects induced by the limitations of the RGB colour space, the visual adaptation process is presented as a post-processing effect.
 \cite{Horvath:2009} proposed a rendering method whose main objective was user-friendliness for artists.
