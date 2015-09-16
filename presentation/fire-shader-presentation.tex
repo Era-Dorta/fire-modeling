@@ -20,6 +20,7 @@
 \setbeamercovered{dynamic}
 \usepackage[makeroom]{cancel}
 \usepackage{natbib}
+\usepackage{subcaption}
 
 
 % Common math symbols used in the presentation
@@ -545,32 +546,43 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 
 \begin{figure}[p]
 \begin{center}
-\includegraphics[width=\textwidth]{img/camp_fire_samples_64} 
-\caption*{\tiny{Flame in a camp-fire.}}
+\includegraphics[width=\textwidth]{img/test_scene_view}
+\caption*{\tiny{The test scene.}}
 \end{center}
 \end{figure}
 
 \begin{figure}[p]
 \begin{center}
-\includegraphics[width=\textwidth]{img/camp_fire_extra_light_samples_64_with_shadow_rays} 
-\caption*{\tiny{Flame in a camp-fire with external light.}}
+\includegraphics[width=\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_propane_shadows}
+\caption*{\tiny{Propane flame.}}
 \end{center}
 \end{figure}
 
 \begin{figure}[p]
 \begin{center}
-\includegraphics[width=0.9\textwidth]{img/voxframe00087_max_quality_t_1200_o_250_i_3_001} 
-\caption*{\tiny{Left rendered image, right ground truth.}}
+\includegraphics[width=\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_copper}
+\caption*{\tiny{Flame with copper fuel.}}
 \end{center}
 \end{figure}
 
 \begin{figure}[p]
 \begin{center}
-\includegraphics[width=0.9\textwidth]{img/copper_flame} 
-\caption*{\tiny{Data with a new fuel.}}
+\includegraphics[width=\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_sulfur}
+\caption*{\tiny{Flame with sulfur fuel.}}
 \end{center}
 \end{figure}
 
+\begin{figure}[p]
+        \centering
+        \begin{subfigure}[b]{0.25\textwidth}
+                \includegraphics[width=\textwidth, trim={14.5cm 2.5cm 16.5cm 10.5cm}, clip]{img/result_propane_shadows}
+        \end{subfigure}%
+        ~ 
+        \begin{subfigure}[b]{0.25\textwidth}
+                \includegraphics[width=\textwidth, trim={14.5cm 2.5cm 16.5cm 10.5cm}, clip]{img/result_propane_1_v}
+        \end{subfigure}%
+        \caption*{Visual adaptation to the flame; left, no adaptation, right, fully adapted.}
+\end{figure}
 
 \end{frame}
 
@@ -631,9 +643,6 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 \bibliography{bibliography}
 
 \end{frame}
-
-\section{Live demo}
-
 
 %----------------------------------------------------------------------
 
