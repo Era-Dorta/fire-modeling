@@ -14,6 +14,7 @@
 \graphicspath{{../}}
 %\setbeameroption{show notes}
 \usepackage{multicol}
+\usepackage{multirow}
 \usepackage{caption}
 \usepackage{textpos}
 \setbeamercovered{dynamic}
@@ -177,6 +178,31 @@ Centre For Digital Entertainment
 \subsection{ }
 
 \begin{frame}{Introduction}
+
+\begin{figure}[b!]
+\includegraphics[width=0.8\textwidth]{img/system1}
+\caption*{\tiny{Fire capture system}}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}{Pipeline}
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\cline{1-1} \cline{3-3} \cline{5-5}
+{\bf Capture} & \multirow{3}{*}{ \raisebox{-15\totalheight}{$\rightarrow$}} & {\bf Processing} & \multirow{3}{*}{ \raisebox{-15\totalheight}{$\rightarrow$}} & {\bf Visualization} \\ \cline{1-1} \cline{3-3} \cline{5-5} 
+Raw data      &                   & Refined data        &                   & Image      \\ \cline{1-1} \cline{3-3} \cline{5-5} 
+\multicolumn{1}{|c|}{\raisebox{-0.95\height}{ \includegraphics[width=0.22\textwidth]{img/capture_small}}} &                   & \multicolumn{1}{c|}{\raisebox{-0.95\height}{ \includegraphics[width=0.22\textwidth]{img/black_box}}} &                   & \multicolumn{1}{c|}{\raisebox{-0.89\height}{ \includegraphics[width=0.15\textwidth]{img/pipelie_result}}} \\ \cline{1-1} \cline{3-3} \cline{5-5}
+\end{tabular}
+\end{table}
+
+%\framebox{Capture} $\rightarrow$ \framebox{Processing} $\rightarrow$ \framebox{Visualization}  
+
+\end{frame}
+
+\begin{frame}{Main area}
 
 \begin{figure}[b!]
 \includegraphics[width=0.8\textwidth]{img/render_definition}
