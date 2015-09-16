@@ -301,13 +301,13 @@ Raw data      &                   & Refined data        &                   & Im
 
 \begin{frame}{The model: RTE}
 
-\only<1,7,8>{
+\only<+>{
 \begin{equation*}
 (\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
 }
 
-\only<2>{
+\only<+>{
 \begin{equation*}
 \boxed{ (\nabla) L_{\x}} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
@@ -327,7 +327,7 @@ Raw data      &                   & Refined data        &                   & Im
 
 }
 
-\only<3>{
+\only<+>{
 \begin{equation*}
 (\nabla) L_{\x} = \boxed{-\sigma_a L_{\x}} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
@@ -347,7 +347,7 @@ Raw data      &                   & Refined data        &                   & Im
 
 }
 
-\only<4>{
+\only<+>{
 \begin{equation*}
 (\nabla) L_{\x} = - \sigma_a L_{\x} + \boxed{\sigma_a L_e} - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
@@ -365,7 +365,7 @@ Raw data      &                   & Refined data        &                   & Im
 \end{table}
 }
 
-\only<5>{
+\only<+>{
 \begin{equation*}
 (\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \boxed{\sigma_s \int L_i \Phi d \omegam_i},
 \end{equation*}
@@ -383,7 +383,7 @@ Raw data      &                   & Refined data        &                   & Im
 \end{table}
 }
 
-\only<6>{
+\only<+>{
 \begin{equation*}
 (\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e ~ \boxed{- \sigma_s L_{\x}} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
@@ -401,7 +401,7 @@ Raw data      &                   & Refined data        &                   & Im
 \end{table}
 }
 
-\only<7>{
+\only<+>{
 Analytical solution
 
 \begin{equation*}
@@ -410,17 +410,20 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
  \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_i \Phi d \omegam_i}{\sigma_t}, \\
  \sigma_t &= \sigma_a + \sigma_s.
 \end{split}
-\end{equation*}}
-
-\only<8>{
-Analytical solution
-
-\begin{equation*}
-L_{\x} = e^{-\sigma_t \deltax} L_{\x + \boxed{\Delta\x}} + 
- \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_i \Phi d \omegam_i}{\sigma_t},
 \end{equation*}
 \vfill
-Segment increment}
+\begin{table}[b]
+\centering
+\begin{tabular}{ll}
+ Segment & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/delta_x_diagram}} \\
+  increment $\Delta \x$&                   \\
+ &                   \\
+ &                   \\
+ &                   \\
+ &                  
+\end{tabular}
+\end{table}
+}
 
 \end{frame}
 
@@ -428,7 +431,6 @@ Segment increment}
 
 \begin{itemize}
 \setlength\itemsep{0.5em}
-\item Scattering function $\Rightarrow \Phi$
 \item Fuel type $\Rightarrow \sigma_a$, $\sigma_s$
 	\begin{itemize}
 	\setlength\itemsep{0.5em}
