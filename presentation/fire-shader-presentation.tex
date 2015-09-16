@@ -301,57 +301,123 @@ Raw data      &                   & Refined data        &                   & Im
 
 \begin{frame}{The model: RTE}
 
-\only<1,6,7>{
+\only<1,7,8>{
 \begin{equation*}
-(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_{\x} \Phi d \omegam_i,
+(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
 }
 
 \only<2>{
 \begin{equation*}
-\boxed{ (\nabla) L_{\x}} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_{\x} \Phi d \omegam_i,
+\boxed{ (\nabla) L_{\x}} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
 \vfill
-Differential of radiance over a segment}
+
+\begin{table}[b]
+\centering
+\begin{tabular}{ll}
+ Differential of radiance & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/differencial_diagram}} \\
+ over a segment &                   \\
+ &                   \\
+ &                   \\
+ &                   \\
+ &                  
+\end{tabular}
+\end{table}
+
+}
 
 \only<3>{
 \begin{equation*}
-(\nabla) L_{\x} = - \boxed{\sigma_a} L_{\x} + \boxed{\sigma_a} L_e - \boxed{\sigma_s} L_{\x} + \boxed{\sigma_s} \int L_{\x} \Phi d \omegam_i,
+(\nabla) L_{\x} = \boxed{-\sigma_a L_{\x}} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
 \vfill
-Absorption and scattering}
+
+\begin{table}[b]
+\centering
+\begin{tabular}{ll}
+ Absorption, & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/absorption_diagram}} \\
+  \tiny{where $\sigma_a$ is} &                   \\
+ \tiny{an absorption}&                   \\
+ \tiny{coefficient} &                   \\
+ &                   \\
+ &                  
+\end{tabular}
+\end{table}
+
+}
 
 \only<4>{
 \begin{equation*}
-(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a \boxed{L_e} - \sigma_s L_{\x} + \sigma_s \int L_{\x} \Phi d \omegam_i,
+(\nabla) L_{\x} = - \sigma_a L_{\x} + \boxed{\sigma_a L_e} - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i,
 \end{equation*}
 \vfill
-Emitted light}
+\begin{table}[b]
+\centering
+\begin{tabular}{ll}
+ Emission & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/emission_diagram}} \\
+  &                   \\
+ &                   \\
+ &                   \\
+ &                   \\
+ &                  
+\end{tabular}
+\end{table}
+}
 
 \only<5>{
 \begin{equation*}
-(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_{\x} \boxed{\Phi} d \omegam_i,
+(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \boxed{\sigma_s \int L_i \Phi d \omegam_i},
 \end{equation*}
 \vfill
-Scattering function}
+\begin{table}[b]
+\centering
+\begin{tabular}{ll}
+ In-scattering & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/in_scattering_diagram}} \\
+  \tiny{where $\sigma_s$ is a scattering} &                   \\
+ \tiny{coefficient, $\Phi$ a scattering}&                   \\
+ \tiny{function and $\omega_i$ is} &                   \\
+ \tiny{a incoming direction} &                   \\
+ &                  
+\end{tabular}
+\end{table}
+}
 
 \only<6>{
-Analytical solution
-
 \begin{equation*}
-\begin{split}
-L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
- \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t}, \\
- \sigma_t &= \sigma_a + \sigma_s.
-\end{split}
-\end{equation*}}
+(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e ~ \boxed{- \sigma_s L_{\x}} + \sigma_s \int L_i \Phi d \omegam_i,
+\end{equation*}
+\vfill
+\begin{table}[b]
+\centering
+\begin{tabular}{ll}
+ Out-scattering & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/out_scattering_diagram}} \\
+  &                   \\
+ &                   \\
+ &                   \\
+ &                   \\
+ &                  
+\end{tabular}
+\end{table}
+}
 
 \only<7>{
 Analytical solution
 
 \begin{equation*}
+\begin{split}
+L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_i \Phi d \omegam_i}{\sigma_t}, \\
+ \sigma_t &= \sigma_a + \sigma_s.
+\end{split}
+\end{equation*}}
+
+\only<8>{
+Analytical solution
+
+\begin{equation*}
 L_{\x} = e^{-\sigma_t \deltax} L_{\x + \boxed{\Delta\x}} + 
- \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t},
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_i \Phi d \omegam_i}{\sigma_t},
 \end{equation*}
 \vfill
 Segment increment}
@@ -384,14 +450,14 @@ Segment increment}
 \only<+>{
 \begin{equation*}
 L_{\x} = e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
- \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t}
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_i \Phi d \omegam_i}{\sigma_t}
 \end{equation*}}
 
 \only<+>{
 \begin{equation*}
 \begin{split}
 L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
- \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_{\x} \Phi d \omegam_i}{\sigma_t}, \\
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\sigma_a L_e + \sigma_s \int L_i \Phi d \omegam_i}{\sigma_t}, \\
  \sigma_a &= 0.
 \end{split}
 \end{equation*}}
@@ -399,7 +465,7 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 \only<+>{
 \begin{equation*}
 L_{\x} = e^{-\sigma_t \deltax} L_{\x + \Delta\x} + 
- \left(1 - e^{-\sigma_t \deltax} \right) \frac{\xcancel{\sigma_a} L_e + \xcancel{\sigma_s \int L_{\x} \Phi d \omegam_i}}{\xcancel{\sigma_t}}
+ \left(1 - e^{-\sigma_t \deltax} \right) \frac{\xcancel{\sigma_a} L_e + \xcancel{\sigma_s \int L_i \Phi d \omegam_i}}{\xcancel{\sigma_t}}
 \end{equation*}}
 
 \only<+>{
