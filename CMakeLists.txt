@@ -32,8 +32,14 @@ ENDIF(MAYA_VERSION)
 #Add custom .cmake files located in this folder
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmakeModules")
 
-# Boost is required for OpenVDB in Windows
-FIND_PACKAGE (Boost 1.54 REQUIRED COMPONENTS atomic chrono date_time filesystem graph iostreams math_tr1 program_options regex serialization signals system thread)
+# Boost is explicitely required for OpenVDB in Windows
+# The components were extracted from their Makefile
+# https://github.com/dreamworksanimation/openvdb/blob/master/openvdb/Makefile
+# And the version from their INSTALL file
+# https://github.com/dreamworksanimation/openvdb/blob/master/openvdb/INSTALL
+IF(WIN32)
+	FIND_PACKAGE (Boost 1.42 REQUIRED COMPONENTS iostreams system thread)
+ENDIF(WIN32)
 
 # OpenVDB for sparse voxel data
 FIND_PACKAGE (OpenVDB REQUIRED)
@@ -42,7 +48,9 @@ FIND_PACKAGE (OpenVDB REQUIRED)
 FIND_PACKAGE (Maya REQUIRED)
 
 # Include the headers for Boost, Openvdb, Maya and Mental Ray
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+IF(WIN32)
+	INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+ENDIF(WIN32)
 INCLUDE_DIRECTORIES( ${OpenVdb_INCLUDE_DIRS} )
 INCLUDE_DIRECTORIES( ${MAYA_INCLUDE_DIRS} )
 INCLUDE_DIRECTORIES( ${MENTALRAY_INCLUDE_DIRS} )
@@ -125,8 +133,11 @@ ADD_LIBRARY(${PROJECT_NAME}
    ${PROJECT_SRC}
 )
 
-# Boost linking
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${Boost_LIBRARIES} )
+
+IF(WIN32)
+	# Boost linking
+	TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${Boost_LIBRARIES} )
+ENDIF(WIN32)
 
 # OpenVDB linking
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenVdb_LIBRARIES})
@@ -150,7 +161,7 @@ INSTALL( FILES "mentalray/${PROJECT_NAME}.mi" DESTINATION "${SHADERS_INSTALL_PRE
 # MentalRay library data files
 INSTALL( FILES ${PROJECT_DATA} DESTINATION "${SHADERS_INSTALL_PREFIX}/${PROJECT_NAME}_data" )
 
-# Commands
+# Utility scripts
 INSTALL( FILES ${PROJECT_SCRIPTS} DESTINATION "${SCRIPTS_INSTALL_PREFIX}" )
 
 # Shader UI templates
