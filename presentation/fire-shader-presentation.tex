@@ -43,6 +43,19 @@
 \newcommand{\MentalRay}{Mental Ray\textsuperscript\textregistered~}
 \newcommand{\Matlab}{Matlab\textsuperscript\textregistered~}
 
+
+\beamertemplatenavigationsymbolsempty
+
+%http://tex.stackexchange.com/a/66626/9115
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\slideentry}{\ifnum#2>0}{\ifnum2>0}{}{\@error{unable to patch}}% replace the subsection number test with a test that always returns true
+% use frame numbers instead of subsection slide numbers so that frames broken over slides get separate circles
+\patchcmd{\slideentry}{\c@subsectionslide}{\c@framenumber}{}{\@error{unable to patch}}
+\patchcmd{\beamer@writeslidentry}{\c@subsectionslide}{\c@framenumber}{}{\@error{unable to patch}}
+
+\makeatother
+
 \usebackgroundtemplate
 {
     \includegraphics[width=\paperwidth,height=\paperheight]{img/blank.jpg}%
