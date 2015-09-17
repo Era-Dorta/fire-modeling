@@ -22,6 +22,7 @@
 \usepackage{natbib}
 \usepackage{subcaption}
 \usepackage{datetime}
+\usepackage[percent]{overpic}
 
 
 % Common math symbols used in the presentation
@@ -571,10 +572,10 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 \end{figure}
 
 \begin{figure}[p]
-\begin{center}
-\includegraphics[width=\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_propane_shadows}
-\caption*{\tiny{Propane flame.}}
-\end{center}
+\begin{overpic}[width=\textwidth, trim={8cm 0 8cm 10cm}, clip]{img/result_propane_shadows}
+ \put (59.5,7) {\includegraphics[scale=0.8]{img/candle_gt}}
+\end{overpic}
+\caption*{\tiny{Propane flame, left raw data.}}
 \end{figure}
 
 \begin{figure}[p]
