@@ -21,6 +21,7 @@
 \usepackage[makeroom]{cancel}
 \usepackage{natbib}
 \usepackage{subcaption}
+\usepackage{datetime}
 
 
 % Common math symbols used in the presentation
@@ -160,11 +161,12 @@ Centre For Digital Entertainment
 %  - again first a short version to be shown at the bottom of each slide
 %  - second the full date and event name for the title slide
 
-%\date{Presented by Ieva Kazlauskaite, 30 April 2015}
+\newdateformat{monthyeardate}{\monthname[\THEMONTH], \THEYEAR}
 
 % TITLE PAGE
 \begin{frame}[plain]
-  \titlepage
+	\date[\today]{\monthyeardate\today} % The date without the day
+	\titlepage
 \end{frame}
 
 %\section{Overview}
