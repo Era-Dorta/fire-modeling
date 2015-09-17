@@ -15,7 +15,7 @@ Fire Shader for Mental Ray in Maya
 
 #### Compile and install
 * Create build folder and the run the following commands in it
-* ```cmake ../```
+* ```cmake -DMAYA_VERSION=<Year version, e.g. 2015> ../```
 * ```make```
 * ```make install```
 
