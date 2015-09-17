@@ -323,13 +323,7 @@ Raw data      &                   & Refined data        &                   & Im
 \section{Methodology}
 \subsection{ }
 
-\begin{frame}{The model: RTE}
-
-\only<+>{
-\begin{equation*}
-(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \sigma_s \int L_i \Phi d \omegam_i
-\end{equation*}
-}
+\begin{frame}{The model: Radiative Transport Equation}
 
 \only<+>{
 \begin{equation*}
@@ -342,7 +336,7 @@ Raw data      &                   & Refined data        &                   & Im
 \begin{tabular}{ll}
  Differential of radiance & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/differencial_diagram}} \\
  over a segment &                   \\
- &                   \\
+ for a wave number $\lambda$ &                   \\
  &                   \\
  &                   \\
  &                  
@@ -361,9 +355,9 @@ Raw data      &                   & Refined data        &                   & Im
 \centering
 \begin{tabular}{ll}
  Absorption, & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/absorption_diagram}} \\
-  \tiny{where $\sigma_a$ is} &                   \\
- \tiny{an absorption}&                   \\
- \tiny{coefficient} &                   \\
+  \scriptsize{where $\sigma_a$ is} &                   \\
+ \scriptsize{an absorption}&                   \\
+ \scriptsize{coefficient} &                   \\
  &                   \\
  &                  
 \end{tabular}
@@ -391,24 +385,6 @@ Raw data      &                   & Refined data        &                   & Im
 
 \only<+>{
 \begin{equation*}
-(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \boxed{\sigma_s \int L_i \Phi d \omegam_i}
-\end{equation*}
-\vfill
-\begin{table}[b]
-\centering
-\begin{tabular}{ll}
- In-scattering, & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/in_scattering_diagram}} \\
-  \tiny{where $\sigma_s$ is a scattering} &                   \\
- \tiny{coefficient, $\Phi$ a scattering}&                   \\
- \tiny{function and $\omega_i$ is} &                   \\
- \tiny{a incoming direction} &                   \\
- &                  
-\end{tabular}
-\end{table}
-}
-
-\only<+>{
-\begin{equation*}
 (\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e ~ \boxed{- \sigma_s L_{\x}} + \sigma_s \int L_i \Phi d \omegam_i
 \end{equation*}
 \vfill
@@ -420,6 +396,24 @@ Raw data      &                   & Refined data        &                   & Im
  &                   \\
  &                   \\
  &                   \\
+ &                  
+\end{tabular}
+\end{table}
+}
+
+\only<+>{
+\begin{equation*}
+(\nabla) L_{\x} = - \sigma_a L_{\x} + \sigma_a L_e - \sigma_s L_{\x} + \boxed{\sigma_s \int L_i \Phi d \omegam_i}
+\end{equation*}
+\vfill
+\begin{table}[b]
+\centering
+\begin{tabular}{ll}
+ In-scattering, & \multirow{6}{*}{\includegraphics[width=0.6\textwidth]{img/in_scattering_diagram}} \\
+  \scriptsize{where $\sigma_s$ is a scattering} &                   \\
+ \scriptsize{coefficient, $\Phi$ a scattering}&                   \\
+ \scriptsize{function and $\omega_i$ is} &                   \\
+ \scriptsize{a incoming direction} &                   \\
  &                  
 \end{tabular}
 \end{table}
@@ -453,17 +447,19 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 
 \begin{frame}{The model: Important quantities}
 
+\definecolor{darker-gray}{gray}{0.3}
 \begin{itemize}
 \setlength\itemsep{0.5em}
-\item Fuel type $\Rightarrow \sigma_a$, $\sigma_s$
+\item Fuel type $\Rightarrow \sigma_a (\x, \lambda)$, $\sigma_s (\x, \lambda)$
 	\begin{itemize}
 	\setlength\itemsep{0.5em}
 	\item Burning soot emission (Propane, Methane, ...)
 	\item Exotic chemicals (Copper, Lithium, ...)
 	\end{itemize}
 \item Black Body radiation $\Rightarrow L_e$
-\item Refraction $\Rightarrow \Delta\x$
 \item Visual Adaptation $\Rightarrow L_{\x}$
+\item {\color{darker-gray} Refraction $\Rightarrow \Delta\x$}
+\item {\color{darker-gray} Scattering function $\Rightarrow  \Phi$}
 \end{itemize}
 
 \end{frame}
@@ -543,7 +539,7 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 
 \begin{itemize}
 \setlength\itemsep{0.5em}
-\item Large memory requirements
+\item Large memory footprint
 	\begin{itemize}
 	\setlength\itemsep{0.5em}
 	\item Sparse voxel dataset library OpenVDB
