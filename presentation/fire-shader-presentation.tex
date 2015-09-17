@@ -187,9 +187,9 @@ Centre For Digital Entertainment
 \item Create, edit and visualize fire in virtual scenes
 		\begin{itemize}
 		\setlength\itemsep{0.5em}
-		\item Common in everyday life
-		\item Widely used in VFX and Games
-		\item Safety simulations
+		\item Common phenomena: candles, stoves, camp fires, ...
+		\item Widely used in VFX, safety and engineering simulations, ...
+		\item Dangerous and expensive 
 		\end{itemize}
 \end{itemize}
 
@@ -218,7 +218,7 @@ Raw data      &                   & Refined data        &                   & Im
 
 \end{frame}
 
-\begin{frame}{Volume rendering area}
+\begin{frame}{Volume rendering}
 
 \begin{figure}[b!]
 \includegraphics[width=0.8\textwidth]{img/ray_marching}
@@ -236,9 +236,14 @@ Raw data      &                   & Refined data        &                   & Im
 \item Render fire realistically 
 		\begin{itemize}
 		\setlength\itemsep{0.5em}
-		\item Participating media 
 		\item Emission cannot be ignored
-		\item Varied fuel types
+		\item Heat transport
+		\item Multiphase flow
+		\item Chemical reactions
+			\vspace{-0.5cm} % Bring the Fuel Type a bit closer to Chemical reactions
+			\begin{itemize}
+			\item Fuel type
+			\end{itemize}
 		\end{itemize}
 \end{itemize}
 
@@ -262,6 +267,7 @@ Raw data      &                   & Refined data        &                   & Im
 \begin{itemize}
 \setlength\itemsep{0.5em}
 \item Ray-tracing-based
+		\vspace{0.2cm}
 		\begin{itemize}
 		\setlength\itemsep{0.5em}
 		\item Physically based 
@@ -274,7 +280,9 @@ Raw data      &                   & Refined data        &                   & Im
 \setlength\itemsep{0.5em}	
 \item Raster-based
 		\begin{itemize}
+		\vspace{0.2cm}
 		\setlength\itemsep{0.5em}
+		\item Alpha blending
 		\item Many artefacts
 		\item Fast
 		\end{itemize}
@@ -554,7 +562,7 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 
 \end{frame}
 
-\section{Results and Conclusion}
+\section{Results}
 \subsection{ }
 
 \begin{frame}[allowframebreaks]{Results}
@@ -601,6 +609,8 @@ L_{\x} &= e^{-\sigma_t \deltax} L_{\x + \Delta\x} +
 
 \end{frame}
 
+\section{Conclusions}
+\subsection{ }
 \begin{frame}{Conclusions and Future Work}
 
 \begin{itemize}
