@@ -22,11 +22,24 @@
 #
 # MAYA_FOUND            set if maya is found.
 # MAYA_LOCATION         install location of maya.
-# MAYA_INCLUDE_DIR      maya's include directory
+# MAYA_INCLUDE_DIRS      maya's include directory
 # MAYA_LIBRARY_DIR      maya's library directory
 # MAYA_LIBRARIES        all maya libraries (sans MAYA_IMAGE_LIBRARIES)
 
+# MENTALRAY_FOUND            set if mentalray is found.
+# MENTALRAY_LOCATION         install location of mentalray.
+# MENTALRAY_INCLUDE_DIRS      mentalray's include directory
+
 SET( MAYA_FOUND "NO" )
+SET( MENTALRAY_FOUND "NO" )
+
+# TODO This should be automatically detected when Maya is found
+SET( MAYA_VERSION "${MAYA_VERSION}" )
+IF ( NOT MAYA_VERSION )
+	MESSAGE ( FATAL_ERROR "Maya version not defined!")
+ELSE( NOT MAYA_VERSION )
+	MESSAGE(STATUS "Using Maya Version: ${MAYA_VERSION}")
+ENDIF( NOT MAYA_VERSION )
 
 ##
 ## Obtain Maya install location
@@ -35,8 +48,8 @@ SET( MAYA_FOUND "NO" )
 FIND_PATH( MAYA_LOCATION include/maya/MLibrary.h
   "${MAYA_LOCATION}"
   "${MAYA_LOCATION}/../../devkit/"
-  HINTS "/usr/autodesk/maya/"
-  DOC "Root directory of Maya"
+  "/usr/autodesk/maya/"
+  DOC "Root directory of Maya headers"
   )
   
 FIND_PATH( MENTALRAY_LOCATION include/mi_version.h
@@ -45,7 +58,11 @@ FIND_PATH( MENTALRAY_LOCATION include/mi_version.h
   "${MAYA_LOCATION}/devkit/mentalray/"
   "${MAYA_LOCATION}/mentalray/devkit/"
   "${MAYA_LOCATION}/../../devkit/mentalray/"
-  HINTS "/usr/autodesk/mentalrayForMaya2015/devkit/"
+  "${MAYA_LOCATION}/mentalrayForMaya${MAYA_VERSION}/"
+  "${MAYA_LOCATION}/../mentalrayForMaya${MAYA_VERSION}/devkit/"
+  "${MAYA_LOCATION}/devkit/mentalrayForMaya${MAYA_VERSION}/"
+  "${MAYA_LOCATION}/mentalrayForMaya${MAYA_VERSION}/devkit/"
+  "${MAYA_LOCATION}/../../devkit/mentalrayForMaya${MAYA_VERSION}/"
   DOC "Root directory of Mental Ray headers"
   )
   
@@ -54,7 +71,7 @@ IF( MAYA_LOCATION )
 	
 	MESSAGE(STATUS "Found Maya: ${MAYA_LOCATION}")
 
-	SET( MAYA_INCLUDE_DIR       "${MAYA_LOCATION}/include" )
+	SET( MAYA_INCLUDE_DIRS       "${MAYA_LOCATION}/include" )
 	
 	IF ( APPLE )
 		SET( MAYA_LIBRARY_DIR       "${MAYA_LOCATION}/../Maya.app/Contents/MacOS" )
@@ -100,17 +117,8 @@ IF( MAYA_LOCATION )
 			SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_TBB_LIBRARIES} )
 		ENDIF( APPLE )
 	ENDIF( WIN32 )
-	
-	SET( MAYA_VERSION "${MAYA_VERSION}" )
-	IF ( NOT MAYA_VERSION )
-		MESSAGE ( FATAL_ERROR "Maya version not defined!")
-	ELSE( NOT MAYA_VERSION )
-		MESSAGE(STATUS "Using Maya Version: ${MAYA_VERSION}")
-	ENDIF( NOT MAYA_VERSION )
-	
+		
 	SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -D_MAYA_VERSION_${MAYA_VERSION} -D_MAYA_VERSION=${MAYA_VERSION}" )
-	
-	INCLUDE_DIRECTORIES( ${MAYA_INCLUDE_DIR} )
 	
 	# Do not link with libraries that will be linked by /usr/lib, prevents some warnings
 	IF(NOT UNIX)
@@ -118,14 +126,16 @@ IF( MAYA_LOCATION )
 	ENDIF(NOT UNIX)
 	
 	IF(MENTALRAY_LOCATION)
+		SET( MENTALRAY_FOUND "YES" )
+		MESSAGE(STATUS "Found Mental Ray: ${MENTALRAY_LOCATION}")
 		IF( WIN32 )
-			INCLUDE_DIRECTORIES( ${MENTALRAY_LOCATION}/devkit/include )
+			SET(MENTALRAY_INCLUDE_DIRS ${MENTALRAY_LOCATION}/devkit/include)
 			LINK_DIRECTORIES( ${MENTALRAY_LOCATION}/lib/nt )
 		ELSE( WIN32 )
-			INCLUDE_DIRECTORIES( ${MENTALRAY_LOCATION}/include )
+			SET(MENTALRAY_INCLUDE_DIRS ${MENTALRAY_LOCATION}/include)
 		ENDIF( WIN32 )		
 	ELSE(MENTALRAY_LOCATION)
-		MESSAGE ( WARNING "Mental Ray not found!")
+		MESSAGE ( FATAL_ERROR "Mental Ray not found!")
 	ENDIF(MENTALRAY_LOCATION )
 ELSE ( MAYA_LOCATION )
 	MESSAGE ( FATAL_ERROR "Maya not found!")
