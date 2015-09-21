@@ -8,7 +8,9 @@
 
 struct voxel_density {
 	miTag filename;
-	miInteger read_mode; // 0 ascii, 1 raw red, 2 raw max max rgb, 3 ascii unintah
+	// 0 ascii, 1 raw red, 2 raw max max rgb, 3 ascii unintah, 4 raw2 red,
+	// 5 raw2 max max rgb
+	miInteger read_mode;
 	miInteger interpolation_mode; // 0 none, 1 trilinear
 	miScalar scale;
 	miScalar offset;

@@ -16,7 +16,12 @@ template class VoxelDataset<float, openvdb::FloatTree> ;
 class VoxelDatasetFloat: public VoxelDataset<float, openvdb::FloatTree> {
 public:
 	enum FILE_FORMAT {
-		ASCII_SINGLE_VALUE, RAW_RED, RAW_MAX_RGB, ASCII_UINTAH
+		ASCII_SINGLE_VALUE,
+		RAW_RED,
+		RAW_MAX_RGB,
+		ASCII_UINTAH,
+		RAW2_RED,
+		RAW2_MAX_RGB
 	};
 
 	VoxelDatasetFloat(float scale, float offset);
@@ -33,8 +38,10 @@ protected:
 private:
 	bool initialize_with_file_acii_single(const std::string& filename);
 	bool initialize_with_file_acii_uintah(const std::string& filename);
-	bool initialize_with_file_raw_red(const std::string& filename);
-	bool initialize_with_file_raw_max_rgb(const std::string& filename);
+	bool initialize_with_file_raw_red(const std::string& filename,
+			bool is_size_included);
+	bool initialize_with_file_raw_max_rgb(const std::string& filename,
+			bool is_size_included);
 	void read_bin_xyz(std::ifstream& fp, unsigned& x, unsigned& y, unsigned& z);
 	void read_bin_rgba(std::ifstream& fp, double& r, double& g, double& b,
 			double& a);

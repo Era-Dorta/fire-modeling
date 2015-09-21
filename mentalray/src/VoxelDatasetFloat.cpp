@@ -10,6 +10,7 @@
 #include <fstream>
 #include <algorithm>
 
+// Default size for the voxel dataset volume
 #define MAX_DATASET_DIM 256
 
 VoxelDatasetFloat::VoxelDatasetFloat(float scale, float offset) :
@@ -33,13 +34,19 @@ bool VoxelDatasetFloat::initialize_with_file(const std::string& filename,
 		return initialize_with_file_acii_single(filename);
 	}
 	case FILE_FORMAT::RAW_RED: {
-		return initialize_with_file_raw_red(filename);
+		return initialize_with_file_raw_red(filename, false);
 	}
 	case FILE_FORMAT::RAW_MAX_RGB: {
-		return initialize_with_file_raw_max_rgb(filename);
+		return initialize_with_file_raw_max_rgb(filename, false);
 	}
 	case FILE_FORMAT::ASCII_UINTAH: {
 		return initialize_with_file_acii_uintah(filename);
+	}
+	case FILE_FORMAT::RAW2_RED: {
+		return initialize_with_file_raw_red(filename, true);
+	}
+	case FILE_FORMAT::RAW2_MAX_RGB: {
+		return initialize_with_file_raw_max_rgb(filename, true);
 	}
 	}
 	return false;
@@ -100,6 +107,7 @@ bool VoxelDatasetFloat::initialize_with_file_acii_single(
 		safe_ascii_read(fp, width);
 		safe_ascii_read(fp, height);
 		safe_ascii_read(fp, depth);
+		assert(width >= 0 && height >= 0 && depth >= 0);
 
 		clear();
 		resize(width, height, depth);
@@ -146,12 +154,14 @@ bool VoxelDatasetFloat::initialize_with_file_acii_uintah(
 		safe_ascii_read(fp, width);
 		safe_ascii_read(fp, height);
 		safe_ascii_read(fp, depth);
+		assert(width >= 0 && height >= 0 && depth >= 0);
 
 		resize(width, height, depth);
 
 		int count;
 		// Number of points in the file
 		safe_ascii_read(fp, count);
+		assert(count >= 0);
 
 		float background;
 		safe_ascii_read(fp, background);
@@ -184,7 +194,7 @@ bool VoxelDatasetFloat::initialize_with_file_acii_uintah(
 }
 
 bool VoxelDatasetFloat::initialize_with_file_raw_red(
-		const std::string& filename) {
+		const std::string& filename, bool is_size_included) {
 
 	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
@@ -192,13 +202,23 @@ bool VoxelDatasetFloat::initialize_with_file_raw_red(
 		return false;
 	}
 
-	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
-	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
-
 	try {
+		int width = MAX_DATASET_DIM, height = MAX_DATASET_DIM, depth =
+		MAX_DATASET_DIM;
+		if (is_size_included) {
+			safe_binary_read(fp, reinterpret_cast<char*>(&width), 4);
+			safe_binary_read(fp, reinterpret_cast<char*>(&height), 4);
+			safe_binary_read(fp, reinterpret_cast<char*>(&depth), 4);
+			assert(width >= 0 && height >= 0 && depth >= 0);
+		}
+
+		// Volume size in space
+		resize(width, height, depth);
+
 		int count;
 		// Number of points in the file, integer, 4 bytes
 		safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
+		assert(count >= 0);
 
 		unsigned x, y, z;
 		double r, g, b, a;
@@ -230,20 +250,31 @@ bool VoxelDatasetFloat::initialize_with_file_raw_red(
 }
 
 bool VoxelDatasetFloat::initialize_with_file_raw_max_rgb(
-		const std::string& filename) {
+		const std::string& filename, bool is_size_included) {
 	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
 		mi_error("Could not open file \"%s\".", filename.c_str());
 		return false;
 	}
 
-	// Voxel is MAX_DATASET_DIMxMAX_DATASET_DIMxMAX_DATASET_DIM
-	resize(MAX_DATASET_DIM, MAX_DATASET_DIM, MAX_DATASET_DIM);
-
 	try {
+
+		int width = MAX_DATASET_DIM, height = MAX_DATASET_DIM, depth =
+		MAX_DATASET_DIM;
+		if (is_size_included) {
+			safe_binary_read(fp, reinterpret_cast<char*>(&width), 4);
+			safe_binary_read(fp, reinterpret_cast<char*>(&height), 4);
+			safe_binary_read(fp, reinterpret_cast<char*>(&depth), 4);
+			assert(width >= 0 && height >= 0 && depth >= 0);
+		}
+
+		// Volume size in space
+		resize(width, height, depth);
+
 		int count;
 		// Number of points in the file, integer, 4 bytes
 		safe_binary_read(fp, reinterpret_cast<char*>(&count), 4);
+		assert(count >= 0);
 
 		unsigned x, y, z;
 		double r, g, b, a;

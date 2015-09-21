@@ -9,7 +9,7 @@ declare shader
 		string "filename",
 		integer "read_mode",
 			#: default 1
-			#: enum "ASCII Single Value:Raw Red:Raw Max RGB:ASCII Uintah"
+			#: enum "ASCII Single Value:Raw Red:Raw Max RGB:ASCII Uintah:Raw2 Red:Raw2 Max RGB"
 		integer "interpolation_mode",
 			#: default 1
 			#: enum "None:Trilinear"
@@ -96,7 +96,7 @@ declare shader
 				#: softmax 100.0
 			integer "density_read_mode",
 				#: default 1
-				#: enum "ASCII Single Value:Raw Red:Raw Max RGB:ASCII Uintah"
+				#: enum "ASCII Single Value:Raw Red:Raw Max RGB:ASCII Uintah:Raw2 Red:Raw2 Max RGB"
 			string "temperature_file",
 			string "temperature_file_first",
 				#: hidden true
@@ -110,7 +110,7 @@ declare shader
 				#: softmax 100.0
 			integer "temperature_read_mode",
 				#: default 2
-				#: enum "ASCII Single Value:Raw Red:Raw Max RGB:ASCII Uintah"				
+				#: enum "ASCII Single Value:Raw Red:Raw Max RGB:ASCII Uintah:Raw2 Red:Raw2 Max RGB"				
 			integer "interpolation_mode",
 				#: default 1
 				#: enum "None:Trilinear"
