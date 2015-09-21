@@ -32,11 +32,11 @@ bool VoxelDatasetFloat::initialize_with_file(const std::string& filename,
 	case FILE_FORMAT::ASCII_SINGLE_VALUE: {
 		return initialize_with_file_acii_single(filename);
 	}
-	case FILE_FORMAT::BIN_ONLY_RED: {
-		return initialize_with_file_bin_only_red(filename);
+	case FILE_FORMAT::RAW_RED: {
+		return initialize_with_file_raw_red(filename);
 	}
-	case FILE_FORMAT::BIN_MAX: {
-		return initialize_with_file_bin_max(filename);
+	case FILE_FORMAT::RAW_MAX_RGB: {
+		return initialize_with_file_raw_max_rgb(filename);
 	}
 	case FILE_FORMAT::ASCII_UINTAH: {
 		return initialize_with_file_acii_uintah(filename);
@@ -183,7 +183,7 @@ bool VoxelDatasetFloat::initialize_with_file_acii_uintah(
 	}
 }
 
-bool VoxelDatasetFloat::initialize_with_file_bin_only_red(
+bool VoxelDatasetFloat::initialize_with_file_raw_red(
 		const std::string& filename) {
 
 	std::ifstream fp(filename, std::ios::in | std::ios::binary);
@@ -229,7 +229,7 @@ bool VoxelDatasetFloat::initialize_with_file_bin_only_red(
 	}
 }
 
-bool VoxelDatasetFloat::initialize_with_file_bin_max(
+bool VoxelDatasetFloat::initialize_with_file_raw_max_rgb(
 		const std::string& filename) {
 	std::ifstream fp(filename, std::ios::in | std::ios::binary);
 	if (!fp.is_open()) {
