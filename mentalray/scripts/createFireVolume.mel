@@ -10,6 +10,14 @@ proc string fireFileNameNoNumber(string $filename){
 	// Separate filename in name and extension
 	$tokenFilename = `stringToStringArray $filename "."`;
 	
+	// If the file has several dots, puts the parts together
+	$tokeNum = `size $tokenFilename`;
+	for( $i=1; $i<$tokeNum-1; ++$i )
+	{
+		$tokenFilename[0] = $tokenFilename[0] + "." + $tokenFilename[$i];
+	}
+	$tokenFilename[1] = $tokenFilename[$tokeNum - 1];
+	
 	// Get the file number
 	string $numberExpr = "[0-9]+$"; // A bunch of digits at the end of the string
 	string $fileNumberStr = `match $numberExpr $tokenFilename[0]`;
