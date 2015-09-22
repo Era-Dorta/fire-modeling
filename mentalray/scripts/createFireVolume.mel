@@ -57,7 +57,7 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -type "string" ($fire_shader + ".density_file") $dens_file_abs;
 	
 	setAttr -type "string" ($fire_shader + ".temperature_file_first") $temp_file_rel;
-	setAttr -type "string" ($fire_shader + ".density_file_first") $temp_file_rel;
+	setAttr -type "string" ($fire_shader + ".density_file_first") $dens_file_rel;
 
 	// Fire shader as volume shader for the shading group
 	connectAttr -f ($fire_shader + ".message") ($fireSG + ".volumeShader");
