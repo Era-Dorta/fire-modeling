@@ -262,7 +262,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light(miColor *result,
 	state->dot_nd = -mi_vector_dot(&state->dir, &state->normal);
 
 	// Distance spherical falloff, the particles are assumed to be spherical
-	miaux_scale_color(result, 1.0 / (4 * M_PI * pow(state->dist + 1, decay)));
+	miaux_scale_color(result, 1.0 / pow(state->dist + 1, decay));
 
 	/*
 	 * Extract from mental ray physlight.cpp shader example
