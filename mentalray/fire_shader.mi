@@ -16,7 +16,7 @@ declare shader
 		scalar "scale",
 			#: default 1.0
 			#: softmin 0.0
-			#: softmax 10000.0
+			#: softmax 1000.0
 		scalar "offset",
 			#: default 0.0
 			#: softmin 0.0
@@ -88,9 +88,9 @@ declare shader
 			string "density_file_first",
 				#: hidden true
 			scalar "density_scale",
-				#: default 1e12 # As the density is in molecules, a large scale is needed
+				#: default 1.0
 				#: softmin 0.0
-				#: softmax 1e15
+				#: softmax 1000.0
 			scalar "density_offset",
 				#: default 0
 				#: softmin 0.0

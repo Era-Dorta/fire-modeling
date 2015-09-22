@@ -50,6 +50,8 @@ bool VoxelDatasetColor::compute_soot_absorption_threaded(
 
 	compute_soot_constant_coefficients();
 
+	scale_coefficients_to_custom_range();
+
 	compute_function_threaded(&VoxelDatasetColor::compute_soot_absorption);
 
 	input_data.clear();
@@ -64,6 +66,8 @@ bool VoxelDatasetColor::compute_chemical_absorption_threaded(
 	if (!read_spectral_line_file(filename)) {
 		return false;
 	}
+
+	scale_coefficients_to_custom_range();
 
 	compute_function_threaded(&VoxelDatasetColor::compute_chemical_absorption);
 
@@ -462,5 +466,15 @@ void VoxelDatasetColor::safe_ascii_read(std::ifstream& fp, T &output) {
 	fp >> output;
 	if (!fp) {
 		fp.exceptions(fp.failbit);
+	}
+}
+
+void VoxelDatasetColor::scale_coefficients_to_custom_range() {
+	/* Our input data is in the range of [0..1], when the physical densities are
+	 * several orders of magnitude higher, as they represent the number of
+	 * molecules per unit volume
+	 */
+	for (auto iter = input_data.begin(); iter != input_data.end(); ++iter) {
+		*iter *= 1e14;
 	}
 }
