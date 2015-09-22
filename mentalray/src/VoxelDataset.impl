@@ -105,8 +105,11 @@ template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y, float z,
 		const Accessor& accessor) const {
 	assert(
-			((int ) (z + .5)) * depth * height + ((int ) (y + .5)) * height
-					+ ((int ) (x + .5)) < count);
+			(count == 0
+					|| ((int ) (z + .5)) * depth * height
+							+ ((int ) (y + .5)) * height + ((int ) (x + .5))
+							< count));
+
 	return interpolate_function(*this, x, y, z, accessor);
 }
 
@@ -124,7 +127,9 @@ DataT VoxelDataset<DataT, TreeT>::get_fitted_voxel_value(const miVector *p,
 	x = (float) fit(p->x, min_point->x, max_point->x, 0, width - 1);
 	y = (float) fit(p->y, min_point->y, max_point->y, 0, height - 1);
 	z = (float) fit(p->z, min_point->z, max_point->z, 0, depth - 1);
-	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
+	assert(x >= 0 && (width == 0 || x < width));
+	assert(y >= 0 && (height == 0 || y < height));
+	assert(z >= 0 && (depth == 0 || z < depth));
 	return get_voxel_value(x, y, z, accessor);
 }
 
@@ -137,14 +142,18 @@ const DataT& VoxelDataset<DataT, TreeT>::get_voxel_value(unsigned x, unsigned y,
 template<typename DataT, typename TreeT>
 const DataT& VoxelDataset<DataT, TreeT>::get_voxel_value(unsigned x, unsigned y,
 		unsigned z, const Accessor& accessor) const {
-	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
+	assert(x >= 0 && (width == 0 || x < width));
+	assert(y >= 0 && (height == 0 || y < height));
+	assert(z >= 0 && (depth == 0 || z < depth));
 	return accessor.getValue(openvdb::Coord(x, y, z));
 }
 
 template<typename DataT, typename TreeT>
 void VoxelDataset<DataT, TreeT>::set_voxel_value(unsigned x, unsigned y,
 		unsigned z, const DataT& val) {
-	assert(x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
+	assert(x >= 0 && (width == 0 || x < width));
+	assert(y >= 0 && (height == 0 || y < height));
+	assert(z >= 0 && (depth == 0 || z < depth));
 	accessor.setValue(openvdb::Coord(x, y, z), val);
 }
 

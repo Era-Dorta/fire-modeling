@@ -35,6 +35,7 @@ protected:
 			const float& c01, const float& c10, const float& c11) const;
 	virtual float linear_interp(float t, const float& c0,
 			const float& c1) const;
+	void close_file_and_clear(std::ifstream& fp);
 private:
 	bool initialize_with_file_acii_single(const std::string& filename);
 	bool initialize_with_file_acii_uintah(const std::string& filename);

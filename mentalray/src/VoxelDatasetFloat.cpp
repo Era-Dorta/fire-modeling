@@ -93,6 +93,11 @@ float VoxelDatasetFloat::linear_interp(float t, const float&c0,
 	return c0 * (1 - t) + c1 * t;
 }
 
+void VoxelDatasetFloat::close_file_and_clear(std::ifstream& fp) {
+	fp.close();
+	clear();
+}
+
 bool VoxelDatasetFloat::initialize_with_file_acii_single(
 		const std::string& filename) {
 	std::ifstream fp(filename, std::ios_base::in);
@@ -133,7 +138,7 @@ bool VoxelDatasetFloat::initialize_with_file_acii_single(
 		fp.close();
 		return true;
 	} catch (const std::ios_base::failure& e) {
-		fp.close();
+		close_file_and_clear(fp);
 		mi_error("Wrong format in file \"%s\".", filename.c_str());
 		return false;
 	}
@@ -187,7 +192,7 @@ bool VoxelDatasetFloat::initialize_with_file_acii_uintah(
 		fp.close();
 		return true;
 	} catch (const std::ios_base::failure& e) {
-		fp.close();
+		close_file_and_clear(fp);
 		mi_error("Wrong format in file \"%s\".", filename.c_str());
 		return false;
 	}
@@ -243,7 +248,7 @@ bool VoxelDatasetFloat::initialize_with_file_raw_red(
 		fp.close();
 		return true;
 	} catch (const std::ios_base::failure& e) {
-		fp.close();
+		close_file_and_clear(fp);
 		mi_error("Wrong format in file \"%s\".", filename.c_str());
 		return false;
 	}
@@ -301,7 +306,7 @@ bool VoxelDatasetFloat::initialize_with_file_raw_max_rgb(
 		fp.close();
 		return true;
 	} catch (const std::ios_base::failure& e) {
-		fp.close();
+		close_file_and_clear(fp);
 		mi_error("Wrong format in file \"%s\".", filename.c_str());
 		return false;
 	}
@@ -343,8 +348,7 @@ void VoxelDatasetFloat::safe_ascii_read(std::ifstream& fp, T &output) {
 void VoxelDatasetFloat::check_index_range(unsigned x, unsigned y, unsigned z,
 		std::ifstream& fp, const std::string& filename) {
 	if (x >= width || y >= height || z >= depth) {
-		mi_error("Invalid voxel index %d, %d, %d when reading file %s", x, y, z,
-				filename.c_str());
+		mi_error("Invalid voxel index %d, %d, %d", x, y, z);
 		throw std::ios_base::failure("Invalid voxel index");
 	}
 }
