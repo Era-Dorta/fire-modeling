@@ -202,7 +202,7 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f t;
-	float spec_values[nSpectralSamples];
+	std::vector<float> spec_values(input_data.size());
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -216,12 +216,12 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// Compute the chemical absorption spectrum values, as we are
 			// normalizing afterwards, the units used here don't matter
 			ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
-					t.x(), 1, spec_values);
+					t.x(), 1, &spec_values[0]);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
-					lambdas.size());
+			Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
+					&spec_values[0], lambdas.size());
 
 			// Divide each coefficient by the max, to get a normalized spectrum
 			chem_spec.NormalizeByMax();
@@ -242,7 +242,7 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 
 void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		unsigned end_offset) {
-	float spec_values[nSpectralSamples];
+	std::vector<float> spec_values(lambdas.size());
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -254,12 +254,12 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		if (t.x() > 400) {
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
-			Blackbody(&lambdas[0], nSpectralSamples, t.x(), 1, spec_values);
+			Blackbody(&lambdas[0], lambdas.size(), t.x(), 1, &spec_values[0]);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0], spec_values,
-					nSpectralSamples);
+			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0],
+					&spec_values[0], lambdas.size());
 
 			// Transform the spectrum to XYZ coefficients
 			b_spec.ToXYZ(&t.x());
