@@ -238,7 +238,8 @@ bool VoxelDatasetFloat::initialize_with_file_raw_red(
 			// Make sure the indices are in a valid range
 			check_index_range(x, y, z, fp, filename);
 
-			r = r * scale + offset;
+			// Divide by 256 to get the rgb values in [0..1]
+			r = r * 0.00390625 * scale + offset;
 			// For the moment assume the red component is the density
 			if (r != block->background()) {
 				set_voxel_value(x, y, z, r);
@@ -296,7 +297,8 @@ bool VoxelDatasetFloat::initialize_with_file_raw_max_rgb(
 
 			float max_val = std::max(std::max(r, g), b);
 
-			max_val = max_val * scale + offset;
+			// Divide by 256 to get the rgb values in [0..1]
+			max_val = max_val * 0.00390625 * scale + offset;
 			// For the temperature, use the channel with maximum intensity
 			if (r != block->background()) {
 				set_voxel_value(x, y, z, max_val);
