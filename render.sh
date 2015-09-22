@@ -32,7 +32,7 @@ fi
 
 touch "$outputImPath/$SceneName/$SceneName.log"
 
-Render -r mr -v 5 -cam camera1 -perframe -autoRenderThreads -s 1 -e 1  -fnc 3 -pad 3 -rd "$outputImPath/$SceneName" -im "$SceneName" -of $extension -log "$outputImPath/$SceneName/$SceneName.log" "$fullName"
+Render -r mr -v 5 -proj "$projectPath" -cam camera1 -perframe -autoRenderThreads -s 1 -e 1  -fnc 3 -pad 3 -rd "$outputImPath/$SceneName" -im "$SceneName" -of $extension -log "$outputImPath/$SceneName/$SceneName.log" "$fullName"
 
 # -r is the frame rate
 ffmpeg -r 4 -i "$outputImPath/$SceneName/$SceneName.%03d.$extension" "$outputMoviePath/$SceneName.avi"
