@@ -79,6 +79,7 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 
 	// Connections to the final shaders
 	connectAttr -f ($absorption_shader + ".message") ($fire_shader + ".absorption_shader");
+	connectAttr -f ($black_body_shader + ".message") ($fire_shader + ".emission_shader");
 	connectAttr -f ($density_shader + ".message") ($fire_shader + ".density_shader");
 
 	connectAttr -f ($black_body_shader + ".message") ($fire_light_shader + ".bb_shader");

@@ -19,6 +19,7 @@ struct fire_volume {
 	miColor transparency;
 	miTag density_shader;
 	miTag absorption_shader;
+	miTag emission_shader;
 	miTag density_file; // Dummy
 	miTag density_file_first; // Dummy
 	miScalar density_scale; // Dummy
@@ -148,6 +149,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			rm_data.density_shader = *mi_eval_tag(&params->density_shader);
 			rm_data.absorption_shader = *mi_eval_tag(
 					&params->absorption_shader);
+			rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
 
 			// Only the light specified in the light list will be used
 			mi_inclusive_lightlist(&rm_data.n_light, &rm_data.light, state);

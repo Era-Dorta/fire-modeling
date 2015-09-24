@@ -131,18 +131,16 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 		editorTemplate -annotation "Light extinction over distance" -addControl "decay";
 		editorTemplate -annotation "Quality parameter, ideally it should be set to half the voxel size" -addControl "march_increment";
 		editorTemplate -annotation "If true, computes how light varies when traversing the medium" -addControl "cast_shadows";
-	
-		editorTemplate -addSeparator;
-		
-		editorTemplate -annotation "Input auxiliary shader, safe to ignore" -addControl "density_shader";
-		editorTemplate -annotation "Input auxiliary shader, safe to ignore" -addControl "absorption_shader";
-		
+			
 	editorTemplate -endLayout;
 	
 	editorTemplate -suppress "color";
 	editorTemplate -suppress "glowColor";
 	editorTemplate -suppress "matteOpacity";
 	editorTemplate -suppress "transparency";
+	editorTemplate -suppress "density_shader";
+	editorTemplate -suppress "absorption_shader";
+	editorTemplate -suppress "emission_shader";
 
 	editorTemplate -suppress "caching"; 
 	editorTemplate -suppress "nodeState"; 

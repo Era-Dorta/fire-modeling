@@ -449,7 +449,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		const RayMarchSigmaData& rm_data) {
 
-	miColor volume_color = { 0, 0, 0, 0 }, light_color = { 0, 0, 0, 0 };
+	miColor volume_color = { 0, 0, 0, 0 };
 
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
@@ -460,28 +460,35 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 
 	state->type = static_cast<miRay_type>(VOXEL_DATA);
 
+	// Compute it as steps, so that rounding errors are not carried in the loop
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
+
+	// This loop is where the equation is solved
+	// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
+
 	for (int i = steps; i >= 0; i--) {
 		// Compute the distance on each time step to avoid numerical errors
 		float distance = rm_data.march_increment * i;
 		miaux_march_point(&state->point, &rm_data.origin, &rm_data.direction,
 				distance);
 
-		// Here is where the equation is solved
-		// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
+		// Get sigma_a at state->point
 		miColor sigma_a;
 		mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
 				rm_data.absorption_shader, nullptr);
 
+		// If the color is black e^sigma_a == 1, thus Lx = L_next_march
 		if (!miaux_color_is_black(&sigma_a)) {
-			// Restore ray type for total light at point
-			state->type = ray_type;
 
-			// Convert point to internal space before calling the light shader
-			mi_point_from_object(state, &state->point, &state->point);
-			// Get L_e
-			miaux_total_light_at_point(&light_color, state, rm_data.light,
-					rm_data.n_light);
+			// TODO BB radiation needs to be multiplied by intensity
+			// Get black body radiation at state->point
+			miColor bb_radiation;
+			mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL, state,
+					rm_data.emission_shader, nullptr);
+
+			// Get L_e = sigma_a * black body
+			miColor light_color;
+			miaux_multiply_colors(&light_color, &sigma_a, &bb_radiation);
 
 			// Compute exp(-sigma_a * Dx)
 			miColor exp_sigma_dx;
@@ -499,9 +506,6 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 
 			// Sum previous and current contributions
 			miaux_add_color(&volume_color, &light_color);
-
-			// Reset for the density shader calls
-			state->type = static_cast<miRay_type>(VOXEL_DATA);
 		}
 	}
 	// Note changing result->color or result->transparecy alpha channel

@@ -83,6 +83,7 @@ declare shader
 				#: hidden true
 			shader "density_shader",
 			shader "absorption_shader",
+			shader "emission_shader",
 			string "density_file",
 			string "density_file_first",
 				#: hidden true

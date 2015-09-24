@@ -41,6 +41,7 @@ typedef struct RayMarchSimpleData: public RayMarchCommonData {
 typedef struct RayMarchSigmaData: public RayMarchCommonData {
 	miTag density_shader;
 	miTag absorption_shader;
+	miTag emission_shader;
 	miInteger i_light;
 	miInteger n_light;
 	miTag *light;
