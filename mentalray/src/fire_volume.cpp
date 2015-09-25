@@ -33,7 +33,7 @@ struct fire_volume {
 	miInteger interpolation_mode; // Dummy
 	miInteger fuel_type;
 	miScalar visual_adaptation_factor; // Dummy
-	miScalar intensity; // Dummy
+	miScalar intensity;
 	miScalar shadow_threshold; // Dummy
 	miScalar decay; // Dummy
 	miScalar march_increment;
@@ -150,6 +150,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			rm_data.absorption_shader = *mi_eval_tag(
 					&params->absorption_shader);
 			rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
+			rm_data.intensity = *mi_eval_scalar(&params->intensity);
 
 			// Only the light specified in the light list will be used
 			mi_inclusive_lightlist(&rm_data.n_light, &rm_data.light, state);

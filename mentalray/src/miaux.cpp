@@ -353,6 +353,8 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 
 	state->type = static_cast<miRay_type>(VOXEL_DATA);
 
+	// Since the equation is Lx = e^(-sigma_x * delta_x) L_{x + delta}, we can sum all
+	// sigmas, and apply the exp with the sum
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = 0; i <= steps; i++) {
 		// Compute the distance on each time step to avoid numerical errors
@@ -369,6 +371,7 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 		miaux_add_color(&total_sigma, &sigma_a);
 	}
 
+	// The transparency will automatically get multiplied by Maya engine
 	result->transparency.r = exp(-total_sigma.r * rm_data.march_increment);
 	result->transparency.g = exp(-total_sigma.g * rm_data.march_increment);
 	result->transparency.b = exp(-total_sigma.b * rm_data.march_increment);
@@ -480,7 +483,6 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		// If the color is black e^sigma_a == 1, thus Lx = L_next_march
 		if (!miaux_color_is_black(&sigma_a)) {
 
-			// TODO BB radiation needs to be multiplied by intensity
 			// Get black body radiation at state->point
 			miColor bb_radiation;
 			mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL, state,
@@ -489,6 +491,7 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			// Get L_e = sigma_a * black body
 			miColor light_color;
 			miaux_multiply_colors(&light_color, &sigma_a, &bb_radiation);
+			miaux_scale_color(&light_color, rm_data.intensity);
 
 			// Compute exp(-sigma_a * Dx)
 			miColor exp_sigma_dx;
