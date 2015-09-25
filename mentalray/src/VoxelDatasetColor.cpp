@@ -479,6 +479,6 @@ void VoxelDatasetColor::scale_coefficients_to_custom_range() {
 	 * molecules per unit volume
 	 */
 	for (auto iter = input_data.begin(); iter != input_data.end(); ++iter) {
-		*iter *= 1e14;
+		*iter *= 1e12;
 	}
 }

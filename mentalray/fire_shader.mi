@@ -89,7 +89,7 @@ declare shader
 			string "density_file_first",
 				#: hidden true
 			scalar "density_scale",
-				#: default 1.0
+				#: default 256
 				#: softmin 0.0
 				#: softmax 1000.0
 			scalar "density_offset",
@@ -103,9 +103,9 @@ declare shader
 			string "temperature_file_first",
 				#: hidden true
 			scalar "temperature_scale",
-				#: default 500
+				#: default 256000.0
 				#: softmin 0.0
-				#: softmax 10000.0
+				#: softmax 1280000.0
 			scalar "temperature_offset",
 				#: default 0
 				#: softmin 0.0
