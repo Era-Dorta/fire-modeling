@@ -67,7 +67,11 @@ bool VoxelDatasetColor::compute_chemical_absorption_threaded(
 		return false;
 	}
 
-	scale_coefficients_to_custom_range();
+	/*
+	 * As we are normalising with bb_radiation, there is no need to call
+	 * scale_coefficients_to_custom_range();
+	 * Actually it completely breaks the final image if we added it
+	 */
 
 	compute_function_threaded(&VoxelDatasetColor::compute_chemical_absorption);
 
