@@ -438,7 +438,8 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	// Note changing result->color or result->transparecy alpha channel
 	// has no effect, the transparency is controlled with the transparency
 	// rgb channels
-	miaux_copy_color(&result->color, &volume_color);
+	miaux_copy_color_scaled(&result->color, &volume_color,
+			rm_data.transparency);
 
 	// In RGBA, 0 alpha is transparent, but in in transparency for maya
 	// volumetric 1 is transparent
@@ -514,7 +515,8 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	// Note changing result->color or result->transparecy alpha channel
 	// has no effect, the transparency is controlled with the transparency
 	// rgb channels
-	miaux_copy_color(&result->color, &volume_color);
+	miaux_copy_color_scaled(&result->color, &volume_color,
+			rm_data.transparency);
 
 	state->type = ray_type;
 	state->point = original_point;

@@ -127,6 +127,7 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 		editorTemplate -annotation "Variety of fuel used for the fire" -addControl "fuel_type";
 		editorTemplate -annotation "Controls how much a human eye has adapted to the rendered fire" -addControl "visual_adaptation_factor";
 		editorTemplate -annotation "How intense is the emitted fire light" -addControl "intensity";
+		editorTemplate -annotation "Transparency scale, 0.5 double transparency, 1 default transparency, 2 double opacity" -label "Opacity" -addControl "transparency";
 		editorTemplate -annotation "If the contribution is smaller than the threshold, no shadow rays for the sample will be computed" -addControl "shadow_threshold";
 		editorTemplate -annotation "Light extinction over distance" -addControl "decay";
 		editorTemplate -annotation "Quality parameter, ideally it should be set to half the voxel size" -addControl "march_increment";
@@ -137,7 +138,6 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 	editorTemplate -suppress "color";
 	editorTemplate -suppress "glowColor";
 	editorTemplate -suppress "matteOpacity";
-	editorTemplate -suppress "transparency";
 	editorTemplate -suppress "density_shader";
 	editorTemplate -suppress "absorption_shader";
 	editorTemplate -suppress "emission_shader";

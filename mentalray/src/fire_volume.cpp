@@ -16,7 +16,7 @@ struct fire_volume {
 	miColor color;
 	miColor glowColor;
 	miColor matteOpacity;
-	miColor transparency;
+	miScalar transparency;
 	miTag density_shader;
 	miTag absorption_shader;
 	miTag emission_shader;
@@ -137,6 +137,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			init_ray_march_common_data(rm_data, state, params);
 			init_ray_march_lights_data(rm_data, state, params);
 			rm_data.density_shader = *mi_eval_tag(&params->density_shader);
+			rm_data.transparency = *mi_eval_scalar(&params->transparency);
 
 			// Only the light specified in the light list will be used
 			mi_inclusive_lightlist(&rm_data.n_light, &rm_data.light, state);
@@ -151,6 +152,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 					&params->absorption_shader);
 			rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
 			rm_data.intensity = *mi_eval_scalar(&params->intensity);
+			rm_data.transparency = *mi_eval_scalar(&params->transparency);
 
 			// Only the light specified in the light list will be used
 			mi_inclusive_lightlist(&rm_data.n_light, &rm_data.light, state);
