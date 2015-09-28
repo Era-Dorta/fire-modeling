@@ -44,8 +44,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		miVector original_point = state->point;
 		miRay_type ray_type = state->type;
 
-		FuelType fuel_type = static_cast<FuelType>(*mi_eval_integer(
-				&params->fuel_type));
 		miTag bb_shader = *mi_eval_tag(&params->bb_shader);
 
 		// Get background values
@@ -53,18 +51,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 		state->type = static_cast<miRay_type>(BACKGROUND);
 		mi_call_shader_x(&background, miSHADER_MATERIAL, state, bb_shader,
 				nullptr);
-
-		miTag sigma_a_shader = miNULLTAG;
-		if (fuel_type != FuelType::BlackBody) {
-			sigma_a_shader = *mi_eval_tag(&params->sigma_a_shader);
-
-			miColor background_sigma;
-			state->type = static_cast<miRay_type>(BACKGROUND);
-			mi_call_shader_x(&background_sigma, miSHADER_MATERIAL, state,
-					sigma_a_shader, nullptr);
-
-			miaux_multiply_colors(&background, &background, &background_sigma);
-		}
 
 		unsigned width = 0, height = 0, depth = 0;
 		miaux_get_voxel_dataset_dims(&width, &height, &depth, state, bb_shader);
@@ -81,7 +67,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 
 		state->type = static_cast<miRay_type>(VOXEL_DATA_COPY);
 
-		miColor bb_radiation = { 0, 0, 0, 0 }, sigma_a = { 0, 0, 0, 0 };
+		miColor bb_radiation = { 0, 0, 0, 0 };
 		openvdb::Vec3f bb_radiation_v(0);
 		for (unsigned i = 0; i < width; i++) {
 			for (unsigned j = 0; j < height; j++) {
@@ -95,15 +81,6 @@ extern "C" DLLEXPORT miBoolean fire_volume_light_init(miState *state,
 					// value is zero
 					mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL, state,
 							bb_shader, NULL);
-
-					if (fuel_type != FuelType::BlackBody) {
-						// Premultiply the absorption coefficient
-						mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
-								sigma_a_shader, NULL);
-
-						miaux_multiply_colors(&bb_radiation, &bb_radiation,
-								&sigma_a);
-					}
 
 					// Premultiply the intensity here so we don't have to do it
 					// in the main shader calls

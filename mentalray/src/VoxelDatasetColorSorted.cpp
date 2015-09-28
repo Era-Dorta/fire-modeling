@@ -37,9 +37,10 @@ bool VoxelDatasetColorSorted::compute_soot_absorption_threaded(
 }
 
 bool VoxelDatasetColorSorted::compute_black_body_emission_threaded(
-		float visual_adaptation_factor) {
+		float visual_adaptation_factor, BB_TYPE bb_type,
+		const std::string& filename) {
 	if (!VoxelDatasetColor::compute_black_body_emission_threaded(
-			visual_adaptation_factor)) {
+			visual_adaptation_factor, bb_type, filename)) {
 		return false;
 	}
 	sort();

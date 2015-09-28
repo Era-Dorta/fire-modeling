@@ -18,8 +18,12 @@ class VoxelDatasetColor: public VoxelDataset<openvdb::Vec3f, openvdb::Vec3STree>
 public:
 	VoxelDatasetColor();
 	VoxelDatasetColor(const miColor& background);
+	enum BB_TYPE {
+		BB_ONLY, BB_SOOT, BB_CHEM
+	};
 	virtual bool compute_black_body_emission_threaded(
-			float visual_adaptation_factor);
+			float visual_adaptation_factor, BB_TYPE bb_type,
+			const std::string& filename = "");
 	virtual bool compute_soot_absorption_threaded(const std::string& filename);
 	virtual bool compute_chemical_absorption_threaded(
 			float visual_adaptation_factor, const std::string& filename);
@@ -59,6 +63,7 @@ private:
 	std::vector<float> extra_data;
 	miScalar soot_radius;
 	miScalar alpha_lambda;
+	BB_TYPE bb_type;
 };
 
 #endif /* VOXELDATASETCOLOR_H_ */

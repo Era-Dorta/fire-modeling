@@ -283,6 +283,37 @@ void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
 	}
 }
 
+void miaux_copy_sparse_voxel_dataset(VoxelDatasetColor *voxels, miState *state,
+		miTag density_shader, miTag temperature_shader, unsigned width,
+		unsigned height, unsigned depth) {
+	state->type = static_cast<miRay_type>(VOXEL_DATA_COPY);
+	voxels->resize(width, height, depth);
+	miColor density = { 0, 0, 0, 0 };
+	openvdb::Vec3f density_v = openvdb::Vec3f::zero();
+	for (unsigned i = 0; i < width; i++) {
+		for (unsigned j = 0; j < height; j++) {
+			for (unsigned k = 0; k < depth; k++) {
+				state->point.x = i;
+				state->point.y = j;
+				state->point.z = k;
+				// TODO Modify voxel_density to copy only the sparse values
+				// Also the authors recommend setting the topology and then
+				// using setValueOnly to change values, this assumes background
+				// value is zero
+				mi_call_shader_x((miColor*) &density.r, miSHADER_MATERIAL,
+						state, temperature_shader, NULL);
+				mi_call_shader_x((miColor*) &density.g, miSHADER_MATERIAL,
+						state, density_shader, NULL);
+				if (density.r != 0.0f) {
+					density_v.x() = density.r;
+					density_v.y() = density.g;
+					voxels->set_voxel_value(i, j, k, density_v);
+				}
+			}
+		}
+	}
+}
+
 void miaux_get_sigma_a(miColor *sigma_a, const miVector *point,
 		const VoxelDatasetColor *voxels,
 		const VoxelDatasetColor::Accessor& accessor) {
@@ -484,14 +515,11 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		// If the color is black e^sigma_a == 1, thus Lx = L_next_march
 		if (!miaux_color_is_black(&sigma_a)) {
 
-			// Get black body radiation at state->point
-			miColor bb_radiation;
-			mi_call_shader_x(&bb_radiation, miSHADER_MATERIAL, state,
+			// Get L_e = sigma_a * black body at state->point
+			miColor light_color;
+			mi_call_shader_x(&light_color, miSHADER_MATERIAL, state,
 					rm_data.emission_shader, nullptr);
 
-			// Get L_e = sigma_a * black body
-			miColor light_color;
-			miaux_multiply_colors(&light_color, &sigma_a, &bb_radiation);
 			miaux_scale_color(&light_color, rm_data.intensity);
 
 			// Compute exp(-sigma_a * Dx)

@@ -18,7 +18,8 @@ public:
 			override;
 	void sort();
 	virtual bool compute_black_body_emission_threaded(
-			float visual_adaptation_factor) override;
+			float visual_adaptation_factor, BB_TYPE bb_type,
+			const std::string& filename) override;
 	virtual bool compute_soot_absorption_threaded(const std::string& filename)
 			override;
 	virtual bool compute_chemical_absorption_threaded(

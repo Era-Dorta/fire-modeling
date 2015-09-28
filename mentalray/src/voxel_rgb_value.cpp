@@ -63,6 +63,22 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 		voxels->setInterpolationMode(
 				(VoxelDatasetColor::InterpolationMode) interpolation_mode);
 
+		// Get the data file path
+		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
+		VoxelDatasetColor::BB_TYPE bb_type = VoxelDatasetColor::BB_ONLY;
+		std::string data_file;
+		if (fuel_type != FuelType::BlackBody) {
+			data_file = LIBRARY_DATA_PATH;
+			assert(static_cast<unsigned>(fuel_type) < FuelTypeStr.size());
+			if (fuel_type <= FuelType::SootMax) {
+				data_file += "/" + FuelTypeStr[fuel_type] + ".optconst";
+				bb_type = VoxelDatasetColor::BB_SOOT;
+			} else {
+				data_file += "/" + FuelTypeStr[fuel_type] + ".specline";
+				bb_type = VoxelDatasetColor::BB_CHEM;
+			}
+		}
+
 		// Save previous state
 		miVector original_point = state->point;
 		miRay_type ray_type = state->type;
@@ -71,20 +87,22 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 		switch (compute_mode) {
 		case BB_RADIATION: {
+			miTag density_shader = *mi_eval_tag(&params->density_shader);
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					temperature_shader);
 
 			mi_info("Precomputing bb radiation with dataset size %dx%dx%d",
 					width, height, depth);
 
-			// TODO It should set the background of voxels to the black body rgb
-			// of the background value of the temperature shader, and the same
-			// with the density shaders
-			miaux_copy_sparse_voxel_dataset(voxels, state, temperature_shader,
-					width, height, depth, 1, 0);
+			/*
+			 * Copy the temperatures in the y dimension and the densities on the
+			 * x, so we can compute the values in the VoxelDataset class
+			 */
+			miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
+					temperature_shader, width, height, depth);
 
 			if (!voxels->compute_black_body_emission_threaded(
-					visual_adaptation_factor)) {
+					visual_adaptation_factor, bb_type, data_file)) {
 				// If there was an error clear all for early exit
 				voxels->clear();
 			}
@@ -93,14 +111,9 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 			break;
 		}
 		case ABSORPTION: {
-			miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
-
 			if (fuel_type == FuelType::BlackBody) {
 				break;
 			}
-
-			std::string data_file(LIBRARY_DATA_PATH);
-			assert(static_cast<unsigned>(fuel_type) < FuelTypeStr.size());
 
 			// Soot absorption
 			if (fuel_type <= FuelType::SootMax) {
@@ -116,8 +129,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
 						width, height, depth, 1, 0);
 
-				data_file = data_file + "/" + FuelTypeStr[fuel_type]
-						+ ".optconst";
 				if (!voxels->compute_soot_absorption_threaded(data_file)) {
 					// If there was an error clear all for early exit
 					voxels->clear();
@@ -133,8 +144,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				miaux_copy_sparse_voxel_dataset(voxels, state,
 						temperature_shader, width, height, depth, 1, 0);
 
-				data_file = data_file + "/" + FuelTypeStr[fuel_type]
-						+ ".specline";
 				if (!voxels->compute_chemical_absorption_threaded(
 						visual_adaptation_factor, data_file)) {
 					// If there was an error clear all for early exit

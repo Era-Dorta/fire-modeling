@@ -18,6 +18,7 @@ VoxelDatasetColor::VoxelDatasetColor() :
 	miaux_set_rgb(&max_color, 0);
 	soot_radius = 0;
 	alpha_lambda = 0;
+	bb_type = BB_ONLY;
 }
 
 VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
@@ -26,17 +27,44 @@ VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
 	miaux_set_rgb(&max_color, 0);
 	soot_radius = 0;
 	alpha_lambda = 0;
+	bb_type = BB_ONLY;
 }
 
 bool VoxelDatasetColor::compute_black_body_emission_threaded(
-		float visual_adaptation_factor) {
+		float visual_adaptation_factor, BB_TYPE bb_type,
+		const std::string& filename) {
+	this->bb_type = bb_type;
 
-	fill_lambda_vector();
+	switch (bb_type) {
+	case BB_ONLY: {
+		fill_lambda_vector();
+		break;
+	}
+	case BB_SOOT: {
+		if (!read_optical_constants_file(filename)) {
+			return false;
+		}
+		compute_soot_constant_coefficients();
+
+		// Densities coefficients need to be scale up heavily here so that the
+		// user does not need to use insane density scale parameters
+		scale_coefficients_to_custom_range();
+		break;
+	}
+	case BB_CHEM: {
+		if (!read_spectral_line_file(filename)) {
+			return false;
+		}
+		break;
+	}
+	}
 
 	compute_function_threaded(&VoxelDatasetColor::compute_black_body_emission);
 
 	normalize_bb_radiation(visual_adaptation_factor);
 
+	input_data.clear();
+	extra_data.clear();
 	lambdas.clear();
 
 	return true;
@@ -250,7 +278,8 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 
 void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		unsigned end_offset) {
-	std::vector<float> spec_values(lambdas.size());
+	std::vector<float> spec_values(lambdas.size()), other_spec_values(
+			lambdas.size());
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -268,6 +297,48 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			// Spectrum expects the wavelengths to be in nanometres
 			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0],
 					&spec_values[0], lambdas.size());
+
+			b_spec.NormalizeByMax();
+
+			/*
+			 * With SOOT and CHEM, compute the absorption coefficient in
+			 * spectral form, multiply here the absorption by the emission,
+			 * delaying the transformation to RGB improves the final result
+			 */
+			switch (bb_type) {
+			case BB_ONLY: {
+				break;
+			}
+			case BB_SOOT: {
+				for (unsigned j = 0; j < other_spec_values.size(); j++) {
+					other_spec_values.at(j) = t.y() * input_data[j];
+				}
+				// Create a Spectrum representation with the computed values
+				// Spectrum expects the wavelengths to be in nanometres
+				Spectrum sigma_a_spec = Spectrum::FromSampled(&lambdas[0],
+						&other_spec_values[0], lambdas.size());
+
+				b_spec = b_spec * sigma_a_spec;
+				break;
+			}
+			case BB_CHEM: {
+				// Compute the chemical absorption spectrum values, as we are
+				// normalizing afterwards, the units used here don't matter
+				ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
+						t.x(), 1, &other_spec_values[0]);
+
+				// Create a Spectrum representation with the computed values
+				// Spectrum expects the wavelengths to be in nanometres
+				Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
+						&other_spec_values[0], lambdas.size());
+
+				// Divide each coefficient by the max, to get a normalized spectrum
+				chem_spec.NormalizeByMax();
+
+				b_spec = b_spec * chem_spec;
+				break;
+			}
+			}
 
 			// Transform the spectrum to XYZ coefficients
 			b_spec.ToXYZ(&t.x());
