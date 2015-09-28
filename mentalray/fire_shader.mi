@@ -119,7 +119,6 @@ declare shader
 			integer "fuel_type",
 				#: default 1
 				#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple:Lithium-Red:Barium-Pale-Green:Sodium-Yellow:Cobalt-Silver-White:Scandium-Orange"
-				#: hidden true
 			scalar "visual_adaptation_factor",
 				#: default 0.0
 				#: min 0.0
@@ -161,7 +160,6 @@ declare shader
 		integer "fuel_type",
 			#: default 1
 			#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple:Lithium-Red:Barium-Pale-Green:Sodium-Yellow:Cobalt-Silver-White:Scandium-Orange"
-			#: hidden true
 		scalar "temperature_scale", 
 			#: default 500
 			#: softmin 0.0
