@@ -87,6 +87,8 @@ extern "C" DLLEXPORT miBoolean voxel_density_init(miState *state,
 			mi_info("\tDone reading voxel dataset: %dx%dx%d %s",
 					voxels->getWidth(), voxels->getHeight(), voxels->getDepth(),
 					filename.c_str());
+			mi_info("\tMax quality march increment is: %f for %s",
+					1.0 / voxels->getWidth(), filename.c_str());
 		} else {
 			mi_error("Voxel density filename is empty");
 		}

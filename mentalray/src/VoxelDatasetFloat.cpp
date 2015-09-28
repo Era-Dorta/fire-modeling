@@ -228,6 +228,7 @@ bool VoxelDatasetFloat::initialize_with_file_raw_red(
 		unsigned x, y, z;
 		double r, g, b, a;
 
+		float max_value_dataset = 0;
 		for (int i = 0; i < count; i++) {
 			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
 			read_bin_xyz(fp, x, z, y);
@@ -243,10 +244,15 @@ bool VoxelDatasetFloat::initialize_with_file_raw_red(
 			// For the moment assume the red component is the density
 			if (r != block->background()) {
 				set_voxel_value(x, y, z, r);
+				if (max_value_dataset < r) {
+					max_value_dataset = r;
+				}
 			}
 		}
 
 		fp.close();
+		mi_info("\tMax value was %f in %s", max_value_dataset,
+				filename.c_str());
 		return true;
 	} catch (const std::ios_base::failure& e) {
 		close_file_and_clear(fp);
@@ -285,6 +291,7 @@ bool VoxelDatasetFloat::initialize_with_file_raw_max_rgb(
 		unsigned x, y, z;
 		double r, g, b, a;
 
+		float max_value_dataset = 0;
 		for (int i = 0; i < count; i++) {
 			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
 			read_bin_xyz(fp, x, z, y);
@@ -302,10 +309,15 @@ bool VoxelDatasetFloat::initialize_with_file_raw_max_rgb(
 			// For the temperature, use the channel with maximum intensity
 			if (r != block->background()) {
 				set_voxel_value(x, y, z, max_val);
+				if (max_value_dataset < max_val) {
+					max_value_dataset = max_val;
+				}
 			}
 		}
 
 		fp.close();
+		mi_info("\tMax value was %f in %s", max_value_dataset,
+				filename.c_str());
 		return true;
 	} catch (const std::ios_base::failure& e) {
 		close_file_and_clear(fp);
