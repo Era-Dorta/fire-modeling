@@ -7,8 +7,9 @@ close all;
 min_lambda = 400;
 max_lambda = 700;
 
-% Copper Green, Sulfur Blue
-spec={'Cu', 'S'};
+% Copper->Green, Sulfur->Blue, Lithium->Red, Barium->Pale-Green,
+% Sodium->Yellow, Cobalt->Silver-White, Scandium->Orange
+spec={'Cu', 'S', 'Li', 'Ba', 'Na', 'Co', 'Sc'};
 
 for i=1:size(spec, 2)
     full_name = [spec{i}, ' i'];
