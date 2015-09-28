@@ -103,7 +103,7 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 
 		editorTemplate  -annotation "File input format" -addControl "density_read_mode";
 
-		editorTemplate -annotation "Scales inputs data with this value, final values should be in the 0..1 range" -addControl "density_scale";
+		editorTemplate -annotation "Scales inputs data with this value, final values should be in the 0..10 range" -addControl "density_scale";
 		editorTemplate -annotation "Offsets inputs data with this value" -addControl "density_offset";
 			
 	editorTemplate -endLayout;
