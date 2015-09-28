@@ -12,10 +12,21 @@
 #include <array>
 
 enum FuelType {
-	BlackBody, Propane, Acetylene, Cu, S, SootMax = Acetylene, FuelTypeMax = S
+	BlackBody,
+	Propane,
+	Acetylene,
+	Cu,
+	S,
+	Li,
+	Ba,
+	Na,
+	Co,
+	Sc,
+	SootMax = Acetylene,
+	FuelTypeMax = Sc
 };
 
 static const std::array<std::string, FuelTypeMax + 1> FuelTypeStr { "BlackBody",
-		"Propane", "Acetylene", "Cu", "S" };
+		"Propane", "Acetylene", "Cu", "S", "Li", "Ba", "Na", "Co", "Sc" };
 
 #endif /* FUELTYPES_H_ */

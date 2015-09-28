@@ -49,7 +49,7 @@ declare shader
 			#: max 1.0
 		integer "fuel_type",
 			#: default 1
-			#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple"
+			#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple:Lithium-Red:Barium-Pale-Green:Sodium-Yellow:Cobalt-Silver-White:Scandium-Orange"
 		vector "min_point",
 			#: default -1 -1 -1
 			#: hidden true
@@ -118,7 +118,7 @@ declare shader
 				#: enum "None:Trilinear"
 			integer "fuel_type",
 				#: default 1
-				#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple"
+				#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple:Lithium-Red:Barium-Pale-Green:Sodium-Yellow:Cobalt-Silver-White:Scandium-Orange"
 				#: hidden true
 			scalar "visual_adaptation_factor",
 				#: default 0.0
@@ -160,7 +160,7 @@ declare shader
 		shader "sigma_a_shader",
 		integer "fuel_type",
 			#: default 1
-			#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple"
+			#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple:Lithium-Red:Barium-Pale-Green:Sodium-Yellow:Cobalt-Silver-White:Scandium-Orange"
 			#: hidden true
 		scalar "temperature_scale", 
 			#: default 500
