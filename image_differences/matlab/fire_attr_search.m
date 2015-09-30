@@ -29,7 +29,7 @@ pathToRenderScript = [pathToRenderScript '/render-diff.sh'];
 % <densityScale> <densityOffset> <temperatureScale> <temperatureOffset> <intensity> <transparency>
 fire_attr = zeros(6, 1);
 
-disp('Initializing');
+disp(['Initializing, scene name ' scene_name ', epsilon ' num2str(epsilon) ]);
 
 %% Generate random values for the parameters first step
 % densityScale
@@ -149,12 +149,13 @@ while (c_ite < max_ite &&  best_error > epsilon)
         best_ite = c_ite;
     end
     
-    disp(['Iteration ' num2str(c_ite) ' of max ' num2str(max_ite) ', current error ' ...
-        num2str(c_error) ', best error ' num2str(best_error) ', min error ' ...
-        num2str(epsilon) ' in ' num2str(toc) ' seconds.' ]);
+    disp(['Iteration ' num2str(c_ite) ' of max ' num2str(max_ite)  ...
+        ', current error ' num2str(c_error) ', best error '  ...
+        num2str(best_error) ', render time ' num2str(toc) ' seconds.' ]);
     c_ite = c_ite + 1;
 end
 
-save('fire_attr_search.txt', 'best_error', 'fire_attr', '-ascii');
-disp(['Best image is number ' num2str(best_ite) ', attributes writen in fire_attr_search.txt, took ' ...
-    num2str(toc(tTotalStart)/60) ' minutes in total.']);
+save('fire_attr_search.txt', 'best_error', 'best_attr', '-ascii');
+disp(['Best image is number ' num2str(best_ite) ', attributes writen in '...
+    'fire_attr_search.txt, took ' num2str(toc(tTotalStart)/60) ...
+    ' minutes in total.']);
