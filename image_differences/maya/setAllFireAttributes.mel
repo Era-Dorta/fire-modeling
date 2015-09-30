@@ -1,0 +1,8 @@
+global proc setAllFireAttributes( string $fireShader, float $densityScale, float $densityOffset, float $temperatureScale, float $temperatureOffset, float $intensity, float $transparency){
+	setAttr ($fireShader + ".density_scale") $densityScale;
+	setAttr ($fireShader + ".density_offset") $densityOffset;
+	setAttr ($fireShader + ".temperature_scale") $temperatureScale;
+	setAttr ($fireShader + ".temperature_offset") $temperatureOffset;
+	setAttr ($fireShader + ".intensity") $intensity;
+	setAttr ($fireShader + ".transparency") $transparency;
+}
