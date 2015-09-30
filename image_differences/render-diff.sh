@@ -1,10 +1,10 @@
 #!/bin/bash
 # Based on render.sh script
-if [ "$#" -le 7 ]; then
+if [ "$#" -le 8 ]; then
 	echo ""
 	echo "Missing file to render"
 	echo ""
-	echo "Usage: render <path_to_file.ma> <ouputnumber> <densityScale> <densityOffset> <temperatureScale> <temperatureOffset> <intensity> <transparency>"
+	echo "Usage: render <path_to_file.ma> <folderNumber> <fileNumber> <densityScale> <densityOffset> <temperatureScale> <temperatureOffset> <intensity> <transparency>"
 	echo ""
 	exit 0 
 fi
@@ -16,16 +16,17 @@ projectPath=$(dirname $(dirname "${fullName}")) # Get the project folder path
 outputImPath="$projectPath/images"
 outputMoviePath="$projectPath/movies"
 extension="tif"
+logfile="$outputImPath/$SceneName/$2/$SceneName$3.log"
 
 if [ ! -d "$outputImPath/$SceneName" ]; then
 	mkdir "$outputImPath/$SceneName"
 fi
 
 # Delete the log file if it exits
-if [ -f "$outputImPath/$SceneName/$SceneName""$2"".log" ]; then
-	rm "$outputImPath/$SceneName/$SceneName""$2"".log"
+if [ -f "$logfile" ]; then
+	rm "$logfile"
 fi
 
-touch "$outputImPath/$SceneName/$SceneName""$2"".log"
+touch "$logfile"
 
-Render -r mr -v 5 -preRender "setAllFireAttributes(\"fire_volume_shader\", $3, $4, $5, $6, $7, $8);" -proj "$projectPath" -cam camera1 -perframe -autoRenderThreads -rd "$outputImPath/$SceneName" -im "$SceneName""$2" -of $extension -log "$outputImPath/$SceneName/$SceneName""$2"".log" "$fullName"
+Render -r mr -v 5 -preRender "setAllFireAttributes(\"fire_volume_shader\", $4, $5, $6, $7, $8, $9);" -proj "$projectPath" -cam camera1 -perframe -autoRenderThreads -rd "$outputImPath/$SceneName/$2" -im "$SceneName$3" -of $extension -log "$logfile" "$fullName"
