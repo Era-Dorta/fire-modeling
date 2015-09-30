@@ -5,7 +5,7 @@ close all;
 
 % N.B. If Matlab is started from the GUI and custom paths are used for the
 % Maya plugins, Matlab will not read the Maya path variables that were
-% defined in the .bashrc file and the render script will fail, a 
+% defined in the .bashrc file and the render script will fail, a
 % workouround is to redefine them here:
 % setenv('MAYA_SCRIPT_PATH', 'scripts path');
 % setenv('MI_CUSTOM_SHADER_PATH', ' shaders include path');
@@ -19,6 +19,7 @@ project_path = '~/maya/projects/fire/';
 scene_name = 'test56_like39_ray_march_fix';
 scene_path = [project_path 'scenes/' scene_name '.ma' ];
 output_img_folder = [project_path 'images/' scene_name '/'];
+output_data_file = [project_path 'images/' scene_name '/fire_attr_search.txt'];
 goal_img_path = [project_path 'images/' scene_name '/test56_like39_ray_march_fix.001.Le.tif'];
 goal_img = imread(goal_img_path);
 
@@ -70,6 +71,7 @@ for i=1:size(fire_attr)
 end
 
 tTotalStart = tic;
+tic;
 if(system(cmdStr) ~= 0)
     disp(['Render error, check the logs in ' output_img_folder '*.log']);
     return;
@@ -123,7 +125,7 @@ while (c_ite < max_ite &&  best_error > epsilon)
     min = 1;
     max = 100;
     fire_attr(6) = min + (max - min) * rand(1);
-       
+    
     %##############################################
     % Render new image
     %##############################################
@@ -134,10 +136,10 @@ while (c_ite < max_ite &&  best_error > epsilon)
     end
     
     if(system(cmdStr) ~= 0)
-       disp(['Render error, check the logs in ' output_img_folder '*.log']);
-       return;
+        disp(['Render error, check the logs in ' output_img_folder '*.log']);
+        return;
     end
-       
+    
     % Compute error
     c_img = imread([output_img_folder scene_name num2str(c_ite) '.tif']);
     c_error = sum(MSE(goal_img, c_img));
@@ -155,7 +157,12 @@ while (c_ite < max_ite &&  best_error > epsilon)
     c_ite = c_ite + 1;
 end
 
-save('fire_attr_search.txt', 'best_error', 'best_attr', '-ascii');
-disp(['Best image is number ' num2str(best_ite) ', attributes writen in '...
-    'fire_attr_search.txt, took ' num2str(toc(tTotalStart)/60) ...
-    ' minutes in total.']);
+if(~exist(output_data_file, 'file'))
+    save(output_data_file, 'best_error', 'best_attr', '-ascii');
+    disp(['Best image is number ' num2str(best_ite) ', attributes writen in '...
+        output_data_file ', took ' num2str(toc(tTotalStart)/60) ...
+        ' minutes in total.']);
+else
+    disp(['File ' output_data_file ' exits, save into new location ']);
+    disp (['    manually with save("<new file path>", "best_error", "best_attr", "-ascii");']);
+end
