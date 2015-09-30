@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Based on render.sh script
 if [ "$#" -le 7 ]; then
 	echo ""
@@ -22,11 +22,10 @@ if [ ! -d "$outputImPath/$SceneName" ]; then
 fi
 
 # Delete the log file if it exits
-if [ -f "$outputImPath/$SceneName/$SceneName.log" ]; then
-	rm "$outputImPath/$SceneName/$SceneName.log"
+if [ -f "$outputImPath/$SceneName/$SceneName""$2"".log" ]; then
+	rm "$outputImPath/$SceneName/$SceneName""$2"".log"
 fi
 
-touch "$outputImPath/$SceneName/$SceneName.log"
+touch "$outputImPath/$SceneName/$SceneName""$2"".log"
 
 Render -r mr -v 5 -preRender "setAllFireAttributes(\"fire_volume_shader\", $3, $4, $5, $6, $7, $8);" -proj "$projectPath" -cam camera1 -perframe -autoRenderThreads -rd "$outputImPath/$SceneName" -im "$SceneName""$2" -of $extension -log "$outputImPath/$SceneName/$SceneName""$2"".log" "$fullName"
-
