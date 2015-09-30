@@ -22,7 +22,7 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'test56_like39_ray_march_fix.001.Le.tif'];
 goal_img = imread(goal_img_path);
 
-% Avoid data overwrites by always creating a new folder 
+% Avoid data overwrites by always creating a new folder
 % Find the last folder
 dir_num = 0;
 while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
@@ -31,7 +31,8 @@ end
 
 % Create a new folder to store the data
 output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
-output_data_file = [output_img_folder 'fire_attr_search.txt'];
+output_data_file = [output_img_folder 'fire_attributes.txt'];
+summary_file = [output_img_folder 'summary_file.txt'];
 system(['mkdir ' output_img_folder]);
 
 % Render script is located on the same folder as this file
@@ -100,13 +101,13 @@ best_attr = fire_attr;
 
 %% Main loop auxilary variables initialization
 c_error = best_error;
+best_ite = c_ite;
 
 disp(['Iteration ' num2str(c_ite) ' of max ' num2str(max_ite)  ...
-        ', current error ' num2str(c_error) ', best error '  ...
-        num2str(best_error) ', render time ' num2str(toc) ' seconds.' ]);
+    ', current error ' num2str(c_error) ', best error '  ...
+    num2str(best_error) ', render time ' num2str(toc) ' seconds.' ]);
 
 c_ite = 2;
-best_ite = 0;
 
 %% Main loop
 while (c_ite <= max_ite &&  best_error > epsilon)
@@ -175,12 +176,33 @@ while (c_ite <= max_ite &&  best_error > epsilon)
     c_ite = c_ite + 1;
 end
 
-if(~exist(output_data_file, 'file'))
-    save(output_data_file, 'best_error', 'best_attr', '-ascii');
+if(~exist(output_data_file, 'file') && ~exist(summary_file, 'file'))
+    % Save attributes file
+    save(output_data_file, 'best_attr', '-ascii');
+    
+    % Save summary file
+    fileId = fopen(summary_file, 'w');
+    fprintf(fileId, 'Best image number is %d\n', best_ite);
+    fprintf(fileId, 'Image error is %f\n', best_error);
+    fprintf(fileId, 'Epsilon %f\n', epsilon);
+    fprintf(fileId, 'Max iterations is %d\n', max_ite);
+    fprintf(fileId, 'Job took %f seconds\n', toc(tTotalStart));
+    fprintf(fileId, 'Density scale %f\n', best_attr(1));
+    fprintf(fileId, 'Density offset %f\n', best_attr(2));
+    fprintf(fileId, 'Temperature scale %f\n', best_attr(3));
+    fprintf(fileId, 'Temperature offset %f\n', best_attr(4));
+    fprintf(fileId, 'Intensity %f\n', best_attr(5));
+    fprintf(fileId, 'Opacity %f\n', best_attr(6));
+    
+    % Display final result to user
     disp(['Best image is number ' num2str(best_ite) ', attributes writen in '...
         output_data_file ]);
     disp(['    took ' num2str(toc(tTotalStart)/60) ' minutes in total.']);
-    exit;
+    
+    % If running in batch mode, exit matlab
+    if(~isCommandWindowOpen())
+        exit;
+    end
 else
     disp(['Cannot overwrite file ' output_data_file ', save into new ']);
     disp (['    location manually with save("<new file path>", "best_error", "best_attr", "-ascii");']);
