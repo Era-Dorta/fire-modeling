@@ -22,7 +22,7 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'test56_like39_ray_march_fix.001.Le.tif'];
 goal_img = imread(goal_img_path);
 
-% Avoid data overwrites by always creating a new folder
+%% Avoid data overwrites by always creating a new folder
 % Find the last folder
 dir_num = 0;
 while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
@@ -35,6 +35,17 @@ output_data_file = [output_img_folder 'fire_attributes.txt'];
 summary_file = [output_img_folder 'summary_file.txt'];
 system(['mkdir ' output_img_folder]);
 
+%% Genetic call
+do_genetic = true;
+if(do_genetic)
+    fitness_foo = @(x)fire_shader_fitness(x, scene_name, scene_path, ...
+        scene_img_folder, goal_img);
+    fire_attr = ga(fitness_foo, 6);
+    save(output_data_file, 'fire_attr', '-ascii');
+    exit;
+end
+
+%% Script initialization
 % Render script is located on the same folder as this file
 [pathToRenderScript,~,~] = fileparts(mfilename('fullpath'));
 pathToRenderScript = [pathToRenderScript '/render-diff.sh'];
