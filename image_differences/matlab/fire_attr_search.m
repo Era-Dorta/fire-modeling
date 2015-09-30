@@ -180,6 +180,7 @@ if(~exist(output_data_file, 'file'))
     disp(['Best image is number ' num2str(best_ite) ', attributes writen in '...
         output_data_file ]);
     disp(['    took ' num2str(toc(tTotalStart)/60) ' minutes in total.']);
+    exit;
 else
     disp(['Cannot overwrite file ' output_data_file ', save into new ']);
     disp (['    location manually with save("<new file path>", "best_error", "best_attr", "-ascii");']);
