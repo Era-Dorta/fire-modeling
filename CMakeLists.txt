@@ -122,6 +122,7 @@ FILE(GLOB PROJECT_DATA
 
 FILE(GLOB PROJECT_SCRIPTS
     "mentalray/scripts/*.mel"
+    "image_differences/maya/*.mel"
 )
 
 FILE(GLOB PROJECT_SCRIPTS_AETEMPLATES
