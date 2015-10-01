@@ -11,7 +11,7 @@ close all;
 % setenv('MI_CUSTOM_SHADER_PATH', ' shaders include path');
 % setenv('MI_LIBRARY_PATH', 'shaders path');
 
-max_ite = 10; % Num of maximum iterations
+max_ite = 50; % Num of maximum iterations
 epsilon = 100; % Error tolerance
 
 fire_shader_name = 'fire_volume_shader';
@@ -60,9 +60,9 @@ try
         % Get default values
         options = gaoptimset(@ga);
         options.Generations = max_ite;
-        options.PopulationSize = 2;
+        options.PopulationSize = 10;
         options.EliteCount = 1;
-        options.TimeLimit = 1 * 60 * 60; % In seconds
+        options.TimeLimit = 12 * 60 * 60; % In seconds
         options.Display = 'iter'; % Give some output on each iteration
         options.MutationFcn = @mutationadaptfeasible;
         
