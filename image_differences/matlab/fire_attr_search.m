@@ -21,6 +21,7 @@ scene_path = [project_path 'scenes/' scene_name '.ma' ];
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'test56_like39_ray_march_fix.001.Le.tif'];
 goal_img = imread(goal_img_path);
+goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
 
 try
     %% Avoid data overwrites by always creating a new folder
