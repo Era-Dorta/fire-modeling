@@ -71,12 +71,18 @@ try
         b = [];
         Aeq = [];
         beq = [];
+        
+        % Lower bounds, mostly due to avoiding division by zero or setting
+        % the colour to zero directly
         LB = [1, 0, 1, 1, 1, 1];
+        
+        % Upper bounds, empirically set given the equations and our data
         UB = [100, 100, 1000000, 10000, 100, 100];
+        
         nonlcon = [];
         
         tTotalStart = tic;
-        %% Call the genetic algoritihm optimization
+        %% Call the genetic algorithm optimization
         [best_attr, best_error, exitflag] = ga(fitness_foo, 6, A, b, Aeq, beq, LB, UB, nonlcon, options);
         
         %% Save the data
@@ -190,7 +196,7 @@ try
     % best_error = immse(goal_img, c_img); % MSE of the two images
     best_attr = fire_attr;
     
-    %% Main loop auxilary variables initialization
+    %% Main loop auxiliary variables initialization
     c_error = best_error;
     best_ite = c_ite;
     
