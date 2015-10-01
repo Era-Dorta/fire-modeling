@@ -25,7 +25,8 @@ if(system(cmdStr) ~= 0)
     error = realmax;
     return;
 end
-disp(['    Rendered image in ' num2str(toc) ' seconds.']);
+fprintf('    Image rendered with params %.2f %.2f %.2f %.2f %.2f %.2f in %.2f seconds.\n',...
+    fire_attr(1), fire_attr(2),     fire_attr(3), fire_attr(4), fire_attr(5), fire_attr(6), toc);
 
 %% Compute the error with respect to the goal image
 c_img = imread([output_img_folder scene_name '0.tif']);
