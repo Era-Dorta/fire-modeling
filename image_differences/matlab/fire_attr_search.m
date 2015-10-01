@@ -37,6 +37,16 @@ try
     disp(['Creating new output folder ' output_img_folder]);
     system(['mkdir ' output_img_folder]);
     
+    %% Render script initialization
+    % Render script is located on the same folder as this file
+    [pathToRenderScript,~,~] = fileparts(mfilename('fullpath'));
+    pathToRenderScript = [pathToRenderScript '/render-diff.sh'];
+    
+    baseCmdStr = [pathToRenderScript ' ' scene_path ' attr_search_' num2str(dir_num) ' '];
+    
+    % <densityScale> <densityOffset> <temperatureScale> <temperatureOffset> <intensity> <transparency>
+    fire_attr = zeros(6, 1);
+    
     %% Genetic call
     do_genetic = true;
     if(do_genetic)
@@ -98,6 +108,23 @@ try
         fclose(fileId);
         disp(['Summary file saved in ' summary_file]);
         
+        %% Render the best image again
+        c_ite = 1;
+        cmdStr = [baseCmdStr num2str(c_ite)];
+        for i=1:size(best_attr)
+            cmdStr = [cmdStr ' ' num2str(best_attr(i))];
+        end
+        
+        best_im_path = [output_img_folder scene_name num2str(c_ite) '.tif'];
+        disp(['Rendering final image in ' best_im_path ]);
+        
+        tic;
+        if(system(cmdStr) ~= 0)
+            disp(['Render error, check the logs in ' output_img_folder '*.log']);
+            return;
+        end
+        disp(['Image rendered in ' num2str(toc) ]);
+        
         % If running in batch mode, exit matlab
         if(isBatchMode())
             system(['mv matlab.log ' output_img_folder 'matlab.log']);
@@ -107,18 +134,6 @@ try
             return;
         end
     end
-    
-    %% Script initialization
-    % Render script is located on the same folder as this file
-    [pathToRenderScript,~,~] = fileparts(mfilename('fullpath'));
-    pathToRenderScript = [pathToRenderScript '/render-diff.sh'];
-    
-    baseCmdStr = [pathToRenderScript ' ' scene_path ' attr_search_' num2str(dir_num) ' '];
-    
-    % <densityScale> <densityOffset> <temperatureScale> <temperatureOffset> <intensity> <transparency>
-    fire_attr = zeros(6, 1);
-    
-    disp(['Initializing, scene name ' scene_name ', epsilon ' num2str(epsilon) ]);
     
     %% Generate random values for the parameters first step
     % densityScale
@@ -152,6 +167,7 @@ try
     fire_attr(6) = min + (max - min) * rand(1);
     
     %% Render one image with this parameters
+    disp(['Initializing, scene name ' scene_name ', epsilon ' num2str(epsilon) ]);
     
     c_ite = 1;
     cmdStr = [baseCmdStr num2str(c_ite)];
