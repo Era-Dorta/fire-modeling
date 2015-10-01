@@ -46,10 +46,28 @@ try
             scene_img_folder, goal_img);
         
         tic;
-        % Call the genetic algoritihm optimization
-        fire_attr = ga(fitness_foo, 6);
-        disp(['Optimization done in ' num2str(toc) ' seconds.']);
-        disp(['Final parameters are ' fire_attr]);
+        %% Options for the ga
+        % Get default values
+        options = gaoptimset(@ga);
+        options.Generations = max_ite;
+        options.PopulationSize = 2;
+        options.EliteCount = 1;
+        options.TimeLimit = 1 * 60 * 60; % In seconds
+        options.Display = 'iter'; % Give some output on each iteration
+        options.MutationFcn = @mutationadaptfeasible;
+        
+        %% Parameters bounds
+        A = [];
+        b = [];
+        Aeq = [];
+        beq = [];
+        LB = [1, 0, 1, 1, 1, 1];
+        UB = [100, 100, 1000000, 10000, 100, 100];
+        nonlcon = [];
+        
+        tTotalStart = tic;
+        %% Call the genetic algoritihm optimization
+        [best_attr, best_error, exitflag] = ga(fitness_foo, 6, A, b, Aeq, beq, LB, UB, nonlcon, options);
         
         % Transpose the ouput to get a column vector
         fire_attr = fire_attr';
