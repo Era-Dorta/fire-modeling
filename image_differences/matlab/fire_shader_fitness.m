@@ -32,7 +32,7 @@ c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
 error = sum(MSE(goal_img, c_img));
 
 fprintf('    Image rendered with params %.2f %.2f %.2f %.2f %.2f %.2f, error %.2f, in %.2f seconds.\n',...
-    fire_attr(1), fire_attr(2),     fire_attr(3), fire_attr(4), fire_attr(5), fire_attr(6), error, toc);
+    fire_attr(1), fire_attr(2), fire_attr(3), fire_attr(4), fire_attr(5), fire_attr(6), error, toc);
 
 % Delete the temporary files
 system(['rm -rf ' tmpdir]);
