@@ -42,7 +42,10 @@ if(do_genetic)
         scene_img_folder, goal_img);
     fire_attr = ga(fitness_foo, 6);
     save(output_data_file, 'fire_attr', '-ascii');
-    exit;
+    % If running in batch mode, exit matlab
+    if(isBatchMode())
+     exit;
+    end
 end
 
 %% Script initialization
@@ -211,7 +214,7 @@ if(~exist(output_data_file, 'file') && ~exist(summary_file, 'file'))
     disp(['    took ' num2str(toc(tTotalStart)/60) ' minutes in total.']);
     
     % If running in batch mode, exit matlab
-    if(~isCommandWindowOpen())
+    if(isBatchMode())
         exit;
     end
 else
