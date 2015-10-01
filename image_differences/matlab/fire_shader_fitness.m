@@ -19,11 +19,13 @@ for i=1:size(fire_attr, 2)
     cmdStr = [cmdStr ' ' num2str(fire_attr(i))];
 end
 
+tic;
 if(system(cmdStr) ~= 0)
     disp(['Render error, check the logs in ' output_img_folder '*.log']);
     error = realmax;
     return;
 end
+disp(['    Rendered image in ' num2str(toc) ' seconds.']);
 
 %% Compute the error with respect to the goal image
 c_img = imread([output_img_folder scene_name '0.tif']);

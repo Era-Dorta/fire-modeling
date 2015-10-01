@@ -45,7 +45,6 @@ try
         fitness_foo = @(x)fire_shader_fitness(x, scene_name, scene_path, ...
             scene_img_folder, goal_img);
         
-        tic;
         %% Options for the ga
         % Get default values
         options = gaoptimset(@ga);
@@ -69,15 +68,40 @@ try
         %% Call the genetic algoritihm optimization
         [best_attr, best_error, exitflag] = ga(fitness_foo, 6, A, b, Aeq, beq, LB, UB, nonlcon, options);
         
-        % Transpose the ouput to get a column vector
-        fire_attr = fire_attr';
+        %% Save the data
         
-        disp(['Saving optimization result in ' output_data_file]);
+        % Give the user some information
+        disp(['Optimization done in ' num2str(toc(tTotalStart)) ' seconds.']);
+        disp(['Final parameters are ' num2str(best_attr)]);
+        
+        % Transpose the ouput to get a column vector
+        best_attr = best_attr';
+        
         save(output_data_file, 'fire_attr', '-ascii');
+        disp(['Optimization result saved in ' output_data_file]);
+        
+        % Save summary file
+        fileId = fopen(summary_file, 'w');
+        fprintf(fileId, 'Image error is %f\n', best_error);
+        fprintf(fileId, 'Generations limit is %f\n', options.Generations);
+        fprintf(fileId, 'PopulationSize is %f\n', options.PopulationSize);
+        fprintf(fileId, 'EliteCount is %f\n', options.EliteCount);
+        fprintf(fileId, 'TimeLimit is %f\n', options.TimeLimit);
+        fprintf(fileId, 'MutationFcn is %s\n', func2str(options.MutationFcn));
+        fprintf(fileId, 'Job took %f seconds\n', toc(tTotalStart));
+        fprintf(fileId, 'Density scale %f\n', best_attr(1));
+        fprintf(fileId, 'Density offset %f\n', best_attr(2));
+        fprintf(fileId, 'Temperature scale %f\n', best_attr(3));
+        fprintf(fileId, 'Temperature offset %f\n', best_attr(4));
+        fprintf(fileId, 'Intensity %f\n', best_attr(5));
+        fprintf(fileId, 'Opacity %f\n', best_attr(6));
+        fclose(fileId);
+        disp(['Summary file saved in ' summary_file]);
         
         % If running in batch mode, exit matlab
         if(isBatchMode())
             system(['mv matlab.log ' output_img_folder 'matlab.log']);
+            disp(['Matlab log file saved in ' output_img_folder 'matlab.log']);
             exit;
         else
             return;
@@ -243,6 +267,7 @@ try
         fprintf(fileId, 'Temperature offset %f\n', best_attr(4));
         fprintf(fileId, 'Intensity %f\n', best_attr(5));
         fprintf(fileId, 'Opacity %f\n', best_attr(6));
+        fclose(fileId);
         
         % Display final result to user
         disp(['Best image is number ' num2str(best_ite) ', attributes writen in '...
@@ -264,6 +289,7 @@ catch ME
         disp(getReport(ME));
         if(exist('matlab.log', 'file'))
             system(['mv matlab.log ' output_img_folder 'matlab.log']);
+            disp(['Matlab log file saved in ' output_img_folder 'matlab.log']);
         end
         exit;
     else
