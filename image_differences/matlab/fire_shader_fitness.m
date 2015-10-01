@@ -29,6 +29,7 @@ end
 c_img = imread([output_img_folder scene_name '0.tif']);
 error = sum(MSE(goal_img, c_img));
 
+% Delete the temporary files
 system(['rm -rf ' tmpdir]);
 end
 

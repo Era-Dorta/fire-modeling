@@ -33,18 +33,31 @@ end
 output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
 output_data_file = [output_img_folder 'fire_attributes.txt'];
 summary_file = [output_img_folder 'summary_file.txt'];
+disp(['Creating new output folder in ' output_img_folder]);
 system(['mkdir ' output_img_folder]);
 
 %% Genetic call
 do_genetic = true;
 if(do_genetic)
+    % Wrap the fitness function into an anonymous one with only the fire
+    % shader parameters as arguments
     fitness_foo = @(x)fire_shader_fitness(x, scene_name, scene_path, ...
         scene_img_folder, goal_img);
+    
+    % Call the genetic algoritihm optimization
     fire_attr = ga(fitness_foo, 6);
+    
+    % Transpose the ouput to get a column vector
+    fire_attr = fire_attr';
+    
+    disp(['Saving optimization result in ' output_data_file]);
     save(output_data_file, 'fire_attr', '-ascii');
+    
     % If running in batch mode, exit matlab
     if(isBatchMode())
-     exit;
+        exit;
+    else
+        return;
     end
 end
 
