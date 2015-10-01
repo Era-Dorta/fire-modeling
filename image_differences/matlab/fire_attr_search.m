@@ -34,7 +34,7 @@ try
     output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
     output_data_file = [output_img_folder 'fire_attributes.txt'];
     summary_file = [output_img_folder 'summary_file.txt'];
-    disp(['Creating new output folder in ' output_img_folder]);
+    disp(['Creating new output folder ' output_img_folder]);
     system(['mkdir ' output_img_folder]);
     
     %% Genetic call
@@ -77,7 +77,7 @@ try
         % Transpose the ouput to get a column vector
         best_attr = best_attr';
         
-        save(output_data_file, 'fire_attr', '-ascii');
+        save(output_data_file, 'best_attr', '-ascii');
         disp(['Optimization result saved in ' output_data_file]);
         
         % Save summary file
