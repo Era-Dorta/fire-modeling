@@ -38,6 +38,7 @@ struct fire_volume {
 	miScalar decay; // Dummy
 	miScalar march_increment;
 	miBoolean cast_shadows;
+	miInteger high_samples; // Dummy
 	miInteger i_light;	// index of first light
 	miInteger n_light;	// number of lights
 	miTag light[1];	// list of lights

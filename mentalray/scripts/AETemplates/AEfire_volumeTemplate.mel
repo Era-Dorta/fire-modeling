@@ -130,6 +130,7 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 		editorTemplate -annotation "Transparency scale, 0.5 double transparency, 1 default transparency, 2 double opacity" -label "Opacity" -addControl "transparency";
 		editorTemplate -annotation "If the contribution is smaller than the threshold, no shadow rays for the sample will be computed" -addControl "shadow_threshold";
 		editorTemplate -annotation "Light extinction over distance, physical fall-off is 2" -addControl "decay";
+		editorTemplate -annotation "Number of light samples per ray, values from 1 to 256" -addControl "high_samples";
 		editorTemplate -annotation "Quality parameter, ideally it should be set to half the voxel size" -addControl "march_increment";
 		editorTemplate -annotation "If true, computes how light varies when traversing the medium" -addControl "cast_shadows";
 			
