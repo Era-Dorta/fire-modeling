@@ -16,10 +16,10 @@ epsilon = 100; % Error tolerance
 
 fire_shader_name = 'fire_volume_shader';
 project_path = '~/maya/projects/fire/';
-scene_name = 'test56_like39_ray_march_fix';
+scene_name = 'test65_ga_with_camp_fire';
 scene_path = [project_path 'scenes/' scene_name '.ma' ];
 scene_img_folder = [project_path 'images/' scene_name '/'];
-goal_img_path = [scene_img_folder 'test56_like39_ray_march_fix.001.Le.tif'];
+goal_img_path = [scene_img_folder 'test65_ga_with_camp_fire.001.goal.tif'];
 goal_img = imread(goal_img_path);
 goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
 
