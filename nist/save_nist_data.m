@@ -11,6 +11,9 @@ max_lambda = 700;
 % Sodium->Yellow, Cobalt->Silver-White, Scandium->Orange
 spec={'Cu', 'S', 'Li', 'Ba', 'Na', 'Co', 'Sc'};
 
+file_dest = fileparts(mfilename('fullpath'));
+file_dest = [file_dest '/fire_shader_data/'];
+
 for i=1:size(spec, 2)
     full_name = [spec{i}, ' i'];
     nistln=nist_asd(full_name, min_lambda, max_lambda); % Get always the first isotope
@@ -40,7 +43,7 @@ for i=1:size(spec, 2)
     end
     
     % Save both variables into a file
-    fileID = fopen(['fire_shader_data/', spec{i}, '.specline'],'w');
+    fileID = fopen([file_dest, spec{i}, '.specline'],'w');
     fprintf(fileID, '%d\n',num_valid);
     fprintf(fileID, '%d %d\n',norm_intensities');
     fclose(fileID);
