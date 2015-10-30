@@ -33,7 +33,13 @@ end
 %% Compute the error with respect to the goal image
 c_img = imread([output_img_folder scene_name '0.tif']);
 c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
-error = sum(MSE(goal_img, c_img));
+
+% If the rendered image is completely black set the error manually
+if(sum(c_img(:)) == 0)
+    error = realmax;
+else
+    error = sum(MSE(goal_img, c_img));
+end
 
 % Print the rest of the information on the same line
 fprintf(' error %.2f, in %.2f seconds.\n',error, toc);
