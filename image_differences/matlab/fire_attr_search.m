@@ -62,7 +62,7 @@ try
         options.Generations = max_ite;
         options.PopulationSize = 10;
         options.EliteCount = 1;
-        options.TimeLimit = 12 * 60 * 60; % In seconds
+        options.TimeLimit = 24 * 60 * 60; % In seconds
         options.Display = 'iter'; % Give some output on each iteration
         options.MutationFcn = @mutationadaptfeasible;
         
