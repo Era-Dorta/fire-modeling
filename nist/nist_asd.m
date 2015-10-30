@@ -74,6 +74,15 @@ postdata=[ ...
 wget -q -O - 'http://physics.nist.gov/cgi-bin/ASD/lines1.pl?encodedlist=XXT1XXR0q0qVqVIII&spectra=He&low_wl=150&upp_wn=&upp_wl=1500&low_wn=&unit=0&submit=Retrieve+Data&temp=&doppler=&eden=&iontemp=&java_window=3&java_mult=&format=1&line_out=0&remove_js=on&en_unit=0&output=0&page_size=15&show_obs_wl=1&show_calc_wl=1&order_out=0&max_low_enrg=&show_av=2&max_upp_enrg=&tsb_value=0&min_str=&A_out=0&intens_out=on&max_str=&allowed_out=1&forbid_out=1&min_accur=&min_intens=&conf_out=on&term_out=on&enrg_out=on&J_out=on&g_out=on' | sed -n '/\<pre\>/,/pre\>/p' | sed '/pre>/d' | less
 %}
 
+% Save library paths
+MatlabPath = getenv('LD_LIBRARY_PATH');
+    
+if isunix()
+    % Make Matlab use system libraries, wget fails to find some libraries
+    % if this paths are not set
+    setenv('LD_LIBRARY_PATH', '/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu');
+end
+
 % This issues as a GET instead of POST, but it works ok anyway...
 [err result]=system(['wget -q -O - "' nisturl '?' postdata '" ' ...
                         '| sed -n "/<pre*/,/<\/pre>/p"' ... % select lines between <pre> tags
@@ -145,6 +154,9 @@ end % if err
 if nln==0, disp('No lines found in the range.'), nistln=[]; end
 
 if nargout>1, varargout{1}=result; end
+
+% Reassign old library paths
+setenv('LD_LIBRARY_PATH',MatlabPath)
 
 %{
 wlmin=15; wlmax=1500;
