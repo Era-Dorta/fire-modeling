@@ -19,6 +19,10 @@ for i=1:size(fire_attr, 2)
     cmdStr = [cmdStr ' ' num2str(fire_attr(i))];
 end
 
+% Print the attributes beforehand in case the rendering fails
+fprintf('    Image rendered with params %.2f %.2f %.2f %.2f %.2f %.2f,',...
+    fire_attr(1), fire_attr(2), fire_attr(3), fire_attr(4), fire_attr(5), fire_attr(6));
+
 tic;
 if(system(cmdStr) ~= 0)
     disp(['Render error, check the logs in ' output_img_folder '*.log']);
@@ -31,8 +35,8 @@ c_img = imread([output_img_folder scene_name '0.tif']);
 c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
 error = sum(MSE(goal_img, c_img));
 
-fprintf('    Image rendered with params %.2f %.2f %.2f %.2f %.2f %.2f, error %.2f, in %.2f seconds.\n',...
-    fire_attr(1), fire_attr(2), fire_attr(3), fire_attr(4), fire_attr(5), fire_attr(6), error, toc);
+% Print the rest of the information on the same line
+fprintf(' error %.2f, in %.2f seconds.\n',error, toc);
 
 % Delete the temporary files
 system(['rm -rf ' tmpdir]);
