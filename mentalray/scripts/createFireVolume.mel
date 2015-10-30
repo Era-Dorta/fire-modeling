@@ -123,7 +123,6 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	
 	connectAttr -f ($fire_control + ".high_samples_out") ($fire_light_shader + ".high_samples");
 	connectAttr -f ($fire_control + ".high_samples_out") ($area_light + ".areaHiSamples");
-	connectAttr -f ($fire_control + ".high_samples") ($fire_shader + ".high_samples");
 
 	connectAttr -f ($fire_control + ".march_increment_out") ($fire_shader + ".march_increment");
 	connectAttr -f ($fire_control + ".cast_shadows_out") ($fire_shader + ".cast_shadows");
