@@ -82,8 +82,7 @@ enum SpectrumType {
 extern void Blackbody(const float *wl, int n, float temp, float *vals);
 extern void Blackbody(const float *wl, int n, float temp, float r_index,
 		float *vals);
-extern void BlackbodyNormalized(const float *wl, int n, float temp,
-		float r_index, float *vals);
+extern void NormalizeBlackbody(int n, float temp, float r_index, float *vals);
 extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
 		float temp, float r_index, float *vals);
 extern float InterpolateSpectrumSamples(const float *lambda, const float *vals,

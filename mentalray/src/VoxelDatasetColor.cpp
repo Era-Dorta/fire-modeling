@@ -293,12 +293,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			// Get the blackbody values
 			Blackbody(&lambdas[0], lambdas.size(), t.x(), 1, &spec_values[0]);
 
-			// Create a Spectrum representation with the computed values
-			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0],
-					&spec_values[0], lambdas.size());
-
-			b_spec.NormalizeByMax();
+			Spectrum b_spec;
 
 			/*
 			 * With SOOT and CHEM, compute the absorption coefficient in
@@ -307,13 +302,25 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			 */
 			switch (bb_type) {
 			case BB_ONLY: {
+				NormalizeBlackbody(spec_values.size(), t.x(), 1,
+						&spec_values[0]);
+
+				// Create a Spectrum representation with the computed values
+				// Spectrum expects the wavelengths to be in nanometres
+				b_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
+						lambdas.size());
 				break;
 			}
 			case BB_SOOT: {
+				NormalizeBlackbody(spec_values.size(), t.x(), 1,
+						&spec_values[0]);
+
+				// Soot absorption spectrum is precomputed values * density
 				for (unsigned j = 0; j < other_spec_values.size(); j++) {
 					other_spec_values.at(j) = t.y() * input_data[j];
 				}
-				// Create a Spectrum representation with the computed values
+
+				// Create a Spectrum representation with the absorption values
 				// Spectrum expects the wavelengths to be in nanometres
 				Spectrum sigma_a_spec = Spectrum::FromSampled(&lambdas[0],
 						&other_spec_values[0], lambdas.size());
@@ -322,6 +329,12 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				break;
 			}
 			case BB_CHEM: {
+				/*
+				 * There is not need to normalize black body in this case
+				 * because the chemical absorption coefficient takes into
+				 * account the temperature too
+				 */
+
 				// Compute the chemical absorption spectrum values, as we are
 				// normalizing afterwards, the units used here don't matter
 				ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
@@ -331,9 +344,6 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				// Spectrum expects the wavelengths to be in nanometres
 				Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
 						&other_spec_values[0], lambdas.size());
-
-				// Divide each coefficient by the max, to get a normalized spectrum
-				chem_spec.NormalizeByMax();
 
 				b_spec = b_spec * chem_spec;
 				break;

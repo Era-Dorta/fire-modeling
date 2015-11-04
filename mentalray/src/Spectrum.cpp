@@ -231,9 +231,7 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 	}
 }
 
-extern void BlackbodyNormalized(const float *wl, int n, float temp,
-		float r_index, float *vals) {
-	Blackbody(wl, n, temp, r_index, vals);
+extern void NormalizeBlackbody(int n, float temp, float r_index, float *vals) {
 	// Normalize the values based on maximum blackbody radiance
 	// Lambda with maximum intensity according to Wien's displacement law
 	float lambdaMax = 2.8977721e6 / temp;
