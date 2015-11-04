@@ -314,6 +314,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			case BB_SOOT: {
 				NormalizeBlackbody(spec_values.size(), t.x(), 1,
 						&spec_values[0]);
+
 				b_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
 						lambdas.size());
 
@@ -328,6 +329,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 						&other_spec_values[0], lambdas.size());
 
 				b_spec = b_spec * sigma_a_spec;
+
 				break;
 			}
 			case BB_CHEM: {
@@ -356,19 +358,6 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 			// Transform the spectrum to XYZ coefficients
 			b_spec.ToXYZ(&t.x());
-
-			// TODO Not sure which method to use, if I should scale or if it is
-			// better to scale the rgb at the end instead of the xyz here
-
-			// Normalise the XYZ coefficients
-			// 1) Norm, actually better to use t.normalize()
-			// float xyz_scale = 1.0 / t.length();
-			// 2) Inverse of maximum value
-			float xyz_scale = 1.0 / std::max(std::max(t.x(), t.y()), t.z());
-			// 3) Inverse of sum of components
-			// float xyz_scale = 1.0 / (t.x() + t.y() + t.z());
-
-			t.scale(xyz_scale, t);
 		} else {
 			// If the temperature is low, just set the colour to 0
 			t.setZero();
