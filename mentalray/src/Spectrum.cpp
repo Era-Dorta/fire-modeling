@@ -225,23 +225,22 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 	const double C1 = 2.0 * BB::h * c * c;
 	const double C2 = (BB::h * c) / (BB::k * temp);
 
-	// Result spectrum varies greatly in scale, for numerical stability
-	// take the response at 555 nanometres as unit intensity
-
-	// Lambda with maximum intensity according to Wien's displacement law
-	// double lambdaMax = 2.8977721e6 / temp;
-	double lambdaMax = 555.0;
-	double scale = C1
-			/ (std::pow(lambdaMax, 5.0) * (exp(C2 / lambdaMax) - 1.0));
-	assert(scale > 0.0);
-	scale = 1.0 / scale;
-
 	for (int i = 0; i < n; ++i) {
 		// Black body radiation with Planck's formula
 		vals[i] = C1 / (std::pow(wl[i], 5.0) * (exp(C2 / wl[i]) - 1.0));
-		// Normalise with the maximum intensity
-		vals[i] *= scale;
 	}
+}
+
+extern void BlackbodyNormalized(const float *wl, int n, float temp,
+		float r_index, float *vals) {
+	Blackbody(wl, n, temp, r_index, vals);
+	// Normalize the values based on maximum blackbody radiance
+	// Lambda with maximum intensity according to Wien's displacement law
+	float lambdaMax = 2.8977721e6 / temp;
+	float maxL;
+	Blackbody(&lambdaMax, 1, temp, r_index, &maxL);
+	for (int i = 0; i < n; ++i)
+		vals[i] /= maxL;
 }
 
 extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
