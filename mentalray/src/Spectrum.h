@@ -136,14 +136,11 @@ public:
 	}
 #endif // DEBUG
 	void Print(FILE *f) const {
-		fprintf(f, "[ ");
-		for (int i = 0; i < nSamples; ++i) {
-			fprintf(f, "%f", c[i]);
-			if (i != nSamples - 1)
-				fprintf(f, ", ");
+			for (int i = 0; i < nSamples; ++i) {
+				fprintf(f, "%f\n", c[i]);
+			}
 		}
-		fprintf(f, "]");
-	}
+
 	CoefficientSpectrum &operator+=(const CoefficientSpectrum &s2) {
 		Assert(!s2.HasNaNs());
 		for (int i = 0; i < nSamples; ++i)
