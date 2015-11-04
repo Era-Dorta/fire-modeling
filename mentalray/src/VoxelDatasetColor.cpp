@@ -106,6 +106,7 @@ bool VoxelDatasetColor::compute_chemical_absorption_threaded(
 	normalize_bb_radiation(visual_adaptation_factor);
 
 	input_data.clear();
+	extra_data.clear();
 	lambdas.clear();
 
 	return true;
@@ -251,8 +252,8 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// TODO Pass a real refraction index, not 1
 			// Compute the chemical absorption spectrum values, as we are
 			// normalizing afterwards, the units used here don't matter
-			ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
-					t.x(), 1, &spec_values[0]);
+			ChemicalAbsorption(&lambdas[0], &input_data[0], &extra_data[0],
+					lambdas.size(), t.x(), 1, &spec_values[0]);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
@@ -343,8 +344,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 				// Compute the chemical absorption spectrum values, as we are
 				// normalizing afterwards, the units used here don't matter
-				ChemicalAbsorption(&lambdas[0], &input_data[0], lambdas.size(),
-						t.x(), 1, &other_spec_values[0]);
+				ChemicalAbsorption(&lambdas[0], &input_data[0], &extra_data[0],
+						lambdas.size(), t.x(), 1, &other_spec_values[0]);
 
 				// Create a Spectrum representation with the computed values
 				// Spectrum expects the wavelengths to be in nanometres
@@ -397,7 +398,7 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 	 * lmslw = m * maxxyz;
 	 * lmslw = 1 ./ lmslw;
 	 * mLW = diag(lmslw);
-	 * newxyz = invm * mLw * m * oldxyz; % For all the points
+	 * newxyz = invm * mLW * m * oldxyz; % For all the points
 	 */
 
 	// TODO This normalisation is assuming the fire is the main light in the
@@ -492,10 +493,12 @@ bool VoxelDatasetColor::read_spectral_line_file(const std::string& filename) {
 
 		lambdas.resize(num_lines);
 		input_data.resize(num_lines);
+		extra_data.resize(num_lines);
 
 		for (unsigned i = 0; i < num_lines; i++) {
 			safe_ascii_read(fp, lambdas[i]);
 			safe_ascii_read(fp, input_data[i]);
+			safe_ascii_read(fp, extra_data[i]);
 		}
 		fp.close();
 		return true;

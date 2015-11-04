@@ -243,8 +243,8 @@ extern void NormalizeBlackbody(int n, float temp, float r_index, float *vals) {
 	}
 }
 
-extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
-		float temp, float r_index, float *vals) {
+extern void ChemicalAbsorption(const float *wl, const float *intensity,
+		const float *A21, int n, float temp, float r_index, float *vals) {
 
 	if (temp <= 0) {
 		for (int i = 0; i < n; ++i)
@@ -261,7 +261,7 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
 
 	for (int i = 0; i < n; ++i) {
 		// Absorption coefficient
-		vals[i] = C1 * intensity[i] * pow(wl[i], 4.0)
+		vals[i] = C1 * intensity[i] * A21[i] * pow(wl[i], 4.0)
 				* ((exp(C2 / wl[i]) - 1.0));
 	}
 }
