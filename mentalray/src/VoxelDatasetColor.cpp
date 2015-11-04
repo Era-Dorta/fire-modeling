@@ -314,6 +314,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			case BB_SOOT: {
 				NormalizeBlackbody(spec_values.size(), t.x(), 1,
 						&spec_values[0]);
+				b_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
+						lambdas.size());
 
 				// Soot absorption spectrum is precomputed values * density
 				for (unsigned j = 0; j < other_spec_values.size(); j++) {
@@ -334,6 +336,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				 * because the chemical absorption coefficient takes into
 				 * account the temperature too
 				 */
+				b_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
+						lambdas.size());
 
 				// Compute the chemical absorption spectrum values, as we are
 				// normalizing afterwards, the units used here don't matter
