@@ -237,8 +237,10 @@ extern void NormalizeBlackbody(int n, float temp, float r_index, float *vals) {
 	float lambdaMax = 2.8977721e6 / temp;
 	float maxL;
 	Blackbody(&lambdaMax, 1, temp, r_index, &maxL);
-	for (int i = 0; i < n; ++i)
+
+	for (int i = 0; i < n; ++i) {
 		vals[i] /= maxL;
+	}
 }
 
 extern void ChemicalAbsorption(const float *wl, const float *intensity, int n,
