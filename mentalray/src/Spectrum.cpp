@@ -254,16 +254,16 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity,
 		return;
 	}
 
-	double n_2 = 1;
-	double a_21 = 1;
-
 	const double c = BB::c0 / r_index;
-	const double C1 = (BB::inv_8_pi * n_2 * a_21) / c;
+	const double C1 = BB::inv_8_pi / c;
 	const double C2 = (BB::h * c) / (BB::k * temp);
+	const double inv_kt = 1.0 / (BB::k * temp);
 
 	for (int i = 0; i < n; ++i) {
+		const double N2 = (density * (g2[i] / g1[i])
+				* exp((E1[i] - E2[i]) * inv_kt));
 		// Absorption coefficient
-		vals[i] = C1 * intensity[i] * A21[i] * pow(wl[i], 4.0)
+		vals[i] = C1 * intensity[i] * A21[i] * N2 * pow(wl[i], 4.0)
 				* ((exp(C2 / wl[i]) - 1.0));
 	}
 }
