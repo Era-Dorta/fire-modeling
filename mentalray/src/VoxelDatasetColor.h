@@ -46,7 +46,6 @@ private:
 			unsigned end_offset);
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
-	void fill_lambda_vector();
 	static void clamp_0_1(openvdb::Vec3f& v);
 	static void clamp_0_1(float &v);
 	bool read_spectral_line_file(const std::string& filename);

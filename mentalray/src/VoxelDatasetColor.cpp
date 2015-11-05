@@ -37,7 +37,6 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 
 	switch (bb_type) {
 	case BB_ONLY: {
-		fill_lambda_vector();
 		break;
 	}
 	case BB_SOOT: {
@@ -273,12 +272,24 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 
 void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		unsigned end_offset) {
-	std::vector<float> spec_values(lambdas.size()), other_spec_values(
+	std::vector<float> spec_values(nSpectralSamples), other_spec_values(
 			lambdas.size());
+	std::vector<float> bb_lambdas(nSpectralSamples);
+
+	// Initialise the lambdas for blackbody computation as big as nSpectralSamples
+	for (int i = 0; i < nSpectralSamples; ++i) {
+		float wl0 = Lerp(float(i) / float(nSpectralSamples), sampledLambdaStart,
+				sampledLambdaEnd);
+		float wl1 = Lerp(float(i + 1) / float(nSpectralSamples),
+				sampledLambdaStart, sampledLambdaEnd);
+		bb_lambdas[i] = (wl0 + wl1) * 0.5;
+	}
+
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
 	}
+
 	for (auto i = start_offset; i < end_offset && iter; ++iter) {
 		openvdb::Vec3f t = iter.getValue();
 
@@ -286,7 +297,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		if (t.x() > 400) {
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
-			Blackbody(&lambdas[0], lambdas.size(), t.x(), 1, &spec_values[0]);
+			Blackbody(&bb_lambdas[0], bb_lambdas.size(), t.x(), 1,
+					&spec_values[0]);
 
 			Spectrum b_spec;
 
@@ -302,16 +314,16 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 				// Create a Spectrum representation with the computed values
 				// Spectrum expects the wavelengths to be in nanometres
-				b_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
-						lambdas.size());
+				b_spec = Spectrum::FromSampled(&bb_lambdas[0], &spec_values[0],
+						bb_lambdas.size());
 				break;
 			}
 			case BB_SOOT: {
 				NormalizeBlackbody(spec_values.size(), t.x(), 1,
 						&spec_values[0]);
 
-				b_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
-						lambdas.size());
+				b_spec = Spectrum::FromSampled(&bb_lambdas[0], &spec_values[0],
+						bb_lambdas.size());
 
 				// Soot absorption spectrum is precomputed values * density
 				for (unsigned j = 0; j < other_spec_values.size(); j++) {
@@ -331,8 +343,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				NormalizeBlackbody(spec_values.size(), t.x(), 1,
 						&spec_values[0]);
 
-				b_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
-						lambdas.size());
+				b_spec = Spectrum::FromSampled(&bb_lambdas[0], &spec_values[0],
+						bb_lambdas.size());
 
 				// Compute the chemical absorption spectrum values, as we are
 				// normalizing afterwards, the units used here don't matter
@@ -348,6 +360,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				chem_spec.NormalizeByMax();
 
 				b_spec = b_spec * chem_spec;
+
 				break;
 			}
 			}
@@ -444,20 +457,6 @@ openvdb::Coord VoxelDatasetColor::get_maximum_voxel_index() {
 		}
 	}
 	return max_ind;
-}
-
-void VoxelDatasetColor::fill_lambda_vector() {
-	unsigned l;
-	float lambda;
-	lambdas.resize(nSpectralSamples);
-	// Convert lambad start/end from nanometres to metres
-	float lambda_inc = (sampledLambdaEnd - sampledLambdaStart)
-			/ (float) (nSpectralSamples);
-	// Put all the wavelengths in a vector
-	for (l = 0, lambda = sampledLambdaStart; l < lambdas.size(); l++, lambda +=
-			lambda_inc) {
-		lambdas.at(l) = lambda;
-	}
 }
 
 void VoxelDatasetColor::clamp_0_1(openvdb::Vec3f& v) {
