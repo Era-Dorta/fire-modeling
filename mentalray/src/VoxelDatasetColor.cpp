@@ -327,11 +327,9 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				break;
 			}
 			case BB_CHEM: {
-				/*
-				 * There is not need to normalize black body in this case
-				 * because the chemical absorption coefficient takes into
-				 * account the temperature too
-				 */
+				NormalizeBlackbody(spec_values.size(), t.x(), 1,
+						&spec_values[0]);
+
 				b_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
 						lambdas.size());
 
@@ -344,6 +342,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				// Spectrum expects the wavelengths to be in nanometres
 				Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
 						&other_spec_values[0], lambdas.size());
+
+				chem_spec.NormalizeByMax();
 
 				b_spec = b_spec * chem_spec;
 				break;
