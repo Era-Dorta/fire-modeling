@@ -54,13 +54,26 @@ private:
 	template<typename T>
 	void safe_ascii_read(std::ifstream& fp, T &output);
 	void scale_coefficients_to_custom_range();
+	void clear_coefficients();
 
 protected:
 	miColor max_color;
 private:
+	/*
+	 * TODO Use separate classes to store the data
+	 * Since the class will not compute chemical and soot absorption at the same
+	 * time, use variable references for better naming in the code
+	 */
 	std::vector<float> lambdas;
-	std::vector<float> input_data;
-	std::vector<float> extra_data;
+	std::vector<float> phi;
+	std::vector<float>& n = phi;
+	std::vector<float> A21;
+	std::vector<float>& nk = A21;
+	std::vector<float> E1;
+	std::vector<float>& soot_coef = E1;
+	std::vector<float> E2;
+	std::vector<int> g1;
+	std::vector<int> g2;
 	miScalar soot_radius;
 	miScalar alpha_lambda;
 	BB_TYPE bb_type;

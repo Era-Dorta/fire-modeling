@@ -63,9 +63,7 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 
 	normalize_bb_radiation(visual_adaptation_factor);
 
-	input_data.clear();
-	extra_data.clear();
-	lambdas.clear();
+	clear_coefficients();
 
 	return true;
 }
@@ -82,9 +80,7 @@ bool VoxelDatasetColor::compute_soot_absorption_threaded(
 
 	compute_function_threaded(&VoxelDatasetColor::compute_soot_absorption);
 
-	input_data.clear();
-	extra_data.clear();
-	lambdas.clear();
+	clear_coefficients();
 
 	return true;
 }
@@ -105,9 +101,7 @@ bool VoxelDatasetColor::compute_chemical_absorption_threaded(
 
 	normalize_bb_radiation(visual_adaptation_factor);
 
-	input_data.clear();
-	extra_data.clear();
-	lambdas.clear();
+	clear_coefficients();
 
 	return true;
 }
@@ -183,8 +177,7 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 	// TODO If we wanted to sample more from the spectrum, we would have to
 	// compute lambda^alpha_lambda in compute_sigma_a, in any case I don't think
 	// it makes sense, as we do not have more n or k data
-	std::vector<float> &n = input_data;
-	std::vector<float> &nk = extra_data;
+	soot_coef.resize(n.size());
 	std::vector<float> k(n.size());
 
 	for (unsigned i = 0; i < n.size(); i++) {
@@ -197,7 +190,7 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 	for (unsigned i = 0; i < n.size(); i++) {
 		miScalar n2_k2_2 = n[i] * n[i] - k[i] * k[i] + 2;
 		n2_k2_2 = n2_k2_2 * n2_k2_2;
-		input_data[i] = pi_r3_36 * nk[i]
+		soot_coef[i] = pi_r3_36 * nk[i]
 				/ (std::pow(lambdas[i] * 1e-9, alpha_lambda)
 						* (n2_k2_2 + 4 * nk[i] * nk[i]));
 	}
@@ -206,7 +199,7 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f density;
-	std::vector<float> spec_values(input_data.size());
+	std::vector<float> spec_values(soot_coef.size());
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -215,7 +208,7 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 		density = iter.getValue();
 		if (density.x() > 0.0) {
 			for (unsigned j = 0; j < spec_values.size(); j++) {
-				spec_values.at(j) = density.x() * input_data[j];
+				spec_values.at(j) = density.x() * soot_coef[j];
 			}
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
@@ -239,7 +232,7 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f t;
-	std::vector<float> spec_values(input_data.size());
+	std::vector<float> spec_values(lambdas.size());
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -252,8 +245,8 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// TODO Pass a real refraction index, not 1
 			// Compute the chemical absorption spectrum values, as we are
 			// normalizing afterwards, the units used here don't matter
-			ChemicalAbsorption(&lambdas[0], &input_data[0], &extra_data[0],
-					lambdas.size(), t.x(), 1, &spec_values[0]);
+			ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], lambdas.size(),
+					t.x(), 1, &spec_values[0]);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
@@ -321,7 +314,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 				// Soot absorption spectrum is precomputed values * density
 				for (unsigned j = 0; j < other_spec_values.size(); j++) {
-					other_spec_values.at(j) = t.y() * input_data[j];
+					other_spec_values.at(j) = t.y() * soot_coef[j];
 				}
 
 				// Create a Spectrum representation with the absorption values
@@ -344,7 +337,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 				// Compute the chemical absorption spectrum values, as we are
 				// normalizing afterwards, the units used here don't matter
-				ChemicalAbsorption(&lambdas[0], &input_data[0], &extra_data[0],
+				ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0],
 						lambdas.size(), t.x(), 1, &other_spec_values[0]);
 
 				// Create a Spectrum representation with the computed values
@@ -492,13 +485,21 @@ bool VoxelDatasetColor::read_spectral_line_file(const std::string& filename) {
 		safe_ascii_read(fp, num_lines);
 
 		lambdas.resize(num_lines);
-		input_data.resize(num_lines);
-		extra_data.resize(num_lines);
+		phi.resize(num_lines);
+		A21.resize(num_lines);
+		E1.resize(num_lines);
+		E2.resize(num_lines);
+		g1.resize(num_lines);
+		g2.resize(num_lines);
 
 		for (unsigned i = 0; i < num_lines; i++) {
 			safe_ascii_read(fp, lambdas[i]);
-			safe_ascii_read(fp, input_data[i]);
-			safe_ascii_read(fp, extra_data[i]);
+			safe_ascii_read(fp, phi[i]);
+			safe_ascii_read(fp, A21[i]);
+			safe_ascii_read(fp, E1[i]);
+			safe_ascii_read(fp, E2[i]);
+			safe_ascii_read(fp, g1[i]);
+			safe_ascii_read(fp, g2[i]);
 		}
 		fp.close();
 		return true;
@@ -525,13 +526,13 @@ bool VoxelDatasetColor::read_optical_constants_file(
 		safe_ascii_read(fp, alpha_lambda);
 
 		lambdas.resize(num_lines);
-		input_data.resize(num_lines);
-		extra_data.resize(num_lines);
+		n.resize(num_lines);
+		nk.resize(num_lines);
 
 		for (unsigned i = 0; i < num_lines; i++) {
 			safe_ascii_read(fp, lambdas[i]);
-			safe_ascii_read(fp, input_data[i]);
-			safe_ascii_read(fp, extra_data[i]);
+			safe_ascii_read(fp, n[i]);
+			safe_ascii_read(fp, nk[i]);
 		}
 		fp.close();
 		return true;
@@ -555,7 +556,17 @@ void VoxelDatasetColor::scale_coefficients_to_custom_range() {
 	 * several orders of magnitude higher, as they represent the number of
 	 * molecules per unit volume
 	 */
-	for (auto iter = input_data.begin(); iter != input_data.end(); ++iter) {
+	for (auto iter = soot_coef.begin(); iter != soot_coef.end(); ++iter) {
 		*iter *= 1e12;
 	}
+}
+
+void VoxelDatasetColor::clear_coefficients() {
+	lambdas.clear();
+	phi.clear();
+	A21.clear();
+	E1.clear();
+	E2.clear();
+	g1.clear();
+	g2.clear();
 }
