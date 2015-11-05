@@ -244,7 +244,9 @@ extern void NormalizeBlackbody(int n, float temp, float r_index, float *vals) {
 }
 
 extern void ChemicalAbsorption(const float *wl, const float *intensity,
-		const float *A21, int n, float temp, float r_index, float *vals) {
+		const float *A21, const float *E1, const float *E2, const int *g1,
+		const int *g2, int n, float temp, float r_index, float density,
+		float *vals) {
 
 	if (temp <= 0) {
 		for (int i = 0; i < n; ++i)

@@ -45,6 +45,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 	} else {
 		/* Instance initialization: */
 		miTag temperature_shader = *mi_eval_tag(&params->temperature_shader);
+		miTag density_shader = *mi_eval_tag(&params->density_shader);
 
 		ComputeMode compute_mode = static_cast<ComputeMode>(*mi_eval_integer(
 				&params->compute_mode));
@@ -87,7 +88,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 		switch (compute_mode) {
 		case BB_RADIATION: {
-			miTag density_shader = *mi_eval_tag(&params->density_shader);
 			miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 					temperature_shader);
 
@@ -95,8 +95,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 					width, height, depth);
 
 			/*
-			 * Copy the temperatures in the y dimension and the densities on the
-			 * x, so we can compute the values in the VoxelDataset class
+			 * Copy the temperatures in the x dimension and the densities on the
+			 * y, so we can compute the values in the VoxelDataset class
 			 */
 			miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
 					temperature_shader, width, height, depth);
@@ -117,8 +117,6 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 
 			// Soot absorption
 			if (fuel_type <= FuelType::SootMax) {
-				miTag density_shader = *mi_eval_tag(&params->density_shader);
-
 				miaux_get_voxel_dataset_dims(&width, &height, &depth, state,
 						density_shader);
 
@@ -141,8 +139,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 						"Precomputing chem absorption with dataset size %dx%dx%d",
 						width, height, depth);
 
-				miaux_copy_sparse_voxel_dataset(voxels, state,
-						temperature_shader, width, height, depth, 1, 0);
+				miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
+						temperature_shader, width, height, depth);
 
 				if (!voxels->compute_chemical_absorption_threaded(
 						visual_adaptation_factor, data_file)) {

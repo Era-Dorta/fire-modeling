@@ -245,8 +245,9 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// TODO Pass a real refraction index, not 1
 			// Compute the chemical absorption spectrum values, as we are
 			// normalizing afterwards, the units used here don't matter
-			ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], lambdas.size(),
-					t.x(), 1, &spec_values[0]);
+			ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0], &E2[0],
+					&g1[0], &g2[0], lambdas.size(), t.x(), 1, t.y(),
+					&spec_values[0]);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
@@ -335,8 +336,9 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 				// Compute the chemical absorption spectrum values, as we are
 				// normalizing afterwards, the units used here don't matter
-				ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0],
-						lambdas.size(), t.x(), 1, &other_spec_values[0]);
+				ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0],
+						&E2[0], &g1[0], &g2[0], lambdas.size(), t.x(), 1, t.y(),
+						&other_spec_values[0]);
 
 				// Create a Spectrum representation with the computed values
 				// Spectrum expects the wavelengths to be in nanometres
