@@ -186,14 +186,21 @@ Since our data is defined with soot densities, we have chosen the radius to be t
 
 Flames of more uncommon colours are generally produced when using salts of different chemicals.
 The spectral line emitted by an particular atom depends of the electronic transitions between different energy levels.
+We will only treat spontaneous emission in thermodynamic equilibrium, caused by an electron in an upper energy stage going to a lower energy state, releasing electromagnetic energy in the process.
 The absorption coefficients associated for a given spectral frequency and a known atomic element can be computed as
 
-
 \begin{equation}
-\sigma_a(\lambda, \x) = \frac{\phi(\lambda) N_2 A_{21} \lambda^4 (e ^\frac{h c}{\lambda k T} - 1)}{8 \pi c}
+\sigma_a(\lambda, \x) = \frac{\phi(\lambda) N_2 A_{21} \lambda^4 (e ^\frac{h c}{\lambda k T} - 1)}{8 \pi c},
 \end{equation}
 
-where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density (number of particles per unit volume), $A_{21}$ is an Einstein coefficient measuring the transition probabilities of spontaneous emission.
+where $\phi(\lambda)$ is the normalized spectral line, $N_2$ is the number density in the upper state (number of particles per unit volume), $A_{21}$ is an Einstein coefficient measuring the transition probabilities of spontaneous emission from the upper state.
+The number of particles in the upper energy level $N_2$ is given by the Maxwell-Boltzmann distribution, which is defined as
+
+\begin{equation}
+N_2 = \frac{N g_2 e^{-\frac{E_2}{kT}}}{g_1 e^{-\frac{E_1}{kT}}} = \frac{g_2}{g_1} N e ^{\frac{E_1 - E_2}{kT}},
+\end{equation}
+
+where $N$ is the total number density (number of particles per unit volume), $g_1$ and $g_2$ are degeneracy numbers for the lower and upper states, $E_1$ and $E_2$ are the energy levels in $nm^{-1}$ for the lower and upper states, $k$ is the the Boltzmann constant and $T$ is the temperature.
 
 \section{Refraction}
 \label{sec:refraction}
