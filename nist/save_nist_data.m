@@ -22,7 +22,9 @@ for i=1:size(spec, 2)
     mxrint=1;
     num_valid = 0;
     for ii=1:length(nistln)
-        if ~isempty(nistln(ii).rint) && ~isempty(nistln(ii).Aki)
+        if ~isempty(nistln(ii).rint) && ~isempty(nistln(ii).Aki) && ...
+                ~isempty(nistln(ii).Ei) && ~isempty(nistln(ii).Ek) && ...
+                ~isempty(nistln(ii).gigk)
             num_valid = num_valid + 1;
             if nistln(ii).rint>mxrint
                 mxrint=nistln(ii).rint;
@@ -32,10 +34,13 @@ for i=1:size(spec, 2)
     
     % Save the normalized intensities, wavelengths, A21, E1, E2, g1, g2
     specline_data = zeros(num_valid, 7);
-    valid_ind = 1;
+    valid_ind = 0;
     
     for ii=1:length(nistln)
-        if ~isempty(nistln(ii).rint) && ~isempty(nistln(ii).Aki)
+        if ~isempty(nistln(ii).rint) && ~isempty(nistln(ii).Aki) && ...
+                ~isempty(nistln(ii).Ei) && ~isempty(nistln(ii).Ek) && ...
+                ~isempty(nistln(ii).gigk)
+            valid_ind = valid_ind + 1;
             specline_data(valid_ind, 1) = nistln(ii).meanor;
             specline_data(valid_ind, 2) = nistln(ii).rint/mxrint;
             specline_data(valid_ind, 3) = nistln(ii).Aki;
@@ -46,7 +51,6 @@ for i=1:size(spec, 2)
             C = textscan(nistln(ii).gigk,'%d%s%d');
             specline_data(valid_ind, 6) = C{1};
             specline_data(valid_ind, 7) = C{3};
-            valid_ind = valid_ind + 1;
         end
     end
     
