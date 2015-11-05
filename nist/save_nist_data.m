@@ -39,8 +39,9 @@ for i=1:size(spec, 2)
             specline_data(valid_ind, 1) = nistln(ii).meanor;
             specline_data(valid_ind, 2) = nistln(ii).rint/mxrint;
             specline_data(valid_ind, 3) = nistln(ii).Aki;
-            specline_data(valid_ind, 4) = nistln(ii).Ei;
-            specline_data(valid_ind, 5) = nistln(ii).Ek;
+            % Energies come in cm^-1, convert to nm^-1
+            specline_data(valid_ind, 4) = nistln(ii).Ei * 1e-7;
+            specline_data(valid_ind, 5) = nistln(ii).Ek * 1e-7;
             % g1 and g2 are in a string '%d - %d'
             C = textscan(nistln(ii).gigk,'%d%s%d');
             specline_data(valid_ind, 6) = C{1};
