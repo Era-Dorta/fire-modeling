@@ -300,7 +300,12 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			Blackbody(&bb_lambdas[0], bb_lambdas.size(), t.x(), 1,
 					&spec_values[0]);
 
-			Spectrum b_spec;
+			NormalizeBlackbody(spec_values.size(), t.x(), 1, &spec_values[0]);
+
+			// Create a Spectrum representation with the computed values
+			// Spectrum expects the wavelengths to be in nanometres
+			Spectrum b_spec = Spectrum::FromSampled(&bb_lambdas[0],
+					&spec_values[0], bb_lambdas.size());
 
 			/*
 			 * With SOOT and CHEM, compute the absorption coefficient in
@@ -309,22 +314,9 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			 */
 			switch (bb_type) {
 			case BB_ONLY: {
-				NormalizeBlackbody(spec_values.size(), t.x(), 1,
-						&spec_values[0]);
-
-				// Create a Spectrum representation with the computed values
-				// Spectrum expects the wavelengths to be in nanometres
-				b_spec = Spectrum::FromSampled(&bb_lambdas[0], &spec_values[0],
-						bb_lambdas.size());
 				break;
 			}
 			case BB_SOOT: {
-				NormalizeBlackbody(spec_values.size(), t.x(), 1,
-						&spec_values[0]);
-
-				b_spec = Spectrum::FromSampled(&bb_lambdas[0], &spec_values[0],
-						bb_lambdas.size());
-
 				// Soot absorption spectrum is precomputed values * density
 				for (unsigned j = 0; j < other_spec_values.size(); j++) {
 					other_spec_values.at(j) = t.y() * soot_coef[j];
@@ -340,12 +332,6 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				break;
 			}
 			case BB_CHEM: {
-				NormalizeBlackbody(spec_values.size(), t.x(), 1,
-						&spec_values[0]);
-
-				b_spec = Spectrum::FromSampled(&bb_lambdas[0], &spec_values[0],
-						bb_lambdas.size());
-
 				// Compute the chemical absorption spectrum values, as we are
 				// normalizing afterwards, the units used here don't matter
 				ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0],
