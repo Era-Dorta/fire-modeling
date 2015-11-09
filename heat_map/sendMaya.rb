@@ -6,15 +6,39 @@ require 'socket'
 maxRetries = 300
 timesFailed = 0
 
+if ARGV.size < 1 or ARGV.size > 2
+	puts "Usage : sendMaya <maya command>"
+	puts "\tOptional second boolean argument fail on return value, default is false"
+	exit(0)
+end
+
+mel = ARGV[0]
+if ARGV.size == 2
+	if ARGV[1] == "1" or ARGV[1] == "true"
+		failOnreturn = true
+	else
+		failOnreturn = false
+	end
+else
+	failOnreturn = false
+end
+
 while timesFailed <= maxRetries do
 	begin
-		mel = STDIN.read
-
 		s = TCPSocket.open("localhost", 2222)
 
 		s.puts(mel)
 
+		# Wait for Maya to finish running the command, especially important for
+		# rendering commands that take a lot of time
 		mayaReturn = s.gets()
+		
+		# Remove end of line characters
+		mayaReturn.chomp!
+		
+		if failOnreturn and not mayaReturn.empty?
+			exit(-1)
+		end
 		
 		exit(0)
 	rescue Errno::ECONNREFUSED
