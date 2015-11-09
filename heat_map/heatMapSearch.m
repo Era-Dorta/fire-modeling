@@ -85,9 +85,7 @@ try
     if(~sendToMaya(cmd, sendMayaScript, 1))
         renderImgPath = [scene_img_folder output_img_folder_name tmpdirName '/'];
         disp(['Render error, check the logs in ' renderImgPath '*.log']);
-        if(exist('mentalray.log', 'file'))
-            system(['mv mentalray.log ' renderImgPath 'mentalray.log']);
-        end
+        closeMayaAndMoveMRLog(renderImgPath);
         return;
     end
     disp(['Image rendered in ' num2str(toc) ]);
@@ -109,23 +107,15 @@ try
     if(~sendToMaya(cmd, sendMayaScript, 1))
         renderImgPath = [scene_img_folder output_img_folder_name ];
         disp(['Render error, check the logs in ' renderImgPath '*.log']);
-        if(exist('mentalray.log', 'file'))
-            system(['mv mentalray.log ' renderImgPath 'mentalray.log']);
-        end
+        closeMayaAndMoveMRLog(renderImgPath);
         return;
     end
     disp(['Image rendered in ' num2str(toc) ]);
     
-    %% After execution resource clean up
-    % close Maya
-    cmd = 'quit -f';
-    sendToMaya(cmd, sendMayaScript);
-    
-    % Move mentalray log file to image folder
+    %% After execution resource clean up    
+
     renderImgPath = [scene_img_folder output_img_folder_name ];
-    if(exist('mentalray.log', 'file'))
-        system(['mv mentalray.log ' renderImgPath 'mentalray.log']);
-    end
+    closeMayaAndMoveMRLog(renderImgPath);
     
     % If running in batch mode, exit matlab
     if(isBatchMode())
@@ -136,15 +126,9 @@ try
         return;
     end
 catch ME
-    % close Maya
-    cmd = 'quit -f';
-    sendToMaya(cmd, sendMayaScript);
-    
-    % Move mentalray log file to image folder
+
     renderImgPath = [scene_img_folder output_img_folder_name ];
-    if(exist('mentalray.log', 'file'))
-        system(['mv mentalray.log ' renderImgPath 'mentalray.log']);
-    end
+    closeMayaAndMoveMRLog(renderImgPath);
     
     if(isBatchMode())
         disp(getReport(ME));
