@@ -43,7 +43,7 @@ try
     % Render script is located on the same folder as this file
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
     sendMayaScript = [currentFolder '/sendMaya.rb'];
-      
+    
     % <densityScale> <densityOffset> <temperatureScale> <temperatureOffset> <intensity> <transparency>
     fire_attr = zeros(6, 1);
     
@@ -78,17 +78,21 @@ try
     if(~sendToMaya(cmd, sendMayaScript))
         disp('Could not send Maya command');
         return;
-    end   
+    end
     
     tic;
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
-    if(~sendToMaya(cmd, sendMayaScript))
-        disp('Could not send Maya command');
+    if(~sendToMaya(cmd, sendMayaScript, 1))
+        renderImgPath = [scene_img_folder output_img_folder_name tmpdirName '/'];
+        disp(['Render error, check the logs in ' renderImgPath '*.log']);
+        if(exist('mentalray.log', 'file'))
+            system(['mv mentalray.log ' renderImgPath 'mentalray.log']);
+        end
         return;
     end
     disp(['Image rendered in ' num2str(toc) ]);
     
-    %% Render the best image again    
+    %% Render the best image again
     best_im_path = [output_img_folder 'optimized.tif'];
     disp(['Rendering final image in ' best_im_path ]);
     
@@ -102,8 +106,12 @@ try
     
     tic;
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
-    if(~sendToMaya(cmd, sendMayaScript))
-        disp(['Render error, check the logs in ' output_img_folder '*.log']);
+    if(~sendToMaya(cmd, sendMayaScript, 1))
+        renderImgPath = [scene_img_folder output_img_folder_name ];
+        disp(['Render error, check the logs in ' renderImgPath '*.log']);
+        if(exist('mentalray.log', 'file'))
+            system(['mv mentalray.log ' renderImgPath 'mentalray.log']);
+        end
         return;
     end
     disp(['Image rendered in ' num2str(toc) ]);
@@ -111,7 +119,13 @@ try
     %% After execution resource clean up
     % close Maya
     cmd = 'quit -f';
-    sendToMaya(cmd, sendMayaScript); 
+    sendToMaya(cmd, sendMayaScript);
+    
+    % Move mentalray log file to image folder
+    renderImgPath = [scene_img_folder output_img_folder_name ];
+    if(exist('mentalray.log', 'file'))
+        system(['mv mentalray.log ' renderImgPath 'mentalray.log']);
+    end
     
     % If running in batch mode, exit matlab
     if(isBatchMode())
@@ -122,9 +136,16 @@ try
         return;
     end
 catch ME
+    % close Maya
     cmd = 'quit -f';
     sendToMaya(cmd, sendMayaScript);
-        
+    
+    % Move mentalray log file to image folder
+    renderImgPath = [scene_img_folder output_img_folder_name ];
+    if(exist('mentalray.log', 'file'))
+        system(['mv mentalray.log ' renderImgPath 'mentalray.log']);
+    end
+    
     if(isBatchMode())
         disp(getReport(ME));
         if(exist('matlab.log', 'file'))
