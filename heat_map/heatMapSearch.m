@@ -18,6 +18,7 @@ epsilon = 100; % Error tolerance
 
 project_path = '~/maya/projects/fire/';
 scene_name = 'test68_spectrum_fix_propane';
+raw_file_path = [project_path 'data/from_dmitry/vox_bin_00850.raw'];
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'goalimage.tif'];
 goal_img = imread(goal_img_path);
@@ -44,8 +45,11 @@ try
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
     sendMayaScript = [currentFolder '/sendMaya.rb'];
     
-    % <densityScale> <densityOffset> <temperatureScale> <temperatureOffset> <intensity> <transparency>
-    fire_attr = zeros(6, 1);
+    %% Volumetric data initialization
+    heat_map = read_raw_file(raw_file_path);
+    
+    % As a good starting point make the mean at 2500K
+    heat_map.v = heat_map.v * (2500 / mean(heat_map.v));
     
     %% Maya initialization
     % Launch Maya
@@ -85,7 +89,7 @@ try
     if(~sendToMaya(cmd, sendMayaScript, 1))
         renderImgPath = [scene_img_folder output_img_folder_name tmpdirName '/'];
         disp(['Render error, check the logs in ' renderImgPath '*.log']);
-        closeMayaAndMoveMRLog(renderImgPath);
+        closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
         return;
     end
     disp(['Image rendered in ' num2str(toc) ]);
@@ -107,15 +111,15 @@ try
     if(~sendToMaya(cmd, sendMayaScript, 1))
         renderImgPath = [scene_img_folder output_img_folder_name ];
         disp(['Render error, check the logs in ' renderImgPath '*.log']);
-        closeMayaAndMoveMRLog(renderImgPath);
+        closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
         return;
     end
     disp(['Image rendered in ' num2str(toc) ]);
     
-    %% After execution resource clean up    
-
+    %% After execution resource clean up
+    
     renderImgPath = [scene_img_folder output_img_folder_name ];
-    closeMayaAndMoveMRLog(renderImgPath);
+    closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
     
     % If running in batch mode, exit matlab
     if(isBatchMode())
@@ -126,9 +130,9 @@ try
         return;
     end
 catch ME
-
+    
     renderImgPath = [scene_img_folder output_img_folder_name ];
-    closeMayaAndMoveMRLog(renderImgPath);
+    closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
     
     if(isBatchMode())
         disp(getReport(ME));
