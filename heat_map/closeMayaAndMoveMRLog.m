@@ -1,4 +1,4 @@
-function closeMayaAndMoveMRLog( logNewPath )
+function closeMayaAndMoveMRLog(sendMayaScript, logNewPath )
 % close Maya
 cmd = 'quit -f';
 sendToMaya(cmd, sendMayaScript);
