@@ -36,6 +36,9 @@ while timesFailed <= maxRetries do
 		# Remove end of line characters
 		mayaReturn.chomp!
 		
+		# If the render failed a return message will be in read in mayaReturn
+		# but other commands return messages when they execute properly
+		# so add the fail check as a parameter to the script
 		if failOnreturn and not mayaReturn.empty?
 			exit(-1)
 		end
