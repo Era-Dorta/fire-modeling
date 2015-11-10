@@ -36,8 +36,6 @@ end
 startTime = tic;
 cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
 if(~sendToMaya(cmd, sendMayaScript, 1))
-    renderImgPath = [scene_img_folder output_img_folder_name tmpdirName '/'];
-    closeMayaAndMoveMRLog(renderImgPath);
     error(['Render error, check the logs in ' renderImgPath '*.log']);
 end
 fprintf('Image rendered with');

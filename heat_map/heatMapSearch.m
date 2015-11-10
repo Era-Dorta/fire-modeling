@@ -131,36 +131,32 @@ try
     tic;
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
     if(~sendToMaya(cmd, sendMayaScript, 1))
-        renderImgPath = [scene_img_folder output_img_folder_name ];
-        closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
         error(['Render error, check the logs in ' renderImgPath '*.log']);
     end
     disp(['Image rendered in ' num2str(toc) ]);
     
     %% Resource clean up after execution
     
-    renderImgPath = [scene_img_folder output_img_folder_name ];
-    closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
+    closeMaya(sendMayaScript);
+    mrLogNewPath = [scene_img_folder output_img_folder_name ];
+    move_file( 'mentalray.log', [mrLogNewPath 'matlab.log'] );
     
     % If running in batch mode, exit matlab
     if(isBatchMode())
-        system(['mv matlab.log ' output_img_folder 'matlab.log']);
-        disp(['Matlab log file saved in ' output_img_folder 'matlab.log']);
+        move_file( 'matlab.log', [output_img_folder 'matlab.log'] );
         exit;
     else
         return;
     end
 catch ME
     
-    renderImgPath = [scene_img_folder output_img_folder_name ];
-    closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
+    closeMaya(sendMayaScript);
+    mrLogNewPath = [scene_img_folder output_img_folder_name ];
+    move_file( 'mentalray.log', [mrLogNewPath 'matlab.log'] );
     
     if(isBatchMode())
         disp(getReport(ME));
-        if(exist('matlab.log', 'file'))
-            system(['mv matlab.log ' output_img_folder 'matlab.log']);
-            disp(['Matlab log file saved in ' output_img_folder 'matlab.log']);
-        end
+        move_file( 'matlab.log', [output_img_folder 'matlab.log'] );
         exit;
     else
         rethrow(ME);
