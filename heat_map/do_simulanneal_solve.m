@@ -13,12 +13,12 @@ UB = ones(init_heat_map.size, 1) * UB;
 
 %% Call the genetic algorithm optimization
 % Use initial_heat_map as first guess
-tic;
+startTime = tic;
 
 [heat_map_v, best_error, exitflag] = simulannealbnd(fitness_foo, ...
     init_heat_map.v', LB, UB, options);
 
-totalTime = toc;
+totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file

@@ -21,12 +21,12 @@ beq = [];
 nonlcon = [];
 
 %% Call the genetic algorithm optimization
-tic;
+startTime = tic;
 
 [heat_map_v, best_error, exitflag] = ga(fitness_foo, heat_map_size, ...
     A, b, Aeq, beq, LB, UB, nonlcon, options);
 
-totalTime = toc;
+totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file

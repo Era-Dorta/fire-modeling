@@ -33,7 +33,7 @@ end
 % the GUI, use Mayatomr -preview. and then save the image with
 % $filename = "Path to save";
 % renderWindowSaveImageCallback "renderView" $filename "image";
-tic;
+startTime = tic;
 cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
 if(~sendToMaya(cmd, sendMayaScript, 1))
     renderImgPath = [scene_img_folder output_img_folder_name tmpdirName '/'];
@@ -54,7 +54,7 @@ else
 end
 
 % Print the rest of the information on the same line
-fprintf(' error %.2f, in %.2f seconds.\n',error, toc);
+fprintf(' error %.2f, in %.2f seconds.\n',error, toc(startTime));
 
 % Delete the temporary files
 system(['rm -rf ' tmpdir]);
