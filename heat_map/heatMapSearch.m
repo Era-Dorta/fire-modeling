@@ -92,15 +92,15 @@ try
     switch solver
         case 'ga'
             [heat_map_v, best_error, exitflag] = do_genetic_solve( max_ite, ...
-                time_limit, LB, UB, init_heat_map,  fitness_foo);
+                time_limit, LB, UB, init_heat_map, fitness_foo);
         case 'sa'
             [heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
-                max_ite, time_limit, LB, UB, init_heat_map,  fitness_foo);
+                max_ite, time_limit, LB, UB, init_heat_map, fitness_foo);
         otherwise
             error('Invalid solver, choose one of [''ga'',''sa'']');
     end
     
-    % ga outputs a row vector, but we are working with column vectors
+    % Solvers output a row vector, but we are working with column vectors
     heat_map_v = heat_map_v';
     
     %%  Render the best image again

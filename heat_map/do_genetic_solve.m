@@ -11,8 +11,8 @@ options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
 options.MutationFcn = @mutationadaptfeasible;
 
-LB = ones(1, init_heat_map.size) * LB;
-UB = ones(1, init_heat_map.size) * UB;
+LB = ones(init_heat_map.size, 1) * LB;
+UB = ones(init_heat_map.size, 1) * UB;
 
 A = [];
 b = [];
