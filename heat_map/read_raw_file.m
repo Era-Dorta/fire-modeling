@@ -13,6 +13,7 @@ for i=1:numPoints
 end
 fclose(fileID);
 
-volumetricData = struct('xyz', xyz, 'v', values, 'size', numPoints);
+volumetricData = struct('xyz', xyz, 'v', values, 'size', numPoints, ...
+    'filename', filePath);
 end
 

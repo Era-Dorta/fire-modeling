@@ -37,7 +37,7 @@ goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
 
 
 %% Avoid data overwrites by always creating a new folder
-try
+try   
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
@@ -47,7 +47,6 @@ try
     % Create a new folder to store the data
     output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
     output_img_folder_name = ['attr_search_' num2str(dir_num) '/'];
-    output_data_file = [output_img_folder 'fire_attributes.txt'];
     summary_file = [output_img_folder 'summary_file.txt'];
     disp(['Creating new output folder ' output_img_folder]);
     system(['mkdir ' output_img_folder]);
@@ -87,15 +86,15 @@ try
         scene_img_folder, output_img_folder_name, sendMayaScript, goal_img);
     
     %% Solver call
-    tic;
-    
     switch solver
         case 'ga'
             [heat_map_v, best_error, exitflag] = do_genetic_solve( max_ite, ...
-                time_limit, LB, UB, init_heat_map, fitness_foo);
+                time_limit, LB, UB, init_heat_map.size, fitness_foo, ...
+                summary_file);
         case 'sa'
             [heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
-                max_ite, time_limit, LB, UB, init_heat_map, fitness_foo);
+                max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
+                summary_file);
         otherwise
             error('Invalid solver, choose one of [''ga'',''sa'']');
     end
@@ -137,7 +136,9 @@ try
         error(['Render error, check the logs in ' renderImgPath '*.log']);
     end
     disp(['Image rendered in ' num2str(toc) ]);
-    
+    totalTime = toc(initialTime);
+    disp(['Optimization total time ' num2str(totalTime)]);
+       
     %% Resource clean up after execution
     
     renderImgPath = [scene_img_folder output_img_folder_name ];
