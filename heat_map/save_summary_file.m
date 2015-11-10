@@ -31,6 +31,11 @@ idx = cellfun(@isa, values, func_handl_cell);
 values(idx) = cellfun(@func2str, values(idx), 'UniformOutput', 0);
 values(idx) = cellfun(@(x) ['@' x], values(idx), 'UniformOutput', 0);
 
+% Logical values to string
+tfcell = {'false', 'true'};
+idx = cellfun(@islogical, values);
+values(idx) = cellfun(@(x)tfcell{x + 1}, values(idx), 'UniformOutput', 0);
+
 % Empty values explicitely to []
 idx = cellfun(@isempty, values);
 values(idx) = cellfun(@(x)'[]', values(idx), 'UniformOutput', 0);
