@@ -1,9 +1,24 @@
-function [ error ] = heat_map_fitness( heat_map, scene_name, goal_img )
+function [ error ] = heat_map_fitness( heat_map, scene_name, scene_img_folder, ...
+    output_img_folder_name, sendMayaScript, goal_img)
+output_img_folder = [scene_img_folder output_img_folder_name];
 %% Make temp dir for the render image
 [~, tmpdir] = system(['mktemp -d ' output_img_folder 'dirXXXXXX']);
 [~,tmpdirName,~] = fileparts(tmpdir);
 % Remove end on line characters
 tmpdirName = regexprep(tmpdirName,'\r\n|\n|\r','');
+
+%% Save the heat_map in a file
+heat_map_path = [scene_img_folder output_img_folder_name tmpdirName '/heat-map.raw'];
+save_raw_file(heat_map_path, heat_map);
+
+%% Set the heat map file as temperature file
+% We need the full path to the file or the rendering will fail
+cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
+cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
+if(~sendToMaya(cmd, sendMayaScript))
+    disp('Could not send Maya command');
+    return;
+end
 
 %% Set the folder and name of the render image
 cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
@@ -14,6 +29,10 @@ if(~sendToMaya(cmd, sendMayaScript))
 end
 
 %% Render the image
+% This command only works on Maya running in batch mode, if running with
+% the GUI, use Mayatomr -preview. and then save the image with
+% $filename = "Path to save";
+% renderWindowSaveImageCallback "renderView" $filename "image";
 tic;
 cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
 if(~sendToMaya(cmd, sendMayaScript, 1))
@@ -25,7 +44,7 @@ end
 fprintf('Image rendered with ');
 
 %% Compute the error with respect to the goal image
-c_img = imread([output_img_folder tmpdirName 'fireimage.tif']);
+c_img = imread([output_img_folder tmpdirName '/fireimage.tif']);
 c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
 
 % If the rendered image is completely black set the error manually

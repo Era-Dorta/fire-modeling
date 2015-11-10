@@ -1,10 +1,10 @@
 % Script that performs a heat map reconstruction from a goal image
-%% Initialization all
+%% Clean state for the script
 
 clear all;
 close all;
 
-%%
+%% Parameter initalization
 % N.B. If Matlab is started from the GUI and custom paths are used for the
 % Maya plugins, Matlab will not read the Maya path variables that were
 % defined in the .bashrc file and the render script will fail, a
@@ -18,14 +18,15 @@ epsilon = 100; % Error tolerance
 
 project_path = '~/maya/projects/fire/';
 scene_name = 'test68_spectrum_fix_propane';
-raw_file_path = [project_path 'data/from_dmitry/vox_bin_00850.raw'];
+raw_file_path = 'data/from_dmitry/vox_bin_00850.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'goalimage.tif'];
 goal_img = imread(goal_img_path);
 goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
 
+
+%% Avoid data overwrites by always creating a new folder
 try
-    %% Avoid data overwrites by always creating a new folder
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
@@ -40,16 +41,16 @@ try
     disp(['Creating new output folder ' output_img_folder]);
     system(['mkdir ' output_img_folder]);
     
-    %% Send script initialization
+    %% SendMaya script initialization
     % Render script is located on the same folder as this file
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
     sendMayaScript = [currentFolder '/sendMaya.rb'];
     
     %% Volumetric data initialization
-    heat_map = read_raw_file(raw_file_path);
+    init_heat_map = read_raw_file([project_path raw_file_path]);
     
     % As a good starting point make the mean at 2500K
-    heat_map.v = heat_map.v * (2500 / mean(heat_map.v));
+    init_heat_map.v = init_heat_map.v * (2500 / mean(init_heat_map.v));
     
     %% Maya initialization
     % Launch Maya
@@ -71,34 +72,60 @@ try
     
     %% Genetic call
     
-    [~, tmpdir] = system(['mktemp -d ' output_img_folder 'dirXXXXXX']);
-    [~,tmpdirName,~] = fileparts(tmpdir);
-    % Remove end on line characters
-    tmpdirName = regexprep(tmpdirName,'\r\n|\n|\r','');
+    % Wrap the fitness function into an anonymous function whose only
+    % parameter is the heat map
+    fitness_foo = @(x)heat_map_fitness(x, scene_name, scene_img_folder, ...
+        output_img_folder_name, sendMayaScript, goal_img);
     
-    % Set the folder and name of the render image
-    cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-    cmd = [cmd scene_name '/' output_img_folder_name tmpdirName '/fireimage' '\"'];
+    %% Options for the ga
+    % Get default values
+    options = gaoptimset(@ga);
+    options.Generations = max_ite;
+    options.PopulationSize = 10;
+    options.EliteCount = 1;
+    options.TimeLimit = 24 * 60 * 60; % In seconds
+    options.Display = 'iter'; % Give some output on each iteration
+    options.MutationFcn = @mutationadaptfeasible;
+    
+    %% Parameters bounds
+    A = [];
+    b = [];
+    Aeq = [];
+    beq = [];
+    
+    % Lower bounds, no less than 1200K -> 800C
+    LB = ones(1, init_heat_map.size) * 10000;
+    
+    % Upper bounds, no more than 10000K
+    UB = ones(1, init_heat_map.size) * 10000;
+    
+    nonlcon = [];
+    
+    tTotalStart = tic;
+    %% Call the genetic algorithm optimization
+    [heat_map, best_error, exitflag] = ga(fitness_foo, init_heat_map.size, ...
+        A, b, Aeq, beq, LB, UB, nonlcon, options);
+    
+    
+    %%  Render the best image again
+    % Set the path for the image
+    best_im_path = [output_img_folder 'optimized.tif'];
+    disp(['Rendering final image in ' best_im_path ]);
+    
+    %% Save the best heat map in a raw file
+    heat_map_path = [output_img_folder '/heat-map.raw'];
+    save_raw_file(heat_map_path, heat_map);
+    
+    %% Set the heat map file as temperature file
+    % It cannot have ~, and it has to be the full path, so use the HOME var
+    cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
+    cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
     if(~sendToMaya(cmd, sendMayaScript))
         disp('Could not send Maya command');
         return;
     end
     
-    tic;
-    cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
-    if(~sendToMaya(cmd, sendMayaScript, 1))
-        renderImgPath = [scene_img_folder output_img_folder_name tmpdirName '/'];
-        disp(['Render error, check the logs in ' renderImgPath '*.log']);
-        closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
-        return;
-    end
-    disp(['Image rendered in ' num2str(toc) ]);
-    
-    %% Render the best image again
-    best_im_path = [output_img_folder 'optimized.tif'];
-    disp(['Rendering final image in ' best_im_path ]);
-    
-    % Set the folder and name of the render image
+    %% Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
     if(~sendToMaya(cmd, sendMayaScript))
@@ -106,6 +133,7 @@ try
         return;
     end
     
+    %% Render the image
     tic;
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
     if(~sendToMaya(cmd, sendMayaScript, 1))
@@ -116,7 +144,7 @@ try
     end
     disp(['Image rendered in ' num2str(toc) ]);
     
-    %% After execution resource clean up
+    %% Resource clean up after execution
     
     renderImgPath = [scene_img_folder output_img_folder_name ];
     closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
