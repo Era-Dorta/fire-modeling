@@ -14,7 +14,18 @@ close all;
 % setenv('MI_LIBRARY_PATH', 'shaders path');
 
 max_ite = 50; % Num of maximum iterations
-epsilon = 100; % Error tolerance
+% epsilon = 100; % Error tolerance, using Matlab default's at the moment
+time_limit = 24 * 60 * 60; % In seconds
+LB = 1200; % Lower bounds, no less than 1200K -> 800C
+UB = 10000; % Upper bounds, no more than 10400K -> 10000C
+
+% One of the following
+% 'ga' -> Genetic Algorithms
+% 'sa' -> Simulated Annealing
+solver = 'ga';
+
+% To modigy parameters specific to each solver go to the
+% do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
 scene_name = 'test68_spectrum_fix_propane';
@@ -68,41 +79,26 @@ try
         error('Could not send Maya command');
     end
     
-    %% Genetic call
+    %% Fitness function definition
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz, scene_name, ...
         scene_img_folder, output_img_folder_name, sendMayaScript, goal_img);
     
-    %% Options for the ga
-    % Get default values
-    options = gaoptimset(@ga);
-    options.Generations = max_ite;
-    options.PopulationSize = 10;
-    options.EliteCount = 1;
-    options.TimeLimit = 24 * 60 * 60; % In seconds
-    options.Display = 'iter'; % Give some output on each iteration
-    options.MutationFcn = @mutationadaptfeasible;
+    %% Solver call
+    tic;
     
-    %% Parameters bounds
-    A = [];
-    b = [];
-    Aeq = [];
-    beq = [];
-    
-    % Lower bounds, no less than 1200K -> 800C
-    LB = ones(1, init_heat_map.size) * 10000;
-    
-    % Upper bounds, no more than 10000K
-    UB = ones(1, init_heat_map.size) * 10000;
-    
-    nonlcon = [];
-    
-    tTotalStart = tic;
-    %% Call the genetic algorithm optimization
-    [heat_map_v, best_error, exitflag] = ga(fitness_foo, init_heat_map.size, ...
-        A, b, Aeq, beq, LB, UB, nonlcon, options);
+    switch solver
+        case 'ga'
+            [heat_map_v, best_error, exitflag] = do_genetic_solve( max_ite, ...
+                time_limit, LB, UB, init_heat_map,  fitness_foo);
+        case 'sa'
+            [heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
+                max_ite, time_limit, LB, UB, init_heat_map,  fitness_foo);
+        otherwise
+            error('Invalid solver, choose one of [''ga'',''sa'']');
+    end
     
     % ga outputs a row vector, but we are working with column vectors
     heat_map_v = heat_map_v';
