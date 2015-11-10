@@ -42,7 +42,7 @@ if(~sendToMaya(cmd, sendMayaScript, 1))
     closeMayaAndMoveMRLog(renderImgPath);
     return;
 end
-fprintf('Image rendered with ');
+fprintf('Image rendered with');
 
 %% Compute the error with respect to the goal image
 c_img = imread([output_img_folder tmpdirName '/fireimage.tif']);
