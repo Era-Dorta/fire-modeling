@@ -18,16 +18,14 @@ save_raw_file(heat_map_path, volumetricData);
 cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
 cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
 if(~sendToMaya(cmd, sendMayaScript))
-    disp('Could not send Maya command');
-    return;
+    error('Could not send Maya command');
 end
 
 %% Set the folder and name of the render image
 cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
 cmd = [cmd scene_name '/' output_img_folder_name tmpdirName '/fireimage' '\"'];
 if(~sendToMaya(cmd, sendMayaScript))
-    disp('Could not send Maya command');
-    return;
+    error('Could not send Maya command');
 end
 
 %% Render the image
@@ -39,9 +37,8 @@ tic;
 cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
 if(~sendToMaya(cmd, sendMayaScript, 1))
     renderImgPath = [scene_img_folder output_img_folder_name tmpdirName '/'];
-    disp(['Render error, check the logs in ' renderImgPath '*.log']);
     closeMayaAndMoveMRLog(renderImgPath);
-    return;
+    error(['Render error, check the logs in ' renderImgPath '*.log']);
 end
 fprintf('Image rendered with');
 

@@ -59,15 +59,13 @@ try
     % Set project to fire project directory
     cmd = 'setProject \""$HOME"/maya/projects/fire\"';
     if(~sendToMaya(cmd, sendMayaScript))
-        disp('Could not send Maya command');
-        return;
+        error('Could not send Maya command');
     end
     
     % Open our test scene
     cmd = ['file -open \"scenes/' scene_name '.ma\"'];
     if(~sendToMaya(cmd, sendMayaScript))
-        disp('Could not send Maya command');
-        return;
+        error('Could not send Maya command');
     end
     
     %% Genetic call
@@ -124,16 +122,14 @@ try
     cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
     if(~sendToMaya(cmd, sendMayaScript))
-        disp('Could not send Maya command');
-        return;
+        error('Could not send Maya command');
     end
     
     %% Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
     if(~sendToMaya(cmd, sendMayaScript))
-        disp('Could not send Maya command');
-        return;
+        error('Could not send Maya command');
     end
     
     %% Render the image
@@ -141,9 +137,8 @@ try
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
     if(~sendToMaya(cmd, sendMayaScript, 1))
         renderImgPath = [scene_img_folder output_img_folder_name ];
-        disp(['Render error, check the logs in ' renderImgPath '*.log']);
         closeMayaAndMoveMRLog(sendMayaScript, renderImgPath);
-        return;
+        error(['Render error, check the logs in ' renderImgPath '*.log']);
     end
     disp(['Image rendered in ' num2str(toc) ]);
     
