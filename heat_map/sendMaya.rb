@@ -32,14 +32,11 @@ while timesFailed <= maxRetries do
 		# Wait for Maya to finish running the command, especially important for
 		# rendering commands that take a lot of time
 		mayaReturn = s.gets()
-		
-		# Remove end of line characters
-		mayaReturn.chomp!
-		
+			
 		# If the render failed a return message will be in read in mayaReturn
 		# but other commands return messages when they execute properly
 		# so add the fail check as a parameter to the script
-		if failOnreturn and not mayaReturn.empty?
+		if failOnreturn and mayaReturn != "\n"
 			exit(-1)
 		end
 		
