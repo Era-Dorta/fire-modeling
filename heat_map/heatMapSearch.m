@@ -139,7 +139,7 @@ try
     
     closeMaya(sendMayaScript);
     mrLogNewPath = [scene_img_folder output_img_folder_name ];
-    move_file( 'mentalray.log', [mrLogNewPath 'matlab.log'] );
+    move_file( 'mentalray.log', [mrLogNewPath 'mentalray.log'] );
     
     % If running in batch mode, exit matlab
     if(isBatchMode())
@@ -152,7 +152,7 @@ catch ME
     
     closeMaya(sendMayaScript);
     mrLogNewPath = [scene_img_folder output_img_folder_name ];
-    move_file( 'mentalray.log', [mrLogNewPath 'matlab.log'] );
+    move_file( 'mentalray.log', [mrLogNewPath 'mentalray.log'] );
     
     if(isBatchMode())
         disp(getReport(ME));
