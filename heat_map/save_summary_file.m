@@ -14,7 +14,7 @@ fprintf(fileId, 'Lower bounds is %f\n', LB);
 fprintf(fileId, 'Upper bounds is %f\n', UB);
 
 if nargin == 9
-    fprintf(fileId, 'Initial guess is %s\n', x0_file);
+    fprintf(fileId, 'Initial guess data was taken from %s\n', x0_file);
 end
 
 % Convert options to cell

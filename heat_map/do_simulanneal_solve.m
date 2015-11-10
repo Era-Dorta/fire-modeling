@@ -19,6 +19,6 @@ tic;
 
 %% Save summary file
 save_summary_file(summary_file, 'Simulated Annealing', best_error, ...
-    heat_map.size, options, LB(1), UB(1), toc, init_heat_map.filename);
+    init_heat_map.size, options, LB(1), UB(1), toc, init_heat_map.filename);
 end
 
