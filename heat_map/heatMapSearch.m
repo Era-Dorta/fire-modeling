@@ -1,9 +1,8 @@
-% Script that performs a heat map reconstruction from a goal image
-%% Clean state for the script
-
-clear all;
-close all;
-
+function heatMapSearch(solver)
+% Function that performs a heat map reconstruction from a goal image
+% Solver should be one of the following
+% 'ga' -> Genetic Algorithms
+% 'sa' -> Simulated Annealing
 %% Parameter initalization
 % N.B. If Matlab is started from the GUI and custom paths are used for the
 % Maya plugins, Matlab will not read the Maya path variables that were
@@ -18,11 +17,6 @@ max_ite = 50; % Num of maximum iterations
 time_limit = 24 * 60 * 60; % In seconds
 LB = 1200; % Lower bounds, no less than 1200K -> 800C
 UB = 10000; % Upper bounds, no more than 10400K -> 10000C
-
-% One of the following
-% 'ga' -> Genetic Algorithms
-% 'sa' -> Simulated Annealing
-solver = 'ga';
 
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
@@ -161,4 +155,5 @@ catch ME
     else
         rethrow(ME);
     end
+end
 end
