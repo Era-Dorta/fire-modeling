@@ -74,8 +74,8 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    fitness_foo = @(x)heat_map_fitness(x, scene_name, scene_img_folder, ...
-        output_img_folder_name, sendMayaScript, goal_img);
+    fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz, scene_name, ...
+        scene_img_folder, output_img_folder_name, sendMayaScript, goal_img);
     
     %% Options for the ga
     % Get default values
@@ -103,9 +103,11 @@ try
     
     tTotalStart = tic;
     %% Call the genetic algorithm optimization
-    [heat_map, best_error, exitflag] = ga(fitness_foo, init_heat_map.size, ...
+    [heat_map_v, best_error, exitflag] = ga(fitness_foo, init_heat_map.size, ...
         A, b, Aeq, beq, LB, UB, nonlcon, options);
     
+    % ga outputs a row vector, but we are working with column vectors
+    heat_map_v = heat_map_v';
     
     %%  Render the best image again
     % Set the path for the image
@@ -114,6 +116,7 @@ try
     
     %% Save the best heat map in a raw file
     heat_map_path = [output_img_folder '/heat-map.raw'];
+    heat_map = struct('xyz', init_heat_map.xyz, 'v', heat_map_v, 'size', init_heat_map.size);
     save_raw_file(heat_map_path, heat_map);
     
     %% Set the heat map file as temperature file
