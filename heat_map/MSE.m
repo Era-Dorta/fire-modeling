@@ -1,6 +1,6 @@
 function Mean_Square_Error= MSE(Reference_Image, Target_Image)
 
-% Takes two images (2D) and returns Mean Square Error 
+% Takes two images (2D) and returns Mean Square Error
 % Be aware Matrix dimensions must agree
 
 % written by Amir Pasha Mahmoudzadeh

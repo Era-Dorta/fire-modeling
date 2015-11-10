@@ -1,5 +1,6 @@
 function [ error ] = heat_map_fitness( heat_map_v, xyz, scene_name, scene_img_folder, ...
     output_img_folder_name, sendMayaScript, goal_img)
+% Heat map fitness function
 output_img_folder = [scene_img_folder output_img_folder_name];
 %% Make temp dir for the render image
 [~, tmpdir] = system(['mktemp -d ' output_img_folder 'dirXXXXXX']);

@@ -1,4 +1,5 @@
 function save_raw_file( filePath, volumetricData )
+% Save a dataset to a .raw file
 fileID = fopen(filePath,'w');
 
 fwrite(fileID, volumetricData.size, 'int32');
