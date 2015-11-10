@@ -22,11 +22,15 @@ nonlcon = [];
 
 %% Call the genetic algorithm optimization
 tic;
+
 [heat_map_v, best_error, exitflag] = ga(fitness_foo, heat_map_size, ...
     A, b, Aeq, beq, LB, UB, nonlcon, options);
 
+totalTime = toc;
+disp(['Optimization total time ' num2str(totalTime)]);
+
 %% Save summary file
 save_summary_file(summary_file, 'Genetic Algorithms', best_error, ...
-    heat_map_size, options, LB(1), UB(1), toc);
+    heat_map_size, options, LB(1), UB(1), totalTime);
 end
 

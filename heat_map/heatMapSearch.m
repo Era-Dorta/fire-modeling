@@ -37,7 +37,7 @@ goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
 
 
 %% Avoid data overwrites by always creating a new folder
-try   
+try
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
@@ -136,9 +136,7 @@ try
         error(['Render error, check the logs in ' renderImgPath '*.log']);
     end
     disp(['Image rendered in ' num2str(toc) ]);
-    totalTime = toc(initialTime);
-    disp(['Optimization total time ' num2str(totalTime)]);
-       
+    
     %% Resource clean up after execution
     
     renderImgPath = [scene_img_folder output_img_folder_name ];
