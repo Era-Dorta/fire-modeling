@@ -140,6 +140,8 @@ try
         move_file( 'matlab.log', [output_img_folder 'matlab.log'] );
         exit;
     else
+        % If GUI running, show the computed heat map
+        plotHeatMap( heat_map );
         return;
     end
 catch ME
