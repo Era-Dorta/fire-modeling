@@ -6,6 +6,7 @@ function [ heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
 options = saoptimset('simulannealbnd');
 options.MaxIter = max_ite;
 options.TimeLimit = time_limit;
+options.InitialTemperature = (UB - LB) / 6;
 options.Display = 'iter'; % Give some output on each iteration
 
 LB = ones(init_heat_map.size, 1) * LB;

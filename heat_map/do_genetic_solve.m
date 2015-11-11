@@ -4,9 +4,9 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve( ...
 %% Options for the ga
 % Get default values
 options = gaoptimset(@ga);
-options.Generations = max_ite;
+options.PopulationSize = 30;
+options.Generations = max_ite / options.PopulationSize;
 options.TimeLimit = time_limit;
-options.PopulationSize = 20;
 options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
 options.MutationFcn = @mutationadaptfeasible;

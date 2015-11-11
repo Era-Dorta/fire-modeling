@@ -12,7 +12,7 @@ function heatMapSearch(solver)
 % setenv('MI_CUSTOM_SHADER_PATH', ' shaders include path');
 % setenv('MI_LIBRARY_PATH', 'shaders path');
 
-max_ite = 50; % Num of maximum iterations
+max_ite = 1500; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 time_limit = 24 * 60 * 60; % In seconds
 LB = 1200; % Lower bounds, no less than 1200K -> 800C
