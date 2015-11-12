@@ -66,6 +66,8 @@ try
     
     %% Maya initialization
     % Launch Maya
+    % TODO If another Matlab instance is run after we get the port but
+    % before Maya opens, they would use the same port
     port = getNextFreePort();
     if(system([currentFolder '/runMayaBatch.sh ' num2str(port)]) ~= 0)
         error('Could not open Maya');

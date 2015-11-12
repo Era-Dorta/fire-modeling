@@ -30,7 +30,7 @@ sendToMaya(sendMayaScript, port, cmd);
 % $filename = "Path to save";
 % renderWindowSaveImageCallback "renderView" $filename "image";
 startTime = tic;
-cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
+cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
 sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
 fprintf('Image rendered with');
 
