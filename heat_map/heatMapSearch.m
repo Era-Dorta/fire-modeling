@@ -21,6 +21,7 @@ UB = 10000; % Upper bounds, no more than 10400K -> 10000C
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
 
+is_maya_open = false; % Make sure not to close other users Maya instances
 project_path = '~/maya/projects/fire/';
 scene_name = 'test68_spectrum_fix_propane';
 raw_file_path = 'data/from_dmitry/vox_bin_00850.raw';
@@ -58,17 +59,22 @@ try
     
     %% Maya initialization
     % Launch Maya
-    system([currentFolder '/runMayaBatch.sh &']);
+    port = getNextFreePort();
+    if(system([currentFolder '/runMayaBatch.sh ' num2str(port)]) ~= 0)
+        error('Could not open Maya');
+    end
+    % Maya was launched successfully, so we are responsible for closing it
+    is_maya_open = true;
     
     % Set project to fire project directory
     cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-    if(~sendToMaya(cmd, sendMayaScript))
+    if(~sendToMaya(sendMayaScript, port, cmd))
         error('Could not send Maya command');
     end
     
     % Open our test scene
     cmd = ['file -open \"scenes/' scene_name '.ma\"'];
-    if(~sendToMaya(cmd, sendMayaScript))
+    if(~sendToMaya(sendMayaScript, port, cmd))
         error('Could not send Maya command');
     end
     
@@ -77,16 +83,16 @@ try
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz, scene_name, ...
-        scene_img_folder, output_img_folder_name, sendMayaScript, goal_img);
+        scene_img_folder, output_img_folder_name, sendMayaScript, port, goal_img);
     
     %% Solver call
     switch solver
         case 'ga'
-            [heat_map_v, best_error, exitflag] = do_genetic_solve( max_ite, ...
+            [heat_map_v, ~, ~] = do_genetic_solve( max_ite, ...
                 time_limit, LB, UB, init_heat_map.size, fitness_foo, ...
                 summary_file);
         case 'sa'
-            [heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
+            [heat_map_v, ~, ~] = do_simulanneal_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
                 summary_file);
         otherwise
@@ -110,28 +116,28 @@ try
     % It cannot have ~, and it has to be the full path, so use the HOME var
     cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
-    if(~sendToMaya(cmd, sendMayaScript))
+    if(~sendToMaya(sendMayaScript, port, cmd))
         error('Could not send Maya command');
     end
     
     %% Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
-    if(~sendToMaya(cmd, sendMayaScript))
+    if(~sendToMaya(sendMayaScript, port, cmd))
         error('Could not send Maya command');
     end
     
     %% Render the image
     tic;
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
-    if(~sendToMaya(cmd, sendMayaScript, 1))
+    if(~sendToMaya(sendMayaScript, port, cmd, 1))
         error(['Render error, check the logs in ' renderImgPath '*.log']);
     end
     disp(['Image rendered in ' num2str(toc) ]);
     
     %% Resource clean up after execution
     
-    closeMaya(sendMayaScript);
+    closeMaya(sendMayaScript, port);
     mrLogNewPath = [scene_img_folder output_img_folder_name ];
     move_file( 'mentalray.log', [mrLogNewPath 'mentalray.log'] );
     
@@ -146,9 +152,11 @@ try
     end
 catch ME
     
-    closeMaya(sendMayaScript);
-    mrLogNewPath = [scene_img_folder output_img_folder_name ];
-    move_file( 'mentalray.log', [mrLogNewPath 'mentalray.log'] );
+    if(is_maya_open)
+        closeMaya(sendMayaScript, port);
+        mrLogNewPath = [scene_img_folder output_img_folder_name ];
+        move_file( 'mentalray.log', [mrLogNewPath 'mentalray.log'] );
+    end
     
     if(isBatchMode())
         disp(getReport(ME));

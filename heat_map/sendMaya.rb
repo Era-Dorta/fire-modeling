@@ -3,18 +3,20 @@
 require 'socket'
 
 # maxRetries * 0.1 = number of seconds waiting for Maya to load
-maxRetries = 300
+maxRetries = 100
 timesFailed = 0
 
-if ARGV.size < 1 or ARGV.size > 2
-	puts "Usage : sendMaya <maya command>"
+if ARGV.size < 2 or ARGV.size > 3
+	puts "Usage : sendMaya <port> <maya command>"
 	puts "\tOptional second boolean argument fail on return value, default is false"
 	exit(0)
 end
 
-mel = ARGV[0]
-if ARGV.size == 2
-	if ARGV[1] == "1" or ARGV[1] == "true"
+port = ARGV[0].to_i
+mel = ARGV[1]
+
+if ARGV.size == 3
+	if ARGV[2] == "1" or ARGV[2] == "true"
 		failOnreturn = true
 	else
 		failOnreturn = false
@@ -25,7 +27,7 @@ end
 
 while timesFailed <= maxRetries do
 	begin
-		s = TCPSocket.open("localhost", 2222)
+		s = TCPSocket.open("localhost", port)
 
 		s.puts(mel)
 
