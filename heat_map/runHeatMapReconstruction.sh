@@ -11,5 +11,8 @@ if [ "$#" -le 0 ]; then
 	echo ""
 	exit 0 
 fi
+
+# Create random name for the log file to avoid clashes with other matlab logs
+LOGFILE=`mktemp matlabXXXXXXXXXXXXXXXXXXXXX.log`
 # Runs matlab in batch mode
-matlab -nodesktop -nosplash -r "heatMapSearch('$1')" -logfile matlab.log
+matlab -nodesktop -nosplash -r "heatMapSearch('$1', '$LOGFILE')" -logfile $LOGFILE

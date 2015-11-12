@@ -1,4 +1,4 @@
-function heatMapSearch(solver)
+function heatMapSearch(solver, logfile)
 % Function that performs a heat map reconstruction from a goal image
 % Solver should be one of the following
 % 'ga' -> Genetic Algorithms
@@ -12,6 +12,8 @@ function heatMapSearch(solver)
 % setenv('MI_CUSTOM_SHADER_PATH', ' shaders include path');
 % setenv('MI_LIBRARY_PATH', 'shaders path');
 
+is_maya_open = false; % Make sure not to close other users Maya instances
+
 max_ite = 1500; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 time_limit = 24 * 60 * 60; % In seconds
@@ -21,18 +23,22 @@ UB = 10000; % Upper bounds, no more than 10400K -> 10000C
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
 
-is_maya_open = false; % Make sure not to close other users Maya instances
 project_path = '~/maya/projects/fire/';
 scene_name = 'test68_spectrum_fix_propane';
 raw_file_path = 'data/from_dmitry/vox_bin_00850.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'goalimage.tif'];
-goal_img = imread(goal_img_path);
-goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
-
 
 %% Avoid data overwrites by always creating a new folder
 try
+    if(isBatchMode() && nargin < 2)
+        error('Logfile name is required when running in batch mode');
+    end
+    
+    % Read goal image
+    goal_img = imread(goal_img_path);
+    goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
+    
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
@@ -143,7 +149,7 @@ try
     
     % If running in batch mode, exit matlab
     if(isBatchMode())
-        move_file( 'matlab.log', [output_img_folder 'matlab.log'] );
+        move_file( logfile, [output_img_folder 'matlab.log'] );
         exit;
     else
         % If GUI running, show the computed heat map
@@ -160,7 +166,9 @@ catch ME
     
     if(isBatchMode())
         disp(getReport(ME));
-        move_file( 'matlab.log', [output_img_folder 'matlab.log'] );
+        if(exist('logfile', 'var') && exist('output_img_folder', 'var'))
+            move_file( logfile, [output_img_folder 'matlab.log'] );
+        end
         exit;
     else
         rethrow(ME);
