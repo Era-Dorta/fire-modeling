@@ -69,12 +69,14 @@ try
     % TODO If another Matlab instance is run after we get the port but
     % before Maya opens, they would use the same port
     port = getNextFreePort();
+    disp(['Launching Maya listening to port ' num2str(port)]);
     if(system([currentFolder '/runMayaBatch.sh ' num2str(port)]) ~= 0)
         error('Could not open Maya');
     end
     % Maya was launched successfully, so we are responsible for closing it
     is_maya_open = true;
     
+    disp('Loading scene in Maya')
     % Set project to fire project directory
     cmd = 'setProject \""$HOME"/maya/projects/fire\"';
     sendToMaya(sendMayaScript, port, cmd);
@@ -92,6 +94,7 @@ try
         mrLogPath, goal_img);
     
     %% Solver call
+    disp('Launching optimization algorithm');
     switch solver
         case 'ga'
             [heat_map_v, ~, ~] = do_genetic_solve( max_ite, ...
