@@ -14,5 +14,7 @@ fi
 
 # Create random name for the log file to avoid clashes with other matlab logs
 LOGFILE=`mktemp matlabXXXXXXXXXXXXXXXXXXXXX.log`
+LOGFILE=`pwd`"/"$LOGFILE
+
 # Runs matlab in batch mode
 matlab -nodesktop -nosplash -r "heatMapSearch('$1', '$LOGFILE')" -logfile $LOGFILE
