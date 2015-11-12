@@ -14,7 +14,7 @@ function heatMapSearch(solver, logfile)
 
 is_maya_open = false; % Make sure not to close other users Maya instances
 
-max_ite = 1500; % Num of maximum iterations
+max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 time_limit = 24 * 60 * 60; % In seconds
 LB = 1200; % Lower bounds, no less than 1200K -> 800C
@@ -50,8 +50,6 @@ try
     output_img_folder_name = ['attr_search_' num2str(dir_num) '/'];
     summary_file = [output_img_folder 'summary_file.txt'];
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
-    disp(['Creating new output folder ' output_img_folder]);
-    system(['mkdir ' output_img_folder]);
     
     % Read goal image
     goal_img = imread(goal_img_path);
@@ -88,6 +86,10 @@ try
     % Open our test scene
     cmd = ['file -open \"scenes/' scene_name '.ma\"'];
     sendToMaya(sendMayaScript, port, cmd);
+    
+    %% Ouput folder
+    disp(['Creating new output folder ' output_img_folder]);
+    system(['mkdir ' output_img_folder]);
     
     %% Fitness function definition
     

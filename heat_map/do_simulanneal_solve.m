@@ -13,12 +13,16 @@ options.Display = 'iter'; % Give some output on each iteration
 LB = ones(init_heat_map.size, 1) * LB;
 UB = ones(init_heat_map.size, 1) * UB;
 
+% Initial guess for SA, is a row vector
+% init_guess = init_heat_map.v';
+init_guess = getRandomInitPopulation( LB', UB', 1);
+
 %% Call the genetic algorithm optimization
 % Use initial_heat_map as first guess
 startTime = tic;
 
 [heat_map_v, best_error, exitflag] = simulannealbnd(fitness_foo, ...
-    init_heat_map.v', LB, UB, options);
+    init_guess, LB, UB, options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
