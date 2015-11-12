@@ -1,7 +1,9 @@
 function closeMaya(sendMayaScript, port)
 % close Maya
 cmd = 'quit -f';
-if(~sendToMaya(sendMayaScript, port, cmd))
+try
+    sendToMaya(sendMayaScript, port, cmd);
+catch
     warning('Could not close Maya, please do it manually');
 end
 end

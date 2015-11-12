@@ -49,6 +49,7 @@ try
     output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
     output_img_folder_name = ['attr_search_' num2str(dir_num) '/'];
     summary_file = [output_img_folder 'summary_file.txt'];
+    mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     disp(['Creating new output folder ' output_img_folder]);
     system(['mkdir ' output_img_folder]);
     
@@ -62,7 +63,7 @@ try
     
     % As a good starting point make the mean at 2500K
     init_heat_map.v = init_heat_map.v * (2500 / mean(init_heat_map.v));
-    
+       
     %% Maya initialization
     % Launch Maya
     port = getNextFreePort();
@@ -74,22 +75,19 @@ try
     
     % Set project to fire project directory
     cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-    if(~sendToMaya(sendMayaScript, port, cmd))
-        error('Could not send Maya command');
-    end
+    sendToMaya(sendMayaScript, port, cmd);
     
     % Open our test scene
     cmd = ['file -open \"scenes/' scene_name '.ma\"'];
-    if(~sendToMaya(sendMayaScript, port, cmd))
-        error('Could not send Maya command');
-    end
+    sendToMaya(sendMayaScript, port, cmd);
     
     %% Fitness function definition
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz, scene_name, ...
-        scene_img_folder, output_img_folder_name, sendMayaScript, port, goal_img);
+        scene_img_folder, output_img_folder_name, sendMayaScript, port, ...
+        mrLogPath, goal_img);
     
     %% Solver call
     switch solver
@@ -122,30 +120,22 @@ try
     % It cannot have ~, and it has to be the full path, so use the HOME var
     cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
-    if(~sendToMaya(sendMayaScript, port, cmd))
-        error('Could not send Maya command');
-    end
+    sendToMaya(sendMayaScript, port, cmd);
     
     %% Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
-    if(~sendToMaya(sendMayaScript, port, cmd))
-        error('Could not send Maya command');
-    end
+    sendToMaya(sendMayaScript, port, cmd);
     
     %% Render the image
     tic;
-    cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
-    if(~sendToMaya(sendMayaScript, port, cmd, 1))
-        error(['Render error, check the logs in ' renderImgPath '*.log']);
-    end
+    cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
+    sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
     disp(['Image rendered in ' num2str(toc) ]);
     
     %% Resource clean up after execution
     
     closeMaya(sendMayaScript, port);
-    mrLogNewPath = [scene_img_folder output_img_folder_name ];
-    move_file( 'mentalray.log', [mrLogNewPath 'mentalray.log'] );
     
     % If running in batch mode, exit matlab
     if(isBatchMode())
@@ -160,8 +150,6 @@ catch ME
     
     if(is_maya_open)
         closeMaya(sendMayaScript, port);
-        mrLogNewPath = [scene_img_folder output_img_folder_name ];
-        move_file( 'mentalray.log', [mrLogNewPath 'mentalray.log'] );
     end
     
     if(isBatchMode())

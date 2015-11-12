@@ -1,5 +1,5 @@
 function [ error ] = heat_map_fitness( heat_map_v, xyz, scene_name, scene_img_folder, ...
-    output_img_folder_name, sendMayaScript, port, goal_img)
+    output_img_folder_name, sendMayaScript, port, mrLogPath, goal_img)
 % Heat map fitness function
 output_img_folder = [scene_img_folder output_img_folder_name];
 %% Make temp dir for the render image
@@ -17,16 +17,12 @@ save_raw_file(heat_map_path, volumetricData);
 % We need the full path to the file or the rendering will fail
 cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
 cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
-if(~sendToMaya(sendMayaScript, port, cmd))
-    error('Could not send Maya command');
-end
+sendToMaya(sendMayaScript, port, cmd);
 
 %% Set the folder and name of the render image
 cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
 cmd = [cmd scene_name '/' output_img_folder_name tmpdirName '/fireimage' '\"'];
-if(~sendToMaya(sendMayaScript, port, cmd))
-    error('Could not send Maya command');
-end
+sendToMaya(sendMayaScript, port, cmd);
 
 %% Render the image
 % This command only works on Maya running in batch mode, if running with
@@ -35,9 +31,7 @@ end
 % renderWindowSaveImageCallback "renderView" $filename "image";
 startTime = tic;
 cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5 -logFile';
-if(~sendToMaya(sendMayaScript, port, cmd, 1))
-    error(['Render error, check the logs in ' renderImgPath '*.log']);
-end
+sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
 fprintf('Image rendered with');
 
 %% Compute the error with respect to the goal image
