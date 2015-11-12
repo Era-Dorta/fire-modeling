@@ -14,6 +14,9 @@ options.MutationFcn = @mutationadaptfeasible;
 LB = ones(heat_map_size, 1) * LB;
 UB = ones(heat_map_size, 1) * UB;
 
+% Rows are number of individuals, and columns are the dimensions
+options.InitialPopulation = getRandomInitPopulation( LB', UB', options.PopulationSize );
+
 A = [];
 b = [];
 Aeq = [];

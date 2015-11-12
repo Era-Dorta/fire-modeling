@@ -31,6 +31,10 @@ goal_img_path = [scene_img_folder 'goalimage.tif'];
 
 %% Avoid data overwrites by always creating a new folder
 try
+    if(nargin == 0)
+        error('Not enough input arguments.');
+    end
+    
     if(isBatchMode() && nargin < 2)
         error('Logfile name is required when running in batch mode');
     end
