@@ -35,10 +35,6 @@ try
         error('Logfile name is required when running in batch mode');
     end
     
-    % Read goal image
-    goal_img = imread(goal_img_path);
-    goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
-    
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
@@ -53,6 +49,10 @@ try
     disp(['Creating new output folder ' output_img_folder]);
     system(['mkdir ' output_img_folder]);
     
+    % Read goal image
+    goal_img = imread(goal_img_path);
+    goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
+    
     %% SendMaya script initialization
     % Render script is located on the same folder as this file
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
@@ -63,7 +63,7 @@ try
     
     % As a good starting point make the mean at 2500K
     init_heat_map.v = init_heat_map.v * (2500 / mean(init_heat_map.v));
-       
+    
     %% Maya initialization
     % Launch Maya
     port = getNextFreePort();
