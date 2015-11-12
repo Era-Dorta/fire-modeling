@@ -5,6 +5,7 @@ function [ heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
 % Get default values
 options = saoptimset('simulannealbnd');
 options.MaxIter = max_ite;
+options.MaxFunEvals = max_ite;
 options.TimeLimit = time_limit;
 options.InitialTemperature = (UB - LB) / 6;
 options.Display = 'iter'; % Give some output on each iteration
