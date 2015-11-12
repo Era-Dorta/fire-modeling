@@ -25,4 +25,4 @@ while [ "$isOpen" -eq 0 ] ; do
 	exit -1
 done
 
-oriMaya -batch -command "commandPort -n \":$PORT\";" &
+maya -batch -command "commandPort -n \":$PORT\";" &
