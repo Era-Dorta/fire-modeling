@@ -1,5 +1,5 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve( ...
-    max_ite, time_limit, LB, UB, heat_map_size, fitness_foo, summary_file)
+    max_ite, time_limit, LB, UB, heat_map_size, fitness_foo, paths_str)
 % Genetics Algorithm solver for heat map reconstruction
 %% Options for the ga
 % Get default values
@@ -10,6 +10,8 @@ options.TimeLimit = time_limit;
 options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
 options.MutationFcn = @mutationadaptfeasible;
+plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.error);
+options.PlotFcns = {plotf};
 
 LB = ones(heat_map_size, 1) * LB;
 UB = ones(heat_map_size, 1) * UB;
@@ -33,7 +35,7 @@ totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file
-save_summary_file(summary_file, 'Genetic Algorithms', best_error, ...
+save_summary_file(paths_str.summary, 'Genetic Algorithms', best_error, ...
     heat_map_size, options, LB(1), UB(1), totalTime);
 end
 

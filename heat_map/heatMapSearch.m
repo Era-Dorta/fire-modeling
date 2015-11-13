@@ -49,6 +49,8 @@ try
     output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
     output_img_folder_name = ['attr_search_' num2str(dir_num) '/'];
     summary_file = [output_img_folder 'summary_file.txt'];
+    error_file = [output_img_folder 'errorfig.tif'];
+    paths_str = struct('summary',  summary_file, 'error', error_file);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
     % Read goal image
@@ -105,7 +107,7 @@ try
         case 'ga'
             [heat_map_v, ~, ~] = do_genetic_solve( max_ite, ...
                 time_limit, LB, UB, init_heat_map.size, fitness_foo, ...
-                summary_file);
+                paths_str);
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
