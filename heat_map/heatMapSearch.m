@@ -24,7 +24,7 @@ UB = 10000; % Upper bounds, no more than 10400K -> 10000C
 % do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test68_spectrum_fix_propane';
+scene_name = 'test70_propane_simple_solver';
 raw_file_path = 'data/from_dmitry/vox_bin_00850.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'goalimage.tif'];
