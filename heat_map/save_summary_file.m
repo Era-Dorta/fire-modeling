@@ -17,28 +17,17 @@ if nargin == 9
     fprintf(fileId, 'Initial guess data was taken from %s\n', x0_file);
 end
 
+% Initial population is a huge vector, better ignore for the moment
+if(isfield(options,'InitialPopulation'))
+    options = rmfield(options,'InitialPopulation');
+end
+
 % Convert options to cell
 fields = repmat(fieldnames(options), numel(options), 1);
 values = struct2cell(options);
 
-% Numeric values to string
-idx = cellfun(@isnumeric, values);
-values(idx) = cellfun(@num2str, values(idx), 'UniformOutput', 0);
-
-% Function pointers to string
-func_handl_cell = cellstr(repmat('function_handle', size(values,1), 1));
-idx = cellfun(@isa, values, func_handl_cell);
-values(idx) = cellfun(@func2str, values(idx), 'UniformOutput', 0);
-values(idx) = cellfun(@(x) ['@' x], values(idx), 'UniformOutput', 0);
-
-% Logical values to string
-tfcell = {'false', 'true'};
-idx = cellfun(@islogical, values);
-values(idx) = cellfun(@(x)tfcell{x + 1}, values(idx), 'UniformOutput', 0);
-
-% Empty values explicitely to []
-idx = cellfun(@isempty, values);
-values(idx) = cellfun(@(x)'[]', values(idx), 'UniformOutput', 0);
+% Convert all the values to strings
+values = cell2cellstr(values);
 
 % Combine field names and values in the same array
 C = {fields{:}; values{:}};
