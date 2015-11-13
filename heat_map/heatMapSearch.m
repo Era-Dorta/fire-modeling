@@ -49,8 +49,9 @@ try
     output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
     output_img_folder_name = ['attr_search_' num2str(dir_num) '/'];
     summary_file = [output_img_folder 'summary_file.txt'];
-    error_file = [output_img_folder 'errorfig.tif'];
-    paths_str = struct('summary',  summary_file, 'error', error_file);
+    % It will be saved as fig and tiff
+    error_figure = [output_img_folder 'error_function'];
+    paths_str = struct('summary',  summary_file, 'errorfig', error_figure);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
     % Read goal image
@@ -160,7 +161,7 @@ try
         return;
     end
 catch ME
-    
+       
     if(is_maya_open)
         closeMaya(sendMayaScript, port);
     end

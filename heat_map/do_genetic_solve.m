@@ -10,8 +10,12 @@ options.TimeLimit = time_limit;
 options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
 options.MutationFcn = @mutationadaptfeasible;
-plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.error);
-options.PlotFcns = {plotf};
+
+% Function executed on each iteration, there is a PlotFcns too, but it
+% creates a figure outside of our control and it makes the plotting and
+% saving too dificult
+plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.errorfig);
+options.OutputFcns = plotf;
 
 LB = ones(heat_map_size, 1) * LB;
 UB = ones(heat_map_size, 1) * UB;
