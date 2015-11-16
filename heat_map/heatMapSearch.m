@@ -17,15 +17,15 @@ is_maya_open = false; % Make sure not to close other users Maya instances
 max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 time_limit = 24 * 60 * 60; % In seconds
-LB = 1200; % Lower bounds, no less than 1200K -> 800C
-UB = 10000; % Upper bounds, no more than 10400K -> 10000C
+LB = 1000; % Lower bounds, no less than 1000K -> 600C
+UB = 10000; % Upper bounds, no more than 10000K -> 9600C
 
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test70_propane_simple_solver';
-raw_file_path = 'data/from_dmitry/vox_bin_00850.raw';
+scene_name = 'test72_like_71_for_solver';
+raw_file_path = 'data/from_dmitry/NewData/oneFlame/synthetic00000.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'goalimage.tif'];
 
