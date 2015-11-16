@@ -1,4 +1,6 @@
 function [state, options, optchanged] = gaplotbestcustom(options, state, flag, figurePath)
+% Plotting function for the Ga solver
+
 % Ugly hack to allow for better plotting, as we cannot change the output of
 % the function
 persistent GAPLOTBEST GAPLOTMEAN MAXERROR
@@ -18,7 +20,8 @@ end
 if strcmp(flag, 'done')
     if isBatchMode()
         print(h, figurePath, '-dtiff');
-        saveas(h, [figurePath '.fig']);
+        saveas(h, figurePath, 'svg')
+        saveas(h, figurePath, 'fig');
     end
     return;
 end
@@ -44,9 +47,6 @@ else
         MAXERROR = c_error;
     end
 end
-
-% Generation x axis with in integers
-set(gca,'xtick', 0:state.Generation);
 
 % Y axis from max error to 0
 set(gca,'ylim', [0, MAXERROR]);
