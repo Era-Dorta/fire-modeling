@@ -10,8 +10,8 @@ options.TimeLimit = time_limit;
 options.InitialTemperature = (UB - LB) / 6;
 options.Display = 'iter'; % Give some output on each iteration
 
-LB = ones(init_heat_map.size, 1) * LB;
-UB = ones(init_heat_map.size, 1) * UB;
+LB = ones(init_heat_map.count, 1) * LB;
+UB = ones(init_heat_map.count, 1) * UB;
 
 % Initial guess for SA, is a row vector
 % init_guess = init_heat_map.v';
@@ -29,6 +29,6 @@ disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file
 save_summary_file(summary_file, 'Simulated Annealing', best_error, ...
-    init_heat_map.size, options, LB(1), UB(1), totalTime, init_heat_map.filename);
+    init_heat_map.count, options, LB(1), UB(1), totalTime, init_heat_map.filename);
 end
 

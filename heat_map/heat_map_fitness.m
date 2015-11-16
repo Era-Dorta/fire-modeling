@@ -1,4 +1,4 @@
-function [ error ] = heat_map_fitness( heat_map_v, xyz, scene_name, scene_img_folder, ...
+function [ error ] = heat_map_fitness( heat_map_v, xyz, whd, scene_name, scene_img_folder, ...
     output_img_folder_name, sendMayaScript, port, mrLogPath, goal_img)
 % Heat map fitness function
 output_img_folder = [scene_img_folder output_img_folder_name];
@@ -10,7 +10,8 @@ tmpdirName = regexprep(tmpdirName,'\r\n|\n|\r','');
 
 %% Save the heat_map in a file
 heat_map_path = [scene_img_folder output_img_folder_name tmpdirName '/heat-map.raw'];
-volumetricData = struct('xyz', xyz, 'v', heat_map_v', 'size', size(xyz,1));
+volumetricData = struct('xyz', xyz, 'v', heat_map_v', 'size', whd, ...
+    'count', size(xyz,1));
 save_raw_file(heat_map_path, volumetricData);
 
 %% Set the heat map file as temperature file

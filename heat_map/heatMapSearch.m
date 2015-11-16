@@ -98,16 +98,16 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz, scene_name, ...
-        scene_img_folder, output_img_folder_name, sendMayaScript, port, ...
-        mrLogPath, goal_img);
+    fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz, init_heat_map.size, ...
+        scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
+        port, mrLogPath, goal_img);
     
     %% Solver call
     disp('Launching optimization algorithm');
     switch solver
         case 'ga'
             [heat_map_v, ~, ~] = do_genetic_solve( max_ite, ...
-                time_limit, LB, UB, init_heat_map.size, fitness_foo, ...
+                time_limit, LB, UB, init_heat_map.count, fitness_foo, ...
                 paths_str);
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( ...
@@ -127,7 +127,8 @@ try
     
     %% Save the best heat map in a raw file
     heat_map_path = [output_img_folder '/heat-map.raw'];
-    heat_map = struct('xyz', init_heat_map.xyz, 'v', heat_map_v, 'size', init_heat_map.size);
+    heat_map = struct('xyz', init_heat_map.xyz, 'v', heat_map_v, 'size', ...
+        init_heat_map.size, 'count', init_heat_map.count);
     save_raw_file(heat_map_path, heat_map);
     
     %% Set the heat map file as temperature file
@@ -161,7 +162,7 @@ try
         return;
     end
 catch ME
-       
+    
     if(is_maya_open)
         closeMaya(sendMayaScript, port);
     end

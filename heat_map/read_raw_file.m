@@ -1,6 +1,8 @@
 function [ volumetricData ] = read_raw_file( filePath )
 % Read a dataset from a .raw file
 fileID = fopen(filePath,'r');
+
+whd = fread(fileID, 3, 'int32');
 numPoints = fread(fileID, 1, 'int32');
 
 xyz = zeros(numPoints, 3);
@@ -13,7 +15,7 @@ for i=1:numPoints
 end
 fclose(fileID);
 
-volumetricData = struct('xyz', xyz, 'v', values, 'size', numPoints, ...
-    'filename', filePath);
+volumetricData = struct('xyz', xyz, 'v', values, 'count', numPoints, ...
+    'size', whd, 'filename', filePath);
 end
 
