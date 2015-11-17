@@ -125,6 +125,9 @@ try
         perturbation = fitToRange(perturbation, 0, 1, neigh_range(1), ...
             neigh_range(2));
         
+        % Print the current iteration number to show current progress
+        fprintf([num2str(i) '/' num2str(num_samples) ' ']);
+        
         % Render the image and compute the error
         heat_map_v(i, :) = init_heat_map.v' + perturbation';
         error_v(i) = heat_map_fitness(heat_map_v(i, :), init_heat_map.xyz, ...
