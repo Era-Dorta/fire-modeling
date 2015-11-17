@@ -7,7 +7,7 @@ t_scale = 1454231.500;
 t_offset = 400.000;
 
 % Number of samples to be generated around the solution
-num_samples = 2;
+num_samples = 5;
 
 % Define the neighbouring range of temperatures that we are going to
 % explore
@@ -35,10 +35,6 @@ try
     % Create a new folder to store the data
     output_img_folder = [scene_img_folder 'error_fun_' num2str(dir_num) '/'];
     output_img_folder_name = ['error_fun_' num2str(dir_num) '/'];
-    summary_file = [output_img_folder 'summary_file.txt'];
-    % It will be saved as fig and tiff
-    error_figure = [output_img_folder 'error_function'];
-    paths_str = struct('summary',  summary_file, 'errorfig', error_figure);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
     % Read goal image
@@ -119,6 +115,8 @@ try
     heat_map_v = zeros(num_samples, init_heat_map.count);
     error_v = zeros(num_samples, 1);
     
+    disp(['Will commence rendering ' num2str(num_samples) ' images']);
+    
     for i=1:num_samples
         % Generate a random perturbation of the solution
         perturbation = rand(init_heat_map.count, 1);
@@ -132,9 +130,56 @@ try
             output_img_folder_name, sendMayaScript, port, mrLogPath, sol_img);
     end
     
-    %% Plot the simplified space
+    %% Plot the simplified error space
+    disp('Computing PCA of the data');
     
-    % PCA
+    % Reduce the data to two dimensions using PCA
+    coeff = pca(heat_map_v, 'NumComponents', 2);
+    v_reduced = heat_map_v * coeff;
+    
+    % Plot surface resolution
+    resolution = 256;
+    
+    % Min and max values in the reduced dimensions
+    min_xy = [min(v_reduced(:,1)), min(v_reduced(:,2))];
+    max_xy = [max(v_reduced(:,1)), max(v_reduced(:,2))];
+    
+    % Get query points between min and max
+    xp = linspace(min_xy(1), max_xy(1), resolution);
+    yp = linspace(min_xy(2), max_xy(2), resolution);
+    
+    % Interpolate the error to get a surface
+    [xq, yq] = meshgrid(xp, yp);
+    vq = griddata(v_reduced(:,1), v_reduced(:,2), error_v, xq, yq);
+    
+    % Plot all the data
+    h = figure;
+    % If in batch mode no need to actually draw
+    if isBatchMode()
+        set(h, 'Visible', 'off');
+    end
+    
+    % Plot the mesh interpolated error
+    mesh(xq, yq, vq);
+    hold on
+    % Plot the actual error points as red circles
+    plot3(v_reduced(:,1), v_reduced(:,2), error_v,'ro');
+    xlabel('pca1');
+    ylabel('pca2');
+    zlabel('error');
+    hold off;
+    
+    %% Save the important data in the folder
+    disp('Saving data files and figures');
+    
+    save([output_img_folder 'data.mat'], 'coeff', 'error_v', 'heat_map_v');
+    
+    figurePath = [output_img_folder 'pca-error'];
+    if isBatchMode()
+        print(h, figurePath, '-dtiff');
+        saveas(h, figurePath, 'svg')
+        saveas(h, figurePath, 'fig');
+    end
     
     %% Resource clean up after execution
     
@@ -144,9 +189,6 @@ try
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
         exit;
-    else
-        % If GUI running,...
-        return;
     end
     
 catch ME
