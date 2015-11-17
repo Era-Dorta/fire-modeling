@@ -16,6 +16,6 @@ end
 fclose(fileID);
 
 volumetricData = struct('xyz', xyz, 'v', values, 'count', numPoints, ...
-    'size', whd, 'filename', filePath);
+    'size', whd', 'filename', filePath);
 end
 
