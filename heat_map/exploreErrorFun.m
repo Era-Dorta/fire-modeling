@@ -116,6 +116,7 @@ try
     init_heat_map.v = init_heat_map.v * t_scale + t_offset;
     heat_map_v = zeros(num_samples, init_heat_map.count);
     error_v = zeros(num_samples, 1);
+    real_error = zeros(num_samples, 1);
     
     disp(['Will commence rendering ' num2str(num_samples) ' images']);
     
@@ -124,6 +125,9 @@ try
         perturbation = rand(init_heat_map.count, 1);
         perturbation = fitToRange(perturbation, 0, 1, neigh_range(1), ...
             neigh_range(2));
+        
+        % Compute the real error as the norm of the perturbation
+        real_error(i) = norm(perturbation);
         
         % Print the current iteration number to show current progress
         fprintf([num2str(i) '/' num2str(num_samples) ' ']);
@@ -135,7 +139,7 @@ try
             output_img_folder_name, sendMayaScript, port, mrLogPath, sol_img);
     end
     
-    %% Plot the simplified error space
+    %% Plots in the simplified error space
     disp('Computing PCA of the data');
     
     % Reduce the data to two dimensions using PCA
@@ -157,11 +161,12 @@ try
     [xq, yq] = meshgrid(xp, yp);
     vq = griddata(v_reduced(:,1), v_reduced(:,2), error_v, xq, yq);
     
-    % Plot all the data
-    h = figure;
+    %----------------------------------------------------------------------
+    % Plot the data with the MSE error
+    mse_fig = figure;
     % If in batch mode no need to actually draw
     if isBatchMode()
-        set(h, 'Visible', 'off');
+        set(mse_fig, 'Visible', 'off');
     end
     
     % Plot the mesh interpolated error
@@ -169,6 +174,26 @@ try
     hold on
     % Plot the actual error points as red circles
     plot3(v_reduced(:,1), v_reduced(:,2), error_v,'ro');
+    xlabel('pca1');
+    ylabel('pca2');
+    zlabel('error');
+    hold off;
+    
+    %----------------------------------------------------------------------
+    % Plot the data with the real error
+    vq = griddata(v_reduced(:,1), v_reduced(:,2), real_error, xq, yq);
+    
+    rerr_fig = figure;
+    % If in batch mode no need to actually draw
+    if isBatchMode()
+        set(rerr_fig, 'Visible', 'off');
+    end
+    
+    % Plot the mesh interpolated error
+    mesh(xq, yq, vq);
+    hold on
+    % Plot the actual error points as red circles
+    plot3(v_reduced(:,1), v_reduced(:,2), real_error,'ro');
     xlabel('pca1');
     ylabel('pca2');
     zlabel('error');
@@ -184,11 +209,16 @@ try
     saveErrorFunSummary(summary_file, num_samples, neigh_range, scene_name, ...
         raw_file_path, total_time);
     
-    figurePath = [output_img_folder 'pca-error'];
     if isBatchMode()
-        print(h, figurePath, '-dtiff');
-        saveas(h, figurePath, 'svg')
-        saveas(h, figurePath, 'fig');
+        figurePath = [output_img_folder 'pca-mse-error'];
+        print(mse_fig, figurePath, '-dtiff');
+        saveas(mse_fig, figurePath, 'svg')
+        saveas(mse_fig, figurePath, 'fig');
+        
+        figurePath = [output_img_folder 'pca-real-error'];
+        print(rerr_fig, figurePath, '-dtiff');
+        saveas(rerr_fig, figurePath, 'svg')
+        saveas(rerr_fig, figurePath, 'fig');
     end
     
     %% Resource clean up after execution
