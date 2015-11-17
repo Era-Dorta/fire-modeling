@@ -3,7 +3,7 @@
 require 'socket'
 
 # maxRetries * 0.1 = number of seconds waiting for Maya to load
-maxRetries = 100
+maxRetries = 200
 timesFailed = 0
 
 if ARGV.size < 2 or ARGV.size > 3
