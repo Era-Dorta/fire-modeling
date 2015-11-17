@@ -7,7 +7,7 @@ t_scale = 1454231.500;
 t_offset = 400.000;
 
 % Number of samples to be generated around the solution
-num_samples = 5;
+num_samples = 1000;
 
 % Define the neighbouring range of temperatures that we are going to
 % explore
