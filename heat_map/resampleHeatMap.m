@@ -5,8 +5,12 @@ if strcmp(mode,'up')
     % Upsample the volume
     newsize = inheatmap.size * 2;
 else
-    % Down sample the volume
-    newsize = round(inheatmap.size / 2);
+    if strcmp(mode,'down')
+        % Down sample the volume
+        newsize = round(inheatmap.size / 2);
+    else
+        error('mode must be "up" or "down"');
+    end
 end
 
 %% Prepare the data for interp3
@@ -37,7 +41,7 @@ Yq = fitToRange(Ynew, 1, newsize(2), 1, inheatmap.size(2));
 Zq = fitToRange(Znew, 1, newsize(3), 1, inheatmap.size(3));
 
 %% Interpolate the data
-% We have linear, cubic and spline interpolation, cubic and spline can 
+% We have linear, cubic and spline interpolation, cubic and spline can
 % output negative temperatures, so for our case it is better to use linear
 Vq = interp3(X, Y, Z, V, Xq, Yq, Zq, 'linear', 0);
 
