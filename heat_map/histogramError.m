@@ -1,5 +1,8 @@
 function [ cerror ] = histogramError( imga, imgb, ignore_black )
 % Computes an error measure between two images using their histograms
+if nargin == 2
+    ignore_black = false;
+end
 
 % Create 256 bins, image can be 0..255 or 0..1
 if isfloat(imga) && isfloat(imgb)
