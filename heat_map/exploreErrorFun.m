@@ -20,6 +20,10 @@ raw_file_path = 'data/from_dmitry/NewData/oneFlame/synthetic32x32x32.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 sol_img_path = [scene_img_folder 'solutionimage.tif'];
 
+% Error functions to be used for the fitness function, it must accept two
+% images and return an error value
+error_foos = {@MSE, @histogramError};
+
 %% Avoid data overwrites by always creating a new folder
 try
     startTime = tic;
@@ -115,7 +119,8 @@ try
     % Add the scene previous scale and offset
     init_heat_map.v = init_heat_map.v * t_scale + t_offset;
     heat_map_v = zeros(num_samples, init_heat_map.count);
-    error_v = zeros(num_samples, 1);
+    num_error_foos = size(error_foos, 2);
+    error_v = zeros(num_samples, num_error_foos);
     real_error = zeros(num_samples, 1);
     
     disp(['Will commence rendering ' num2str(num_samples) ' images']);
@@ -134,8 +139,8 @@ try
         
         % Render the image and compute the error
         heat_map_v(i, :) = init_heat_map.v' + perturbation';
-        error_v(i) = heat_map_fitness(heat_map_v(i, :), init_heat_map.xyz, ...
-            init_heat_map.size, scene_name, scene_img_folder, ...
+        error_v(i, :) = heat_map_fitness(heat_map_v(i, :), init_heat_map.xyz, ...
+            init_heat_map.size, error_foos, scene_name, scene_img_folder, ...
             output_img_folder_name, sendMayaScript, port, mrLogPath, sol_img);
     end
     
@@ -159,25 +164,6 @@ try
     
     % Interpolate the error to get a surface
     [xq, yq] = meshgrid(xp, yp);
-    vq = griddata(v_reduced(:,1), v_reduced(:,2), error_v, xq, yq);
-    
-    %----------------------------------------------------------------------
-    % Plot the data with the MSE error
-    mse_fig = figure;
-    % If in batch mode no need to actually draw
-    if isBatchMode()
-        set(mse_fig, 'Visible', 'off');
-    end
-    
-    % Plot the mesh interpolated error
-    mesh(xq, yq, vq);
-    hold on
-    % Plot the actual error points as red circles
-    plot3(v_reduced(:,1), v_reduced(:,2), error_v,'ro');
-    xlabel('pca1');
-    ylabel('pca2');
-    zlabel('error');
-    hold off;
     
     %----------------------------------------------------------------------
     % Plot the data with the real error
@@ -197,7 +183,31 @@ try
     xlabel('pca1');
     ylabel('pca2');
     zlabel('error');
+    set(rerr_fig, 'Name', 'Real Error');
     hold off;
+    
+    %----------------------------------------------------------------------
+    % Plot the data with the other error functions
+    err_fig_handles = zeros(1, num_error_foos);
+    for i=1:num_error_foos
+        vq = griddata(v_reduced(:,1), v_reduced(:,2), error_v(:, i), xq, yq);
+        err_fig_handles(i) = figure;
+        % If in batch mode no need to actually draw
+        if isBatchMode()
+            set(err_fig_handles(i), 'Visible', 'off');
+        end
+        
+        % Plot the mesh interpolated error
+        mesh(xq, yq, vq);
+        hold on
+        % Plot the actual error points as red circles
+        plot3(v_reduced(:,1), v_reduced(:,2), error_v(:, i),'ro');
+        xlabel('pca1');
+        ylabel('pca2');
+        zlabel('error');
+        set(err_fig_handles(i), 'Name', [func2str(error_foos{i}) ' Error']);
+        hold off;
+    end
     
     total_time = toc(startTime);
     
@@ -210,15 +220,17 @@ try
         raw_file_path, total_time);
     
     if isBatchMode()
-        figurePath = [output_img_folder 'pca-mse-error'];
-        print(mse_fig, figurePath, '-dtiff');
-        saveas(mse_fig, figurePath, 'svg')
-        saveas(mse_fig, figurePath, 'fig');
-        
         figurePath = [output_img_folder 'pca-real-error'];
         print(rerr_fig, figurePath, '-dtiff');
         saveas(rerr_fig, figurePath, 'svg')
         saveas(rerr_fig, figurePath, 'fig');
+        
+        for i=1:num_error_foos
+            figurePath = [output_img_folder 'pca-' func2str(error_foos{i}) '-error'];
+            print(err_fig_handles(i), figurePath, '-dtiff');
+            saveas(err_fig_handles(i), figurePath, 'svg')
+            saveas(err_fig_handles(i), figurePath, 'fig');
+        end
     end
     
     %% Resource clean up after execution

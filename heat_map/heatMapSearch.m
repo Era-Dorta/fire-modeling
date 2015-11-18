@@ -29,6 +29,10 @@ raw_file_path = 'data/from_dmitry/NewData/oneFlame/synthetic00000.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'goalimage.tif'];
 
+% Error function to be used for the fitness function, it must accept two
+% images and return an error value
+error_foo = {@MSE};
+
 %% Avoid data overwrites by always creating a new folder
 try
     if(nargin == 0)
@@ -99,8 +103,8 @@ try
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz, init_heat_map.size, ...
-        scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-        port, mrLogPath, goal_img);
+        error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
+        sendMayaScript, port, mrLogPath, goal_img);
     
     %% Solver call
     disp('Launching optimization algorithm');

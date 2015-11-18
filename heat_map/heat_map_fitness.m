@@ -1,5 +1,6 @@
-function [ error ] = heat_map_fitness( heat_map_v, xyz, whd, scene_name, scene_img_folder, ...
-    output_img_folder_name, sendMayaScript, port, mrLogPath, goal_img)
+function [ error ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
+    scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
+    port, mrLogPath, goal_img)
 % Heat map fitness function
 output_img_folder = [scene_img_folder output_img_folder_name];
 %% Make temp dir for the render image
@@ -39,15 +40,20 @@ fprintf('Image rendered with');
 c_img = imread([output_img_folder tmpdirName '/fireimage.tif']);
 c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
 
-% If the rendered image is completely black set the error manually
-if(sum(c_img(:)) == 0)
-    error = realmax;
-else
-    error = sum(MSE(goal_img, c_img));
+% Evaluate all the error functions, usually only one will be given
+num_error_foos = size(error_foo, 2);
+error = zeros(1, num_error_foos);
+for i=1:num_error_foos
+    if(sum(c_img(:)) == 0)
+        % If the rendered image is completely black set the error manually
+        error(i) = realmax;
+    else
+        error(i) = sum(feval(error_foo{i}, goal_img, c_img));
+    end
 end
 
 % Print the rest of the information on the same line
-fprintf(' error %.2f, in %.2f seconds.\n',error, toc(startTime));
+fprintf(' error %.2f, in %.2f seconds.\n', error(1), toc(startTime));
 
 % Delete the temporary files
 system(['rm -rf ' tmpdir]);
