@@ -220,16 +220,32 @@ try
         raw_file_path, total_time);
     
     if isBatchMode()
+        % Matlab older than 2015 does not support svg conversion, use a
+        % custom function to save the file, the custom function is slower 
+        % and produces significantly larger files than the native one
+        matversion = version('-release');
+        custom_svg = str2double(matversion(1:4)) < 2015;
+        
         figurePath = [output_img_folder 'pca-real-error'];
         print(rerr_fig, figurePath, '-dtiff');
-        saveas(rerr_fig, figurePath, 'svg')
         saveas(rerr_fig, figurePath, 'fig');
+        
+        if custom_svg
+            plot2svg([figurePath '.svg'], rerr_fig);
+        else
+            saveas(rerr_fig, figurePath, 'svg')
+        end
         
         for i=1:num_error_foos
             figurePath = [output_img_folder 'pca-' func2str(error_foos{i}) '-error'];
             print(err_fig_handles(i), figurePath, '-dtiff');
-            saveas(err_fig_handles(i), figurePath, 'svg')
             saveas(err_fig_handles(i), figurePath, 'fig');
+            
+            if custom_svg
+                plot2svg([figurePath '.svg'], err_fig_handles(i));
+            else
+                saveas(err_fig_handles(i), figurePath, 'svg')
+            end
         end
     end
     
