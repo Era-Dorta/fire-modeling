@@ -5,9 +5,10 @@ if [ "$#" -le 0 ]; then
 	echo ""
 	echo "Usage: runHeatMapReconstruction.sh <solver>"
 	echo ""
-	echo "	Where <solver> can be any of [\"ga\", \"sa\"]"
-	echo "	\"ga\" -> Genetic Algorithm"
-	echo "	\"sa\" -> Simulated Annealing"
+	echo "	Where <solver> can be any of [\"ga\", \"sa\", \"ga-re\" ]"
+	echo "	\"ga\"    -> Genetic Algorithm"
+	echo "	\"sa\"    -> Simulated Annealing"
+	echo "	\"ga-re\" -> Genetic Algorithm with heat map resampling"
 	echo ""
 	exit 0 
 fi
