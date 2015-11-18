@@ -1,4 +1,4 @@
-function [ outheapmap ] = resampleHeatMap( inheatmap, mode )
+function [ outheapmap ] = resampleHeatMap( inheatmap, mode,  XYZnew)
 % Resamples the heat map, either by half or by double the size
 
 if strcmp(mode,'up')
@@ -47,10 +47,15 @@ Vq = interp3(X, Y, Z, V, Xq, Yq, Zq, 'linear', 0);
 
 %% Build the output
 
-% Get the non zero values
-nonzeroInd = find(Vq ~= 0);
-Vq = Vq(nonzeroInd);
-XYZnew = [Ynew(nonzeroInd), Xnew(nonzeroInd), Znew(nonzeroInd)];
+if nargin == 2
+    % Get the non zero values
+    nonzeroInd = find(Vq ~= 0);
+    Vq = Vq(nonzeroInd);
+    XYZnew = [Ynew(nonzeroInd), Xnew(nonzeroInd), Znew(nonzeroInd)];
+else
+    % Get the values given by the user
+    Vq = Vq(sub2ind(newsize, XYZnew(:,1), XYZnew(:,2), XYZnew(:,3)));
+end
 
 outheapmap = struct('xyz', XYZnew, 'v', Vq, 'size', newsize, 'count', ...
     size(XYZnew, 1));
