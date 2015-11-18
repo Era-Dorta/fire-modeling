@@ -214,14 +214,15 @@ try
     %% Save the important data in the folder
     disp('Saving data files and figures');
     
-    save([output_img_folder 'data.mat'], 'coeff', 'error_v', 'heat_map_v');
+    save([output_img_folder 'data.mat'], 'coeff', 'error_v', 'heat_map_v', ...
+        'real_error');
     
     saveErrorFunSummary(summary_file, num_samples, neigh_range, scene_name, ...
         raw_file_path, total_time);
     
     if isBatchMode()
         % Matlab older than 2015 does not support svg conversion, use a
-        % custom function to save the file, the custom function is slower 
+        % custom function to save the file, the custom function is slower
         % and produces significantly larger files than the native one
         matversion = version('-release');
         custom_svg = str2double(matversion(1:4)) < 2015;
