@@ -33,7 +33,7 @@ while max(d_heat_map{end}.size) > 32
     
     % Save the downsampled in a file as we are going to use it as the
     % corresponding density for the downsampled heat map in Maya
-    d_heat_map{end}.filename = [paths_str.down_heat_map_folder 'density' ...
+    d_heat_map{end}.filename = [paths_str.output_folder 'density' ...
         num2str(d_heat_map{end}.size(1)) '.raw'];
     
     save_raw_file(d_heat_map{end}.filename, d_heat_map{end});
@@ -126,7 +126,7 @@ for i=1:num_ite
     if i < num_ite
         %% Save the best heat map in a raw file
         heat_map_name = ['heat-map' num2str(d_heat_map{i}.size(1)) '.raw'];
-        heat_map_path = [paths_str.down_heat_map_folder heat_map_name];
+        heat_map_path = [paths_str.output_folder heat_map_name];
         
         disp(['Current best heat map saved in ' heat_map_path]);
         
@@ -149,7 +149,7 @@ for i=1:num_ite
         sendToMaya(sendMayaScript, port, cmd);
         
         % Give the user some progress information
-        best_im_path = [paths_str.down_heat_map_folder best_im_name '.tif'];
+        best_im_path = [paths_str.output_folder best_im_name '.tif'];
         disp(['Rendering current best image in ' best_im_path ]);
         
         % Render the image

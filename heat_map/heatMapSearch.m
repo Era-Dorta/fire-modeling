@@ -125,7 +125,7 @@ try
                 sendMayaScript, port, mrLogPath, goal_img);
             
             % Path were the downsampled densities will be saved
-            paths_str.down_heat_map_folder = output_img_folder;
+            paths_str.output_folder = output_img_folder;
             
             % Extra paths needed in the solver
             paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
