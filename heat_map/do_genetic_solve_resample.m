@@ -11,7 +11,6 @@ paths_str.summary = [summarydir '/' summaryname];
 %% Options for the ga
 % Get default values
 options = gaoptimset(@ga);
-options.TimeLimit = time_limit;
 options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
 options.MutationFcn = @mutationadaptfeasible;
@@ -45,6 +44,9 @@ while max(d_heat_map{end}.size) > 32
     
     num_ite = num_ite + 1;
 end
+
+% Divide the time equally between each GA loop
+options.TimeLimit = time_limit / num_ite;
 
 % Flip the elements so that they go in increasing size
 d_heat_map = flip(d_heat_map);
