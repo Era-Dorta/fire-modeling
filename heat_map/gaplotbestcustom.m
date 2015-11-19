@@ -20,8 +20,19 @@ end
 if strcmp(flag, 'done')
     if isBatchMode()
         print(h, figurePath, '-dtiff');
-        saveas(h, figurePath, 'svg')
         saveas(h, figurePath, 'fig');
+        
+        % Matlab older than 2015 does not support svg conversion, use a
+        % custom function to save the file, the custom function is slower
+        % and produces significantly larger files than the native one
+        matversion = version('-release');
+        custom_svg = str2double(matversion(1:4)) < 2015;
+        
+        if custom_svg
+            plot2svg([figurePath '.svg'], h);
+        else
+            saveas(h, figurePath, 'svg')
+        end
     end
     return;
 end
