@@ -26,3 +26,8 @@ while [ "$isOpen" -eq 0 ] ; do
 done
 
 maya -batch -command "commandPort -n \":$PORT\";" &
+
+# sendToMaya command will wait for Maya to open and be ready, but weird
+# errors sometime happen, so give Maya some extra time before even
+# trying to open the port
+sleep 3
