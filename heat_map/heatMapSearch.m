@@ -118,9 +118,22 @@ try
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
                 summary_file);
         case 'ga-re'
+            % For the solve with reconstruction the size changes so leave
+            % those too parameters open, so the function can modify them
+            fitness_foo = @(v, xyz, whd)heat_map_fitness(v, xyz, whd, ...
+                error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
+                sendMayaScript, port, mrLogPath, goal_img);
+            
+            % Path were the downsampled densities will be saved
+            paths_str.down_heat_map_folder = output_img_folder;
+            
+            % Extra paths needed in the solver
+            paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
+            paths_str.mrLogPath = mrLogPath;
+            
             [heat_map_v, ~, ~] = do_genetic_solve_resample( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str);
+                paths_str, sendMayaScript, port);
         otherwise
             error('Invalid solver, choose one of [''ga'',''sa'']');
     end
@@ -135,6 +148,7 @@ try
     
     %% Save the best heat map in a raw file
     heat_map_path = [output_img_folder '/heat-map.raw'];
+    disp(['Final heat map saved in ' heat_map_path]);
     heat_map = struct('xyz', init_heat_map.xyz, 'v', heat_map_v, 'size', ...
         init_heat_map.size, 'count', init_heat_map.count);
     save_raw_file(heat_map_path, heat_map);
