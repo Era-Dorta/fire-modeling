@@ -11,12 +11,17 @@ paths_str.summary = [summarydir '/' summaryname];
 %% Options for the ga
 % Get default values
 options = gaoptimset(@ga);
-options.PopulationSize = 50;
-options.Generations = max(fix(max_ite / options.PopulationSize), 1);
 options.TimeLimit = time_limit;
 options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
 options.MutationFcn = @mutationadaptfeasible;
+
+% Population size for the maximum resolution
+populationInitSize = 15;
+
+% Factor by which the population increases for a GA run with half of the
+% resolution, population of a state i will be initSize * (scale ^ i)
+populationScale = 2;
 
 A = [];
 b = [];
@@ -54,6 +59,13 @@ for i=1:num_ite
     disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
     
     %% Iteration dependant GA parameters
+    
+    % Start with large population and decrease it
+    options.PopulationSize = populationInitSize * (populationScale ^ ...
+        (num_ite - i));
+    
+    options.Generations = max(fix(max_ite / options.PopulationSize), 1);
+    
     % Upper and lower bounds
     LB1 = ones(d_heat_map{i}.count, 1) * LB;
     UB1 = ones(d_heat_map{i}.count, 1) * UB;
@@ -66,17 +78,29 @@ for i=1:num_ite
     options.OutputFcns = plotf;
     
     %% Generate initial population
-    disp('Generating the initial population');
+    disp(['Generating the initial population of size ' num2str(options.PopulationSize)]);
     if i == 1
         % Rows are number of individuals, and columns are the dimensions
         options.InitialPopulation = getRandomInitPopulation( LB1', UB1', options.PopulationSize );
     else
         % Create from upsampling the result of the previous iteration
         options.InitialPopulation = [];
-        for j=1:size(out_population, 1)
+        
+        % TODO Assuming that the previous population is always equal or
+        % bigger than the current needed population
+        
+        % Take the options.PopulationSize best individuals from the
+        % previous optimization
+        
+        % Get a sorted index of the scores, ascending order as this are the
+        % result of the fitness function
+        [~, bestInd] = sort(scores);
+        
+        for j=1:options.PopulationSize
             % Construct a temporary heat map with the individual
-            temp_heat_map = struct('xyz', d_heat_map{i - 1}.xyz, 'v', out_population(j,:)', ...
-                'count', d_heat_map{i - 1}.count, 'size', d_heat_map{i - 1}.size);
+            temp_heat_map = struct('xyz', d_heat_map{i - 1}.xyz, 'v',  ...
+                out_population(bestInd(j),:)', 'count', d_heat_map{i - 1}.count, ...
+                'size', d_heat_map{i - 1}.size);
             
             % Up sample the data taking only the values indicated by d_heat_map{i}.xyz
             temp_heat_map = resampleHeatMap(temp_heat_map, 'up', d_heat_map{i}.xyz);
@@ -110,8 +134,9 @@ for i=1:num_ite
     
     startTime = tic;
     
-    [heat_map_v, best_error, exitflag, ~, out_population] = ga(new_fitness_foo, ...
-        d_heat_map{i}.count, A, b, Aeq, beq, LB1, UB1, nonlcon, options);
+    [heat_map_v, best_error, exitflag, ~, out_population, scores] =  ...
+        ga( new_fitness_foo, d_heat_map{i}.count, A, b, Aeq, beq, LB1, UB1, ...
+        nonlcon, options);
     
     totalTime = toc(startTime);
     disp(['Optimization total time ' num2str(totalTime)]);
