@@ -4,4 +4,4 @@ LOGFILE=`mktemp matlabXXXXXXXXXXXXXXXXXXXXX.log`
 LOGFILE=`pwd`"/"$LOGFILE
 
 # Runs matlab in batch mode with low priority
-nice -n10 matlab -nodesktop -nosplash -r "exploreErrorFun('$LOGFILE')" -logfile $LOGFILE
+nice -n20 matlab -nodesktop -nosplash -r "exploreErrorFun('$LOGFILE')" -logfile $LOGFILE
