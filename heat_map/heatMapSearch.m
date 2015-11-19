@@ -134,8 +134,13 @@ try
             [heat_map_v, ~, ~] = do_genetic_solve_resample( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
                 paths_str, sendMayaScript, port);
+        case 'grad'
+            [heat_map_v, ~, ~] = do_gradient_solve( ...
+                max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
+                summary_file);
         otherwise
-            error('Invalid solver, choose one of [''ga'',''sa'']');
+            solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'']';
+            error(['Invalid solver, choose one of ' solver_names ]);
     end
     
     % Solvers output a row vector, but we are working with column vectors
