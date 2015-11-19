@@ -124,32 +124,35 @@ for i=1:num_ite
     % Save information files for the intermediate optimizations, the
     % information for the last one will be saved outside of this function
     if i < num_ite
-        %%  Render the best image again
-        % Set the path for the image
-        best_im_name = ['optimized' num2str(d_heat_map{i}.size(1))];
-        best_im_path = [paths_str.down_heat_map_folder best_im_name '.tif'];
-        disp(['Rendering current best image in ' best_im_path ]);
-        
         %% Save the best heat map in a raw file
         heat_map_name = ['heat-map' num2str(d_heat_map{i}.size(1)) '.raw'];
         heat_map_path = [paths_str.down_heat_map_folder heat_map_name];
+        
         disp(['Current best heat map saved in ' heat_map_path]);
+        
         heat_map = struct('xyz', d_heat_map{i}.xyz, 'v', heat_map_v', 'size', ...
             d_heat_map{i}.size, 'count', d_heat_map{i}.count);
+        
         save_raw_file(heat_map_path, heat_map);
         
-        %% Set the heat map file as temperature file
+        %%  Render the best image again
+        % Set the heat map file as temperature file
         % It cannot have ~, and it has to be the full path, so use the HOME var
         cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
         cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
         sendToMaya(sendMayaScript, port, cmd);
         
-        %% Set the folder and name of the render image
+        % Set the folder and name of the render image
+        best_im_name = ['optimized' num2str(d_heat_map{i}.size(1))];
         cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
         cmd = [cmd paths_str.imprefixpath best_im_name '\"'];
         sendToMaya(sendMayaScript, port, cmd);
         
-        %% Render the image
+        % Give the user some progress information
+        best_im_path = [paths_str.down_heat_map_folder best_im_name '.tif'];
+        disp(['Rendering current best image in ' best_im_path ]);
+        
+        % Render the image
         tic;
         cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
         sendToMaya(sendMayaScript, port, cmd, 1, paths_str.mrLogPath);

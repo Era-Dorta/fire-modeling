@@ -141,30 +141,28 @@ try
     % Solvers output a row vector, but we are working with column vectors
     heat_map_v = heat_map_v';
     
-    %%  Render the best image again
-    % Set the path for the image
-    best_im_path = [output_img_folder 'optimized.tif'];
-    disp(['Rendering final image in ' best_im_path ]);
-    
     %% Save the best heat map in a raw file
-    heat_map_path = [output_img_folder '/heat-map.raw'];
+    heat_map_path = [output_img_folder 'heat-map.raw'];
     disp(['Final heat map saved in ' heat_map_path]);
     heat_map = struct('xyz', init_heat_map.xyz, 'v', heat_map_v, 'size', ...
         init_heat_map.size, 'count', init_heat_map.count);
     save_raw_file(heat_map_path, heat_map);
     
-    %% Set the heat map file as temperature file
+    %%  Render the best image again
+    % Set the heat map file as temperature file
     % It cannot have ~, and it has to be the full path, so use the HOME var
     cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
     sendToMaya(sendMayaScript, port, cmd);
     
-    %% Set the folder and name of the render image
+    % Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
     sendToMaya(sendMayaScript, port, cmd);
     
-    %% Render the image
+    disp(['Rendering final image in ' output_img_folder 'optimized.tif' ]);
+    
+    % Render the image
     tic;
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
     sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
