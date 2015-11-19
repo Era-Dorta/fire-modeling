@@ -26,7 +26,7 @@ UB = ones(init_heat_map.count, 1) * UB;
 % init_guess = init_heat_map.v';
 init_guess = getRandomInitPopulation( LB', UB', 1);
 
-%% Call the genetic algorithm optimization
+%% Call the simulated annealing optimization
 % Use initial_heat_map as first guess
 
 [heat_map_v, best_error, exitflag] = simulannealbnd(fitness_foo, ...
