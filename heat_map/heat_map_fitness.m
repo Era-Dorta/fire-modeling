@@ -34,7 +34,7 @@ sendToMaya(sendMayaScript, port, cmd);
 startTime = tic;
 cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
 sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
-fprintf('Image rendered with');
+%fprintf('Image rendered with');
 
 %% Compute the error with respect to the goal image
 c_img = imread([output_img_folder tmpdirName '/fireimage.tif']);
@@ -53,7 +53,7 @@ for i=1:num_error_foos
 end
 
 % Print the rest of the information on the same line
-fprintf(' error %.2f, in %.2f seconds.\n', error(1), toc(startTime));
+%fprintf(' error %.2f, in %.2f seconds.\n', error(1), toc(startTime));
 
 % Delete the temporary files
 system(['rm -rf ' tmpdir]);
