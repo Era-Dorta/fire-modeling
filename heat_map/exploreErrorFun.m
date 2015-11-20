@@ -13,7 +13,12 @@ num_samples = 1000;
 % explore
 neigh_range = [-20, 20];
 
+% Avoid closing other Maya instances
 is_maya_open = false;
+
+% Add the subfolders of heat map to the Matlab path
+addpath(genpath(fileparts(mfilename('fullpath'))));
+
 project_path = '~/maya/projects/fire/';
 scene_name = 'test71_propane_one_flame_newdata';
 raw_file_path = 'data/from_dmitry/NewData/oneFlame/synthetic32x32x32.raw';
@@ -48,9 +53,9 @@ try
     sol_img = sol_img(:,:,1:3); % Transparency is not used, so ignore it
     
     %% SendMaya script initialization
-    % Render script is located on the same folder as this file
+    % Render script is located in the same maya_comm folder
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
-    sendMayaScript = [currentFolder '/sendMaya.rb'];
+    sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
     
     %% Volumetric data initialization
     init_heat_map = read_raw_file([project_path raw_file_path]);

@@ -14,6 +14,9 @@ function heatMapSearch(solver, logfile)
 
 is_maya_open = false; % Make sure not to close other users Maya instances
 
+% Add the subfolders of heat map to the Matlab path
+addpath(genpath(fileparts(mfilename('fullpath'))));
+
 max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 time_limit = 24 * 60 * 60; % In seconds
@@ -63,9 +66,9 @@ try
     goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
     
     %% SendMaya script initialization
-    % Render script is located on the same folder as this file
+    % Render script is located in the same maya_comm folder
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
-    sendMayaScript = [currentFolder '/sendMaya.rb'];
+    sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
     
     %% Volumetric data initialization
     init_heat_map = read_raw_file([project_path raw_file_path]);
