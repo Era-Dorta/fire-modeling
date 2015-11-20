@@ -15,7 +15,16 @@ options.MutationFcn = @mutationadaptfeasible;
 % creates a figure outside of our control and it makes the plotting and
 % saving too dificult
 plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.errorfig);
-options.OutputFcns = plotf;
+
+% Matlab is using cputime to measure time limits in GA and Simulated
+% Annealing solvers, which just doesn't work with multiple cores and
+% multithreading even if the value is scaled with the number of cores.
+% Add a custom function to do the time limit check
+startTime = tic;
+timef = @(options, state, flag)ga_time_limit( options, state, flag, startTime);
+
+options.OutputFcns = {plotf, timef};
+
 
 LB = ones(heat_map_size, 1) * LB;
 UB = ones(heat_map_size, 1) * UB;
@@ -30,7 +39,6 @@ beq = [];
 nonlcon = [];
 
 %% Call the genetic algorithm optimization
-startTime = tic;
 
 [heat_map_v, best_error, exitflag] = ga(fitness_foo, heat_map_size, ...
     A, b, Aeq, beq, LB, UB, nonlcon, options);

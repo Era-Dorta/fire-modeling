@@ -76,10 +76,19 @@ for i=1:num_ite
     
     % Function executed on each iteration, there is a PlotFcns too, but it
     % creates a figure outside of our control and it makes the plotting and
-    % saving too dificult
+    % saving figures too dificult
     plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, ...
         [paths_str.errorfig num2str(d_heat_map{i}.size(1))]);
-    options.OutputFcns = plotf;
+    
+    % Matlab is using cputime to measure time limits in GA and Simulated
+    % Annealing solvers, which just doesn't work with multiple cores and
+    % multithreading even if the value is scaled with the number of cores.
+    % Add a custom function to do the time limit check
+    
+    startTime = tic;
+    timef = @(options, state, flag)ga_time_limit( options, state, flag, startTime);
+    
+    options.OutputFcns = {plotf, timef};
     
     %% Generate initial population
     disp(['Generating the initial population of size ' num2str(options.PopulationSize)]);
@@ -135,8 +144,6 @@ for i=1:num_ite
     
     %% Call the genetic algorithm optimization for the first
     disp('Starting GA optimization');
-    
-    startTime = tic;
     
     [heat_map_v, best_error, exitflag, ~, out_population, scores] =  ...
         ga( new_fitness_foo, d_heat_map{i}.count, A, b, Aeq, beq, LB1, UB1, ...

@@ -10,6 +10,15 @@ options.TimeLimit = time_limit;
 options.InitialTemperature = (UB - LB) / 6;
 options.Display = 'iter'; % Give some output on each iteration
 
+% Matlab is using cputime to measure time limits in GA and Simulated
+% Annealing solvers, which just doesn't work with multiple cores and
+% multithreading even if the value is scaled with the number of cores.
+% Add a custom function to do the time limit check
+startTime = tic;
+timef = @(options, state, flag)sa_time_limit( options, state, flag, startTime);
+
+options.OutputFcns = timef;
+
 LB = ones(init_heat_map.count, 1) * LB;
 UB = ones(init_heat_map.count, 1) * UB;
 
@@ -19,7 +28,6 @@ init_guess = getRandomInitPopulation( LB', UB', 1);
 
 %% Call the genetic algorithm optimization
 % Use initial_heat_map as first guess
-startTime = tic;
 
 [heat_map_v, best_error, exitflag] = simulannealbnd(fitness_foo, ...
     init_guess, LB, UB, options);
