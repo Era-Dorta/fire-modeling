@@ -98,12 +98,6 @@ try
     cmd = ['file -open \"scenes/' scene_name '.ma\"'];
     sendToMaya(sendMayaScript, port, cmd);
     
-    % Force a frame update, as batch rendering later does not do it, this
-    % will fix any file name errors due to using the same scene on
-    % different computers
-    cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-    sendToMaya(sendMayaScript, port, cmd);
-    
     % Set an appropriate march increment to reduced voxel data
     cmd = ['setAttr fire_volume_shader.march_increment ' num2str(march_size)];
     sendToMaya(sendMayaScript, port, cmd);
@@ -120,6 +114,12 @@ try
     
     % Set an appropriate march increment to reduced voxel data
     cmd = 'setAttr fire_volume_shader.temperature_offset 0';
+    sendToMaya(sendMayaScript, port, cmd);
+    
+    % Force a frame update, as batch rendering later does not do it, this
+    % will fix any file name errors due to using the same scene on
+    % different computers
+    cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
     sendToMaya(sendMayaScript, port, cmd);
     
     %% Ouput folder
