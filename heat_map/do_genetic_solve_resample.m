@@ -53,6 +53,8 @@ d_heat_map = flip(d_heat_map);
 
 disp(['Done down sampling, will run the GA ' num2str(num_ite) ' times']);
 
+mainStartTime = tic;
+
 %% Main optimization loop
 for i=1:num_ite
     disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
@@ -141,7 +143,7 @@ for i=1:num_ite
         nonlcon, options);
     
     totalTime = toc(startTime);
-    disp(['Optimization total time ' num2str(totalTime)]);
+    disp(['GA optimization iteration time ' num2str(totalTime)]);
     
     %% Save summary file
     save_summary_file([paths_str.summary num2str(d_heat_map{i}.size(1)) summaryext],  ...
@@ -186,6 +188,8 @@ for i=1:num_ite
         disp(['Image rendered in ' num2str(toc) ]);
     end
 end
+
+disp(['Total optimization time was ' num2str(toc(mainStartTime))]);
 
 end
 
