@@ -97,6 +97,12 @@ try
     cmd = ['file -open \"scenes/' scene_name '.ma\"'];
     sendToMaya(sendMayaScript, port, cmd);
     
+    % Force a frame update, as batch rendering later does not do it, this
+    % will fix any file name errors due to using the same scene on
+    % different computers
+    cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
+    sendToMaya(sendMayaScript, port, cmd);
+    
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
     system(['mkdir ' output_img_folder]);
