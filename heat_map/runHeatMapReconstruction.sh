@@ -19,4 +19,4 @@ LOGFILE=`mktemp matlabXXXXXXXXXXXXXXXXXXXXX.log`
 LOGFILE=`pwd`"/"$LOGFILE
 
 # Runs matlab in batch mode with low priority
-nice -n20 matlab -nodesktop -nosplash -r "heatMapSearch('$1', '$LOGFILE')" -logfile $LOGFILE
+nice -n20 matlab -nodesktop -nosplash -r "runHeatMapReconstruction('$1', '$LOGFILE')" -logfile $LOGFILE

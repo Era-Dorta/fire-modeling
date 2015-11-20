@@ -1,4 +1,4 @@
-function heatMapSearch(solver, logfile)
+function heatMapReconstruction(solver, logfile)
 % Function that performs a heat map reconstruction from a goal image
 % Solver should be one of the following
 % 'ga' -> Genetic Algorithms
