@@ -15,6 +15,11 @@ options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
 options.MutationFcn = @mutationadaptfeasible;
 
+% The volume size will be at least this small, as we are recursively
+% dividing by 2 the original size, it might be smaller if there is no
+% integer i such that init_heat_map.size / 2^i == 32
+minimumVolumeSize = 32;
+
 % Population size for the maximum resolution
 populationInitSize = 15;
 
@@ -32,7 +37,7 @@ nonlcon = [];
 disp('Down sampling the density volume');
 d_heat_map{1} = init_heat_map;
 num_ite = 1;
-while max(d_heat_map{end}.size) > 32
+while max(d_heat_map{end}.size) > minimumVolumeSize
     d_heat_map{end + 1} = resampleHeatMap(d_heat_map{end}, 'down');
     
     % Save the downsampled in a file as we are going to use it as the
