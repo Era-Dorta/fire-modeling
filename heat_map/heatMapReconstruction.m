@@ -19,9 +19,9 @@ addpath(genpath(fileparts(mfilename('fullpath'))));
 
 max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
+LB = 300; % Lower bounds, no less than 300K -> 27C
+UB = 10000; % Upper bounds, no more than 10000K -> 9727C
 time_limit = 24 * 60 * 60; % In seconds
-LB = 1000; % Lower bounds, no less than 1000K -> 600C
-UB = 10000; % Upper bounds, no more than 10000K -> 9600C
 
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
