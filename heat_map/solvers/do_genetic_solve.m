@@ -45,6 +45,9 @@ nonlcon = [];
 LB = ones(heat_map_size, 1) * LB;
 UB = ones(heat_map_size, 1) * UB;
 
+disp(['Population size ' num2str(options.PopulationSize) ', number of '...
+    'variables ' num2str(heat_map_size)]);
+
 %% Call the genetic algorithm optimization
 
 [heat_map_v, best_error, exitflag] = ga(fitness_foo, heat_map_size, ...

@@ -75,6 +75,9 @@ for i=1:num_ite
     options.PopulationSize = populationInitSize * (populationScale ^ ...
         (num_ite - i));
     
+    disp(['Population size ' num2str(options.PopulationSize) ', number of '...
+        'variables ' num2str(d_heat_map{i}.count)]);
+    
     options.Generations = max(fix(max_ite / options.PopulationSize), 1);
     
     % Upper and lower bounds
