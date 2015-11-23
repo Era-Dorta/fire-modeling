@@ -47,7 +47,7 @@ for j=1:individualsToCreate
     InitialPopulation(initPopProvided + j, :) = temp_heat_map.v';
 end
 
-if nargin == 4
+if nargin == 8
     save(savePath, 'InitialPopulation');
 end
 
