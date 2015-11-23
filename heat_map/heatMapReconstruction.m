@@ -58,7 +58,8 @@ try
     summary_file = [output_img_folder 'summary_file.txt'];
     % It will be saved as fig and tiff
     error_figure = [output_img_folder 'error_function'];
-    paths_str = struct('summary',  summary_file, 'errorfig', error_figure);
+    paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
+        'output_folder',  output_img_folder);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
     % Read goal image
@@ -132,10 +133,7 @@ try
             fitness_foo = @(v, xyz, whd)heat_map_fitness(v, xyz, whd, ...
                 error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
                 sendMayaScript, port, mrLogPath, goal_img);
-            
-            % Path were the downsampled densities will be saved
-            paths_str.output_folder = output_img_folder;
-            
+                       
             % Extra paths needed in the solver
             paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
             paths_str.mrLogPath = mrLogPath;

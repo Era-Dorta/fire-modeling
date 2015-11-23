@@ -11,6 +11,17 @@ options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
 options.MutationFcn = @mutationadaptfeasible;
 
+% Path where the initial population will be saved
+init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
+
+% Random initial population
+options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
+
+% Linearly spaced population, giving an extra path argument makes the
+% creation function save the population in a file
+% options.CreationFcn = @(x, y, z)gacreationlinspace(x , y, z, ...
+%     init_population_path);
+
 % Function executed on each iteration, there is a PlotFcns too, but it
 % creates a figure outside of our control and it makes the plotting and
 % saving too dificult
@@ -25,18 +36,14 @@ timef = @(options, state, flag)ga_time_limit( options, state, flag, startTime);
 
 options.OutputFcns = {plotf, timef};
 
-
-LB = ones(heat_map_size, 1) * LB;
-UB = ones(heat_map_size, 1) * UB;
-
-% Rows are number of individuals, and columns are the dimensions
-options.InitialPopulation = getRandomInitPopulation( LB', UB', options.PopulationSize );
-
+% Our only constrains are upper and lower bounds
 A = [];
 b = [];
 Aeq = [];
 beq = [];
 nonlcon = [];
+LB = ones(heat_map_size, 1) * LB;
+UB = ones(heat_map_size, 1) * UB;
 
 %% Call the genetic algorithm optimization
 

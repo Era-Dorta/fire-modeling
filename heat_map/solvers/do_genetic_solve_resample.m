@@ -97,37 +97,21 @@ for i=1:num_ite
     
     options.OutputFcns = {plotf, timef};
     
-    %% Generate initial population
-    disp(['Generating the initial population of size ' num2str(options.PopulationSize)]);
+    %% Set the initial population function generator
+    init_population_path = [paths_str.output_folder 'InitialPopulation' ...
+        size_str '.mat'];
     if i == 1
-        % Rows are number of individuals, and columns are the dimensions
-        options.InitialPopulation = getRandomInitPopulation( LB1', UB1', options.PopulationSize );
+        % Random initial population
+        options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
+        
+        % Linearly spaced population
+        % options.CreationFcn = @(x, y, z)gacreationlinspace(x , y, z, ...
+        %     init_population_path);
     else
         % Create from upsampling the result of the previous iteration
-        options.InitialPopulation = [];
-        
-        % TODO Assuming that the previous population is always equal or
-        % bigger than the current needed population
-        
-        % Take the options.PopulationSize best individuals from the
-        % previous optimization
-        
-        % Get a sorted index of the scores, ascending order as this are the
-        % result of the fitness function
-        [~, bestInd] = sort(scores);
-        
-        for j=1:options.PopulationSize
-            % Construct a temporary heat map with the individual
-            temp_heat_map = struct('xyz', d_heat_map{i - 1}.xyz, 'v',  ...
-                out_population(bestInd(j),:)', 'count', d_heat_map{i - 1}.count, ...
-                'size', d_heat_map{i - 1}.size);
-            
-            % Up sample the data taking only the values indicated by d_heat_map{i}.xyz
-            temp_heat_map = resampleHeatMap(temp_heat_map, 'up', d_heat_map{i}.xyz);
-            
-            % Set the new individual for the next iteration
-            options.InitialPopulation(j, :) = temp_heat_map.v';
-        end
+        options.CreationFcn = @(x, y, z)gacreationupsample(x , y, z, scores, ...
+            out_population, d_heat_map{i - 1}, d_heat_map{i}, ...
+            init_population_path);
     end
     
     %% Fitness function
