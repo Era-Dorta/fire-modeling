@@ -17,11 +17,6 @@ if nargin == 9
     fprintf(fileId, 'Initial guess data was taken from %s\n', x0_file);
 end
 
-% Initial population is a huge vector, better ignore for the moment
-if(isfield(options,'InitialPopulation'))
-    options = rmfield(options,'InitialPopulation');
-end
-
 % Convert options to cell
 fields = repmat(fieldnames(options), numel(options), 1);
 values = struct2cell(options);

@@ -67,6 +67,8 @@ for i=1:num_ite
         num2str(d_heat_map{i}.size)]);
     disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
     
+    size_str = num2str(d_heat_map{i}.size(1));
+    
     %% Iteration dependant GA parameters
     
     % Start with large population and decrease it
@@ -83,7 +85,7 @@ for i=1:num_ite
     % creates a figure outside of our control and it makes the plotting and
     % saving figures too dificult
     plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, ...
-        [paths_str.errorfig num2str(d_heat_map{i}.size(1))]);
+        [paths_str.errorfig size_str]);
     
     % Matlab is using cputime to measure time limits in GA and Simulated
     % Annealing solvers, which just doesn't work with multiple cores and
@@ -158,15 +160,21 @@ for i=1:num_ite
     disp(['GA optimization iteration time ' num2str(totalTime)]);
     
     %% Save summary file
-    save_summary_file([paths_str.summary num2str(d_heat_map{i}.size(1)) summaryext],  ...
+    % In the summary file just say were the init population file was saved
+    init_population = options.InitialPopulation;
+    options.InitialPopulation = init_population_path;
+    
+    save_summary_file([paths_str.summary size_str summaryext],  ...
         'Genetic Algorithms Resample', best_error, d_heat_map{i}.size(1), options, ...
         LB1(1), UB1(1), totalTime);
+    
+    options.InitialPopulation = init_population;
     
     % Save information files for the intermediate optimizations, the
     % information for the last one will be saved outside of this function
     if i < num_ite
         %% Save the best heat map in a raw file
-        heat_map_name = ['heat-map' num2str(d_heat_map{i}.size(1)) '.raw'];
+        heat_map_name = ['heat-map' size_str '.raw'];
         heat_map_path = [paths_str.output_folder heat_map_name];
         
         disp(['Current best heat map saved in ' heat_map_path]);
@@ -184,7 +192,7 @@ for i=1:num_ite
         sendToMaya(sendMayaScript, port, cmd);
         
         % Set the folder and name of the render image
-        best_im_name = ['optimized' num2str(d_heat_map{i}.size(1))];
+        best_im_name = ['optimized' size_str];
         cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
         cmd = [cmd paths_str.imprefixpath best_im_name '\"'];
         sendToMaya(sendMayaScript, port, cmd);

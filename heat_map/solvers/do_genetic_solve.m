@@ -47,6 +47,8 @@ totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file
+% In the summary file just say were the init population file was saved
+options.InitialPopulation = init_population_path;
 save_summary_file(paths_str.summary, 'Genetic Algorithms', best_error, ...
     heat_map_size, options, LB(1), UB(1), totalTime);
 end
