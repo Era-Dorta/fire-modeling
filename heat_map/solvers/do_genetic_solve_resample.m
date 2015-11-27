@@ -33,6 +33,10 @@ Aeq = [];
 beq = [];
 nonlcon = [];
 
+summary_data.minimumVolumeSize = minimumVolumeSize;
+summary_data.populationInitSize = populationInitSize;
+summary_data.populationScale = populationScale;
+
 %% Down sample the heat map
 disp('Down sampling the density volume');
 d_heat_map{1} = init_heat_map;
