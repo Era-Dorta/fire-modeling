@@ -55,7 +55,7 @@ try
     % Create a new folder to store the data
     output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
     output_img_folder_name = ['attr_search_' num2str(dir_num) '/'];
-    summary_file = [output_img_folder 'summary_file.txt'];
+    summary_file = [output_img_folder 'summary_file'];
     % It will be saved as fig and tiff
     error_figure = [output_img_folder 'error_function'];
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...

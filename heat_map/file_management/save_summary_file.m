@@ -1,6 +1,12 @@
 function save_summary_file( summary_file, summary_data, options )
-
 % Save a summary file for the optimization method
+
+% Save the data in a mat file
+save([summary_file '.mat'], 'summary_data', 'options');
+
+% Also save it in a text file
+summary_file = [summary_file '.txt'];
+
 fileId = fopen(summary_file, 'w');
 
 try
