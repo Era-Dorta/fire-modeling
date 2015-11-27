@@ -46,7 +46,7 @@ try
     output_img_folder = [scene_img_folder 'error_fun_' num2str(dir_num) '/'];
     output_img_folder_name = ['error_fun_' num2str(dir_num) '/'];
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
-    summary_file = [output_img_folder 'summary_file.txt'];
+    summary_file = [output_img_folder 'summary_file'];
     
     % Read goal image
     sol_img = imread(sol_img_path);
@@ -228,8 +228,14 @@ try
     save([output_img_folder 'data.mat'], 'coeff', 'error_v', 'heat_map_v', ...
         'real_error');
     
-    saveErrorFunSummary(summary_file, num_samples, neigh_range, scene_name, ...
-        raw_file_path, total_time);
+    summary_data = struct('SolutionImg', sol_img_path, 'MayaScene', ...
+        [project_path 'scenes/' scene_name '.ma'], 'NumberOfSamples',  ...
+        num_samples, 'NeighbourhoodRange', neigh_range, 'ExploreTime', ...
+        total_time, 'TemperatureFile', raw_file_path);
+    
+    summary_data.ErrorFncs = cell2cellstr(error_foos);
+    
+    saveErrorFncSummary(summary_file, summary_data);
     
     if isBatchMode()
         % Matlab older than 2015 does not support svg conversion, use a
