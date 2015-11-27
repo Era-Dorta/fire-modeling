@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve_resample( ...
     max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
-    sendMayaScript, port)
+    sendMayaScript, port, summary_data)
 % Genetics Algorithm solver for heat map reconstruction with heat map
 % resampling scheme for faster convergence
 
@@ -151,9 +151,16 @@ for i=1:num_ite
     init_population = options.InitialPopulation;
     options.InitialPopulation = init_population_path;
     
-    save_summary_file([paths_str.summary size_str summaryext],  ...
-        'Genetic Algorithms Resample', best_error, d_heat_map{i}.size(1), options, ...
-        LB1(1), UB1(1), totalTime);
+    summary_data.OptimizationMethod = 'Genetic Algorithms Resample';
+    summary_data.ImageError = best_error;
+    summary_data.HeatMapSize = d_heat_map{i}.size;
+    summary_data.HeatMapNumVariables = d_heat_map{i}.count;
+    summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
+    summary_data.LowerBounds = LB(1);
+    summary_data.UpperBounds = UB(1);
+    
+    save_summary_file([paths_str.summary size_str summaryext], summary_data, ...
+        options);
     
     options.InitialPopulation = init_population;
     

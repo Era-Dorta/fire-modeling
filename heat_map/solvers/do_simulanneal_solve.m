@@ -1,5 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
-    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, summary_file)
+    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, summary_file, ...
+    summary_data)
 % Simulated Annealing solver for heat map reconstruction
 %% Options for the SA
 % Get default values
@@ -36,7 +37,16 @@ totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file
-save_summary_file(summary_file, 'Simulated Annealing', best_error, ...
-    init_heat_map.count, options, LB(1), UB(1), totalTime, init_heat_map.filename);
+
+summary_data.OptimizationMethod = 'Simulated Annealing';
+summary_data.ImageError = best_error;
+summary_data.HeatMapSize = init_heat_map.size;
+summary_data.HeatMapNumVariables = init_heat_map.count;
+summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
+summary_data.LowerBounds = LB(1);
+summary_data.UpperBounds = UB(1);
+summary_data.InitGuessFile = init_heat_map.filename;
+
+save_summary_file(summary_file, summary_data, options);
 end
 

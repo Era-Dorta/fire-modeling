@@ -116,35 +116,40 @@ try
         error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
         sendMayaScript, port, mrLogPath, goal_img);
     
+    %% Summary extra data
+    summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...
+        [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
+        func2str(error_foo{:}));
+    
     %% Solver call
     disp('Launching optimization algorithm');
     switch solver
         case 'ga'
             [heat_map_v, ~, ~] = do_genetic_solve( max_ite, ...
-                time_limit, LB, UB, init_heat_map.count, fitness_foo, ...
-                paths_str);
+                time_limit, LB, UB, init_heat_map, fitness_foo, ...
+                paths_str, summary_data);
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                summary_file);
+                summary_file, summary_data);
         case 'ga-re'
             % For the solve with reconstruction the size changes so leave
             % those too parameters open, so the function can modify them
             fitness_foo = @(v, xyz, whd)heat_map_fitness(v, xyz, whd, ...
                 error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
                 sendMayaScript, port, mrLogPath, goal_img);
-                       
+            
             % Extra paths needed in the solver
             paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
             paths_str.mrLogPath = mrLogPath;
             
             [heat_map_v, ~, ~] = do_genetic_solve_resample( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, sendMayaScript, port);
+                paths_str, sendMayaScript, port, summary_data);
         case 'grad'
             [heat_map_v, ~, ~] = do_gradient_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                summary_file);
+                summary_file, summary_data);
         otherwise
             solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'']';
             error(['Invalid solver, choose one of ' solver_names ]);
@@ -152,6 +157,8 @@ try
     
     % Solvers output a row vector, but we are working with column vectors
     heat_map_v = heat_map_v';
+    
+    %% Add the error function to the summary file
     
     %% Save the best heat map in a raw file
     heat_map_path = [output_img_folder 'heat-map.raw'];

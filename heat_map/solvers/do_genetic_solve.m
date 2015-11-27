@@ -1,5 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve( ...
-    max_ite, time_limit, LB, UB, heat_map_size, fitness_foo, paths_str)
+    max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
+    summary_data)
 % Genetics Algorithm solver for heat map reconstruction
 %% Options for the ga
 % Get default values
@@ -42,15 +43,15 @@ b = [];
 Aeq = [];
 beq = [];
 nonlcon = [];
-LB = ones(heat_map_size, 1) * LB;
-UB = ones(heat_map_size, 1) * UB;
+LB = ones(init_heat_map.count, 1) * LB;
+UB = ones(init_heat_map.count, 1) * UB;
 
 disp(['Population size ' num2str(options.PopulationSize) ', number of '...
-    'variables ' num2str(heat_map_size)]);
+    'variables ' num2str(init_heat_map.count)]);
 
 %% Call the genetic algorithm optimization
 
-[heat_map_v, best_error, exitflag] = ga(fitness_foo, heat_map_size, ...
+[heat_map_v, best_error, exitflag] = ga(fitness_foo, init_heat_map.count, ...
     A, b, Aeq, beq, LB, UB, nonlcon, options);
 
 totalTime = toc(startTime);
@@ -59,7 +60,15 @@ disp(['Optimization total time ' num2str(totalTime)]);
 %% Save summary file
 % In the summary file just say were the init population file was saved
 options.InitialPopulation = init_population_path;
-save_summary_file(paths_str.summary, 'Genetic Algorithms', best_error, ...
-    heat_map_size, options, LB(1), UB(1), totalTime);
+
+summary_data.OptimizationMethod = 'Genetic Algorithms';
+summary_data.ImageError = best_error;
+summary_data.HeatMapSize = init_heat_map.size;
+summary_data.HeatMapNumVariables = init_heat_map.count;
+summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
+summary_data.LowerBounds = LB(1);
+summary_data.UpperBounds = UB(1);
+
+save_summary_file(paths_str.summary, summary_data, options);
 end
 

@@ -29,6 +29,10 @@ outcell(idx) = cellfun(@(x)tfcell{x + 1}, outcell(idx), 'UniformOutput', 0);
 idx = cellfun(@isempty, outcell);
 outcell(idx) = cellfun(@(x)'[]', outcell(idx), 'UniformOutput', 0);
 
+% Fail for struct values in the cell
+idx = cellfun(@isstruct, outcell);
+assert(sum(idx) == 0, 'cell2cellstr cannot handle structs');
+
 % Recursive call for cell values in the cell
 idx = cellfun(@iscell, outcell);
 outcell(idx) = cellfun(@(x)cell2cellstr(x), outcell(idx), 'UniformOutput', 0);

@@ -1,5 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_gradient_solve( ...
-    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, summary_file)
+    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, summary_file, ...
+    summary_data)
 % Gradient descent solver for heat map reconstruction
 %% Options for the gradient descent solver
 % Get default values
@@ -38,7 +39,25 @@ totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file
-save_summary_file(summary_file, 'Gradient descent', best_error, ...
-    init_heat_map.count, options, LB(1), UB(1), totalTime, init_heat_map.filename);
+
+summary_data.OptimizationMethod = 'Gradient descent';
+summary_data.ImageError = best_error;
+summary_data.HeatMapSize = init_heat_map.size;
+summary_data.HeatMapNumVariables = init_heat_map.count;
+summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
+summary_data.LowerBounds = LB(1);
+summary_data.UpperBounds = UB(1);
+summary_data.InitGuessFile = init_heat_map.filename;
+
+% For gradient, options is a class, convert it to struct to use it in the
+% save summary function, the struct() function also copies the private data
+% so copy the public one manually
+fields = fieldnames(options);
+for i=1:numel(fields)
+    opt_struct.(fields{i}) = options.(fields{i});
+end
+
+save_summary_file(summary_file, summary_data, opt_struct);
+
 end
 
