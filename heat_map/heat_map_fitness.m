@@ -16,7 +16,8 @@ volumetricData = struct('xyz', xyz, 'v', heat_map_v', 'size', whd, ...
 save_raw_file(heat_map_path, volumetricData);
 
 %% Set the heat map file as temperature file
-% We need the full path to the file or the rendering will fail
+% Either set the full path or set the file relative maya path for
+% temperature_file_first and force frame update to run
 cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
 cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
 sendToMaya(sendMayaScript, port, cmd);

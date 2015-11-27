@@ -103,9 +103,8 @@ try
     sendToMaya(sendMayaScript, port, cmd);
     
     % Set the density file to the reduced voxel data
-    % We need the full path to the file or the rendering will fail
-    cmd = 'setAttr -type \"string\" fire_volume_shader.density_file \"';
-    cmd = [cmd '$HOME/' init_heat_map.filename(3:end) '\"'];
+    cmd = 'setAttr -type \"string\" fire_volume_shader.density_file_first \"';
+    cmd = [cmd raw_file_path '\"'];
     sendToMaya(sendMayaScript, port, cmd);
     
     % Set temperature scale to 1 and offset to 0
@@ -146,7 +145,7 @@ try
         real_error(i) = norm(perturbation);
         
         % Print the current iteration number to show current progress
-        fprintf([num2str(i) '/' num2str(num_samples) ' ']);
+        fprintf([num2str(i) '/' num2str(num_samples) '\n']);
         
         % Render the image and compute the error
         heat_map_v(i, :) = init_heat_map.v' + perturbation';
