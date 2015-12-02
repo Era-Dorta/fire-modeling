@@ -227,39 +227,35 @@ DataT VoxelDataset<DataT, TreeT>::trilinear_interpolation(float x, float y,
 	// computational expense
 	// https://en.wikipedia.org/wiki/Tricubic_interpolation
 
-	// Got enough voxels around to interpolate
 	// Do simple triliniear interpolation
 	// http://www.scratchapixel.com/old/lessons/3d-advanced-lessons/interpolation/trilinear-interpolation/
-	if (x0 < width - 2 && y0 < height - 2 && z0 < depth - 2) {
-		int x1, y1, z1;
-		float tx, ty, tz;
 
-		x1 = x0 + 1;
-		y1 = y0 + 1;
-		z1 = z0 + 1;
+	int x1, y1, z1;
+	float tx, ty, tz;
 
-		// [0..1] interpolation value
-		tx = x - x0;
-		ty = y - y0;
-		tz = z - z0;
+	// Round up the indices
+	x1 = x0 + 1;
+	y1 = y0 + 1;
+	z1 = z0 + 1;
 
-		const DataT& c000 = accessor.getValue(openvdb::Coord(x0, y0, z0));
-		const DataT& c001 = accessor.getValue(openvdb::Coord(x0, y0, z1));
-		const DataT& c010 = accessor.getValue(openvdb::Coord(x0, y1, z0));
-		const DataT& c011 = accessor.getValue(openvdb::Coord(x0, y1, z1));
-		const DataT& c100 = accessor.getValue(openvdb::Coord(x1, y0, z0));
-		const DataT& c101 = accessor.getValue(openvdb::Coord(x1, y0, z1));
-		const DataT& c110 = accessor.getValue(openvdb::Coord(x1, y1, z0));
-		const DataT& c111 = accessor.getValue(openvdb::Coord(x1, y1, z1));
+	// [0..1] interpolation value
+	tx = x - x0;
+	ty = y - y0;
+	tz = z - z0;
 
-		DataT c0 = bilinear_interp(tx, ty, c000, c100, c010, c110);
-		DataT c1 = bilinear_interp(tx, ty, c001, c101, c011, c111);
+	const DataT& c000 = accessor.getValue(openvdb::Coord(x0, y0, z0));
+	const DataT& c001 = accessor.getValue(openvdb::Coord(x0, y0, z1));
+	const DataT& c010 = accessor.getValue(openvdb::Coord(x0, y1, z0));
+	const DataT& c011 = accessor.getValue(openvdb::Coord(x0, y1, z1));
+	const DataT& c100 = accessor.getValue(openvdb::Coord(x1, y0, z0));
+	const DataT& c101 = accessor.getValue(openvdb::Coord(x1, y0, z1));
+	const DataT& c110 = accessor.getValue(openvdb::Coord(x1, y1, z0));
+	const DataT& c111 = accessor.getValue(openvdb::Coord(x1, y1, z1));
 
-		return linear_interp(tz, c0, c1);
-	} else {
-		return accessor.getValue(
-				openvdb::Coord((int) (x + .5), (int) (y + .5), (int) (z + .5)));
-	}
+	DataT c0 = bilinear_interp(tx, ty, c000, c100, c010, c110);
+	DataT c1 = bilinear_interp(tx, ty, c001, c101, c011, c111);
+
+	return linear_interp(tz, c0, c1);
 }
 
 template<typename DataT, typename TreeT>
