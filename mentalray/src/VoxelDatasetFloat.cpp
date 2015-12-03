@@ -83,8 +83,8 @@ void VoxelDatasetFloat::apply_sin_perturbation() {
 
 float VoxelDatasetFloat::bilinear_interp(float tx, float ty, const float&c00,
 		const float&c01, const float&c10, const float&c11) const {
-	float c0 = linear_interp(tx, c00, c10);
-	float c1 = linear_interp(tx, c01, c11);
+	float c0 = linear_interp(tx, c00, c01);
+	float c1 = linear_interp(tx, c10, c11);
 	return linear_interp(ty, c0, c1);
 }
 

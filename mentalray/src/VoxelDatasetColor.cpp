@@ -120,8 +120,8 @@ void VoxelDatasetColor::compute_max_voxel_value() {
 openvdb::Vec3f VoxelDatasetColor::bilinear_interp(float tx, float ty,
 		const openvdb::Vec3f& c00, const openvdb::Vec3f&c01,
 		const openvdb::Vec3f& c10, const openvdb::Vec3f& c11) const {
-	openvdb::Vec3f c0 = linear_interp(tx, c00, c10);
-	openvdb::Vec3f c1 = linear_interp(tx, c01, c11);
+	openvdb::Vec3f c0 = linear_interp(tx, c00, c01);
+	openvdb::Vec3f c1 = linear_interp(tx, c10, c11);
 	return linear_interp(ty, c0, c1);
 }
 openvdb::Vec3f VoxelDatasetColor::linear_interp(float t,
