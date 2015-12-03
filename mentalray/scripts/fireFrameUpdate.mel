@@ -42,7 +42,6 @@ proc string fireNewFileName(string $filename, int $currentFrame){
 }
 
 global proc fireFrameUpdate(string $fireShader) {
-
 	if(!`objExists $fireShader`){
 		// Object was deleted, do nothing
 		return;
@@ -54,8 +53,32 @@ global proc fireFrameUpdate(string $fireShader) {
 	$densityFileName = `workspace -expandName $densityFileName`;
 	$newFile = `fireNewFileName $densityFileName $currentFrame`;
 
+	string $jobNames[] = `scriptJob -listJobs`;
+
 	if(`filetest -r $newFile`){ // If file does not exits, do not update
+		$found = 0;
+		$indx = -1;
+		// Look for the callback on density_file and kill it
+		for( $i=0; $i < `size $jobNames`; $i++){
+			if(`gmatch $jobNames[$i]  ("*" + $fireShader + ".density_file" + "*")`){
+				$found = 1;
+				$indx = $i;
+				break;
+			}
+		}
+
+		if($found){
+			$jobNumStrArr = `stringToStringArray $jobNames[$indx] ":"`;
+			string $jobNumStr = $jobNumStrArr[0];
+			$jobNum = (int)$jobNumStr;
+			scriptJob -kill $jobNum;
+		}
+		
 		setAttr -type "string" ($fireShader + ".density_file") $newFile;
+		
+		// Relaunch the callback
+		$fixScript = "fixFireDensityPaths( \"" + $fireShader + "\")";
+		scriptJob -runOnce true -attributeChange ($fireShader + ".density_file") $fixScript;
 	}
 	
 	$temperatureFileName = `getAttr ($fireShader + ".temperature_file_first")`;
@@ -63,6 +86,28 @@ global proc fireFrameUpdate(string $fireShader) {
 	$newFile = `fireNewFileName $temperatureFileName $currentFrame`;
 	
 	if(`filetest -r $newFile`){ 
+		$found = 0;
+		$indx = -1;
+		// Look for the callback on temperature_file and kill it
+		for( $i=0; $i < `size $jobNames`; $i++){
+			if(`gmatch $jobNames[$i] ("*" + $fireShader + ".temperature_file" + "*")`){
+				$found = 1;
+				$indx = $i;
+				break;
+			}
+		}
+
+		if($found){
+			$jobNumStrArr = `stringToStringArray $jobNames[$indx] ":"`;
+			string $jobNumStr = $jobNumStrArr[0];
+			$jobNum = (int)$jobNumStr;
+			scriptJob -kill $jobNum;
+		}
+		
 		setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
+		
+		// Relaunch the callback
+		$fixScript = "fixFireTemperaturePaths( \"" + $fireShader + "\")";
+		scriptJob -runOnce true -attributeChange ($fireShader + ".temperature_file") $fixScript;
 	}
 }

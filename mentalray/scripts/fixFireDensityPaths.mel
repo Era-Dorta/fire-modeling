@@ -1,0 +1,18 @@
+// If the user set the data paths with setAttr these functions should fix most
+// of the errors
+global proc fixFireDensityPaths(string $fireShader){
+	string $density_file = `getAttr ($fireShader + ".density_file")`;
+	
+	// Set the density file to the absolute path
+	string $dens_file_abs = `workspace -expandName $density_file`;	
+	setAttr -type "string" ($fireShader + ".density_file") $dens_file_abs;			
+	
+	// Set the density file first to the relative path
+	$dens_file_rel = `workspace -projectPath $density_file`;
+	setAttr -type "string" ($fireShader + ".density_file_first") $dens_file_rel;
+	
+	// Relaunch the callback, this way we avoid a recursive loop as we change the
+	// value of the file here
+	$fixScript = "fixFireDensityPaths( \"" + $fireShader + "\")";
+	scriptJob -runOnce true -attributeChange ($fireShader + ".density_file") $fixScript;
+}

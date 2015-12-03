@@ -1,0 +1,17 @@
+// If the user set the data paths with setAttr these functions should fix most
+// of the errors
+global proc fixFireTemperaturePaths(string $fireShader){
+	string $temp_file = `getAttr ($fireShader + ".temperature_file")`;
+	
+	// Set the file to the absolute path
+	string $temp_file_abs = `workspace -expandName $temp_file`;
+	setAttr -type "string" ($fireShader + ".temperature_file") $temp_file_abs;
+				
+	// Set the temperature file first to the relative path
+	$temp_file_rel = `workspace -projectPath $temp_file`;
+	setAttr -type "string" ($fireShader + ".temperature_file_first") $temp_file_rel;
+	
+	// Relaunch the callback
+	$fixScript = "fixFireTemperaturePaths( \"" + $fireShader + "\")";
+	scriptJob -runOnce true -attributeChange ($fireShader + ".temperature_file") $fixScript;
+}

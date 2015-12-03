@@ -153,10 +153,22 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr -l true { ($area_light + ".s") };
 	setAttr -l true { ($area_light + ".sh") };
 
-	// Launch a script to update the file names
+	// Launch scripts to fix the paths for users that do not use the GUI
+	$fixScript = "fixFireTemperaturePaths( \"" + $fire_shader + "\")";
+	scriptJob -runOnce true -attributeChange ($fire_shader + ".temperature_file") $fixScript;
+	
+	$fixScript = "fixFireDensityPaths( \"" + $fire_shader + "\")";
+	scriptJob -runOnce true -attributeChange ($fire_shader + ".density_file") $fixScript;
+
+	// Launch a script to update the file names on frame change
 	$updateScript = "fireFrameUpdate( \"" + $fire_shader + "\");";
 	$expression_name = ($fire_shader + "FrameUpdate");
 	expression -string $updateScript -object $fire_shader -name $expression_name -alwaysEvaluate 1;
+	
+	// The update script will also execute every time the scene is opened, this
+	// is necessary as we must update *_file_first when the scene is open in a 
+	// new computer
+	scriptJob -event "SceneOpened" $updateScript;
 	
 	// Set the total number of frames of the playback bar
 	$fileNameNPath = `fireFileNameNoNumber $dens_file_abs`;
@@ -175,7 +187,7 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	if($currentMaxFrame > $maxNumberDataFiles){
 		playbackOptions -maxTime $maxNumberDataFiles;
 	}
-	
+		
 	select -r $cube_transform;
 	return $cube_transform;
 }
