@@ -29,3 +29,8 @@ Fire Shader for Mental Ray in Maya
 * All the parameters that affect the result of the shading network can be modified from the ```fire_volume_shader``` attribute editor
   * On each execution the shader will output the upper limit for ```High Samples``` for the current data in the mental ray console.
 * New instances can be created with the command ```instance -smartTransform;```
+
+#### Known issues
+* **Wrong data file paths**: data file paths are automatically set only when the file dialog is used. If the attributes are set via mel commands or copying and pasting, the hidden attributes `density_file_first` and `temperature_file_first` must be set to the data relative paths. Then `density_file` and `temperature_file` can be updated by either calling the mel script `fireFrameUpdate(<fire shader name>)`, going manually to a new frame or with the `setAttr` command where the new path is the full path to the data file.
+* **Flame does not appear on saved images**: go the cameraShape, Environment section, Image Plane -> Create, on the image plane change the Type to Texture and in Texture attach a lambert node with your preferred background colour.
+* **Tooltip clarification**: the help values indicated in scale attributes of the shader refer to the mean of the data after they are applied, e.g. if the mean of your temperature voxel data is 10 units then the scale should be around 200 so that the final temperatures are around 2000K. Note that the mean, max and other values are outputted in the Mental Ray log when the verbosity is set to 5 (info messages).
