@@ -81,18 +81,6 @@ void VoxelDatasetFloat::apply_sin_perturbation() {
 	block->pruneGrid();
 }
 
-float VoxelDatasetFloat::bilinear_interp(float tx, float ty, const float&c00,
-		const float&c01, const float&c10, const float&c11) const {
-	float c0 = linear_interp(tx, c00, c01);
-	float c1 = linear_interp(tx, c10, c11);
-	return linear_interp(ty, c0, c1);
-}
-
-float VoxelDatasetFloat::linear_interp(float t, const float&c0,
-		const float&c1) const {
-	return c0 * (1 - t) + c1 * t;
-}
-
 void VoxelDatasetFloat::close_file_and_clear(std::ifstream& fp) {
 	fp.close();
 	clear();

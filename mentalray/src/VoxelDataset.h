@@ -18,7 +18,7 @@ template<typename DataT, typename TreeT>
 class VoxelDataset {
 public:
 	enum InterpolationMode {
-		TRUNCATE, TRILINEAR
+		TRUNCATE, TRILINEAR, TRIQUADRATIC
 	};
 
 	typedef typename openvdb::Grid<TreeT>::Accessor Accessor;
@@ -58,15 +58,12 @@ public:
 
 	InterpolationMode getInterpolationMode() const;
 	void setInterpolationMode(InterpolationMode interpolation_mode);
-protected:
-	virtual DataT bilinear_interp(float tx, float ty, const DataT& c00,
-			const DataT& c01, const DataT& c10, const DataT& c11) const = 0;
-	virtual DataT linear_interp(float t, const DataT& c0,
-			const DataT& c1) const = 0;
 private:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
 	DataT trilinear_interpolation(float x, float y, float z,
+			const Accessor& accessor) const;
+	DataT triquadratic_interpolation(float x, float y, float z,
 			const Accessor& accessor) const;
 	DataT no_interpolation(float x, float y, float z,
 			const Accessor& accessor) const;

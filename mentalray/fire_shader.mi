@@ -12,7 +12,7 @@ declare shader
 			#: enum "ASCII Single Value:Raw Red:Raw Max RGB:ASCII Uintah:Raw2 Red:Raw2 Max RGB"
 		integer "interpolation_mode",
 			#: default 1
-			#: enum "None:Trilinear"
+			#: enum "None:Trilinear:Triquadratic"
 		scalar "scale",
 			#: default 1.0
 			#: softmin 0.0
@@ -42,7 +42,7 @@ declare shader
 			#: enum "Black Body:Absorption"
 		integer "interpolation_mode",
 			#: default 1
-			#: enum "None:Trilinear"
+			#: enum "None:Trilinear:Triquadratic"
 		scalar "visual_adaptation_factor",
 			#: default 0.0
 			#: min 0.0
@@ -115,7 +115,7 @@ declare shader
 				#: enum "ASCII Single Value:Raw Red:Raw Max RGB:ASCII Uintah:Raw2 Red:Raw2 Max RGB"				
 			integer "interpolation_mode",
 				#: default 1
-				#: enum "None:Trilinear"
+				#: enum "None:Trilinear:Triquadratic"
 			integer "fuel_type",
 				#: default 1
 				#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple:Lithium-Red:Barium-Pale-Green:Sodium-Yellow:Cobalt-Silver-White:Scandium-Orange"

@@ -31,10 +31,6 @@ public:
 			FILE_FORMAT file_format = RAW_RED);
 	void apply_sin_perturbation();
 protected:
-	virtual float bilinear_interp(float tx, float ty, const float& c00,
-			const float& c01, const float& c10, const float& c11) const;
-	virtual float linear_interp(float t, const float& c0,
-			const float& c1) const;
 	void close_file_and_clear(std::ifstream& fp);
 private:
 	bool initialize_with_file_acii_single(const std::string& filename);

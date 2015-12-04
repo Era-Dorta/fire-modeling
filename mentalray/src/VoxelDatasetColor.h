@@ -29,13 +29,9 @@ public:
 			float visual_adaptation_factor, const std::string& filename);
 	const miColor& get_max_voxel_value();
 	virtual void compute_max_voxel_value();
-protected:
-	virtual openvdb::Vec3f bilinear_interp(float tx, float ty,
-			const openvdb::Vec3f& c00, const openvdb::Vec3f& c01,
-			const openvdb::Vec3f& c10, const openvdb::Vec3f& c11) const;
-	virtual openvdb::Vec3f linear_interp(float t, const openvdb::Vec3f& c0,
-			const openvdb::Vec3f& c1) const;
 private:
+	openvdb::Vec3f linear_interp(float t, const openvdb::Vec3f& c0,
+			const openvdb::Vec3f& c1) const;
 	void compute_function_threaded(
 			void (VoxelDatasetColor::*foo)(unsigned, unsigned));
 	void compute_soot_constant_coefficients();
