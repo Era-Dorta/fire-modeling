@@ -399,7 +399,9 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 		mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
 				rm_data.absorption_shader, nullptr);
 
-		miaux_add_color(&total_sigma, &sigma_a);
+		if (miaux_color_is_ge(sigma_a, 0)) {
+			miaux_add_color(&total_sigma, &sigma_a);
+		}
 	}
 
 	// The transparency will automatically get multiplied by Maya engine
@@ -513,12 +515,17 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 				rm_data.absorption_shader, nullptr);
 
 		// If the color is black e^sigma_a == 1, thus Lx = L_next_march
-		if (!miaux_color_is_black(&sigma_a)) {
-
+		if (miaux_color_is_ge(sigma_a, 0)) {
 			// Get L_e = sigma_a * black body at state->point
 			miColor light_color;
 			mi_call_shader_x(&light_color, miSHADER_MATERIAL, state,
 					rm_data.emission_shader, nullptr);
+
+			// Higher order interpolation methods can produce negative colors,
+			// if that is the case ignore this value
+			if (!miaux_color_is_ge(light_color, 0)) {
+				continue;
+			}
 
 			miaux_scale_color(&light_color, rm_data.intensity);
 
