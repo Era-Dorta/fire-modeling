@@ -48,3 +48,7 @@ build
 
 # Phyton compiled files 
 *.pyc
+
+# Matlab mex compiled files
+*.mexw32
+*.mexa64
