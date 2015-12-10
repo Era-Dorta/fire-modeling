@@ -56,11 +56,20 @@ IF(MATLAB_FOUND)
 	  SET(EXTENSION ".mexa64")
 	ENDIF()
 
+	# Compile each function separately
 	FOREACH(FUNCTION ${FUNCTIONS})
 		ADD_LIBRARY(${FUNCTION}
 			SHARED
-		   "${FUNCTION}.cpp"
+		   "${FUNCTION}.cpp" ${COMMON_SRC}
 		)
+		
+		IF(WIN32)
+			# Boost linking
+			TARGET_LINK_LIBRARIES( ${FUNCTION} ${Boost_LIBRARIES} )
+		ENDIF(WIN32)
+
+		# OpenVDB linking
+		TARGET_LINK_LIBRARIES(${FUNCTION} ${OpenVdb_LIBRARIES})
 
 		# Library name should not have lib as name prefix
 		SET_TARGET_PROPERTIES(${FUNCTION} PROPERTIES PREFIX "")
