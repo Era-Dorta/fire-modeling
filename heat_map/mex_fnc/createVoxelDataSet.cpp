@@ -1,4 +1,5 @@
 #include "createVoxelDataSet.h"
+#include "matrix.h"
 
 void array2voxelDataset(const mxArray valuesMx[], const mxArray coordsMx[],
 		openvdb::FloatGrid::Ptr outGrid) {
