@@ -9,25 +9,30 @@ bool createVoxelDataSet(const mxArray valuesMx[], const mxArray coordsMx[],
 	const int valSize0 = mxGetM(valuesMx);
 	const int valSize1 = mxGetN(valuesMx);
 
-	mexPrintf("Values size %d ,%d\n", valSize0, valSize1);
-
 	double *values = mxGetPr(valuesMx);
-
-	mexPrintf("Values %f ,%f, %f\n", values[0], values[1], values[2]);
 
 	const int coordSize0 = mxGetM(coordsMx);
 	const int coordSize1 = mxGetN(coordsMx);
 
-	double *coord = mxGetPr(valuesMx);
+	double *coord = mxGetPr(coordsMx);
 
-	mexPrintf("coord size %d ,%d\n", coordSize0, coordSize1);
+	if (coordSize1 != 3) {
+		mexErrMsgTxt("Indices must be threedimensional.");
+	}
 
-	mexPrintf("coord %f ,%f, %f, %f\n", coord[0], coord[1], coord[2], coord[3]);
+	if (valSize1 != 1) {
+		mexErrMsgTxt("Values must be a column vector.");
+	}
 
-	int j = 0;
+	if (coordSize0 != valSize0) {
+		mexErrMsgTxt("Values and indices must be the same row size.");
+	}
+
 	for (int i = 0; i < valSize0 * valSize1; i++) {
-		openvdb::Coord c = openvdb::Coord(coord[i * 3], coord[i * 3 + 1],
-				coord[i * 3 + 2]);
+		// Matlab stores the data in column order, so to access the first row is
+		// i + j * M
+		openvdb::Coord c = openvdb::Coord(coord[i], coord[i + valSize0],
+				coord[i + 2 * valSize0]);
 		accessor.setValue(c, values[i]);
 	}
 
