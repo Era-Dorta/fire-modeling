@@ -1,6 +1,6 @@
 /*
  * To compile call 
- * mex mixHeatMaps.cpp -lopenvdb -lHalf -ltbb  -L/usr/lib/x86_64-linux-gnu/ -L/usr/include/
+ * mex mixHeatMaps.cpp createVoxelDataSet.cpp -lopenvdb -lHalf -ltbb  -L/usr/lib/x86_64-linux-gnu/ -L/usr/include/
  */
 
 #include "mex.h"
