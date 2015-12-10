@@ -5,7 +5,10 @@
 
 #include <openvdb/openvdb.h>
 
-bool createVoxelDataSet(const mxArray values[], const mxArray coords[],
+void array2voxelDataset(const mxArray valuesMx[], const mxArray coordsMx[],
 		openvdb::FloatGrid::Ptr outGrid);
+
+void voxelDataset2array(openvdb::FloatGrid::ConstPtr inGrid,
+		mxArray *valuesMx[], mxArray *coordsMx[]);
 
 #endif /* CREATEVOXELDATASET_H_ */

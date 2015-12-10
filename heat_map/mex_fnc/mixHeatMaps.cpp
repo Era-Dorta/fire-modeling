@@ -13,15 +13,25 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	if (nrhs > 4) {
 		mexErrMsgTxt("Too many input arguments.");
-	}
-
-	if (nrhs < 4) {
+	} else if (nrhs < 4) {
 		mexErrMsgTxt("Not enough input arguments.");
 	}
 
+	if (nlhs > 2) {
+		mexErrMsgTxt("Too many output arguments.");
+	} else if (nlhs < 2) {
+		mexErrMsgTxt("Not enough output arguments.");
+	}
+
+	// Copy the input data in two datasets
 	openvdb::FloatGrid::Ptr grid1 = openvdb::FloatGrid::create();
-	createVoxelDataSet(prhs[0], prhs[1], grid1);
+	array2voxelDataset(prhs[0], prhs[1], grid1);
 
 	openvdb::FloatGrid::Ptr grid2 = openvdb::FloatGrid::create();
-	createVoxelDataSet(prhs[2], prhs[3], grid2);
+	array2voxelDataset(prhs[2], prhs[3], grid2);
+
+	//TODO Mix the volumetric data
+
+	// Return the result
+	voxelDataset2array(grid1, plhs, plhs + 1);
 }
