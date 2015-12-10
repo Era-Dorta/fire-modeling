@@ -50,12 +50,9 @@ IF(MATLAB_FOUND)
 		mixHeatMaps
 	)
 
-	# Compiled code extension changes depending of the processor bit length
-	SET(EXTENSION ".mexw32")
-	IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	  SET(EXTENSION ".mexa64")
-	ENDIF()
-
+	# Compiled code extension changes depending of the platform and processor
+	EXECUTE_PROCESS(COMMAND "$ENV{MATLAB_ROOT}/bin/mexext" OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE EXTENSION)
+	
 	# Compile each function separately
 	FOREACH(FUNCTION ${FUNCTIONS})
 		ADD_LIBRARY(${FUNCTION}
@@ -75,7 +72,7 @@ IF(MATLAB_FOUND)
 		SET_TARGET_PROPERTIES(${FUNCTION} PROPERTIES PREFIX "")
 
 		# Library should end in mexa64 or mexw32
-		SET_TARGET_PROPERTIES(${FUNCTION} PROPERTIES SUFFIX ${EXTENSION})
+		SET_TARGET_PROPERTIES(${FUNCTION} PROPERTIES SUFFIX ".${EXTENSION}")
 
 		# Install all compiled files in CMAKE_INSTALL_PREFIX 
 		IF(WIN32)
