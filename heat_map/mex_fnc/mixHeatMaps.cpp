@@ -6,6 +6,7 @@
 #include "mex.h"
 #include <openvdb/openvdb.h>
 #include <openvdb/tree/LeafManager.h>
+#include <array>
 
 // Shorten openvdb namespace
 namespace vdb = openvdb;
@@ -23,14 +24,70 @@ namespace vdb = openvdb;
  void mex_unload() {
  mexPrintf("mixHeatmaps library unloading\n");
  }
-*/
+ */
+
+/*
+ * Custom checks for bounding boxes, in our case being in the limit of the
+ * bounding box counts as being outside
+ */
+static inline bool lessEThan(const vdb::Coord& a, const vdb::Coord& b) {
+	return (a[0] <= b[0] || a[1] <= b[1] || a[2] <= b[2]);
+}
+
+static inline bool isInsideR(const vdb::CoordBBox& bbox,
+		const vdb::Coord& xyz) {
+	return !(lessEThan(xyz, bbox.min()) || lessEThan(bbox.max(), xyz));
+}
 
 template<typename TreeType>
 struct Combine8 {
 	typedef vdb::tree::ValueAccessor<const TreeType> Accessor;
 	Combine8(const TreeType&tree1, const TreeType&tree2, const vdb::Coord& min,
 			const vdb::Coord& max) :
-			acc1(tree1), acc2(tree2), _min(min), _max(max) {
+			acc1(tree1), acc2(tree2) {
+		// Get the middle point between min and max
+		vdb::Coord mid = min + max;
+		mid.x() *= 0.5;
+		mid.y() *= 0.5;
+		mid.z() *= 0.5;
+
+		/*
+		 * Rename the variables to make the bounding box indices more clear,
+		 * extending the borders by one unit means that there won't be
+		 * interpolation for the outer edges
+		 */
+		int x0 = min.x() - 1;
+		int x1 = mid.x();
+		int x2 = max.x() + 1;
+
+		int y0 = min.y() - 1;
+		int y1 = mid.y();
+		int y2 = max.y() + 1;
+
+		int z0 = min.z() - 1;
+		int z1 = mid.z();
+		int z2 = max.z() + 1;
+
+		// Built 8 bounding boxes from min to max as big as mid point
+		/*
+		 *  For y = 0	  For y = 1
+		 *
+		 *   ^
+		 * z | 2  3			6  7
+		 *   | 0  1			4  5
+		 *    --->
+		 *     x
+		 *
+		 * {0, 3, 5, 6} -> First grid, {1, 2, 4, 7} -> Second grid,
+		 */
+		bboxes1.at(0).reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
+		bboxes2.at(0).reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
+		bboxes2.at(1).reset(vdb::Coord(x0, y0, z1), vdb::Coord(x1, y1, z2));
+		bboxes1.at(1).reset(vdb::Coord(x1, y0, z1), vdb::Coord(x2, y1, z2));
+		bboxes2.at(2).reset(vdb::Coord(x0, y1, z0), vdb::Coord(x1, y2, z1));
+		bboxes1.at(2).reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
+		bboxes1.at(3).reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
+		bboxes2.at(3).reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
 	}
 
 	template<typename LeafNodeType>
@@ -39,18 +96,52 @@ struct Combine8 {
 		const LeafNodeType * c2Leaf = acc2.probeConstLeaf(cLeaf.origin());
 		if (c1Leaf && c2Leaf) {
 			typename LeafNodeType::ValueOnIter iter = cLeaf.beginValueOn();
+			bool var1 = true;
 			for (; iter; ++iter) {
+				const vdb::Coord coord = iter.getCoord();
+				bool value_set = false;
+				/*
+				 * If the voxel is inside of any of the bounding boxes assing
+				 * that value to the new voxel and continue to the next one
+				 */
+				for (auto b1ite = bboxes1.begin(); b1ite != bboxes1.end();
+						++b1ite) {
+					if (isInsideR(*b1ite, coord)) {
+						iter.setValue(c1Leaf->getValue(iter.pos()));
+						value_set = true;
+						break;
+					}
+				}
+				if (value_set) {
+					continue;
+				}
+
+				for (auto b2ite = bboxes2.begin(); b2ite != bboxes2.end();
+						++b2ite) {
+					if (isInsideR(*b2ite, coord)) {
+						iter.setValue(c2Leaf->getValue(iter.pos()));
+						value_set = true;
+						break;
+					}
+				}
+				if (value_set) {
+					continue;
+				}
+				/*
+				 * If it is not inside any bounding box it means that it is in
+				 * the boundary, in that case assign the mean of both values
+				 */
 				iter.setValue(
-						c1Leaf->getValue(iter.pos())
-								+ c2Leaf->getValue(iter.pos()));
+						(c1Leaf->getValue(iter.pos())
+								+ c2Leaf->getValue(iter.pos())) * 0.5);
 			}
 		}
 	}
 private:
 	Accessor acc1;
 	Accessor acc2;
-	const vdb::Coord _min;
-	const vdb::Coord _max;
+	std::array<vdb::CoordBBox, 4> bboxes1;
+	std::array<vdb::CoordBBox, 4> bboxes2;
 };
 
 /*
