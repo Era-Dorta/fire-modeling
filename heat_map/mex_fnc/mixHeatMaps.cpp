@@ -23,7 +23,7 @@ namespace vdb = openvdb;
  void mex_unload() {
  mexPrintf("mixHeatmaps library unloading\n");
  }
- */
+*/
 
 template<typename TreeType>
 struct Combine8 {
