@@ -32,7 +32,7 @@ void array2voxelDataset(const mxArray valuesMx[], const mxArray coordsMx[],
 	for (int i = 0; i < valSize0 * valSize1; i++) {
 		// Matlab stores the data in column order, so to access the (i,j)
 		// component we need to compute i + j * M
-		openvdb::Coord c = openvdb::Coord(coord[i], coord[i + valSize0],
+		openvdb::Coord c(coord[i], coord[i + valSize0],
 				coord[i + 2 * valSize0]);
 		accessor.setValue(c, values[i]);
 	}
@@ -52,7 +52,7 @@ void voxelDataset2array(openvdb::FloatGrid::ConstPtr inGrid,
 	int i = 0;
 	for (openvdb::FloatGrid::ValueOnCIter iter = inGrid->cbeginValueOn();
 			iter.test(); ++iter) {
-		openvdb::Coord c = iter.getCoord();
+		const openvdb::Coord c = iter.getCoord();
 		values[i] = *iter;
 
 		// Matlab stores the data in column order, so to access the (i,j)

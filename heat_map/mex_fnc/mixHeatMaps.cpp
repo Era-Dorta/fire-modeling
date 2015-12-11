@@ -8,6 +8,19 @@
 
 #include "createVoxelDataSet.h"
 
+// Remove comments to check how the mex file is being loaded and unloaded in Matlab
+/*
+ __attribute__((constructor))
+ void mex_load() {
+ mexPrintf("mixHeatmaps library loading\n");
+ }
+
+ __attribute__((destructor))
+ void mex_unload() {
+ mexPrintf("mixHeatmaps library unloading\n");
+ }
+ */
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	openvdb::initialize();
 
