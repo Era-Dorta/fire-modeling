@@ -29,6 +29,9 @@ ENDIF(WIN32)
 # OpenVDB for sparse voxel data
 FIND_PACKAGE (OpenVDB REQUIRED)
 
+# Include Matlab headers
+INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
+
 # Include the headers for Boost and Openvdb
 IF(WIN32)
 	INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
@@ -59,10 +62,10 @@ IF(MATLAB_FOUND)
 			SHARED
 		   "${FUNCTION}.cpp" ${COMMON_SRC}
 		)
-		
+
 		IF(WIN32)
-			# Boost linking
-			TARGET_LINK_LIBRARIES( ${FUNCTION} ${Boost_LIBRARIES} )
+			# Boost linking, in linux systems the it will be automatically found
+			TARGET_LINK_LIBRARIES( ${FUNCTION} ${Boost_LIBRARIES})
 		ENDIF(WIN32)
 
 		# OpenVDB linking
