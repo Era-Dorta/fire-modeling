@@ -101,7 +101,7 @@ struct Combine8 {
 				const vdb::Coord coord = iter.getCoord();
 				bool value_set = false;
 				/*
-				 * If the voxel is inside of any of the bounding boxes assing
+				 * If the voxel is inside of any of the bounding boxes assign
 				 * that value to the new voxel and continue to the next one
 				 */
 				for (auto b1ite = bboxes1.begin(); b1ite != bboxes1.end();

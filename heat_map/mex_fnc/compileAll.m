@@ -7,7 +7,7 @@ cd(fileparts(mfilename('fullpath')));
 % The name of each .cpp file that we would like to compile
 fncNames = {'mixHeatMaps.cpp'};
 
-% Current folder depedencies source code of the functions, separated by spaces
+% Common source files for each function, separated by spaces
 commonSrc = 'createVoxelDataSet.cpp';
 
 % Libraries header folders, separated by spaces
