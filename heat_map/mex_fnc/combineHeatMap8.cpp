@@ -146,7 +146,7 @@ private:
 
 /*
  * The syntax is parameters is [v] = combineHeatMap8(xyz, v0, v1, min, max)
- * xzy -> Mx3 matrix of coordinates for each v data
+ * xyz -> Mx3 matrix of coordinates for each v data
  * v0, v1 -> Column vector of size M of volume values
  * min -> Row vector with the min [x, y, z] coordinates of xyz
  * max -> Row vector with the max [x, y, z] coordinates of xyz
@@ -166,23 +166,28 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		mexErrMsgTxt("Too many output arguments.");
 	}
 
-	if (mxGetM(prhs[3]) != 1 || mxGetM(prhs[4]) != 1 || mxGetN(prhs[3]) != 3
-			|| mxGetN(prhs[4]) != 3) {
+	// Rename all the input and output variables
+	const mxArray *xyz = prhs[0], *v0 = prhs[1], *v1 = prhs[2];
+	const mxArray *boxmin = prhs[3], *boxmax = prhs[4];
+	mxArray **vp = plhs;
+
+	if (mxGetM(boxmin) != 1 || mxGetM(boxmax) != 1 || mxGetN(boxmin) != 3
+			|| mxGetN(boxmax) != 3) {
 		mexErrMsgTxt("Min and max must be 1x3 vectors.");
 	}
 
 	// Copy the input data in two datasets
 	vdb::FloatGrid::Ptr grid1 = vdb::FloatGrid::create();
-	array2voxelDataset(prhs[1], prhs[0], grid1);
+	array2voxelDataset(v0, xyz, grid1);
 
 	vdb::FloatGrid::Ptr grid2 = vdb::FloatGrid::create();
-	array2voxelDataset(prhs[2], prhs[0], grid2);
+	array2voxelDataset(v1, xyz, grid2);
 
 	// Get the min and max range in Coord variables
-	double *datap = mxGetPr(prhs[3]);
+	double *datap = mxGetPr(boxmin);
 	const vdb::Coord min(datap[0], datap[1], datap[2]);
 
-	datap = mxGetPr(prhs[4]);
+	datap = mxGetPr(boxmax);
 	const vdb::Coord max(datap[0], datap[1], datap[2]);
 
 	// Copying the whole grid is faster than inserting the elements
@@ -192,6 +197,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	leafNodes.foreach(
 			Combine8<vdb::FloatTree>(grid1->tree(), grid2->tree(), min, max));
 
-	// Return the result
-	voxelDatasetValues2array(resgrid, plhs);
+	// Return the result, the values in v are in the same order as the input
+	voxelDatasetValues2arrayOrdered(resgrid, xyz, vp);
 }
