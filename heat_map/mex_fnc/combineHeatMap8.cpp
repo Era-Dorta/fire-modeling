@@ -1,6 +1,6 @@
 /*
  * To compile call 
- * mex mixHeatMaps.cpp createVoxelDataSet.cpp -lopenvdb -lHalf -ltbb  -L/usr/lib/x86_64-linux-gnu/ -L/usr/include/
+ * mex combineHeatMap8.cpp createVoxelDataSet.cpp -lopenvdb -lHalf -ltbb  -L/usr/lib/x86_64-linux-gnu/ -L/usr/include/
  */
 
 #include "mex.h"
@@ -17,12 +17,12 @@ namespace vdb = openvdb;
 /*
  __attribute__((constructor))
  void mex_load() {
- mexPrintf("mixHeatmaps library loading\n");
+ mexPrintf("combineHeatMap8 library loading\n");
  }
 
  __attribute__((destructor))
  void mex_unload() {
- mexPrintf("mixHeatmaps library unloading\n");
+ mexPrintf("combineHeatMap8 library unloading\n");
  }
  */
 
@@ -145,7 +145,7 @@ private:
 };
 
 /*
- * The syntax is parameters is [v , xyz] = mixHeatMaps(xyz, v0, v1, min, max)
+ * The syntax is parameters is [v , xyz] = combineHeatMap8(xyz, v0, v1, min, max)
  * xzy -> Mx3 matrix of coordinates for each v data
  * v0, v1 -> Column vector of size M of volume values
  * min -> Row vector with the min [x, y, z] coordinates of xyz

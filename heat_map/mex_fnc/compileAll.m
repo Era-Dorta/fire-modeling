@@ -5,7 +5,7 @@ cdir = pwd;
 cd(fileparts(mfilename('fullpath')));
 
 % The name of each .cpp file that we would like to compile
-fncNames = {'mixHeatMaps.cpp'};
+fncNames = {'combineHeatMap8.cpp'};
 
 % Common source files for each function, separated by spaces
 commonSrc = 'createVoxelDataSet.cpp';

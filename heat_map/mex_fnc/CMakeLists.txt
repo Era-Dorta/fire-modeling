@@ -57,7 +57,7 @@ IF(MATLAB_FOUND)
 
     # Array with the name of each function to be compiled
 	SET(FUNCTIONS
-		mixHeatMaps
+		combineHeatMap8
 	)
 
 	# Compiled code extension changes depending of the platform and processor
