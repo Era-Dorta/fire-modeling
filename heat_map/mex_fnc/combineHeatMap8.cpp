@@ -7,6 +7,7 @@
 #include <openvdb/openvdb.h>
 #include <openvdb/tree/LeafManager.h>
 #include <array>
+#include <vector>
 
 // Shorten openvdb namespace
 namespace vdb = openvdb;
@@ -43,8 +44,19 @@ template<typename TreeType>
 struct Combine8 {
 	typedef vdb::tree::ValueAccessor<const TreeType> Accessor;
 	Combine8(const TreeType&tree1, const TreeType&tree2, const vdb::Coord& min,
-			const vdb::Coord& max) :
+			const vdb::Coord& max, const std::array<bool, 8>& part) :
 			acc1(tree1), acc2(tree2) {
+
+		unsigned num_box1 = 0;
+		for (int i = 0; i < 8; i++) {
+			if (part[i]) {
+				num_box1++;
+			}
+		}
+
+		bboxes1.resize(num_box1);
+		bboxes2.resize(8 - num_box1);
+
 		// Get the middle point between min and max
 		vdb::Coord mid = min + max;
 		mid.x() *= 0.5;
@@ -73,21 +85,78 @@ struct Combine8 {
 		 *  For y = 0	  For y = 1
 		 *
 		 *   ^
-		 * z | 2  3			6  7
-		 *   | 0  1			4  5
+		 * z | 3  4			7  8
+		 *   | 1  2			5  6
 		 *    --->
 		 *     x
-		 *
-		 * {0, 3, 5, 6} -> First grid, {1, 2, 4, 7} -> Second grid,
 		 */
-		bboxes1.at(0).reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
-		bboxes2.at(0).reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
-		bboxes2.at(1).reset(vdb::Coord(x0, y0, z1), vdb::Coord(x1, y1, z2));
-		bboxes1.at(1).reset(vdb::Coord(x1, y0, z1), vdb::Coord(x2, y1, z2));
-		bboxes2.at(2).reset(vdb::Coord(x0, y1, z0), vdb::Coord(x1, y2, z1));
-		bboxes1.at(2).reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
-		bboxes1.at(3).reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
-		bboxes2.at(3).reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
+		auto c_box1 = bboxes1.begin();
+		auto c_box2 = bboxes2.begin();
+
+		//TODO Replace this failure quality code with a loop
+		if (part[0]) {
+			c_box1->reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
+			c_box1++;
+		} else {
+			c_box2->reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
+			c_box2++;
+		}
+
+		if (part[1]) {
+			c_box1->reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
+			c_box1++;
+		} else {
+			c_box2->reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
+			c_box2++;
+		}
+
+		if (part[2]) {
+			c_box1->reset(vdb::Coord(x0, y0, z1), vdb::Coord(x1, y1, z2));
+			c_box1++;
+		} else {
+			c_box2->reset(vdb::Coord(x0, y0, z1), vdb::Coord(x1, y1, z2));
+			c_box2++;
+		}
+
+		if (part[3]) {
+			c_box1->reset(vdb::Coord(x1, y0, z1), vdb::Coord(x2, y1, z2));
+			c_box1++;
+		} else {
+			c_box2->reset(vdb::Coord(x1, y0, z1), vdb::Coord(x2, y1, z2));
+			c_box2++;
+		}
+
+		if (part[4]) {
+			c_box1->reset(vdb::Coord(x0, y1, z0), vdb::Coord(x1, y2, z1));
+			c_box1++;
+		} else {
+			c_box2->reset(vdb::Coord(x0, y1, z0), vdb::Coord(x1, y2, z1));
+			c_box2++;
+		}
+
+		if (part[5]) {
+			c_box1->reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
+			c_box1++;
+		} else {
+			c_box2->reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
+			c_box2++;
+		}
+
+		if (part[6]) {
+			c_box1->reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
+			c_box1++;
+		} else {
+			c_box2->reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
+			c_box2++;
+		}
+
+		if (part[7]) {
+			c_box1->reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
+			c_box1++;
+		} else {
+			c_box2->reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
+			c_box2++;
+		}
 	}
 
 	template<typename LeafNodeType>
@@ -140,8 +209,8 @@ struct Combine8 {
 private:
 	Accessor acc1;
 	Accessor acc2;
-	std::array<vdb::CoordBBox, 4> bboxes1;
-	std::array<vdb::CoordBBox, 4> bboxes2;
+	std::vector<vdb::CoordBBox> bboxes1;
+	std::vector<vdb::CoordBBox> bboxes2;
 };
 
 /*
@@ -150,16 +219,21 @@ private:
  * v0, v1 -> Column vector of size M of volume values
  * min -> Row vector with the min [x, y, z] coordinates of xyz
  * max -> Row vector with the max [x, y, z] coordinates of xyz
+ * part -> Row vector indication the partition to use
  * v -> output values
  */
 //
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	vdb::initialize();
 
-	if (nrhs > 5) {
+	if (nrhs > 6) {
 		mexErrMsgTxt("Too many input arguments.");
-	} else if (nrhs < 5) {
+	} else if (nrhs < 6) {
 		mexErrMsgTxt("Not enough input arguments.");
+	}
+
+	if (!mxIsLogical(prhs[5])) {
+		mexErrMsgTxt("part must be a logical 1x8 matrix.");
 	}
 
 	if (nlhs > 1) {
@@ -169,11 +243,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// Rename all the input and output variables
 	const mxArray *xyz = prhs[0], *v0 = prhs[1], *v1 = prhs[2];
 	const mxArray *boxmin = prhs[3], *boxmax = prhs[4];
+	const mxLogical *partm = mxGetLogicals(prhs[5]);
 	mxArray **vp = plhs;
 
 	if (mxGetM(boxmin) != 1 || mxGetM(boxmax) != 1 || mxGetN(boxmin) != 3
 			|| mxGetN(boxmax) != 3) {
 		mexErrMsgTxt("Min and max must be 1x3 vectors.");
+	}
+
+	std::array<bool, 8> part;
+
+	for (auto ite = part.begin(); ite != part.end(); ++ite) {
+		*ite = *partm;
+		partm++;
 	}
 
 	// Copy the input data in two datasets
@@ -195,7 +277,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	vdb::tree::LeafManager<vdb::FloatTree> leafNodes(resgrid->tree());
 	leafNodes.foreach(
-			Combine8<vdb::FloatTree>(grid1->tree(), grid2->tree(), min, max));
+			Combine8<vdb::FloatTree>(grid1->tree(), grid2->tree(), min, max,
+					part));
 
 	// Return the result, the values in v are in the same order as the input
 	voxelDatasetValues2arrayOrdered(resgrid, xyz, vp);
