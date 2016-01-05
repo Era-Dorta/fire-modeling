@@ -104,6 +104,11 @@ for i=1:num_ite
     
     options.OutputFcns = {plotf, timef};
     
+    % Crossover function, update the coordinates and the bounding box size
+    options.CrossoverFcn = @(parents, options, GenomeLength, FitnessFcn, unused, ...
+    thisPopulation)gacrossovercombine(parents, options, GenomeLength, FitnessFcn, ...
+    unused, thisPopulation, d_heat_map{i}.xyz, min(d_heat_map{i}.xyz), max(d_heat_map{i}.xyz));
+    
     %% Set the initial population function generator
     init_population_path = [paths_str.output_folder 'InitialPopulation' ...
         size_str '.mat'];
