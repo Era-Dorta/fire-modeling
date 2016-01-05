@@ -145,13 +145,12 @@ private:
 };
 
 /*
- * The syntax is parameters is [v , xyz] = combineHeatMap8(xyz, v0, v1, min, max)
+ * The syntax is parameters is [v] = combineHeatMap8(xyz, v0, v1, min, max)
  * xzy -> Mx3 matrix of coordinates for each v data
  * v0, v1 -> Column vector of size M of volume values
  * min -> Row vector with the min [x, y, z] coordinates of xyz
  * max -> Row vector with the max [x, y, z] coordinates of xyz
  * v -> output values
- * xyz -> output coordinates
  */
 //
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
@@ -163,10 +162,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		mexErrMsgTxt("Not enough input arguments.");
 	}
 
-	if (nlhs > 2) {
+	if (nlhs > 1) {
 		mexErrMsgTxt("Too many output arguments.");
-	} else if (nlhs < 2) {
-		mexErrMsgTxt("Not enough output arguments.");
 	}
 
 	if (mxGetM(prhs[3]) != 1 || mxGetM(prhs[4]) != 1 || mxGetN(prhs[3]) != 3
@@ -196,5 +193,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			Combine8<vdb::FloatTree>(grid1->tree(), grid2->tree(), min, max));
 
 	// Return the result
-	voxelDataset2array(resgrid, plhs, plhs + 1);
+	voxelDatasetValues2array(resgrid, plhs);
 }

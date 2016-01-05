@@ -64,3 +64,19 @@ void voxelDataset2array(openvdb::FloatGrid::ConstPtr inGrid,
 		i++;
 	}
 }
+
+void voxelDatasetValues2array(openvdb::FloatGrid::ConstPtr inGrid,
+		mxArray *valuesMx[]) {
+	const int size = inGrid->activeVoxelCount();
+
+	valuesMx[0] = mxCreateDoubleMatrix(size, 1, mxREAL);
+
+	double *values = mxGetPr(valuesMx[0]);
+
+	int i = 0;
+	for (openvdb::FloatGrid::ValueOnCIter iter = inGrid->cbeginValueOn();
+			iter.test(); ++iter) {
+		values[i] = *iter;
+		i++;
+	}
+}
