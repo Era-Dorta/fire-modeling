@@ -7,6 +7,7 @@
 #include <openvdb/openvdb.h>
 #include <openvdb/tree/LeafManager.h>
 #include <array>
+#include <random>
 
 // Shorten openvdb namespace
 namespace vdb = openvdb;
@@ -73,21 +74,35 @@ struct Combine8 {
 		 *  For y = 0	  For y = 1
 		 *
 		 *   ^
-		 * z | 2  3			6  7
-		 *   | 0  1			4  5
+		 * z | C  D			G  H
+		 *   | A  B			E  F
 		 *    --->
 		 *     x
 		 *
-		 * {0, 3, 5, 6} -> First grid, {1, 2, 4, 7} -> Second grid,
+		 * {A, D, F, G} -> First grid, {B, C, E, H} -> Second grid, there is a
+		 * 50% chance of switching the order
 		 */
-		bboxes1.at(0).reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
-		bboxes2.at(0).reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
-		bboxes2.at(1).reset(vdb::Coord(x0, y0, z1), vdb::Coord(x1, y1, z2));
-		bboxes1.at(1).reset(vdb::Coord(x1, y0, z1), vdb::Coord(x2, y1, z2));
-		bboxes2.at(2).reset(vdb::Coord(x0, y1, z0), vdb::Coord(x1, y2, z1));
-		bboxes1.at(2).reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
-		bboxes1.at(3).reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
-		bboxes2.at(3).reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
+		std::random_device generator;
+		std::uniform_int_distribution<int> distribution(0, 1);
+		std::array<vdb::CoordBBox, 4>* bbox1p = &bboxes1;
+		std::array<vdb::CoordBBox, 4>* bbox2p = &bboxes2;
+
+		// TODO Add a extra variable or a macro to disable the switching
+		// Switch the order
+		if (distribution(generator)) {
+			bbox1p = &bboxes2;
+			bbox2p = &bboxes1;
+		}
+
+		// Set the limits of each bounding box, the order here is from A to H
+		bbox1p->at(0).reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
+		bbox2p->at(0).reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
+		bbox2p->at(1).reset(vdb::Coord(x0, y0, z1), vdb::Coord(x1, y1, z2));
+		bbox1p->at(1).reset(vdb::Coord(x1, y0, z1), vdb::Coord(x2, y1, z2));
+		bbox2p->at(2).reset(vdb::Coord(x0, y1, z0), vdb::Coord(x1, y2, z1));
+		bbox1p->at(2).reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
+		bbox1p->at(3).reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
+		bbox2p->at(3).reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
 	}
 
 	template<typename LeafNodeType>
