@@ -1,4 +1,6 @@
-% Script that compiles all the files in the mex_fnc folder
+function compileAll()
+%COMPILEALL compile mex files
+%   Script that compiles all the files in the mex_fnc folder
 
 % Go into current folder as we are giving mex relative file paths
 cdir = pwd;
@@ -31,4 +33,5 @@ for i = 1:numel(fncNames)
 end
 
 % Return to previous folder
-cd(cdir); 
+cd(cdir);
+end
