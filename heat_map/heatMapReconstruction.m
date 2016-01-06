@@ -12,8 +12,6 @@ function heatMapReconstruction(solver, logfile)
 % setenv('MI_CUSTOM_SHADER_PATH', ' shaders include path');
 % setenv('MI_LIBRARY_PATH', 'shaders path');
 
-is_maya_open = false; % Make sure not to close other users Maya instances
-
 % Add the subfolders of heat map to the Matlab path
 addpath(genpath(fileparts(mfilename('fullpath'))));
 
@@ -87,7 +85,8 @@ try
         error('Could not open Maya');
     end
     % Maya was launched successfully, so we are responsible for closing it
-    is_maya_open = true;
+    % the cleanup function is more robust (Ctrl-c, ...) than the try-catch
+    mayaCloseObj = onCleanup(@() closeMaya(sendMayaScript, port));
     
     disp('Loading scene in Maya')
     % Set project to fire project directory
@@ -157,9 +156,7 @@ try
     
     % Solvers output a row vector, but we are working with column vectors
     heat_map_v = heat_map_v';
-    
-    %% Add the error function to the summary file
-    
+       
     %% Save the best heat map in a raw file
     heat_map_path = [output_img_folder 'heat-map.raw'];
     disp(['Final heat map saved in ' heat_map_path]);
@@ -190,8 +187,6 @@ try
     
     %% Resource clean up after execution
     
-    closeMaya(sendMayaScript, port);
-    
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
@@ -202,11 +197,6 @@ try
         return;
     end
 catch ME
-    
-    if(is_maya_open)
-        closeMaya(sendMayaScript, port);
-    end
-    
     if(isBatchMode())
         disp(getReport(ME));
         if(exist('logfile', 'var') && exist('output_img_folder', 'var'))

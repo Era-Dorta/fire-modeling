@@ -13,9 +13,6 @@ num_samples = 1000;
 % explore
 neigh_range = [-20, 20];
 
-% Avoid closing other Maya instances
-is_maya_open = false;
-
 % Add the subfolders of heat map to the Matlab path
 addpath(genpath(fileparts(mfilename('fullpath'))));
 
@@ -87,7 +84,8 @@ try
         error('Could not open Maya');
     end
     % Maya was launched successfully, so we are responsible for closing it
-    is_maya_open = true;
+    % the cleanup function is more robust (Ctrl-c, ...) than the try-catch
+    mayaCloseObj = onCleanup(@() closeMaya(sendMayaScript, port));
     
     disp('Loading scene in Maya')
     % Set project to fire project directory
@@ -268,8 +266,6 @@ try
     
     %% Resource clean up after execution
     
-    closeMaya(sendMayaScript, port);
-    
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
@@ -277,11 +273,6 @@ try
     end
     
 catch ME
-    
-    if(is_maya_open)
-        closeMaya(sendMayaScript, port);
-    end
-    
     if(isBatchMode())
         disp(getReport(ME));
         if(exist('logfile', 'var') && exist('output_img_folder', 'var'))
