@@ -13,7 +13,7 @@ paths_str.summary = [summarydir '/' summaryname];
 options = gaoptimset(@ga);
 options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
-options.MutationFcn = @mutationadaptfeasible;
+options.MutationFcn = @gamutationadaptcustom;
 
 % The volume size will be at least this small, as we are recursively
 % dividing by 2 the original size, it might be smaller if there is no
