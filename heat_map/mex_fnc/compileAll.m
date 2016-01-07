@@ -28,7 +28,7 @@ for i = 1:numel(fncNames)
     clear(nameNoExt);
 
     % Compile current function
-    mex(fncNames{i}, commonSrc, libs, libs_path, libs_inc);
+    mex(fncNames{i}, commonSrc, libs_inc, libs_path, libs);
 end
 
 % Return to previous folder
