@@ -61,11 +61,9 @@ assert(abs(expec_smoothness - smoothness) < tol, 'Failed smoothness with one vox
 
 %% Test 3x3x3 volume, 1 voxel active
 
-v(14) = 1;
+smoothness = smoothnessEstimate( xyz(14,:), 1, volumeSize );
 
-smoothness = smoothnessEstimate( xyz, v, volumeSize );
-
-expec_smoothness = 0.035665294924554;
+expec_smoothness = 0.927297668038409;
 
 assert(abs(expec_smoothness - smoothness) < tol, 'Failed smoothness with 3x3x3 volume, 1 voxel active');
 
