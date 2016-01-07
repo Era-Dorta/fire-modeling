@@ -122,7 +122,7 @@ for i=1:length(parents)
         end
         if(numCandidates > 0)
             % If there is only one candidate do not bother computing the
-            % prior stimates
+            % prior estimates
             if(numCandidates == 1)
                 mutationChildren(i,:) = mutantCandidates(1,:);
             else
@@ -130,9 +130,20 @@ for i=1:length(parents)
                 smooth_val = smoothnessEstimate(xyz, mutantCandidates, volumeSize);
                 smooth_val = weights2prob(smooth_val, true);
                 
-                % Choose a mutant with a probability proportional to its
-                % smoothness
-                mutant_idx = randsample(1:numCandidates, 1, true, smooth_val);
+                % Up heat val
+                upheat_val = upHeatEstimate(xyz, mutantCandidates, volumeSize);
+                upheat_val = weights2prob(upheat_val);
+                
+                % Relative weights for smoothness and upheat estimates,
+                % must sum up to one
+                smooth_k = 0.5;
+                upheat_k = 0.5;
+                
+                total_prob = smooth_val * smooth_k + upheat_val * upheat_k;
+                
+                % Choose a mutant with a probability proportional to a
+                % combination of the prior estimates
+                mutant_idx = randsample(1:numCandidates, 1, true, total_prob);
                 
                 mutationChildren(i,:) = mutantCandidates(mutant_idx, :);
             end
@@ -143,4 +154,4 @@ for i=1:length(parents)
         mutationChildren(i,:) = x';
     end
 end
-
+end
