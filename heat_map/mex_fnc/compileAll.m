@@ -13,14 +13,13 @@ fncNames = {'combineHeatMap8.cpp'};
 commonSrc = 'createVoxelDataSet.cpp';
 
 % Libraries header folders, separated by spaces
-libs_inc = '-L/usr/include/';
+libs_inc = '-I/usr/include/';
 
 % Linking libraries, separated by spaces
 libs = '-lopenvdb -lHalf -ltbb';
 
-% Libraries search path
-libs_path = '-L/usr/lib/x86_64-linux-gnu/';
-
+% Libraries search path, separated by spaces
+libs_path = '-L/usr/lib/x86_64-linux-gnu -L/usr/lib';
 
 for i = 1:numel(fncNames)
     % Clear all the functions from memory, if we are compiling after a change
