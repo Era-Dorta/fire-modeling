@@ -3,6 +3,38 @@
 % Tolerance for float comparison
 tol = 0.00001;
 
+% Set by default a 3x3x3 volume for all tests
+xyz = [1 1 1;
+    1 1 2;
+    1 1 3;
+    1 2 1;
+    1 2 2;
+    1 2 3;
+    1 3 1;
+    1 3 2;
+    1 3 3;
+    2 1 1;
+    2 1 2;
+    2 1 3;
+    2 2 1;
+    2 2 2;
+    2 2 3;
+    2 3 1;
+    2 3 2;
+    2 3 3;
+    3 1 1;
+    3 1 2;
+    3 1 3;
+    3 2 1;
+    3 2 2;
+    3 2 3;
+    3 3 1;
+    3 3 2;
+    3 3 3];
+
+volumeSize = [3, 3, 3];
+v = zeros(1,27);
+
 %% Test one voxel
 
 xyz = [1, 1, 1];
@@ -29,37 +61,7 @@ assert(abs(expec_smoothness - smoothness) < tol, 'Failed smoothness with one vox
 
 %% Test 3x3x3 volume, 1 voxel active
 
-xyz = [1 1 1;
-    1 1 2;
-    1 1 3;
-    1 2 1;
-    1 2 2;
-    1 2 3;
-    1 3 1;
-    1 3 2;
-    1 3 3;
-    2 1 1;
-    2 1 2;
-    2 1 3;
-    2 2 1;
-    2 2 2;
-    2 2 3;
-    2 3 1;
-    2 3 2;
-    2 3 3;
-    3 1 1;
-    3 1 2;
-    3 1 3;
-    3 2 1;
-    3 2 2;
-    3 2 3;
-    3 3 1;
-    3 3 2;
-    3 3 3];
-
-v = zeros(1,27);
 v(14) = 1;
-volumeSize = [3, 3, 3];
 
 smoothness = smoothnessEstimate( xyz, v, volumeSize );
 
@@ -69,36 +71,7 @@ assert(abs(expec_smoothness - smoothness) < tol, 'Failed smoothness with 3x3x3 v
 
 %% Test 3x3x3 volume
 
-xyz = [1 1 1;
-    1 1 2;
-    1 1 3;
-    1 2 1;
-    1 2 2;
-    1 2 3;
-    1 3 1;
-    1 3 2;
-    1 3 3;
-    2 1 1;
-    2 1 2;
-    2 1 3;
-    2 2 1;
-    2 2 2;
-    2 2 3;
-    2 3 1;
-    2 3 2;
-    2 3 3;
-    3 1 1;
-    3 1 2;
-    3 1 3;
-    3 2 1;
-    3 2 2;
-    3 2 3;
-    3 3 1;
-    3 3 2;
-    3 3 3];
-
 v = 1:27;
-volumeSize = [3, 3, 3];
 
 smoothness = smoothnessEstimate( xyz, v, volumeSize );
 
