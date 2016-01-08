@@ -21,8 +21,12 @@ for i=1:size(idxs, 1)
     outcellstr1(1, :) = cellfun(@strcat, nameextra, outcellstr1(1, :));
     
     % Combine field names and values in the same cell
-    outcellstr = {outcellstr{1, :} outcellstr1{1, :}; ...
-        outcellstr{2, :} outcellstr1{2, :}};
+    if(size(outcellstr, 1) > 0)
+        outcellstr = {outcellstr{1, :} outcellstr1{1, :}; ...
+            outcellstr{2, :} outcellstr1{2, :}};
+    else
+        outcellstr = {outcellstr1{1, :}; outcellstr1{2, :}};
+    end
     
 end
 
@@ -34,7 +38,10 @@ values = values(~idx);
 values = cell2cellstr(values);
 
 % Combine field names and values in the same cell
-outcellstr = {outcellstr{1, :} fields{:}; outcellstr{2, :} values{:}};
-
+if(size(outcellstr, 1) > 0)
+    outcellstr = {outcellstr{1, :} fields{:}; outcellstr{2, :} values{:}};
+else
+    outcellstr = {fields{:}; values{:}};
 end
 
+end
