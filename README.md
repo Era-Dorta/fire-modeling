@@ -1,14 +1,14 @@
 Fire Shader for Mental Ray in Maya
 -----------
 #### Dependencies
-* [CMake](http://www.cmake.org/)
-* [Boost](www.boost.org)
-* [libz](zlib.net)
-* [OpenEXR](www.openexr.com)
-* [Intel Threading Building Blocks](threadingbuildingblocks.org)
-* [OpenVDB](http://www.openvdb.org/)
+* [CMake](http://www.cmake.org/) 2.8.12
+* [Boost](http://www.boost.org/) 1.54
+* [zlib](http://www.zlib.net/) 1.2.8
+* [OpenEXR](http://www.openexr.com/) 1.6
+* [Intel Threading Building Blocks](https://www.threadingbuildingblocks.org/) 4.2
+* [OpenVDB](http://www.openvdb.org/) 2.1
 * [Maya DevKit](https://apps.exchange.autodesk.com/en) needed for Maya 2016 and above, download "Maya Developer Kit"
-* [MentalRay DevKit](http://knowledge.autodesk.com/support/maya/downloads/caas/downloads/content/mental-ray-plugin-for-maya-2016.html)
+* [MentalRay DevKit](http://knowledge.autodesk.com/support/maya/downloads/caas/downloads/content/mental-ray-plugin-for-maya-2016.html) 2015
 * For Ubuntu, all the dependencies can be installed with 
   * `sudo apt-get install cmake libboost-all-dev zlib1g-dev libopenexr-dev libtbb-dev libopenvdb-dev`
   * [This script](https://gist.github.com/Garoe/859324436d1273aa56ff) can be used to install Maya 2015 with Mental Ray . 
