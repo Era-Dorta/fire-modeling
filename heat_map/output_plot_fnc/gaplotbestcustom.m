@@ -40,6 +40,12 @@ end
 if state.Generation == 0
     % Clear everything on the first draw
     clf(h);
+    
+    % If in batch mode no need to actually draw
+    if isBatchMode()
+        set(h, 'Visible', 'off');
+    end
+    
     set(h, 'Name', 'Error function');
     xlabel('Generation')
     ylabel('Error')
