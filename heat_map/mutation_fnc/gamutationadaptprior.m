@@ -31,6 +31,7 @@ else
     end
 end
 
+scale = 1; % Using no scale
 % Assume unconstrained sub-problem
 feasible =true;
 
@@ -42,16 +43,9 @@ neqcstr = size(linCon.Aeq,1) ~= 0;
 % Initialize childrens
 mutationChildren = zeros(length(parents),GenomeLength);
 
-% Using a scale appropiate to our bounds, assume that the mean of the
-% bounds is representative for the scale in the mutations
-heatMapScale = abs(mean(linCon.lb) - mean(linCon.ub))/16;
-
 % Create childrens for each parents
 for i=1:length(parents)
     x = thisPopulation(parents(i),:)';
-    
-    % Reset the scale to the heatMap scale bounds
-    scale = heatMapScale;
     
     % Scale the variables (if needed)
     if neqcstr
