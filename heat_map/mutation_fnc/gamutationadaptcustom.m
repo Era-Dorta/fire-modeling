@@ -1,7 +1,7 @@
 function [ mutationChildren ] = gamutationadaptcustom(parents, options, GenomeLength, ...
     FitnessFcn, state, thisScore, thisPopulation)
-%GAMUTATIONMEAN is a ga mutation function 
-%   [ mutationChildren ] = GAMUTATIONMEAN(parents, options, GenomeLength, ...
+%GAMUTATIOADAPTCUSTOM is a ga mutation function
+%   [ mutationChildren ] = GAMUTATIOADAPTCUSTOM(parents, options, GenomeLength, ...
 %   FitnessFcn, state, thisScore, thisPopulation)
 %   Like @mutationadaptfeasible but with an increased scale factor to
 %   introduce longer jumps when mutating
