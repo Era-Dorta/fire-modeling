@@ -3,14 +3,12 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve( ...
     summary_data)
 % Genetics Algorithm solver for heat map reconstruction
 %% Options for the ga
-% Get default values
-options = gaoptimset(@ga);
+% Get an empty gaoptions structure
+options = gaoptimset;
 options.PopulationSize = 30;
 options.Generations = max(fix(max_ite / options.PopulationSize), 1);
 options.TimeLimit = time_limit;
-options.EliteCount = 1;
 options.Display = 'iter'; % Give some output on each iteration
-options.MutationFcn = @mutationadaptfeasible;
 
 % Path where the initial population will be saved
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];

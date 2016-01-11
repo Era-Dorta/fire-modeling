@@ -9,9 +9,8 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve_resample( ...
 paths_str.summary = [summarydir '/' summaryname];
 
 %% Options for the ga
-% Get default values
-options = gaoptimset(@ga);
-options.EliteCount = 1;
+% Get an empty gaoptions structure
+options = gaoptimset;
 options.Display = 'iter'; % Give some output on each iteration
 
 % The volume size will be at least this small, as we are recursively
