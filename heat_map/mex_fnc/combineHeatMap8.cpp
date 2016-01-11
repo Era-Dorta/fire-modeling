@@ -40,6 +40,10 @@ static inline bool isInsideR(const vdb::CoordBBox& bbox,
 	return !(lessEThan(xyz, bbox.min()) || lessEThan(bbox.max(), xyz));
 }
 
+static inline float interpolate(float v0, float v1, float t) {
+	return v0 * t + v1 * (1.0 - t);
+}
+
 template<typename TreeType>
 struct Combine8 {
 	typedef vdb::tree::ValueAccessor<const TreeType> Accessor;
@@ -83,13 +87,13 @@ struct Combine8 {
 		 * 50% chance of switching the order
 		 */
 		std::random_device generator;
-		std::uniform_int_distribution<int> distribution(0, 1);
+		std::uniform_int_distribution<int> int_0_1_distribution(0, 1);
 		std::array<vdb::CoordBBox, 4>* bbox1p = &bboxes1;
 		std::array<vdb::CoordBBox, 4>* bbox2p = &bboxes2;
 
 		// TODO Add a extra variable or a macro to disable the switching
 		// Switch the order
-		if (distribution(generator)) {
+		if (int_0_1_distribution(generator)) {
 			bbox1p = &bboxes2;
 			bbox2p = &bboxes1;
 		}
@@ -103,6 +107,13 @@ struct Combine8 {
 		bbox1p->at(2).reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
 		bbox1p->at(3).reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
 		bbox2p->at(3).reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
+
+		// Get 4 random interpolation ratios for the bounding boxes in bboxes1;
+		// bboxes2 ratios are 1.0 - interp_ratio
+		std::uniform_real_distribution<float> float_0_1_distribution(0, 1);
+		for (auto&& i : interp_ratio) {
+			i = float_0_1_distribution(generator);
+		}
 	}
 
 	template<typename LeafNodeType>
@@ -119,25 +130,34 @@ struct Combine8 {
 				 * If the voxel is inside of any of the bounding boxes assign
 				 * that value to the new voxel and continue to the next one
 				 */
+				const float point1 = c1Leaf->getValue(point.pos());
+				const float point2 = c2Leaf->getValue(point.pos());
+
+				int i = 0;
 				for (auto b1ite = bboxes1.begin(); b1ite != bboxes1.end();
 						++b1ite) {
 					if (isInsideR(*b1ite, coord)) {
-						point.setValue(c1Leaf->getValue(point.pos()));
+						point.setValue(
+								interpolate(point1, point2, interp_ratio[i]));
 						value_set = true;
 						break;
 					}
+					i++;
 				}
 				if (value_set) {
 					continue;
 				}
 
+				i = 0;
 				for (auto b2ite = bboxes2.begin(); b2ite != bboxes2.end();
 						++b2ite) {
 					if (isInsideR(*b2ite, coord)) {
-						point.setValue(c2Leaf->getValue(point.pos()));
+						point.setValue(
+								interpolate(point1, point2, interp_ratio[i]));
 						value_set = true;
 						break;
 					}
+					i++;
 				}
 				if (value_set) {
 					continue;
@@ -146,9 +166,7 @@ struct Combine8 {
 				 * If it is not inside any bounding box it means that it is in
 				 * the boundary, in that case assign the mean of both values
 				 */
-				point.setValue(
-						(c1Leaf->getValue(point.pos())
-								+ c2Leaf->getValue(point.pos())) * 0.5);
+				point.setValue(interpolate(point1, point2, 0.5));
 			}
 		}
 	}
@@ -157,6 +175,7 @@ private:
 	Accessor acc2;
 	std::array<vdb::CoordBBox, 4> bboxes1;
 	std::array<vdb::CoordBBox, 4> bboxes2;
+	std::array<float, 4> interp_ratio;
 };
 
 /*
