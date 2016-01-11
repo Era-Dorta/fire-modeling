@@ -3,7 +3,8 @@ function [ mutationChildren ] = gamutationadaptcustom(parents, options, GenomeLe
 %GAMUTATIONMEAN is a ga mutation function 
 %   [ mutationChildren ] = GAMUTATIONMEAN(parents, options, GenomeLength, ...
 %   FitnessFcn, state, thisScore, thisPopulation)
-%   Heavily based on @mutationadaptfeasible
+%   Like @mutationadaptfeasible but with an increased scale factor to
+%   introduce longer jumps when mutating
 
 persistent StepSize
 % Binary strings always maintain feasibility
