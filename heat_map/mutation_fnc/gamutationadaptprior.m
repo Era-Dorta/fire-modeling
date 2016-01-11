@@ -1,9 +1,10 @@
 function [ mutationChildren ] = gamutationadaptprior(parents, options, GenomeLength, ...
     FitnessFcn, state, thisScore, thisPopulation, xyz, volumeSize)
-%GAMUTATIONMEAN is a ga mutation function
-%   [ mutationChildren ] = GAMUTATIONMEAN(parents, options, GenomeLength, ...
+%GAMUTATIONADAPTPRIOR is a ga mutation function
+%   [ mutationChildren ] = GAMUTATIONADAPTPRIOR(parents, options, GenomeLength, ...
 %   FitnessFcn, state, thisScore, thisPopulation, xyz, volumeSize)
-%   Heavily based on @mutationadaptfeasible
+%   Like @mutationadaptfeasible but with smoothness and upheat priors on the
+%   mutated children
 
 persistent StepSize
 % Binary strings always maintain feasibility
