@@ -58,7 +58,6 @@ for i=1:length(parents)
             TangentCone = [];
             constr = false;
         case 'boundconstraints'
-            disp(['Stepsize is ' num2str(StepSize) ' scale ' num2str(scale)]);
             [Basis,TangentCone] = boxdirections(true,StepSize,x,linCon.lb,linCon.ub,tol);
             % If the point is on the constraint boundary (nonempty TangentCone)
             % we use scale = 1
