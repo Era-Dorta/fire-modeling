@@ -110,10 +110,10 @@ struct Combine8 {
 		const LeafNodeType * c1Leaf = acc1.probeConstLeaf(cLeaf.origin());
 		const LeafNodeType * c2Leaf = acc2.probeConstLeaf(cLeaf.origin());
 		if (c1Leaf && c2Leaf) {
-			typename LeafNodeType::ValueOnIter iter = cLeaf.beginValueOn();
-			bool var1 = true;
-			for (; iter; ++iter) {
-				const vdb::Coord coord = iter.getCoord();
+
+			typename LeafNodeType::ValueOnIter point = cLeaf.beginValueOn();
+			for (; point; ++point) {
+				const vdb::Coord coord = point.getCoord();
 				bool value_set = false;
 				/*
 				 * If the voxel is inside of any of the bounding boxes assign
@@ -122,7 +122,7 @@ struct Combine8 {
 				for (auto b1ite = bboxes1.begin(); b1ite != bboxes1.end();
 						++b1ite) {
 					if (isInsideR(*b1ite, coord)) {
-						iter.setValue(c1Leaf->getValue(iter.pos()));
+						point.setValue(c1Leaf->getValue(point.pos()));
 						value_set = true;
 						break;
 					}
@@ -134,7 +134,7 @@ struct Combine8 {
 				for (auto b2ite = bboxes2.begin(); b2ite != bboxes2.end();
 						++b2ite) {
 					if (isInsideR(*b2ite, coord)) {
-						iter.setValue(c2Leaf->getValue(iter.pos()));
+						point.setValue(c2Leaf->getValue(point.pos()));
 						value_set = true;
 						break;
 					}
@@ -146,9 +146,9 @@ struct Combine8 {
 				 * If it is not inside any bounding box it means that it is in
 				 * the boundary, in that case assign the mean of both values
 				 */
-				iter.setValue(
-						(c1Leaf->getValue(iter.pos())
-								+ c2Leaf->getValue(iter.pos())) * 0.5);
+				point.setValue(
+						(c1Leaf->getValue(point.pos())
+								+ c2Leaf->getValue(point.pos())) * 0.5);
 			}
 		}
 	}
