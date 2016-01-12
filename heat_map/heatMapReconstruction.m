@@ -25,8 +25,8 @@ time_limit = 24 * 60 * 60; % In seconds
 % do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test72_like_71_for_solver';
-raw_file_path = 'data/from_dmitry/NewData/oneFlame/synthetic00000.raw';
+scene_name = 'test78_like_72_4x4x4_raw';
+raw_file_path = 'data/heat_maps/gaussian4x4x4.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'goalimage.tif'];
 
