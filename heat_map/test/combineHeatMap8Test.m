@@ -38,7 +38,7 @@ v0 = rand(27, 1);
 v1 = v0;
 
 % Combine the voxels
-v = combineHeatMap8(xyz, v0, v1, min(xyz, [], 1), max(xyz, [], 1));
+v = combineHeatMap8(xyz, v0, v1, min(xyz, [], 1), max(xyz, [], 1), 0.5);
 
 % Test that each voxel belongs to the corresponding heatmap or mean of them
 assert(all(abs(v - v0) < tol), 'combineHeatMap8 does not reproduce heatmap coordinates order');
@@ -60,7 +60,7 @@ idxmean = 1:27;
 idxmean([idxv0, idxv1]) = [];
 
 % Combine the voxels
-v = combineHeatMap8(xyz, v0, v1, min(xyz, [], 1), max(xyz, [], 1));
+v = combineHeatMap8(xyz, v0, v1, min(xyz, [], 1), max(xyz, [], 1), 0.5);
 
 % Test that each voxel belongs to the corresponding heatmap or mean of them
 % As there are two randomly choosen ways to combine the heatmaps, test both

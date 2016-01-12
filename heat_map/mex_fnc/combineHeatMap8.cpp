@@ -44,12 +44,22 @@ static inline float interpolate(float v0, float v1, float t) {
 	return v0 * t + v1 * (1.0 - t);
 }
 
+static inline float clamp_0_1(float v){
+	if(v < 0){
+		return 0;
+	}
+	if(v > 1){
+		return 1;
+	}
+	return v;
+}
+
 template<typename TreeType>
 struct Combine8 {
 	typedef vdb::tree::ValueAccessor<const TreeType> Accessor;
 	Combine8(const TreeType&tree1, const TreeType&tree2, const vdb::Coord& min,
-			const vdb::Coord& max) :
-			acc1(tree1), acc2(tree2) {
+			const vdb::Coord& max, float interp_f) :
+			acc1(tree1), acc2(tree2), interp_f(interp_f) {
 		// Get the middle point between min and max
 		vdb::Coord mid = min + max;
 		mid.x() *= 0.5;
@@ -96,6 +106,7 @@ struct Combine8 {
 		if (int_0_1_distribution(generator)) {
 			bbox1p = &bboxes2;
 			bbox2p = &bboxes1;
+			this->interp_f = 1 - this->interp_f;
 		}
 
 		// Set the limits of each bounding box, the order here is from A to H
@@ -110,9 +121,17 @@ struct Combine8 {
 
 		// Get 4 random interpolation ratios for the bounding boxes in bboxes1;
 		// bboxes2 ratios are 1.0 - interp_ratio
-		std::uniform_real_distribution<float> float_0_1_distribution(0, 1);
-		for (auto&& i : interp_ratio) {
-			i = float_0_1_distribution(generator);
+
+		// A normal distribution of mean 0 and standard deviation of 0.3 has
+		// most of its values between -1 and 1
+		std::normal_distribution<float> normal_distribution(0, 0.3);
+
+		// Randomly deviate the interpolation ratio
+		this->interp_f = clamp_0_1(this->interp_f + normal_distribution(generator));
+
+		for (auto&& i : bbinterp_ratio) {
+			// Randomly deviate the interpolation ratio for each bounding box
+			i = clamp_0_1(this->interp_f + normal_distribution(generator));
 		}
 	}
 
@@ -138,7 +157,7 @@ struct Combine8 {
 						++b1ite) {
 					if (isInsideR(*b1ite, coord)) {
 						point.setValue(
-								interpolate(point1, point2, interp_ratio[i]));
+								interpolate(point1, point2, bbinterp_ratio[i]));
 						value_set = true;
 						break;
 					}
@@ -153,7 +172,7 @@ struct Combine8 {
 						++b2ite) {
 					if (isInsideR(*b2ite, coord)) {
 						point.setValue(
-								interpolate(point1, point2, interp_ratio[i]));
+								interpolate(point1, point2, 1 - bbinterp_ratio[i]));
 						value_set = true;
 						break;
 					}
@@ -164,9 +183,12 @@ struct Combine8 {
 				}
 				/*
 				 * If it is not inside any bounding box it means that it is in
-				 * the boundary, in that case assign the mean of both values
+				 * the boundary, in that case interpolate with the given
+				 * interpolation factor
 				 */
-				point.setValue(interpolate(point1, point2, 0.5));
+				// TODO Ideally it should use the mean of the interpolation
+				// factors around the voxel
+				point.setValue(interpolate(point1, point2, interp_f));
 			}
 		}
 	}
@@ -175,24 +197,26 @@ private:
 	Accessor acc2;
 	std::array<vdb::CoordBBox, 4> bboxes1;
 	std::array<vdb::CoordBBox, 4> bboxes2;
-	std::array<float, 4> interp_ratio;
+	std::array<float, 4> bbinterp_ratio;
+	float interp_f;
 };
 
 /*
- * The syntax is parameters is [v] = combineHeatMap8(xyz, v0, v1, min, max)
+ * The syntax is parameters is [v] = combineHeatMap8(xyz, v0, v1, min, max, interp)
  * xyz -> Mx3 matrix of coordinates for each v data
  * v0, v1 -> Column vector of size M of volume values
  * min -> Row vector with the min [x, y, z] coordinates of xyz
  * max -> Row vector with the max [x, y, z] coordinates of xyz
+ * interp -> interpolation factor for v0, for v1 is 1 - interp
  * v -> output values
  */
 //
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	vdb::initialize();
 
-	if (nrhs > 5) {
+	if (nrhs > 6) {
 		mexErrMsgTxt("Too many input arguments.");
-	} else if (nrhs < 5) {
+	} else if (nrhs < 6) {
 		mexErrMsgTxt("Not enough input arguments.");
 	}
 
@@ -202,12 +226,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	// Rename all the input and output variables
 	const mxArray *xyz = prhs[0], *v0 = prhs[1], *v1 = prhs[2];
-	const mxArray *boxmin = prhs[3], *boxmax = prhs[4];
+	const mxArray *boxmin = prhs[3], *boxmax = prhs[4], *interp = prhs[5];
 	mxArray **vp = plhs;
 
 	if (mxGetM(boxmin) != 1 || mxGetM(boxmax) != 1 || mxGetN(boxmin) != 3
 			|| mxGetN(boxmax) != 3) {
 		mexErrMsgTxt("Min and max must be 1x3 vectors.");
+	}
+
+	if (mxGetM(interp) != 1 || mxGetN(interp) != 1) {
+		mexErrMsgTxt("interp must be 1x1 vector.");
 	}
 
 	// Copy the input data in two datasets
@@ -224,12 +252,20 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	datap = mxGetPr(boxmax);
 	const vdb::Coord max(datap[0], datap[1], datap[2]);
 
+	datap = mxGetPr(interp);
+	const float interp_f = datap[0];
+
+	if (interp_f < 0 || interp_f > 1) {
+		mexErrMsgTxt("interp must be in the range [0..1].");
+	}
+
 	// Copying the whole grid is faster than inserting the elements
 	vdb::FloatGrid::Ptr resgrid = grid1->deepCopy();
 
 	vdb::tree::LeafManager<vdb::FloatTree> leafNodes(resgrid->tree());
 	leafNodes.foreach(
-			Combine8<vdb::FloatTree>(grid1->tree(), grid2->tree(), min, max));
+			Combine8<vdb::FloatTree>(grid1->tree(), grid2->tree(), min, max,
+					interp_f));
 
 	// Return the result, the values in v are in the same order as the input
 	voxelDatasetValues2arrayOrdered(resgrid, xyz, vp);
