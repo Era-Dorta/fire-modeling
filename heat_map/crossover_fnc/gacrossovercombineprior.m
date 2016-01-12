@@ -1,5 +1,5 @@
 function [ xoverKids ] = gacrossovercombineprior(parents, ~, GenomeLength, ~, ...
-    ~, thisPopulation, xyz, volumeSize, bboxmin, bboxmax)
+    thisScore, thisPopulation, xyz, volumeSize, bboxmin, bboxmax)
 %GACROSSOVERCOMBINEPRIOR ga crossover operator
 %   GACROSSOVERCOMBINEPRIOR uses the combineHeatMap8 function to generate
 %   xoverKids from parents, it uses upheat and smoothness priors to select
@@ -24,14 +24,20 @@ index = 1;
 for i=1:nKids
     % get parents
     parent1 = thisPopulation(parents(index),:);
+    score1 = thisScore(parents(index));
     index = index + 1;
     parent2 = thisPopulation(parents(index),:);
+    score2 = thisScore(parents(index));
     index = index + 1;
     
-    % Try a few crossover at random and pick the candidate according to the
-    % prior scores
+    % Get a 0..1 weight for the first parent using to both parents scores
+    weight =  score1 / (score1 + score2);
+    
+    % Try a few random crossover giving more priority to the genes of the
+    % parent with the higher score (weight)
     for j=1:nCandidates
-        xoverCandidates(j,:) = combineHeatMap8(xyz, parent1', parent2', bboxmin, bboxmax)';
+        xoverCandidates(j,:) = combineHeatMap8(xyz, parent1', parent2', ...
+            bboxmin, bboxmax, weight)';
     end
     
     % The lower the value the smoother the volume is
@@ -49,7 +55,7 @@ for i=1:nKids
     
     total_prob = smooth_val * smooth_k + upheat_val * upheat_k;
     
-    % Choose a kid with a probability proportional to a
+    % Choose a kid randomly with a probability proportional to a
     % combination of the prior estimates
     kid_idx = randsample(1:nCandidates, 1, true, total_prob);
     

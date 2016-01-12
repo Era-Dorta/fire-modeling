@@ -23,7 +23,8 @@ for i=1:nKids
     parent2 = thisPopulation(parents(index),:);
     index = index + 1;
     
-    xoverKids(i,:) = combineHeatMap8(xyz, parent1', parent2', bboxmin, bboxmax)';
+    % Combine the heatmaps with equal probabilities
+    xoverKids(i,:) = combineHeatMap8(xyz, parent1', parent2', bboxmin, bboxmax, 0.5)';
 end
 end
 
