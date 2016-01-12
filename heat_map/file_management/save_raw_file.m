@@ -1,5 +1,13 @@
 function save_raw_file( filePath, volumetricData )
-% Save a dataset to a .raw file
+%SAVE_RAW_FILE Save a dataset to a .raw file
+%   SAVE_RAW_FILE(FILEPATH, VOLUMETRICDATA) saves the VOLUMETRICDATA raw
+%   struct data in the path FILEPATH
+
+if(exist(filePath, 'file'))
+    warning(['File "' filePath '" exists, avoiding overwrite.']);
+    return;
+end
+
 fileID = fopen(filePath,'w');
 
 fwrite(fileID, volumetricData.size, 'int32');
