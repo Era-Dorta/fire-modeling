@@ -9,7 +9,9 @@
 #include <array>
 #include <random>
 
-// Shorten openvdb namespace
+//#define RUN_TESTS
+
+// Shorter openvdb namespace
 namespace vdb = openvdb;
 
 #include "createVoxelDataSet.h"
@@ -44,11 +46,11 @@ static inline float interpolate(float v0, float v1, float t) {
 	return v0 * t + v1 * (1.0 - t);
 }
 
-static inline float clamp_0_1(float v){
-	if(v < 0){
+static inline float clamp_0_1(float v) {
+	if (v < 0) {
 		return 0;
 	}
-	if(v > 1){
+	if (v > 1) {
 		return 1;
 	}
 	return v;
@@ -59,7 +61,7 @@ struct Combine8 {
 	typedef vdb::tree::ValueAccessor<const TreeType> Accessor;
 	Combine8(const TreeType&tree1, const TreeType&tree2, const vdb::Coord& min,
 			const vdb::Coord& max, float interp_f) :
-			acc1(tree1), acc2(tree2), interp_f(interp_f) {
+			acc1(tree1), acc2(tree2), interp_r(interp_f) {
 		// Get the middle point between min and max
 		vdb::Coord mid = min + max;
 		mid.x() *= 0.5;
@@ -93,46 +95,58 @@ struct Combine8 {
 		 *    --->
 		 *     x
 		 *
-		 * {A, D, F, G} -> First grid, {B, C, E, H} -> Second grid, there is a
-		 * 50% chance of switching the order
+		 * {A, D, F, G} -> First grid, {B, C, E, H} -> Second grid
 		 */
 		std::random_device generator;
 		std::uniform_int_distribution<int> int_0_1_distribution(0, 1);
-		std::array<vdb::CoordBBox, 4>* bbox1p = &bboxes1;
-		std::array<vdb::CoordBBox, 4>* bbox2p = &bboxes2;
-
-		// TODO Add a extra variable or a macro to disable the switching
-		// Switch the order
-		if (int_0_1_distribution(generator)) {
-			bbox1p = &bboxes2;
-			bbox2p = &bboxes1;
-			this->interp_f = 1 - this->interp_f;
-		}
 
 		// Set the limits of each bounding box, the order here is from A to H
-		bbox1p->at(0).reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
-		bbox2p->at(0).reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
-		bbox2p->at(1).reset(vdb::Coord(x0, y0, z1), vdb::Coord(x1, y1, z2));
-		bbox1p->at(1).reset(vdb::Coord(x1, y0, z1), vdb::Coord(x2, y1, z2));
-		bbox2p->at(2).reset(vdb::Coord(x0, y1, z0), vdb::Coord(x1, y2, z1));
-		bbox1p->at(2).reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
-		bbox1p->at(3).reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
-		bbox2p->at(3).reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
-
-		// Get 4 random interpolation ratios for the bounding boxes in bboxes1;
-		// bboxes2 ratios are 1.0 - interp_ratio
+		bboxes1.at(0).reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
+		bboxes2.at(0).reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
+		bboxes2.at(1).reset(vdb::Coord(x0, y0, z1), vdb::Coord(x1, y1, z2));
+		bboxes1.at(1).reset(vdb::Coord(x1, y0, z1), vdb::Coord(x2, y1, z2));
+		bboxes2.at(2).reset(vdb::Coord(x0, y1, z0), vdb::Coord(x1, y2, z1));
+		bboxes1.at(2).reset(vdb::Coord(x1, y1, z0), vdb::Coord(x2, y2, z1));
+		bboxes1.at(3).reset(vdb::Coord(x0, y1, z1), vdb::Coord(x1, y2, z2));
+		bboxes2.at(3).reset(vdb::Coord(x1, y1, z1), vdb::Coord(x2, y2, z2));
 
 		// A normal distribution of mean 0 and standard deviation of 0.3 has
 		// most of its values between -1 and 1
 		std::normal_distribution<float> normal_distribution(0, 0.3);
 
+#ifndef RUN_TESTS
 		// Randomly deviate the interpolation ratio
-		this->interp_f = clamp_0_1(this->interp_f + normal_distribution(generator));
+		interp_r = clamp_0_1(interp_r + normal_distribution(generator));
+#endif
 
-		for (auto&& i : bbinterp_ratio) {
+		float interp_sum = 0;
+		// Get 4 interpolation ratios for the bounding boxes in bboxes1
+		for (auto&& i : bbinterp_ratio1) {
+#ifndef RUN_TESTS
 			// Randomly deviate the interpolation ratio for each bounding box
-			i = clamp_0_1(this->interp_f + normal_distribution(generator));
+			i = clamp_0_1(interp_r + normal_distribution(generator));
+#else
+			i = interp_r;
+#endif
+			interp_sum += i;
 		}
+
+		// Get 4 interpolation ratios for the bounding boxes in bboxes2
+		for (auto&& i : bbinterp_ratio2) {
+#ifndef RUN_TESTS
+			// Randomly deviate the interpolation ratio for each bounding box
+			i = clamp_0_1(1.0f - interp_r + normal_distribution(generator));
+#else
+			i = 1.0f - interp_r;
+#endif
+			interp_sum += i;
+		}
+
+		/*
+		 * Update the interpolation value to account for deviations introduced
+		 * by the normal noise in the previous steps
+		 */
+		interp_r = interp_sum * 0.125f;
 	}
 
 	template<typename LeafNodeType>
@@ -153,11 +167,11 @@ struct Combine8 {
 				const float point2 = c2Leaf->getValue(point.pos());
 
 				int i = 0;
-				for (auto b1ite = bboxes1.begin(); b1ite != bboxes1.end();
-						++b1ite) {
-					if (isInsideR(*b1ite, coord)) {
+				for (const auto &b1ite : bboxes1) {
+					if (isInsideR(b1ite, coord)) {
 						point.setValue(
-								interpolate(point1, point2, bbinterp_ratio[i]));
+								interpolate(point1, point2,
+										bbinterp_ratio1[i]));
 						value_set = true;
 						break;
 					}
@@ -168,11 +182,11 @@ struct Combine8 {
 				}
 
 				i = 0;
-				for (auto b2ite = bboxes2.begin(); b2ite != bboxes2.end();
-						++b2ite) {
-					if (isInsideR(*b2ite, coord)) {
+				for (const auto &b2ite : bboxes2) {
+					if (isInsideR(b2ite, coord)) {
 						point.setValue(
-								interpolate(point1, point2, 1 - bbinterp_ratio[i]));
+								interpolate(point1, point2,
+										bbinterp_ratio2[i]));
 						value_set = true;
 						break;
 					}
@@ -183,12 +197,9 @@ struct Combine8 {
 				}
 				/*
 				 * If it is not inside any bounding box it means that it is in
-				 * the boundary, in that case interpolate with the given
-				 * interpolation factor
+				 * the boundary, in that case interpolate with the mean
 				 */
-				// TODO Ideally it should use the mean of the interpolation
-				// factors around the voxel
-				point.setValue(interpolate(point1, point2, interp_f));
+				point.setValue(interpolate(point1, point2, interp_r));
 			}
 		}
 	}
@@ -197,8 +208,9 @@ private:
 	Accessor acc2;
 	std::array<vdb::CoordBBox, 4> bboxes1;
 	std::array<vdb::CoordBBox, 4> bboxes2;
-	std::array<float, 4> bbinterp_ratio;
-	float interp_f;
+	std::array<float, 4> bbinterp_ratio1;
+	std::array<float, 4> bbinterp_ratio2;
+	float interp_r;
 };
 
 /*
