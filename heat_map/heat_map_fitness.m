@@ -57,6 +57,6 @@ end
 %fprintf(' error %.2f, in %.2f seconds.\n', error(1), toc(startTime));
 
 % Delete the temporary files
-system(['rm -rf ' tmpdir]);
+system(['rm -rf ' tmpdir '&']);
 
 end
