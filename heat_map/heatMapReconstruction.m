@@ -111,9 +111,13 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz, init_heat_map.size, ...
+    fitness_foo = @(x)heat_map_fitness_interp(x, init_heat_map.xyz, init_heat_map.size, ...
         error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
         sendMayaScript, port, mrLogPath, goal_img);
+    
+    % Since the function uses persistance varibles, when the execution
+    % finishes we need to delete their saved values
+    fitness_foo_closeobj = onCleanup(@() clear('heat_map_fitness_interp'));
     
     %% Summary extra data
     summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...
@@ -156,7 +160,7 @@ try
     
     % Solvers output a row vector, but we are working with column vectors
     heat_map_v = heat_map_v';
-       
+    
     %% Save the best heat map in a raw file
     heat_map_path = [output_img_folder 'heat-map.raw'];
     disp(['Final heat map saved in ' heat_map_path]);
