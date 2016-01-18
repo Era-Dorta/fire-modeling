@@ -6,8 +6,7 @@ function [ error ] = heat_map_fitness_interp( heat_map_v, xyz, whd, error_foo, .
 %   computation.
 %
 %   See also HEAT_MAP_FITNESS
-persistent IS_INITIALIZED IMAGES_DB IMAGES_DB_HEATMAPS IMAGES_DB_DIR ...
-    DATA_TYPE
+persistent IS_INITIALIZED IMAGES_DB IMAGES_DB_HEATMAPS IMAGES_DB_DIR
 
 % With smaller populations it should be bigger
 dist_threshold = 500;
@@ -20,13 +19,6 @@ if isempty(IS_INITIALIZED) || IS_INITIALIZED == false
     IMAGES_DB_DIR = [output_img_folder 'image_db'];
     system(['mkdir ' IMAGES_DB_DIR]);
     IMAGES_DB = {};
-    %TODO So far only support this two, I couldn't find a matlab function
-    %that returns the type
-    if(isinteger(goal_img))
-        DATA_TYPE = 'uint8';
-    else
-        DATA_TYPE = 'double';
-    end
 end
 
 num_error_foos = size(error_foo, 2);
