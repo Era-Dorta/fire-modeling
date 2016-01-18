@@ -1,8 +1,8 @@
-function [ mutationChildren ] = gamutationnone(~, ~, ~, ~, ~, ~, thisPopulation)
+function [ mutationChildren ] = gamutationnone(parents, ~, ~, ~, ~, ~, thisPopulation)
 %GAMUTATIONNONE ga mutation that does not mutate
-%   [ mutationChildren ] = GAMUTATIONMEAN(parents, options, nvars, ...
+%   [ mutationChildren ] = GAMUTATIONNONE(parents, options, nvars, ...
 %   FitnessFcn, state, thisScore, thisPopulation)
 %   The parents are directly copied as children
-mutationChildren = thisPopulation;
+mutationChildren = thisPopulation(parents,:);
 end
 
