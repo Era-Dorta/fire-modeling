@@ -18,6 +18,8 @@ end
 % The plot function is called when the algorithm is finished, save the
 % image here
 if strcmp(flag, 'done')
+    legend('Best', 'Mean');
+    
     if isBatchMode()
         print(h, figurePath, '-dtiff');
         saveas(h, figurePath, 'fig');
@@ -37,6 +39,8 @@ if strcmp(flag, 'done')
     return;
 end
 
+inf_error_idx = state.Score == realmax;
+
 if state.Generation == 0
     % Clear everything on the first draw
     clf(h);
@@ -55,11 +59,11 @@ if state.Generation == 0
     % compute the values from the Score
     GAPLOTBEST = min(state.Score);
     GAPLOTMEAN = [];
-    MAXERROR = max(state.Score);
+    MAXERROR = max(state.Score(~inf_error_idx));
 else
     GAPLOTBEST = [GAPLOTBEST, state.Best(end)];
     set(gca,'xlim', [0, state.Generation]);
-    c_error = max(state.Score);
+    c_error = max(state.Score(~inf_error_idx));
     if c_error > MAXERROR
         MAXERROR = c_error;
     end
@@ -74,9 +78,7 @@ hold on;
 plot(0:state.Generation, GAPLOTBEST, '-rx');
 
 % Plot the mean error
-GAPLOTMEAN = [GAPLOTMEAN, mean(state.Score)];
+GAPLOTMEAN = [GAPLOTMEAN, mean(state.Score(~inf_error_idx))];
 plot(0:state.Generation, GAPLOTMEAN, '-go');
-
-legend('Best', 'Mean');
 hold off;
 end
