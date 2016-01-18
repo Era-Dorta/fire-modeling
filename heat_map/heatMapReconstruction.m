@@ -15,6 +15,9 @@ function heatMapReconstruction(solver, logfile)
 % Add the subfolders of heat map to the Matlab path
 addpath(genpath(fileparts(mfilename('fullpath'))));
 
+rand_seed = 'default';
+rng(rand_seed);
+
 max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 LB = 300; % Lower bounds, no less than 300K -> 27C
@@ -32,7 +35,8 @@ goal_img_path = [scene_img_folder 'goalimage.tif'];
 
 % Error function to be used for the fitness function, it must accept two
 % images and return an error value
-error_foo = {@MSE};
+error_foo = {@histogramErrorOpti};
+errorFooCloseObj = onCleanup(@() clear(func2str(error_foo{:})));
 
 %% Avoid data overwrites by always creating a new folder
 try
