@@ -11,18 +11,16 @@ if(nargin < 2)
     invert = false;
 end
 
-% Transform the smoothness errors into probabilities
-weights_sum = sum(weights);
-
 if(invert)
     % Inverted weights, lower ones should have higher probabilities, so
     % compute new weights that are inversely proprotional to the old ones
-    weights = weights_sum - weights;
-    weights_sum = sum(weights);
+    weights = 1 ./ (weights + eps);
 end
 
+weights_sum = sum(weights);
+
 if(weights_sum ~= 0)
-    prob = weights / weights_sum;
+    prob = weights ./ weights_sum;
 else
     prob = ones(size(weights)) * (1 / length(weights));
 end
