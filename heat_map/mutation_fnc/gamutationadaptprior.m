@@ -121,7 +121,7 @@ for i=1:length(parents)
                 mutationChildren(i,:) = mutantCandidates(1,:);
             else
                 % The lower the value the smoother the volume is
-                smooth_val = smoothnessEstimate(xyz, mutantCandidates, volumeSize);
+                smooth_val = smoothnessEstimateGrad(xyz, mutantCandidates, volumeSize);
                 smooth_val = weights2prob(smooth_val, true);
                 
                 % Up heat val
