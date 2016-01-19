@@ -10,6 +10,7 @@ persistent IS_INITIALIZED IMAGES_DB IMAGES_DB_HEATMAPS IMAGES_DB_DIR
 
 % With smaller populations it should be bigger
 dist_threshold = 500;
+degree_tol = 5;
 
 output_img_folder = [scene_img_folder output_img_folder_name];
 
@@ -85,17 +86,27 @@ for pop=1:size(heat_map_v, 1)
         freq = [0, 0];
         min_ind(2) = 1;
         
-        % min_ind heat map * scale(1), explains freq1 voxels in heat_map_v
+        % DB{min_ind} * scale(1), explains freq1 voxels in heat_map_v
         heat_map_rel = heat_map_v(pop, :)' ./ IMAGES_DB_HEATMAPS(:,min_ind(1));
+        
+        % Round the scale values for the mode computation to make sense
+        heat_map_rel = round(heat_map_rel, 5);
+        
+        scale(1) = mode(heat_map_rel);
+        
         % Round the heat map to get a better number for the frequency as we are
         % assuming that a change of +-1 degree won't affect much
-        [scale(1), freq(1)] = mode(round(heat_map_rel));
+        scaled_heat_map = abs(IMAGES_DB_HEATMAPS(:,min_ind(1)) * scale(1) - ...
+            heat_map_v(pop, :)');
+        freq(1) = sum(scaled_heat_map < degree_tol);
         
         nvars = length(heat_map_v(pop, :));
         
-        if(freq(1) < nvars)
+        % If there are values not cover by this heat min_ind heat map and
+        % min_ind heat map explains at least 45% of the voxels
+        if(freq(1) < nvars && freq(1) > 0.45 * nvars)
             % Get the indices of the unexplained voxels
-            other_idx = find(heat_map_rel ~= scale(1));
+            other_idx = find(scaled_heat_map >= degree_tol);
             
             % Compute the distances to all the images using the unexplained voxels
             c_distances = zeros(1, length(IMAGES_DB));
@@ -112,7 +123,13 @@ for pop=1:size(heat_map_v, 1)
             % voxels in heat_map_v
             [~, min_ind(2)] = min(c_distances);
             heat_map_rel = heat_map_v(pop, other_idx)' ./ IMAGES_DB_HEATMAPS(other_idx, min_ind(2));
-            [scale(2), freq(2)] = mode(round(heat_map_rel));
+            
+            heat_map_rel = round(heat_map_rel, 5);
+            
+            scale(2) = mode(heat_map_rel);
+            
+            freq(2) = sum(abs(IMAGES_DB_HEATMAPS(other_idx,min_ind(2)) * scale(2) - ...
+                heat_map_v(pop, other_idx)') < degree_tol);
         end
         
         % If both heatmaps explain more that 90% of voxels of heat_map_v then
