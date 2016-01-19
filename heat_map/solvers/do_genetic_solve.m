@@ -6,20 +6,36 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve( ...
 % Get an empty gaoptions structure
 options = gaoptimset;
 options.PopulationSize = 30;
-options.Generations = max(fix(max_ite / options.PopulationSize), 1);
+%options.Generations = max(fix(max_ite / options.PopulationSize), 1);
 options.TimeLimit = time_limit;
 options.Display = 'iter'; % Give some output on each iteration
+options.StallGenLimit = 10;
 
 % Path where the initial population will be saved
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
 
 % Random initial population
-options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
-
+% options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
+creation_fnc_mean = 0;
+creation_fnc_sigma = 250;
+options.CreationFcn = @( GenomeLength, FitnessFcn, options) gacreationfrominitguess ...
+    ( GenomeLength, FitnessFcn, options, init_heat_map, creation_fnc_mean, ...
+    creation_fnc_sigma, init_population_path );
 % Linearly spaced population, giving an extra path argument makes the
 % creation function save the population in a file
 % options.CreationFcn = @(x, y, z)gacreationlinspace(x , y, z, ...
-%     init_population_path);
+%      init_population_path);
+
+% Crossover function, update the coordinates and the bounding box size
+options.CrossoverFcn = @(parents, options, GenomeLength, FitnessFcn, ...
+    unused, thisPopulation) gacrossovercombineprior (parents, options, ...
+    GenomeLength, FitnessFcn, unused, thisPopulation, init_heat_map.xyz, ...
+    init_heat_map.size, min(init_heat_map.xyz), max(init_heat_map.xyz));
+
+% Mutation function, update the coordinates and the volume size
+options.MutationFcn = @(parents, options, GenomeLength, FitnessFcn,  ...
+    state, thisScore, thisPopulation) gamutationnone (parents, options, ...
+    GenomeLength, FitnessFcn, state, thisScore, thisPopulation);
 
 % Function executed on each iteration, there is a PlotFcns too, but it
 % creates a figure outside of our control and it makes the plotting and
