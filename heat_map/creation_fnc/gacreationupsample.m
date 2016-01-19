@@ -47,6 +47,10 @@ for j=1:individualsToCreate
     InitialPopulation(initPopProvided + j, :) = temp_heat_map.v';
 end
 
+% Clamp to lower and upper bounds
+InitialPopulation = bsxfun(@max, InitialPopulation, options.LinearConstr.lb');
+InitialPopulation = bsxfun(@min, InitialPopulation, options.LinearConstr.ub');
+
 if nargin == 8
     save(savePath, 'InitialPopulation');
 end

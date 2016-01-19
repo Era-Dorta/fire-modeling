@@ -1,7 +1,7 @@
 function [ InitialPopulation ] = gacreationfrominitguess( GenomeLength, ~, ...
     options, c_heat_map, mean, sigma, savePath )
 %GACREATIONFROMGUESS Create a population for ga
-%   
+%
 
 if nargin < 6
     error('Not enough input arguments.');
@@ -35,6 +35,10 @@ end
 InitialPopulation(initPopProvided + 1:individualsToCreate, :) = ...
     bsxfun(@plus, c_heat_map.v', random('norm', mean, sigma, ...
     [individualsToCreate, GenomeLength]));
+
+% Clamp to lower and upper bounds
+InitialPopulation = bsxfun(@max, InitialPopulation, options.LinearConstr.lb');
+InitialPopulation = bsxfun(@min, InitialPopulation, options.LinearConstr.ub');
 
 if nargin == 7
     save(savePath, 'InitialPopulation');
