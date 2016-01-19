@@ -126,9 +126,18 @@ for i=1:num_ite
         %     init_population_path);
     else
         % Create from upsampling the result of the previous iteration
-        options.CreationFcn = @(x, y, z)gacreationupsample(x , y, z, scores, ...
-            out_population, d_heat_map{i - 1}, d_heat_map{i}, ...
-            init_population_path);
+        temp_heat_map = d_heat_map{i - 1};
+        temp_heat_map.v = heat_map_v;
+        temp_heat_map = resampleHeatMap(temp_heat_map, 'up', d_heat_map{i}.xyz);
+        options.InitialPopulation = temp_heat_map.v';
+        
+        % The rest of the population will be created by adding normal
+        % noise to the previous sample
+        c_fnc_mean = 0;
+        c_fnc_sigma = 250;
+        options.CreationFcn = @(GenomeLength, FitnessFcn, options) ...
+            gacreationfrominitguess( GenomeLength, FitnessFcn, options, ...
+            temp_heat_map, c_fnc_mean, c_fnc_sigma, init_population_path);
     end
     
     %% Fitness function
