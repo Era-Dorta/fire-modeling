@@ -17,7 +17,7 @@ w = [0.6, 0.2, 0.2];
 
 prob = weights2prob(w, true);
 
-expProb = [0.2, 0.4, 0.4];
+expProb = [0.142857142857143, 0.428571428571429, 0.428571428571429];
 assert(all(abs(prob - expProb) < tol), 'Failed with given probabilities inverse');
 
 %% Test direct weight convertion
@@ -35,5 +35,5 @@ w = [100, 50, 25];
 
 prob = weights2prob(w, true);
 
-expProb = [0.214285714285714, 0.357142857142857, 0.428571428571429];
+expProb = [0.142857142857143, 0.285714285714286, 0.571428571428571];
 assert(all(abs(prob - expProb) < tol), 'Failed with inverse weights');
