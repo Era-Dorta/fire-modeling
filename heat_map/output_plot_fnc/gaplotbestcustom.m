@@ -60,6 +60,9 @@ if state.Generation == 0
     GAPLOTBEST = min(state.Score);
     GAPLOTMEAN = [];
     MAXERROR = max(state.Score(~inf_error_idx));
+    if(isempty(MAXERROR))
+        MAXERROR = 1;
+    end
 else
     GAPLOTBEST = [GAPLOTBEST, state.Best(end)];
     set(gca,'xlim', [0, state.Generation]);
