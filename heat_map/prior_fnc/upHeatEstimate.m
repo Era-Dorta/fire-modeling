@@ -1,6 +1,6 @@
 function upHeatV = upHeatEstimate( xyz, v, volumeSize )
-%UPHEAT_ESTIMATE estimate heatMap upwards heat
-%   UP_HEAT_V = UPHEAT_ESTIMATE( XYZ, V, VOLUME_SIZE ) returns large values
+%UPHEATESTIMATE estimate heatMap upwards heat
+%   UP_HEAT_V = UPHEATESTIMATE( XYZ, V, VOLUME_SIZE ) returns large values
 %   in UP_HEAT_V if the heat in the flame goes "up" and lower values
 %   otherwise. The estimate is in arbitrary units for the heatmaps defined
 %   by the common coordinates matrix 3xM XYZ, the value matrix NxM V, where

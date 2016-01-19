@@ -1,6 +1,6 @@
 function [ mutationChildren ] = gamutationadaptscale(parents, options, GenomeLength, ...
     FitnessFcn, state, thisScore, thisPopulation)
-%GAMUTATIOADAPTSCALE is a ga mutation function
+%GAMUTATIONADAPTSCALE is a ga mutation function
 %   [ mutationChildren ] = GAMUTATIOADAPTSCALE(parents, options, GenomeLength, ...
 %   FitnessFcn, state, thisScore, thisPopulation)
 %   Like @mutationadaptfeasible but with an increased scale factor to
