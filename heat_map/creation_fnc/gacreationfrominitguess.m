@@ -1,6 +1,6 @@
 function [ InitialPopulation ] = gacreationfrominitguess( GenomeLength, ~, ...
     options, c_heat_map, mean, sigma, savePath )
-%GACREATIONFROMGUESS Create a population for ga
+%GACREATIONFROMINITGUESS Create a population for ga
 %
 
 if nargin < 6
@@ -32,9 +32,11 @@ if initPopProvided > 0
 end
 
 % Randomly perturb the initial guess with normal noise
-InitialPopulation(initPopProvided + 1:individualsToCreate, :) = ...
-    bsxfun(@plus, c_heat_map.v', random('norm', mean, sigma, ...
-    [individualsToCreate, GenomeLength]));
+if(individualsToCreate > 0)
+    InitialPopulation(initPopProvided + 1:end, :) = ...
+        bsxfun(@plus, c_heat_map.v', random('norm', mean, sigma, ...
+        [individualsToCreate, GenomeLength]));
+end
 
 % Clamp to lower and upper bounds
 InitialPopulation = bsxfun(@max, InitialPopulation, options.LinearConstr.lb');
