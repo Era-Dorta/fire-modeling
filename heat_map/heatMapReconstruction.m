@@ -75,10 +75,7 @@ try
     
     %% Volumetric data initialization
     init_heat_map = read_raw_file([project_path raw_file_path]);
-    
-    % As a good starting point make the mean at 2500K
-    init_heat_map.v = init_heat_map.v * (2500 / mean(init_heat_map.v));
-    
+        
     %% Maya initialization
     % Launch Maya
     % TODO If another Matlab instance is run after we get the port but
