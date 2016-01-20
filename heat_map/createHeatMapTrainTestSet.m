@@ -50,6 +50,10 @@ try
         totalSize = str2double(totalSize);
     end
     
+    if(totalSize <= 0)
+        error('totalSize has to be a positive number.');
+    end
+    
     if(~islogical(save_mat))
         error(['Second argument must be of type "logical", "' class(save_mat) '" found.']);
     end
@@ -112,6 +116,9 @@ try
     
     if(save_mat)
         images = cell(totalSize, 1);
+        % Create 256 bins, image can be 0..255
+        edges = linspace(0, 255, 256);
+        histocounts = cell(totalSize, 1);
     end
     
     total_time = 0;
@@ -149,6 +156,12 @@ try
             heat_maps(i,:) = c_heat_map.v';
             images{i} = imread([output_img_folder istr '.tif']);
             images{i} = images{i}(:,:, 1:3); % Transparency is not used, so ignore it
+            
+            c_histo(1, :) = histcounts( images{i}(:, :, 1), edges);
+            c_histo(2, :) = histcounts( images{i}(:, :, 2), edges);
+            c_histo(3, :) = histcounts( images{i}(:, :, 3), edges);
+            
+            histocounts{i} = c_histo;
         end
         
         % Estimate the remaining time
@@ -172,8 +185,9 @@ try
     save_summary_file(summary_file, summary_data, struct('ExtraOptions', 'None'));
     
     if(save_mat)
+        bin_range = 2:size(histocounts{1}, 2);
         save([output_img_folder 'data.mat'], 'heat_maps', 'images', ...
-            'init_heat_map', 'LB', 'UB');
+            'init_heat_map', 'LB', 'UB', 'histocounts', 'edges', 'bin_range');
     end
     
     %% Resource clean up after execution
