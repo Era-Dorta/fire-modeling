@@ -112,9 +112,10 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    fitness_foo = @(x)heat_map_fitness_interp(x, init_heat_map.xyz, init_heat_map.size, ...
+    fitness_foo = @(x)heat_map_fitness_gaussprocess(x, init_heat_map.xyz, init_heat_map.size, ...
         error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
         sendMayaScript, port, mrLogPath, goal_img);
+    fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness_gaussprocess'));
     
     % Since the function uses persistance varibles, when the execution
     % finishes we need to delete their saved values
@@ -139,9 +140,10 @@ try
         case 'ga-re'
             % For the solve with reconstruction the size changes so leave
             % those too parameters open, so the function can modify them
-            fitness_foo = @(v, xyz, whd)heat_map_fitness(v, xyz, whd, ...
+            fitness_foo = @(v, xyz, whd)heat_map_fitness_gaussprocess(v, xyz, whd, ...
                 error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
                 sendMayaScript, port, mrLogPath, goal_img);
+            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness_gaussprocess'));
             
             % Extra paths needed in the solver
             paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
