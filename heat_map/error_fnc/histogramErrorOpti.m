@@ -1,6 +1,6 @@
 function [ cerror ] = histogramErrorOpti( goal_im, imga )
-%HISTOGRAM_ERROR_OPTI Computes an error measure between two images
-%   CERROR = HISTOGRAM_ERROR_OPTI(IMGA, GOAL_IM) this is an optimized
+%HISTOGRAMERROROPTI Computes an error measure between two images
+%   CERROR = HISTOGRAMERROROPTI(IMGA, GOAL_IM) this is an optimized
 %   version of HISTOGRAM_ERROR, assumes RGB images, ignores black pixels
 %   and if the goal image changes, call clear 'histogramErrorOpti';
 
@@ -24,7 +24,7 @@ Na(2, :) = histcounts( imga(:, :, 2), edges);
 Na(3, :) = histcounts( imga(:, :, 3), edges);
 
 % The first bin is for black, ignore it
-bin_range = 1:size(Na, 2);
+bin_range = 2:size(Na, 2);
 
 % Compute the error as in Dobashi et. al. 2012
 cerror = (sum(abs(Na(1, bin_range) - N_GOAL(1, bin_range))) + ...
