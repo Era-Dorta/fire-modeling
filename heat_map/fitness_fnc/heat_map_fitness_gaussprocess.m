@@ -17,22 +17,32 @@ if isempty(IS_INITIALIZED) || IS_INITIALIZED == false
     assert(isequal(error_foo{1}, @histogramError) || isequal(error_foo{1}, @histogramErrorOpti), ...
         'Only histogram error functions are allowed');
     
-    load('~/maya/projects/fire/images/test78_like_72_4x4x4_raw/render_approx_data2/data.mat');
+    data_folder = '~/maya/projects/fire/images/test78_like_72_4x4x4_raw/render_approx_data0';
     
-    % Heatmaps are already in the right format
-    % X = heat_maps
+    load([data_folder '/data.mat']);
     
-    % Flatten out the histograms
-    Y = cellfun(@(x) [x(1, bin_range), x(2, bin_range), x(3, bin_range)], ...
-        histocounts, 'UniformOutput', false);
-    Y = cell2mat(Y);
-    
-    % Input:
-    %  X = N x Q Input Data (N = no. samples, Q = input dimensions)
-    %  Y = N x D Output Data (N = no. samples again, D = output dimensions
-    %
-    GP = GaussProcess(heat_maps, Y, [], [], [], true);
-    GP = GP.LearnKernelParameters();
+    if(exist([data_folder '/GaussProcess.mat'],'file'))
+        load([data_folder '/GaussProcess.mat']);
+    else
+        % Heatmaps are already in the right format
+        % X = heat_maps
+        
+        % Flatten out the histograms
+        Y = cellfun(@(x) [x(1, bin_range), x(2, bin_range), x(3, bin_range)], ...
+            histocounts, 'UniformOutput', false);
+        Y = cell2mat(Y);
+        
+        % Input:
+        %  X = N x Q Input Data (N = no. samples, Q = input dimensions)
+        %  Y = N x D Output Data (N = no. samples again, D = output dimensions
+        %
+        disp('Learning Gauss Process parameters');
+        startGauss = tic;
+        GP = GaussProcess(heat_maps, Y, [], [], [], true);
+        GP = GP.LearnKernelParameters();
+        save([data_folder '/GaussProcess.mat'],'GP','-v7.3');
+        toc(startGauss);
+    end
     
     N_GOAL(1, :) = histcounts( goal_img(:, :, 1), edges);
     N_GOAL(2, :) = histcounts( goal_img(:, :, 2), edges);
