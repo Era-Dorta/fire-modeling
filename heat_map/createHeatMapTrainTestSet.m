@@ -187,7 +187,8 @@ try
     if(save_mat)
         bin_range = 2:size(histocounts{1}, 2);
         save([output_img_folder 'data.mat'], 'heat_maps', 'images', ...
-            'init_heat_map', 'LB', 'UB', 'histocounts', 'edges', 'bin_range');
+            'init_heat_map', 'LB', 'UB', 'histocounts', 'edges', 'bin_range',...
+            '-v7.3');
     end
     
     %% Resource clean up after execution
