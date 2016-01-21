@@ -17,7 +17,7 @@ if isempty(IS_INITIALIZED) || IS_INITIALIZED == false
     assert(isequal(error_foo{1}, @histogramError) || isequal(error_foo{1}, @histogramErrorOpti), ...
         'Only histogram error functions are allowed');
     
-    load('~/maya/projects/fire/images/test78_like_72_4x4x4_raw/render_approx_data0/data.mat');
+    load('~/maya/projects/fire/images/test78_like_72_4x4x4_raw/render_approx_data2/data.mat');
     
     % Heatmaps are already in the right format
     % X = heat_maps
