@@ -46,7 +46,13 @@ if isempty(IS_INITIALIZED) || IS_INITIALIZED == false
         %
         disp('Learning Gauss Process parameters');
         startGauss = tic;
-        GP = GaussProcess(heat_maps, Y, [], [], inf, true);
+        
+        % We are somehow looking for a overfitted model as we know that our
+        % data doesn't have any error, ideally we would set it to zero but
+        % the kernel parameters need to be positive
+        data_error = 0.001;
+        
+        GP = GaussProcess(heat_maps, Y, RbfKernel(1, data_error), [], inf, true);
         GP = GP.LearnKernelParameters();
         
         % Do one prediction, this precomputes certain values in GP that
