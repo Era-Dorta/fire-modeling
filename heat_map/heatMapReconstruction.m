@@ -111,11 +111,11 @@ try
     %% Fitness function definition
     
     % Wrap the fitness function into an anonymous function whose only
-    % parameter is the heat map
-    fitness_foo = @(x)heat_map_fitness_gaussprocess(x, init_heat_map.xyz, init_heat_map.size, ...
+    % parameter is the heat map, the memoize provides a cache for the
+    % output values using a hash map
+    fitness_foo = memoize(@(x)heat_map_fitness(x, init_heat_map.xyz, init_heat_map.size, ...
         error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
-        sendMayaScript, port, mrLogPath, goal_img);
-    fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness_gaussprocess'));
+        sendMayaScript, port, mrLogPath, goal_img));
     
     % Since the function uses persistance varibles, when the execution
     % finishes we need to delete their saved values
