@@ -17,12 +17,20 @@ if isempty(IS_INITIALIZED) || IS_INITIALIZED == false
     assert(isequal(error_foo{1}, @histogramError) || isequal(error_foo{1}, @histogramErrorOpti), ...
         'Only histogram error functions are allowed');
     
-    data_folder = '~/maya/projects/fire/images/test78_like_72_4x4x4_raw/render_approx_data0';
+    data_folder = '~/maya/projects/fire/images/test78_like_72_4x4x4_raw/render_approx_data2';
     
-    load([data_folder '/data.mat']);
+    disp('Loading training data');
+    loadtime = tic; 
+    load([data_folder '/data.mat']); 
+    loadtime = toc(loadtime);
+    disp(['Done loading training data ' num2str(loadtime) ' seconds']);
     
     if(exist([data_folder '/GaussProcess.mat'],'file'))
-        load([data_folder '/GaussProcess.mat']);
+        disp('Loading GaussProcess');
+        loadtime = tic; 
+        load([data_folder '/GaussProcess.mat']); 
+        loadtime = toc(loadtime);
+        disp(['Done loading GaussProcess ' num2str(loadtime) ' seconds']);
     else
         % Heatmaps are already in the right format
         % X = heat_maps
@@ -38,8 +46,12 @@ if isempty(IS_INITIALIZED) || IS_INITIALIZED == false
         %
         disp('Learning Gauss Process parameters');
         startGauss = tic;
-        GP = GaussProcess(heat_maps, Y, [], [], [], true);
+        GP = GaussProcess(heat_maps, Y, [], [], inf, true);
         GP = GP.LearnKernelParameters();
+        
+        % Do one prediction, this precomputes certain values in GP that
+        % will accelerate future calls to Predict
+        [~, ~, GP] = GP.Predict(heat_maps(1, :));
         save([data_folder '/GaussProcess.mat'],'GP','-v7.3');
         toc(startGauss);
     end
@@ -64,9 +76,9 @@ prediction_tolerance = 100;
 % Get predictions:
 %  yEst = estimated value for each row of X_test
 %  yEstVar = estimated variance for each row of X_test
-[pred_histo, pred_histo_var] = GP.Predict(heat_map_v);
+[pred_histo, pred_histo_var] = GP.PredictNoChecks(heat_map_v);
 
-if(pred_histo_var - 0.9990 > 0.1)
+if(abs(pred_histo_var - 0.55) > 0.2)
     disp(pred_histo_var);
 end
 
