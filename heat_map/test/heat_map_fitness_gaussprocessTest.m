@@ -43,14 +43,15 @@ test_Y = cell2mat(test_Y);
 
 %% Test with train data
 
-pred_histo = GP.PredictNoChecks(train.heat_maps);
+[pred_histo, pred_var] = GP.PredictNoChecks(train.heat_maps);
 
 pred_error = zeros(size(train.heat_maps, 1), 1);
 for i=1:size(train.heat_maps, 1)
     pred_error(i) = norm(pred_histo(i, :) - Y(i, :));
 end
 
-assert(mean(pred_error) < error_th, 'Failed with train data');
+assert(mean(pred_error) < error_th, 'Predicted data does not match test data');
+assert(mean(pred_var) < tol, 'Predicted variance is too high');
 
 %% Test with test data
 
