@@ -1,8 +1,8 @@
-function [ error ] = heat_map_fitness_gaussprocess( heat_map_v, xyz, whd, error_foo, ...
+function [ error ] = heat_map_fitness_gp( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
     port, mrLogPath, goal_img)
-%HEAT_MAP_FITNESS_GAUSSPROCESS Heat map fitness function
-%   Same as HEAT_MAP_FITNESS_GAUSSPROCESS, but uses a gaussian process to
+%HEAT_MAP_FITNESS_GP Heat map fitness function
+%   Same as HEAT_MAP_FITNESS_GP, but uses a gaussian process to
 %   estimate the histograms
 %
 %   See also HEAT_MAP_FITNESS
