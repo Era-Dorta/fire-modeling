@@ -50,13 +50,13 @@ try
     
     % Find the last folder
     dir_num = 0;
-    while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
+    while(exist([scene_img_folder 'hm_search_' num2str(dir_num)], 'dir') == 7)
         dir_num = dir_num + 1;
     end
     
     % Create a new folder to store the data
-    output_img_folder = [scene_img_folder 'attr_search_' num2str(dir_num) '/'];
-    output_img_folder_name = ['attr_search_' num2str(dir_num) '/'];
+    output_img_folder = [scene_img_folder 'hm_search_' num2str(dir_num) '/'];
+    output_img_folder_name = ['hm_search_' num2str(dir_num) '/'];
     summary_file = [output_img_folder 'summary_file'];
     % It will be saved as fig and tiff
     error_figure = [output_img_folder 'error_function'];
