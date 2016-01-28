@@ -9,7 +9,7 @@ options.PopulationSize = 30;
 %options.Generations = max(fix(max_ite / options.PopulationSize), 1);
 options.TimeLimit = time_limit;
 options.Display = 'iter'; % Give some output on each iteration
-options.StallGenLimit = 10;
+options.StallGenLimit = 5;
 
 % Path where the initial population will be saved
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
