@@ -1,4 +1,4 @@
-function heatMapReconstruction(solver, ports, logfile)
+function heatMapReconstruction(solver, creation_fnc_sigma, ports, logfile)
 %HEATMAPRECONSTRUCTION Performs a heat map reconstruction from a goal image
 %   HEATMAPRECONSTRUCTION(SOLVER, PORTS, LOGFILE)
 %   SOLVER should be one of the following
@@ -71,11 +71,11 @@ errorFooCloseObj = onCleanup(@() clear(func2str(error_foo{:})));
 
 %% Avoid data overwrites by always creating a new folder
 try
-    if(nargin < 2)
+    if(nargin < 3)
         error('Not enough input arguments.');
     end
     
-    if(isBatchMode() && nargin < 3)
+    if(isBatchMode() && nargin < 4)
         error('Logfile name is required when running in batch mode');
     end
     
@@ -193,7 +193,8 @@ try
     end
     summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
         [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
-        func2str(error_foo{:}), 'NumMaya', numMayas);
+        func2str(error_foo{:}), 'NumMaya', numMayas, 'creation_fnc_sigma', ...
+        creation_fnc_sigma);
     
     %% Solver call
     disp('Launching optimization algorithm');
@@ -201,7 +202,7 @@ try
         case 'ga'
             [heat_map_v, ~, ~] = do_genetic_solve( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, summary_data);
+                paths_str, summary_data, creation_fnc_sigma);
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...

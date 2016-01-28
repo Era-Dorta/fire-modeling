@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve( ...
     max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
-    summary_data)
+    summary_data, creation_fnc_sigma)
 % Genetics Algorithm solver for heat map reconstruction
 %% Options for the ga
 % Get an empty gaoptions structure
@@ -18,7 +18,6 @@ init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
 % Random initial population
 % options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
 creation_fnc_mean = 0;
-creation_fnc_sigma = 250;
 options.CreationFcn = @( GenomeLength, FitnessFcn, options) gacreationfrominitguess ...
     ( GenomeLength, FitnessFcn, options, init_heat_map, creation_fnc_mean, ...
     creation_fnc_sigma, init_population_path );
@@ -83,6 +82,7 @@ summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 summary_data.LowerBounds = LB(1);
 summary_data.UpperBounds = UB(1);
+summary_data.creation_fnc_sigma = creation_fnc_sigma;
 
 save_summary_file(paths_str.summary, summary_data, options);
 end
