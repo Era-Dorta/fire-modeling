@@ -34,10 +34,6 @@ fi
 # Each Maya will listen to this port + (current Maya number - 1)
 INIT_PORT="2222"
 
-# Create random name for the log file to avoid clashes with other matlab logs
-LOGFILE=`mktemp matlabXXXXXXXXXXXXXXXXXXXXX.log`
-LOGFILE=`pwd`"/"$LOGFILE
-
 # Get this script path
 CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -80,8 +76,27 @@ done
 
 PORTS="[${PORTS}]"
 
-# Runs matlab in batch mode with low priority
-nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction('$1', $PORTS, '$LOGFILE')" -logfile $LOGFILE
+SIGMA=(1 10 50 100 250 500 1000 1500 2000 3000 4000 5000)
+SIZE=$((${#SIGMA[@]} - 1))
+
+TEST_NUM="0"
+OUT_DIR=~/maya/projects/fire/images/test79_like_78_rot
+mkdir "${OUT_DIR}/VarianceTest${TEST_NUM}"
+mkdir "${OUT_DIR}/VarianceTest${TEST_NUM}/FinalResult"
+
+for i in `seq 0 ${SIZE}`;
+do
+	# Create random name for the log file to avoid clashes with other matlab logs
+	LOGFILE=`mktemp matlabXXXXXXXXXXXXXXXXXXXXX.log`
+	LOGFILE=`pwd`"/"$LOGFILE
+
+	# Runs matlab in batch mode with low priority
+	nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction('$1', ${SIGMA[$i]}, $PORTS, '$LOGFILE')" -logfile $LOGFILE
+	
+	cp --recursive "${OUT_DIR}/hm_search_${i}" "${OUT_DIR}/VarianceTest${TEST_NUM}/hm_search_${i}"
+	cp "${OUT_DIR}/hm_search_${i}/optimized.tif" "${OUT_DIR}/VarianceTest${TEST_NUM}/FinalResult/${SIGMA[$i]}optimized.tif"
+	cp "${OUT_DIR}/hm_search_${i}/InitialPopulation/AllPopulation.tif" "${OUT_DIR}/VarianceTest${TEST_NUM}/FinalResult/${SIGMA[$i]}InitPop.tif"
+done
 
 # Close all the Maya instances
 for i in `seq 1 $NUM_MAYA`;
