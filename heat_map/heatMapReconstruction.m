@@ -190,6 +190,16 @@ try
     sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
     disp(['Image rendered in ' num2str(toc) ]);
     
+    %% Render the initial population in a folder
+    load([paths_str.output_folder 'InitialPopulation.mat']);
+    
+    disp(['Rendering the initial population in ' scene_img_folder ...
+        output_img_folder_name 'InitialPopulation' ]);
+    
+    render_heat_maps( InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
+        scene_name, scene_img_folder, output_img_folder_name, 'InitialPopulation', ...
+        sendMayaScript, port, mrLogPath)
+    
     %% Resource clean up after execution
     
     % If running in batch mode, exit matlab
