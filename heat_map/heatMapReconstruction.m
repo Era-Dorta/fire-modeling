@@ -75,7 +75,7 @@ try
     
     %% Volumetric data initialization
     init_heat_map = read_raw_file([project_path raw_file_path]);
-        
+    
     %% Maya initialization
     % Launch Maya
     % TODO If another Matlab instance is run after we get the port but
@@ -112,13 +112,9 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    fitness_foo = @(x)heat_map_fitness_interp(x, init_heat_map.xyz, init_heat_map.size, ...
+    fitness_foo = memoize(@(x)heat_map_fitness(x, init_heat_map.xyz, init_heat_map.size, ...
         error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
-        sendMayaScript, port, mrLogPath, goal_img);
-    
-    % Since the function uses persistance varibles, when the execution
-    % finishes we need to delete their saved values
-    fitness_foo_closeobj = onCleanup(@() clear('heat_map_fitness_interp'));
+        sendMayaScript, port, mrLogPath, goal_img), true);
     
     %% Summary extra data
     summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...
@@ -138,7 +134,8 @@ try
                 summary_file, summary_data);
         case 'ga-re'
             % For the solve with reconstruction the size changes so leave
-            % those too parameters open, so the function can modify them
+            % those two parameters open, so the function can modify them.
+            % Let the solver use a different cache for each fitness foo
             fitness_foo = @(v, xyz, whd)heat_map_fitness(v, xyz, whd, ...
                 error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
                 sendMayaScript, port, mrLogPath, goal_img);

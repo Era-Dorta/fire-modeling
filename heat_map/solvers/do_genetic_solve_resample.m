@@ -141,7 +141,8 @@ for i=1:num_ite
     end
     
     %% Fitness function
-    new_fitness_foo = @(v)fitness_foo(v, d_heat_map{i}.xyz, d_heat_map{i}.size);
+    new_fitness_foo = memoize(@(v)fitness_foo(v, d_heat_map{i}.xyz, ...
+        d_heat_map{i}.size), true);
     
     %% Send Maya iteration specific parameters
     disp('Setting size parameters in Maya');
