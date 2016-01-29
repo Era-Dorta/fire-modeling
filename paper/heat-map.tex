@@ -26,7 +26,7 @@
 
 % User-generated keywords.
 
-\keywords{radiosity, global illumination, constant time}
+\keywords{fire, heat, inverse problem}
 
 % With the "\setcopyright" command the appropriate rights management text will be added
 % to your document.
@@ -62,7 +62,7 @@
 
  \teaser{
    \includegraphics[height=1.5in]{images/sampleteaser}
-   \caption{Spring Training 2009, Peoria, AZ.}
+   \caption{Examples of our method. The heat maps are estimated from real photographs shown on the top left.}
  }
 
 \maketitle
@@ -107,23 +107,30 @@
 \section{Introduction}
 
 
-\begin{table}[ht]
-  \centering
-  \caption{A simple table.}
-  \begin{tabular}{|r|l|}
-    \hline
-    7C0 & hexadecimal \\
-    3700 & octal \\ \cline{2-2}
-    11111000000 & binary \\
-    \hline \hline
-    1984 & decimal \\
-    \hline
-  \end{tabular}
-\end{table}
-  
 
 \section{Related work}
 
+
+Many methods have been proposed to render participating; generally approximate solutions for the Radiative Transport Equation (RTE)~\cite{Howell:2002} are computed. 
+\cite{Rushmeier:1995} presented a method to perform accurate ray casting on sparse measured data.
+The fire was modelled as a series of stacked cylindrical rings, where each ring has uniform properties.
+%The total radiance at each point is integrated using a Monte Carlo method, summing up the measured irradiances at sample locations.
+A technique to animate fire with suspended particles was introduced by~\cite{Feldman:2003}.
+Emitted light was computed using Planck's formula of black body radiation their animation of fire with, however their RGB mapping requires a manual adjustment using images of real explosions.
+%Direct illumination shadows were computed using deep shadow maps~\cite{Lokovic:2000}, while scattering and illumination by other objects in the scene used the technique proposed by~\cite{Jensen:2002}.
+\cite{Nguyen:2002} proposed a ray marching technique using black body radiation as well, scattering in the media and the observer's visual adaptation to the fire are modelled.
+An extension was presented by~\cite{Pegoraro:2006}, the authors' model has physically-based absorption, emission and scattering properties.
+The spectroscopic characteristics of different fuels are achieved by modelling the transitions of electrons between different energy states in the molecules.
+The method allows for non-linear light trajectories  in the medium due to refraction and it includes visual adaptation effects by means of a post-processing mechanism.
+\cite{Horvath:2009} proposed a rendering method whose main objective was user-friendliness for artists.
+The authors perform simple volume rendering on several fixed camera slices to generate an image.
+Black body radiation is used to compute light emission; the images were motion-blurred with a filter based on the velocities in the slices, and heat distortion was added as post-processing filter defined by the user. 
+
+Inverse rendering problem papers
+
+Other uses of GA
+
+Inverse rendering for light scattering + emission?
 
 \subsection{Fire rendering}
 
@@ -133,12 +140,6 @@ Here talk about Pegoraro et. al.
 
 Here talk about Dobashi et. al.
 
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=3.0in]{images/ferrari_laferrari}
-  \caption{Ferrari LaFerrari. Image courtesy Flickr user ``gfreeman23.''}
-  \label{fig:ferrari}
-\end{figure}
 
 \section{Problem formulation}
 
