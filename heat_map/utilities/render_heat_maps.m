@@ -9,6 +9,10 @@ output_img_folder = [scene_img_folder output_img_folder_name];
 % Create directory for the render images
 system(['mkdir ' output_img_folder output_folder]);
 
+all_population_img = [];
+c_row_img = [];
+num_column = 0;
+
 for pop=1:size(heat_map_v, 1)
     
     popstr = num2str(pop);
@@ -40,5 +44,37 @@ for pop=1:size(heat_map_v, 1)
     % renderWindowSaveImageCallback "renderView" $filename "image";
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
     sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
+    
+    c_img = imread([scene_img_folder output_img_folder_name output_folder ...
+        '/fireimage' popstr '.tif']);
+    c_img = c_img(:,:,1:3);
+    
+    if ~exist('max_column','var')
+        % Assuming all result images have the same size and that we want to
+        % build of mosaic of width 1920 pixels
+        max_column = max(floor(1920 / size(c_img, 2)), 1);
+    end
+    
+    c_row_img = [c_row_img, c_img];
+    num_column = num_column + 1;
+    
+    if(num_column >= max_column)
+        all_population_img = [all_population_img; c_row_img];
+        c_row_img = [];
+        num_column = 0;
+    end
 end
+% Check if last row was not completed
+if(~isempty(c_row_img))
+    % Create a padding with black squares
+    c_size = size(c_row_img);
+    padding = zeros(c_size(1), size(all_population_img, 2) - c_size(2), ...
+        c_size(3));
+    padding(1:10:end, :,:) = 255;
+    padding(:,1:10:end,:) = 255;
+    
+    all_population_img = [all_population_img; c_row_img, padding];
+end
+imwrite(all_population_img, ...
+    [scene_img_folder output_img_folder_name output_folder '/AllPopulation.tif']);
 end

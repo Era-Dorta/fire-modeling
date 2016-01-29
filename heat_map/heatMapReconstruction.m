@@ -198,7 +198,7 @@ try
         
         render_heat_maps( InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
             scene_name, scene_img_folder, output_img_folder_name, 'InitialPopulation', ...
-            sendMayaScript, port, mrLogPath)
+            sendMayaScript, port, mrLogPath);
     end
     %% Resource clean up after execution
     
