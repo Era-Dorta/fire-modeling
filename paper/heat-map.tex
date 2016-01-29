@@ -110,9 +110,12 @@
 
 \section{Related work}
 
+In this section we present an overview of the technique used for fire rendering and inverse rendering problems.
+A more detailed discussion of fire modelling, simulation and rendering is given in~\cite{Huang:2014}.
 
-Many methods have been proposed to render participating media, a more detailed discussion is given in~\cite{Huang:2014}.
-Typically, approximate solutions for the Radiative Transport Equation (RTE)~\cite{Howell:2002} are computed.
+\subsection{Fire rendering}
+
+Many methods have been proposed to render participating media realistically; typically, approximate solutions for the Radiative Transport Equation (RTE)~\cite{Howell:2002} are computed.
 \cite{Rushmeier:1995} presented a method to perform accurate ray casting on sparse measured data.
 The fire was modelled as a series of stacked cylindrical rings, where each ring has uniform properties.
 %The total radiance at each point is integrated using a Monte Carlo method, summing up the measured irradiances at sample locations.
@@ -125,7 +128,18 @@ The spectroscopic characteristics of different fuels are achieved by modelling t
 The method allows for non-linear light trajectories  in the medium due to refraction and it includes visual adaptation effects by means of a post-processing mechanism.
 \cite{Horvath:2009} proposed a rendering method whose main objective was user-friendliness for artists.
 The authors perform simple volume rendering on several fixed camera slices to generate an image.
-Black body radiation is used to compute light emission; the images were motion-blurred with a filter based on the velocities in the slices, and heat distortion was added as post-processing filter defined by the user. 
+Black body radiation is used to compute light emission; the images were motion-blurred with a filter based on the velocities in the slices, and heat distortion was added as post-processing filter defined by the user.
+
+Rendering flames at interactive frame rates has also been explored, this techniques inevitably sacrifice quality for performance.
+\cite{Bridault:2006} used a spectrophotometer to capture photometric distributions of candles.
+The intensities are stored on a texture and changes in illumination over time are approximated with an attenuation factor proportional to the size of the flame.
+\cite{Zhang:2011} used a plane blending technique were a one-dimensional colour texture is used as a transfer function to convert flow attributes to colours and opacities. 
+A texture synthesis technique to generate fire animations was introduced by~\cite{Jamriska:2015}.
+The method requires a hand made motion field and an alpha mask of the desired result, both of which are used to generate a new sequence using data from an existing video exemplar.
+
+\subsection{Parameter optimization}
+
+Here talk about Dobashi et. al.
 
 Inverse rendering problem papers
 
@@ -133,13 +147,7 @@ Other uses of GA
 
 Inverse rendering for light scattering + emission?
 
-\subsection{Fire rendering}
 
-Here talk about Pegoraro et. al.
-
-\subsection{Parameter optimization}
-
-Here talk about Dobashi et. al.
 
 
 \section{Problem formulation}
