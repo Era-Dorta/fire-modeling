@@ -106,6 +106,26 @@
 
 \section{Introduction}
 
+For centuries humans has been fascinated with fire due to its dangerous nature and attractive presence.
+Combustion phenomena are prevalent in daily life, candles, camp fires, explosions, car engines, cooking appliances, etc.
+Simulating and visualizing fire related processes has many applications, for example they are widely used for visual effects in the film industry, simulated as part of the virtual environment in the computer games industry; or in the engineering community, where modelling engine combustion and fire safety evaluations are frequently demanded.
+
+Examples of computer generated fires in films include, a planet explosion in Star Trek II, where a particle-based technique by~\cite{Reeves:1983} was used; Shrek featured a dragon exhaling fire, where parametric curves were used to drive the flames~\cite{Lamorlette:2002}; or the more recent work of~\cite{Horvath:2009} based on 2D screen projections for the film Harry Potter and the Deathly Hallows.
+In these and in many other applications, using real flames is an expensive and hazardous endeavour.
+
+The computer graphics community has intensively researched the fluid behaviour of water and smoke.
+Fire can also be modelled as a fluid, however due to its multiphase flow, chemical reactions and radiative heat transport, the techniques used for water or smoke cannot be directly applied to flames.
+As a result of the aforementioned complexity and the interdisciplinary nature of the problem, fire simulation is still an open problem in computer graphics.
+
+A great deal of work done in the area has sacrificed complexity for interactiveness, therefore producing simplified models which hope to deceive the observer by exploiting the chaotic behaviour present in fire motion.
+Nevertheless, physically-based simulations incorporate the intrinsic processes that occur in a combustion scenario in order to be able to produce realistic results.
+
+Using the current methods involves a great deal of parameter tuning and trial and error for the user.
+Moreover, several techniques require difficult to acquire data, such as the flame temperature, which can be obtained by simulations whose computational cost is quite high or from real data with expensive equipment such as infrared cameras.
+
+We propose a new method to estimate fire volumetric temperature given a real photograph of a flame.
+Our aim is two fold, firstly to give the user an intuitive tool to choose fire rendering parameters and, secondly to provide a physically-based volumetric heat values using only data from RGB cameras.
+Since color histograms are often used in image retrieval techniques, we use them to evaluate the distance between the generated image and the photograph.
 
 
 \section{Related work}
@@ -115,7 +135,7 @@ A more detailed discussion of fire modelling, simulation and rendering is given 
 
 \subsection{Fire rendering}
 
-Many methods have been proposed to render participating media realistically; typically, approximate solutions for the Radiative Transport Equation (RTE)~\cite{Howell:2002} are computed.
+Many physically-based methods have been proposed to render participating media realistically; typically, approximate solutions for the Radiative Transport Equation (RTE)~\cite{Howell:2002} are computed.
 \cite{Rushmeier:1995} presented a method to perform accurate ray casting on sparse measured data.
 The fire was modelled as a series of stacked cylindrical rings, where each ring has uniform properties.
 %The total radiance at each point is integrated using a Monte Carlo method, summing up the measured irradiances at sample locations.
@@ -128,7 +148,7 @@ The spectroscopic characteristics of different fuels are achieved by modelling t
 The method allows for non-linear light trajectories  in the medium due to refraction and it includes visual adaptation effects by means of a post-processing mechanism.
 \cite{Horvath:2009} proposed a rendering method whose main objective was user-friendliness for artists.
 The authors perform simple volume rendering on several fixed camera slices to generate an image.
-Black body radiation is used to compute light emission; the images were motion-blurred with a filter based on the velocities in the slices, and heat distortion was added as post-processing filter defined by the user.
+Black body radiation is used to compute light emission; the result is motion-blurred with a filter based on the velocities in the slices, and heat distortion was added as post-processing filter defined by the user.
 
 Rendering flames at interactive frame rates has also been explored, this techniques inevitably sacrifice quality for performance.
 \cite{Bridault:2006} used a spectrophotometer to capture photometric distributions of candles.
@@ -139,7 +159,9 @@ The method requires a hand made motion field and an alpha mask of the desired re
 
 \subsection{Parameter optimization}
 
-Here talk about Dobashi et. al.
+\cite{Dobashi:2012} proposed a method to compute rendering parameters for clouds using a real cloud photograph.
+The authors' technique is limited to simplified scenes with a single light and the cloud, were the camera and the light position are fixed.
+Under this restrictions a set of images can be precomputed to accelerate the optimization.
 
 Inverse rendering problem papers
 
