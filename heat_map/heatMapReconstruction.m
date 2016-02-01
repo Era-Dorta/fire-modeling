@@ -1,8 +1,15 @@
 function heatMapReconstruction(solver, ports, logfile)
-% Function that performs a heat map reconstruction from a goal image
-% Solver should be one of the following
-% 'ga' -> Genetic Algorithms
-% 'sa' -> Simulated Annealing
+%HEATMAPRECONSTRUCTION Performs a heat map reconstruction from a goal image
+%   HEATMAPRECONSTRUCTION(SOLVER, PORTS, LOGFILE) 
+%   SOLVER should be one of the following
+%   'ga' -> Genetic Algorithm
+%   'sa' -> Simulated Annealing
+%   'ga-re' -> Genetic Algorithm with heat map resampling
+%   'grad' -> Gradient Descent
+%   PORTS is a vector containing port numbers that Maya is listening to
+%   LOGFILE is only required when running in batch mode, is a string with 
+%   the path of the current log file
+
 %% Parameter initalization
 % N.B. If Matlab is started from the GUI and custom paths are used for the
 % Maya plugins, Matlab will not read the Maya path variables that were
