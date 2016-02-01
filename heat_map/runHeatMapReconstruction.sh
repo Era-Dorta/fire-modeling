@@ -1,9 +1,9 @@
 #!/bin/bash
-if [ "$#" -le 0 ]; then
+if [ "$#" -le 1 ]; then
 	echo ""
-	echo "Missing solver type"
+	echo "Not enough input arguments"
 	echo ""
-	echo "Usage: runHeatMapReconstruction.sh <solver>"
+	echo "Usage: runHeatMapReconstruction.sh <solver> <maya_threads>"
 	echo ""
 	echo "	Where <solver> can be any of [\"ga\", \"sa\", \"ga-re\", \"grad\" ]"
 	echo "	\"ga\"    -> Genetic Algorithm"
@@ -11,12 +11,44 @@ if [ "$#" -le 0 ]; then
 	echo "	\"ga-re\" -> Genetic Algorithm with heat map resampling"
 	echo "	\"grad\"  -> Gradient Descent"
 	echo ""
+	echo "	<maya_threads> must be an positive integer which indicates how many"
+	echo "	Maya instances will be rendering, the recommended is:"
+	echo "	number of cores * 0.25"
+	echo ""
 	exit 0 
 fi
+
+# Each Maya will listen to this port + (current Maya number - 1)
+INIT_PORT="2222"
 
 # Create random name for the log file to avoid clashes with other matlab logs
 LOGFILE=`mktemp matlabXXXXXXXXXXXXXXXXXXXXX.log`
 LOGFILE=`pwd`"/"$LOGFILE
 
+# Get this script path
+CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Launch the first Maya instance
+nice -n20 "$CDIR/runMayaBatch.sh" "$INIT_PORT"
+
+# Add the port to the list of ports
+PORTS=${INIT_PORT}
+
+# Launch the rest of the Maya instances
+for i in `seq 2 $2`;
+do
+	nice -n20 "$CDIR/runMayaBatch.sh" $((${INIT_PORT} + $i - 1))
+	PORTS="$PORTS, $((${INIT_PORT} + $i - 1))"
+done
+
+PORTS="[${PORTS}]"
+
 # Runs matlab in batch mode with low priority
-nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction('$1', '$LOGFILE')" -logfile $LOGFILE
+nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction('$1', $PORTS, '$LOGFILE')" -logfile $LOGFILE
+
+# Close all the Maya instances
+for i in `seq 1 $2`;
+do
+	"$CDIR/maya_comm/sendMaya.rb" $((${INIT_PORT} + $i - 1)) "quit -f"
+done
+

@@ -1,4 +1,4 @@
-function heatMapReconstruction(solver, logfile)
+function heatMapReconstruction(solver, ports, logfile)
 % Function that performs a heat map reconstruction from a goal image
 % Solver should be one of the following
 % 'ga' -> Genetic Algorithms
@@ -40,11 +40,11 @@ errorFooCloseObj = onCleanup(@() clear(func2str(error_foo{:})));
 
 %% Avoid data overwrites by always creating a new folder
 try
-    if(nargin == 0)
+    if(nargin < 2)
         error('Not enough input arguments.');
     end
     
-    if(isBatchMode() && nargin < 2)
+    if(isBatchMode() && nargin < 3)
         error('Logfile name is required when running in batch mode');
     end
     
@@ -78,35 +78,23 @@ try
     
     %% Maya initialization
     % Each maya instance usually renders using 4 cores
-    numMayas = max(feature('numCores') / 4, 1);
+    numMayas = numel(ports);
     
-    % Launch Maya
-    % TODO If another Matlab instance is run after we get the port but
-    % before Maya opens, they would use the same port
     for i=1:numMayas
-        port(i) = getNextFreePort();
-        disp(['Launching Maya listening to port ' num2str(port(i))]);
-        if(system([currentFolder '/runMayaBatch.sh ' num2str(port(i)) ' < /dev/null']) ~= 0)
-            error('Could not open Maya');
-        end
-        % Maya was launched successfully, so we are responsible for closing it
-        % the cleanup function is more robust (Ctrl-c, ...) than the try-catch
-        mayaCloseObj(i) = onCleanup(@() closeMaya(sendMayaScript, port(i)));
-        
         disp('Loading scene in Maya')
         % Set project to fire project directory
         cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-        sendToMaya(sendMayaScript, port(i), cmd);
+        sendToMaya(sendMayaScript, ports(i), cmd);
         
         % Open our test scene
         cmd = ['file -open \"scenes/' scene_name '.ma\"'];
-        sendToMaya(sendMayaScript, port(i), cmd);
+        sendToMaya(sendMayaScript, ports(i), cmd);
         
         % Force a frame update, as batch rendering later does not do it, this
         % will fix any file name errors due to using the same scene on
         % different computers
         cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-        sendToMaya(sendMayaScript, port(i), cmd);
+        sendToMaya(sendMayaScript, ports(i), cmd);
     end
     
     %% Ouput folder
@@ -117,9 +105,18 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    fitness_foo = memoize(@(x)heat_map_fitness_par(x, init_heat_map.xyz, init_heat_map.size, ...
-        error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
-        sendMayaScript, port, mrLogPath, goal_img), true);
+    if(numMayas == 1)
+        % If there is only one Maya do not use the parallel fitness foo
+        fitness_foo = memoize(@(x)heat_map_fitness(x, init_heat_map.xyz,  ...
+            init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
+            output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
+            goal_img), true);
+    else
+        fitness_foo = memoize(@(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
+            init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
+            output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
+            goal_img), true);
+    end
     
     %% Summary extra data
     summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...
@@ -143,7 +140,7 @@ try
             % Let the solver use a different cache for each fitness foo
             fitness_foo = @(v, xyz, whd)heat_map_fitness(v, xyz, whd, ...
                 error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
-                sendMayaScript, port, mrLogPath, goal_img);
+                sendMayaScript, ports, mrLogPath, goal_img);
             
             % Extra paths needed in the solver
             paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
@@ -151,7 +148,7 @@ try
             
             [heat_map_v, ~, ~] = do_genetic_solve_resample( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, sendMayaScript, port, summary_data);
+                paths_str, sendMayaScript, ports, summary_data);
         case 'grad'
             [heat_map_v, ~, ~] = do_gradient_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
@@ -177,19 +174,19 @@ try
     % temperature_file_first and force frame update to run
     cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
-    sendToMaya(sendMayaScript, port(1), cmd);
+    sendToMaya(sendMayaScript, ports(1), cmd);
     
     % Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
-    sendToMaya(sendMayaScript, port(1), cmd);
+    sendToMaya(sendMayaScript, ports(1), cmd);
     
     disp(['Rendering final image in ' output_img_folder 'optimized.tif' ]);
     
     % Render the image
     tic;
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
-    sendToMaya(sendMayaScript, port(1), cmd, 1, mrLogPath);
+    sendToMaya(sendMayaScript, ports(1), cmd, 1, mrLogPath);
     disp(['Image rendered in ' num2str(toc) ]);
     
     %% Render the initial population in a folder
@@ -203,7 +200,7 @@ try
         
         render_heat_maps( InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
             scene_name, scene_img_folder, output_img_folder_name, 'InitialPopulation', ...
-            sendMayaScript, port(1), mrLogPath);
+            sendMayaScript, ports(1), mrLogPath);
     end
     %% Resource clean up after execution
     
