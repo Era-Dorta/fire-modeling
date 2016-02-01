@@ -10,6 +10,7 @@ options.PopulationSize = 30;
 options.TimeLimit = time_limit;
 options.Display = 'iter'; % Give some output on each iteration
 options.StallGenLimit = 5;
+options.Vectorized = 'on';
 
 % Path where the initial population will be saved
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];

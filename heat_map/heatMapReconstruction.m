@@ -77,32 +77,37 @@ try
     init_heat_map = read_raw_file([project_path raw_file_path]);
     
     %% Maya initialization
+    % Each maya instance usually renders using 4 cores
+    numMayas = max(feature('numCores') / 4, 1);
+    
     % Launch Maya
     % TODO If another Matlab instance is run after we get the port but
     % before Maya opens, they would use the same port
-    port = getNextFreePort();
-    disp(['Launching Maya listening to port ' num2str(port)]);
-    if(system([currentFolder '/runMayaBatch.sh ' num2str(port) ' < /dev/null']) ~= 0)
-        error('Could not open Maya');
+    for i=1:numMayas
+        port(i) = getNextFreePort();
+        disp(['Launching Maya listening to port ' num2str(port(i))]);
+        if(system([currentFolder '/runMayaBatch.sh ' num2str(port(i)) ' < /dev/null']) ~= 0)
+            error('Could not open Maya');
+        end
+        % Maya was launched successfully, so we are responsible for closing it
+        % the cleanup function is more robust (Ctrl-c, ...) than the try-catch
+        mayaCloseObj(i) = onCleanup(@() closeMaya(sendMayaScript, port(i)));
+        
+        disp('Loading scene in Maya')
+        % Set project to fire project directory
+        cmd = 'setProject \""$HOME"/maya/projects/fire\"';
+        sendToMaya(sendMayaScript, port(i), cmd);
+        
+        % Open our test scene
+        cmd = ['file -open \"scenes/' scene_name '.ma\"'];
+        sendToMaya(sendMayaScript, port(i), cmd);
+        
+        % Force a frame update, as batch rendering later does not do it, this
+        % will fix any file name errors due to using the same scene on
+        % different computers
+        cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
+        sendToMaya(sendMayaScript, port(i), cmd);
     end
-    % Maya was launched successfully, so we are responsible for closing it
-    % the cleanup function is more robust (Ctrl-c, ...) than the try-catch
-    mayaCloseObj = onCleanup(@() closeMaya(sendMayaScript, port));
-    
-    disp('Loading scene in Maya')
-    % Set project to fire project directory
-    cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-    sendToMaya(sendMayaScript, port, cmd);
-    
-    % Open our test scene
-    cmd = ['file -open \"scenes/' scene_name '.ma\"'];
-    sendToMaya(sendMayaScript, port, cmd);
-    
-    % Force a frame update, as batch rendering later does not do it, this
-    % will fix any file name errors due to using the same scene on
-    % different computers
-    cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-    sendToMaya(sendMayaScript, port, cmd);
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
@@ -112,7 +117,7 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    fitness_foo = memoize(@(x)heat_map_fitness(x, init_heat_map.xyz, init_heat_map.size, ...
+    fitness_foo = memoize(@(x)heat_map_fitness_par(x, init_heat_map.xyz, init_heat_map.size, ...
         error_foo, scene_name, scene_img_folder, output_img_folder_name, ...
         sendMayaScript, port, mrLogPath, goal_img), true);
     
@@ -172,19 +177,19 @@ try
     % temperature_file_first and force frame update to run
     cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
-    sendToMaya(sendMayaScript, port, cmd);
+    sendToMaya(sendMayaScript, port(1), cmd);
     
     % Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
-    sendToMaya(sendMayaScript, port, cmd);
+    sendToMaya(sendMayaScript, port(1), cmd);
     
     disp(['Rendering final image in ' output_img_folder 'optimized.tif' ]);
     
     % Render the image
     tic;
     cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
-    sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
+    sendToMaya(sendMayaScript, port(1), cmd, 1, mrLogPath);
     disp(['Image rendered in ' num2str(toc) ]);
     
     %% Render the initial population in a folder
@@ -198,7 +203,7 @@ try
         
         render_heat_maps( InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
             scene_name, scene_img_folder, output_img_folder_name, 'InitialPopulation', ...
-            sendMayaScript, port, mrLogPath);
+            sendMayaScript, port(1), mrLogPath);
     end
     %% Resource clean up after execution
     
