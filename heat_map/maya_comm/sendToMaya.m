@@ -10,7 +10,7 @@ if nargin == 3
 end
 
 [status, result] = system([sendScript ' ' num2str(port) ' "' command ';" ' ...
-    num2str(isRender)]);
+    num2str(isRender) ' < /dev/null']);
 
 if(status ~= 0)
     if(isRender)

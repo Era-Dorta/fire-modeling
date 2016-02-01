@@ -28,7 +28,7 @@ time_limit = 24 * 60 * 60; % In seconds
 % do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test78_like_72_4x4x4_raw';
+scene_name = 'test79_like_78_rot';
 raw_file_path = 'data/heat_maps/gaussian4x4x4.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 goal_img_path = [scene_img_folder 'goalimage.tif'];
@@ -82,7 +82,7 @@ try
     % before Maya opens, they would use the same port
     port = getNextFreePort();
     disp(['Launching Maya listening to port ' num2str(port)]);
-    if(system([currentFolder '/runMayaBatch.sh ' num2str(port)]) ~= 0)
+    if(system([currentFolder '/runMayaBatch.sh ' num2str(port) ' < /dev/null']) ~= 0)
         error('Could not open Maya');
     end
     % Maya was launched successfully, so we are responsible for closing it
@@ -106,7 +106,7 @@ try
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
-    system(['mkdir ' output_img_folder]);
+    system(['mkdir ' output_img_folder ' < /dev/null']);
     
     %% Fitness function definition
     

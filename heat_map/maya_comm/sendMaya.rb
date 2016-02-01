@@ -34,6 +34,9 @@ while timesFailed <= maxRetries do
 		# Wait for Maya to finish running the command, especially important for
 		# rendering commands that take a lot of time
 		mayaReturn = s.gets()
+		
+		# Close the socket
+		s.close
 			
 		# If the render failed a return message will be in read in mayaReturn
 		# but other commands return messages when they execute properly

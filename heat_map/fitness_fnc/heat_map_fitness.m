@@ -11,10 +11,9 @@ error = zeros(num_error_foos, size(heat_map_v, 1));
 for pop=1:size(heat_map_v, 1)
     
     %% Make temp dir for the render image
-    [~, tmpdir] = system(['mktemp -d ' output_img_folder 'dirXXXXXX']);
-    [~,tmpdirName,~] = fileparts(tmpdir);
-    % Remove end on line characters
-    tmpdirName = regexprep(tmpdirName,'\r\n|\n|\r','');
+    tmpdirName = ['dir' num2str(pop) '-' num2str(port)];
+    tmpdir = [output_img_folder tmpdirName];
+    system(['mkdir ' tmpdir ' < /dev/null']);
     
     %% Save the heat_map in a file
     heat_map_path = [scene_img_folder output_img_folder_name tmpdirName '/heat-map.raw'];
@@ -57,11 +56,11 @@ for pop=1:size(heat_map_v, 1)
             error(i, pop) = sum(feval(error_foo{i}, goal_img, c_img));
         end
     end
-    
+
     % Print the rest of the information on the same line
     %fprintf(' error %.2f, in %.2f seconds.\n', error(1), toc(startTime));
     
     % Delete the temporary files
-    system(['rm -rf ' tmpdir '&']);
+    system(['rm -rf ' tmpdir ' < /dev/null &']);
 end
 end

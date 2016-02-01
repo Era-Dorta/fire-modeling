@@ -3,9 +3,9 @@ function closeMaya(sendMayaScript, port)
 cmd = 'quit -f';
 try
     sendToMaya(sendMayaScript, port, cmd);
-    disp('Maya closed');
+    disp(['Maya:' num2str(port) ' closed']);
 catch
-    warning('Could not close Maya, please do it manually');
+    warning(['Could not close Maya:' num2str(port) ' , please do it manually']);
 end
 end
 
