@@ -18,9 +18,10 @@ if(status ~= 0)
         fileId = fopen(mrLogPath, 'w');
         fprintf(fileId, '%s', result);
         fclose(fileId);
-        error(['Could not render image, check Mental Ray log in ' mrLogPath]);
+        error(['Could not render image, port:' num2str(port) ...
+            ', check Mental Ray log in ' mrLogPath]);
     else
-        error('Could not execute command, is Maya open?');
+        error(['Could not execute command, is Maya:' num2str(port) ' open?']);
     end
 end
 end

@@ -4,7 +4,9 @@ if [ "$#" -lt 2 ]; then
 		# If no arguments are given set number of Maya instances to number of 
 		# cores divided by three
 		NUM_MAYA=$(grep -c ^processor /proc/cpuinfo)
-		NUM_MAYA=$((${NUM_MAYA} / 3))
+		
+		# Add 1 to do rounding
+		NUM_MAYA=$(((${NUM_MAYA} + 1) / 3))
 	else
 		echo ""
 		echo "Not enough input arguments"
@@ -19,7 +21,7 @@ if [ "$#" -lt 2 ]; then
 		echo ""
 		echo "	<maya_threads> must be an positive integer which indicates how many"
 		echo "	Maya instances will be rendering"
-		echo "	Default value is: number of cores / 3"
+		echo "	Default value is: round(number of cores / 3)"
 		echo ""
 		exit 0 
 	fi
