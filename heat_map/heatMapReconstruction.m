@@ -124,7 +124,7 @@ try
     %% Summary extra data
     summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...
         [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
-        func2str(error_foo{:}));
+        func2str(error_foo{:}), 'NumMaya', numMayas);
     
     %% Solver call
     disp('Launching optimization algorithm');
