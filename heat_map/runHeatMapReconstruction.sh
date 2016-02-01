@@ -1,21 +1,30 @@
 #!/bin/bash
-if [ "$#" -le 1 ]; then
-	echo ""
-	echo "Not enough input arguments"
-	echo ""
-	echo "Usage: runHeatMapReconstruction.sh <solver> <maya_threads>"
-	echo ""
-	echo "	Where <solver> can be any of [\"ga\", \"sa\", \"ga-re\", \"grad\" ]"
-	echo "	\"ga\"    -> Genetic Algorithm"
-	echo "	\"sa\"    -> Simulated Annealing"
-	echo "	\"ga-re\" -> Genetic Algorithm with heat map resampling"
-	echo "	\"grad\"  -> Gradient Descent"
-	echo ""
-	echo "	<maya_threads> must be an positive integer which indicates how many"
-	echo "	Maya instances will be rendering, the recommended is:"
-	echo "	number of cores * 0.25"
-	echo ""
-	exit 0 
+if [ "$#" -lt 2 ]; then
+	if [ "$#" -eq 1 ]; then
+		# If no arguments are given set number of Maya instances to number of 
+		# cores divided by three
+		NUM_MAYA=$(grep -c ^processor /proc/cpuinfo)
+		NUM_MAYA=$((${NUM_MAYA} / 3))
+	else
+		echo ""
+		echo "Not enough input arguments"
+		echo ""
+		echo "Usage: runHeatMapReconstruction.sh <solver> <maya_threads>"
+		echo ""
+		echo "	Where <solver> can be any of [\"ga\", \"sa\", \"ga-re\", \"grad\" ]"
+		echo "	\"ga\"    -> Genetic Algorithm"
+		echo "	\"sa\"    -> Simulated Annealing"
+		echo "	\"ga-re\" -> Genetic Algorithm with heat map resampling"
+		echo "	\"grad\"  -> Gradient Descent"
+		echo ""
+		echo "	<maya_threads> must be an positive integer which indicates how many"
+		echo "	Maya instances will be rendering"
+		echo "	Default value is: number of cores / 3"
+		echo ""
+		exit 0 
+	fi
+else
+	NUM_MAYA=$2
 fi
 
 # Each Maya will listen to this port + (current Maya number - 1)
@@ -35,7 +44,7 @@ nice -n20 "$CDIR/runMayaBatch.sh" "$INIT_PORT"
 PORTS=${INIT_PORT}
 
 # Launch the rest of the Maya instances
-for i in `seq 2 $2`;
+for i in `seq 2 $NUM_MAYA`;
 do
 	nice -n20 "$CDIR/runMayaBatch.sh" $((${INIT_PORT} + $i - 1))
 	PORTS="$PORTS, $((${INIT_PORT} + $i - 1))"
@@ -47,7 +56,7 @@ PORTS="[${PORTS}]"
 nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction('$1', $PORTS, '$LOGFILE')" -logfile $LOGFILE
 
 # Close all the Maya instances
-for i in `seq 1 $2`;
+for i in `seq 1 $NUM_MAYA`;
 do
 	"$CDIR/maya_comm/sendMaya.rb" $((${INIT_PORT} + $i - 1)) "quit -f"
 done
