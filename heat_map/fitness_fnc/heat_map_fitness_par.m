@@ -35,7 +35,6 @@ else
         hm_thread{c_maya} = heat_map_v(start_pop:end_pop, :);
     end
     
-    % TODO This works for a few iterations and then gets stuck
     % Launch each evaluation in parallel
     parfor c_maya=1:num_maya
         error_thread{c_maya} = heat_map_fitness( hm_thread{c_maya}, xyz, whd,  ...
