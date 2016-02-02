@@ -1,13 +1,13 @@
 function heatMapReconstruction(solver, ports, logfile)
 %HEATMAPRECONSTRUCTION Performs a heat map reconstruction from a goal image
-%   HEATMAPRECONSTRUCTION(SOLVER, PORTS, LOGFILE) 
+%   HEATMAPRECONSTRUCTION(SOLVER, PORTS, LOGFILE)
 %   SOLVER should be one of the following
 %   'ga' -> Genetic Algorithm
 %   'sa' -> Simulated Annealing
 %   'ga-re' -> Genetic Algorithm with heat map resampling
 %   'grad' -> Gradient Descent
 %   PORTS is a vector containing port numbers that Maya is listening to
-%   LOGFILE is only required when running in batch mode, is a string with 
+%   LOGFILE is only required when running in batch mode, is a string with
 %   the path of the current log file
 
 %% Parameter initalization
@@ -38,11 +38,28 @@ project_path = '~/maya/projects/fire/';
 scene_name = 'test79_like_78_rot';
 raw_file_path = 'data/heat_maps/gaussian4x4x4.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
-goal_img_path = [scene_img_folder 'goalimage.tif'];
+goal_img_path = {[scene_img_folder 'goalimage1.tif'], [scene_img_folder 'goalimage2.tif']};
 
-% Error function to be used for the fitness function, it must accept two
-% images and return an error value
-error_foo = {@histogramErrorOpti};
+% Checks for number of goal images
+if(~iscell(goal_img_path))
+    num_goal = 1;
+else
+    if(numel(goal_img_path) == 1)
+        goal_img_path = goal_img_path{1};
+        num_goal = 1;
+    else
+        num_goal = numel(goal_img_path);
+    end
+end
+
+if(num_goal == 1)
+    % Error function to be used for the fitness function, it must accept two
+    % images and return an error value
+    error_foo = {@histogramErrorOpti};
+else
+    % Error function for multiple goal images
+    error_foo = {@histogramErrorOptiN};
+end
 errorFooCloseObj = onCleanup(@() clear(func2str(error_foo{:})));
 
 %% Avoid data overwrites by always creating a new folder
@@ -71,9 +88,17 @@ try
         'output_folder',  output_img_folder);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
-    % Read goal image
-    goal_img = imread(goal_img_path);
-    goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
+    % Read goal image/s
+    if(num_goal == 1)
+        goal_img = imread(goal_img_path);
+        goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
+    else
+        goal_img = cell(numel(goal_img_path), 1);
+        for i=1:numel(goal_img_path)
+            goal_img{i} = imread(goal_img_path{i});
+            goal_img{i} = goal_img{i}(:,:,1:3); % Transparency is not used, so ignore it
+        end
+    end
     
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
@@ -88,7 +113,7 @@ try
     numMayas = numel(ports);
     
     for i=1:numMayas
-        disp('Loading scene in Maya')
+        disp(['Loading scene in Maya:' num2str(ports(i))]);
         % Set project to fire project directory
         cmd = 'setProject \""$HOME"/maya/projects/fire\"';
         sendToMaya(sendMayaScript, ports(i), cmd);
@@ -102,6 +127,13 @@ try
         % different computers
         cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
         sendToMaya(sendMayaScript, ports(i), cmd);
+        
+        % Deactive all but the first camera if there is more than one goal
+        % image
+        for j=2:num_goal
+            cmd = ['setAttr \"camera' num2str(j) 'Shape.renderable\" 0'];
+            sendToMaya(sendMayaScript, ports(i), cmd);
+        end
     end
     
     %% Ouput folder
@@ -114,22 +146,45 @@ try
     % parameter is the heat map
     if(numMayas == 1)
         % If there is only one Maya do not use the parallel fitness foo
-        fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz,  ...
-            init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-            output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-            goal_img);
+        if(num_goal == 1)
+            fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz,  ...
+                init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
+                output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
+                goal_img);
+        else
+            fitness_foo = @(x)heat_map_fitnessN(x, init_heat_map.xyz,  ...
+                init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
+                output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
+                goal_img);
+        end
     else
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
             init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
             output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
             goal_img);
+        
+        % If we are using the parallel fitness foo, do a preevaluation of
+        % the error functions to initialize their persistent variables, as
+        % there could be a racing condition during the parallel evaluation
+        cellfun(@(foo) feval(foo, goal_img, goal_img), error_foo);
     end
     % heat_map_fitness uses a cache with persisten variables, after
     % optimizing delete the cache
-    fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness'));
+    if(num_goal == 1)
+        fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness'));
+    else
+        fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitnessN'));
+    end
     
     %% Summary extra data
-    summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...
+    if(num_goal == 1)
+        goal_img_summay = goal_img_path;
+    else
+        % If there are several images, convert them into a string to put in
+        % the summary data struct
+        goal_img_summay = strjoin(goal_img_path, ', ');
+    end
+    summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
         [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
         func2str(error_foo{:}), 'NumMaya', numMayas);
     
@@ -186,18 +241,30 @@ try
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
     sendToMaya(sendMayaScript, ports(1), cmd);
     
-    % Set the folder and name of the render image
-    cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-    cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
-    sendToMaya(sendMayaScript, ports(1), cmd);
+    disp(['Rendering final images in ' output_img_folder 'optimized<d>.tif' ]);
     
-    disp(['Rendering final image in ' output_img_folder 'optimized.tif' ]);
-    
-    % Render the image
-    tic;
-    cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
-    sendToMaya(sendMayaScript, ports(1), cmd, 1, mrLogPath);
-    disp(['Image rendered in ' num2str(toc) ]);
+    for i=1:num_goal
+        istr = num2str(i);
+        
+        % Active current camera
+        cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
+        sendToMaya(sendMayaScript, ports(1), cmd);
+        
+        % Set the folder and name of the render image
+        cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
+        cmd = [cmd scene_name '/' output_img_folder_name 'optimized' ...
+            istr '\"'];
+        sendToMaya(sendMayaScript, ports(1), cmd);
+        
+        % Render the image
+        tic;
+        cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
+        sendToMaya(sendMayaScript, ports(1), cmd, 1, mrLogPath);
+        
+        % Deactivate the current camera
+        cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
+        sendToMaya(sendMayaScript, ports(1), cmd);
+    end
     
     %% Render the initial population in a folder
     % With the ga-re solver there are several initial population files so
@@ -212,6 +279,7 @@ try
             scene_name, scene_img_folder, output_img_folder_name, 'InitialPopulation', ...
             sendMayaScript, ports(1), mrLogPath);
     end
+    
     %% Resource clean up after execution
     
     % If running in batch mode, exit matlab
