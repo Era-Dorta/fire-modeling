@@ -1,5 +1,7 @@
 function [ volumetricData ] = read_raw_file( filePath )
-% Read a dataset from a .raw file
+%READ_RAW_FILE Read a dataset from a .raw file
+%   VOLUMETRICDATA = READ_RAW_FILE(FILEPATH)
+
 fileID = fopen(filePath,'r');
 
 whd = fread(fileID, 3, 'int32');
