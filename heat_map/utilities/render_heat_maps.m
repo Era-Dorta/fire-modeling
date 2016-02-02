@@ -42,7 +42,7 @@ for pop=1:size(heat_map_v, 1)
     % the GUI, use Mayatomr -preview. and then save the image with
     % $filename = "Path to save";
     % renderWindowSaveImageCallback "renderView" $filename "image";
-    cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
+    cmd = 'Mayatomr -verbosity 2 -render -camera \"camera1\" -renderVerbosity 2';
     sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
     
     c_img = imread([scene_img_folder output_img_folder_name output_folder ...
