@@ -38,6 +38,13 @@ project_path = '~/maya/projects/fire/';
 scene_name = 'test79_like_78_rot';
 raw_file_path = 'data/heat_maps/gaussian4x4x4.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
+
+% For single goal image the Maya scene must have only one renderable
+% camera, for multiple goal images, it is assumed that there are as many
+% cameras in the scene as goal images. If there are more cameras they must
+% have the rendererable attribute set to false. Each camera must be named
+% as "cameraNShape". The first goal image belongs to camera1Shape, the
+% second to camera2Shape and so on.
 goal_img_path = {[scene_img_folder 'goalimage1.tif'], [scene_img_folder 'goalimage2.tif']};
 
 % Checks for number of goal images
@@ -273,11 +280,24 @@ try
         load([paths_str.output_folder 'InitialPopulation.mat']);
         
         disp(['Rendering the initial population in ' scene_img_folder ...
-            output_img_folder_name 'InitialPopulation' ]);
+            output_img_folder_name 'InitialPopulationCam<d>' ]);
         
-        render_heat_maps( InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
-            scene_name, scene_img_folder, output_img_folder_name, 'InitialPopulation', ...
-            sendMayaScript, ports(1), mrLogPath);
+        for i=1:num_goal
+            istr = num2str(i);
+            
+            % Active current camera
+            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
+            sendToMaya(sendMayaScript, ports(1), cmd);
+            
+            render_heat_maps( InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
+                scene_name, scene_img_folder, output_img_folder_name, ...
+                ['InitialPopulationCam' istr], sendMayaScript, ports(1), ...
+                mrLogPath);
+            
+            % Deactive current camera
+            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
+            sendToMaya(sendMayaScript, ports(1), cmd);
+        end
     end
     
     %% Resource clean up after execution
