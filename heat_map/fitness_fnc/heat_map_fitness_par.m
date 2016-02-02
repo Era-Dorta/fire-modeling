@@ -10,7 +10,7 @@ function [ error ] = heat_map_fitness_par( heat_map_v, xyz, whd, error_foo, ...
 
 num_maya = size(port, 2);
 
-% If the goal image is a cell of images, then use the fitness function
+% If the goal image is a cell of images use the fitness function
 % which supports several goal images
 if(~iscell(goal_img))
     fitnesss_internal = @heat_map_fitness;
@@ -19,23 +19,23 @@ else
 end
 
 if(size(heat_map_v, 1) <= num_maya)
+    % When there are more Maya instances than data, use a single instance
+    % to render al the data
     error = feval(fitnesss_internal, heat_map_v, xyz, whd, error_foo, ...
         scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
         port(1), mrLogPath, goal_img);
 else
     num_hm = size(heat_map_v, 1);
-    num_hm_thread = round(num_hm / num_maya);
-    
+    num_hm_per_thread = round(num_hm / num_maya);
     error_thread = cell(1, num_maya);
-    hm_thread = cell(1, num_maya);
+    f = parallel.FevalFuture;
     
-
-        
-    % Divide the data in chunks for each thread as matlab complains about
-    % too much data sharing between the processes
+    % Launch each evaluation in parallel
     for c_maya=1:num_maya
-        start_pop = 1 + num_hm_thread * (c_maya - 1);
-        end_pop = start_pop + num_hm_thread - 1;
+        % Compute the heatmap indices that the current maya instance is
+        % going to render
+        start_pop = 1 + num_hm_per_thread * (c_maya - 1);
+        end_pop = start_pop + num_hm_per_thread - 1;
         
         if(c_maya == num_maya)
             % Fix the last index for the last thread, so the last thread
@@ -43,16 +43,16 @@ else
             end_pop = num_hm;
         end
         
-        hm_thread{c_maya} = heat_map_v(start_pop:end_pop, :);
+        % Asynchronous parallel call to the fitness function
+        f(c_maya) = parfeval(fitnesss_internal, 1,   ...
+            heat_map_v(start_pop:end_pop, :), xyz, whd, error_foo,   ...
+            scene_name, scene_img_folder, output_img_folder_name, ...
+            sendMayaScript, port(c_maya), mrLogPath, goal_img);
     end
     
-    
-    
-    % Launch each evaluation in parallel
-    parfor c_maya=1:num_maya
-        error_thread{c_maya} = feval(fitnesss_internal, hm_thread{c_maya}, xyz, whd,  ...
-            error_foo, scene_name, scene_img_folder, output_img_folder_name,  ...
-            sendMayaScript, port(c_maya), mrLogPath, goal_img);
+    % Wait for the results
+    for c_maya=1:num_maya
+        error_thread{c_maya} = fetchOutputs(f(c_maya));
     end
     
     % Concatenate all the errors in a vector
