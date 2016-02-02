@@ -53,7 +53,15 @@ for pop=1:size(heat_map_v, 1)
         %fprintf('Image rendered with');
         
         %% Compute the error with respect to the goal image
-        c_img = imread([output_img_folder tmpdirName '/fireimage.tif']);
+        try
+            c_img = imread([output_img_folder tmpdirName '/fireimage.tif']);
+        catch ME
+            msg = ['Could not read rendered image, make sure only one camera' ...
+                ' is renderable in the Maya scene'];
+            causeException = MException('MATLAB:heat_map_fitness',msg);
+            ME = addCause(ME,causeException);
+            rethrow(ME);
+        end
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
         
         % Evaluate all the error functions, usually only one will be given
