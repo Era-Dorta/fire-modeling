@@ -96,7 +96,7 @@ try
     sendToMaya(sendMayaScript, port, cmd);
     
     % Open our test scene
-    cmd = ['file -open \"scenes/' scene_name '.ma\"'];
+    cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
     sendToMaya(sendMayaScript, port, cmd);
     
     % Force a frame update, as batch rendering later does not do it, this

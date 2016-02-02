@@ -93,7 +93,7 @@ try
     sendToMaya(sendMayaScript, port, cmd);
     
     % Open our test scene
-    cmd = ['file -open \"scenes/' scene_name '.ma\"'];
+    cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
     sendToMaya(sendMayaScript, port, cmd);
     
     % Set an appropriate march increment to reduced voxel data
