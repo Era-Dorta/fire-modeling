@@ -149,7 +149,7 @@ try
         sendToMaya(sendMayaScript, port, cmd);
         
         % Render the image
-        cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
+        cmd = 'Mayatomr -render -renderVerbosity 2';
         sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
         
         if(save_mat)

@@ -221,7 +221,7 @@ for i=1:num_ite
         
         % Render the image
         tic;
-        cmd = 'Mayatomr -render -camera \"camera1\" -renderVerbosity 5';
+        cmd = 'Mayatomr -render -renderVerbosity 2';
         sendToMaya(sendMayaScript, port, cmd, 1, paths_str.mrLogPath);
         disp(['Image rendered in ' num2str(toc) ]);
     end

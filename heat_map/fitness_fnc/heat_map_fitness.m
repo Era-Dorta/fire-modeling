@@ -48,7 +48,7 @@ for pop=1:size(heat_map_v, 1)
         % $filename = "Path to save";
         % renderWindowSaveImageCallback "renderView" $filename "image";
         startTime = tic;
-        cmd = 'Mayatomr -verbosity 2 -render -camera \"camera1\" -renderVerbosity 2';
+        cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
         sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
         %fprintf('Image rendered with');
         
