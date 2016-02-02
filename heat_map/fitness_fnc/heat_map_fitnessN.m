@@ -1,7 +1,11 @@
 function [ error ] = heat_map_fitnessN( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
     port, mrLogPath, goal_img)
-% Heat map fitness function
+%HEAT_MAP_FITNESSN Heat map fitness function
+%    Like heat_map_fitness function but it supports several goal images
+%    given in a cell
+%
+%    See also HEAT_MAP_FITNESS
 
 persistent CACHE
 

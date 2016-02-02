@@ -1,8 +1,9 @@
 function [ cerror ] = histogramErrorOptiN( goal_imgs, test_imgs )
-%HISTOGRAMERROROPTIN Computes an error measure between two images
-%   CERROR = HISTOGRAMERROROPTIN(test_imgs, goal_imgs) this is an optimized
+%HISTOGRAMERROROPTIN Computes an error measure between several images
+%   CERROR = HISTOGRAMERROROPTIN(GOAL_IMGS, TEST_IMGS) this is an optimized
 %   version of HISTOGRAM_ERROR, assumes RGB images, ignores black pixels
-%   and if the goal image changes, call clear 'histogramErrorOpti';
+%   and if the goal image changes, call clear 'histogramErrorOptiN';
+%   GOAL_IMGS and TEST_IMGS are same sized cells with the images to compare
 
 persistent HC_GOAL NORM_FACTOR
 

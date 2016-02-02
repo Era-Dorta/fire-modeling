@@ -2,6 +2,11 @@ function [ error ] = heat_map_fitness_par( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
     port, mrLogPath, goal_img)
 %HEAT_MAP_FITNESS_PAR Heat map fitness parallel function
+%   Heat map fitness function for optimization algorithms, the parallelism
+%   works best if the Vectorized option of the optimizer is activated. It
+%   supports one or several goal images.
+%
+%   See also HEAT_MAP_FITNESS and HEAT_MAP_FITNESSN
 
 num_maya = size(port, 2);
 
