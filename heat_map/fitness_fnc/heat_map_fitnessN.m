@@ -6,7 +6,6 @@ function [ error ] = heat_map_fitnessN( heat_map_v, xyz, whd, error_foo, ...
 persistent CACHE
 
 if(isempty(CACHE))
-    disp('-------------------------> FitnessN initialization');
     CACHE = containers.Map();
 end
 
