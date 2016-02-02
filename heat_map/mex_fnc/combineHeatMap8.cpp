@@ -9,7 +9,7 @@
 #include <array>
 #include <random>
 
-//#define RUN_TESTS
+#define RUN_TESTS
 
 // Shorter openvdb namespace
 namespace vdb = openvdb;
@@ -97,9 +97,14 @@ struct Combine8 {
 		 *
 		 * {A, D, F, G} -> First grid, {B, C, E, H} -> Second grid
 		 */
+#ifdef RUN_TESTS
+		// Use a reproducible random number generator
+		std::mt19937_64 generator;
+		generator.seed(0);
+#else
+		// Use a non-deterministic random number generator
 		std::random_device generator;
-		std::uniform_int_distribution<int> int_0_1_distribution(0, 1);
-
+#endif
 		// Set the limits of each bounding box, the order here is from A to H
 		bboxes1.at(0).reset(vdb::Coord(x0, y0, z0), vdb::Coord(x1, y1, z1));
 		bboxes2.at(0).reset(vdb::Coord(x1, y0, z0), vdb::Coord(x2, y1, z1));
@@ -114,31 +119,21 @@ struct Combine8 {
 		// most of its values between -1 and 1
 		std::normal_distribution<float> normal_distribution(0, 0.3);
 
-#ifndef RUN_TESTS
 		// Randomly deviate the interpolation ratio
 		interp_r = clamp_0_1(interp_r + normal_distribution(generator));
-#endif
 
 		float interp_sum = 0;
 		// Get 4 interpolation ratios for the bounding boxes in bboxes1
 		for (auto&& i : bbinterp_ratio1) {
-#ifndef RUN_TESTS
 			// Randomly deviate the interpolation ratio for each bounding box
 			i = clamp_0_1(interp_r + normal_distribution(generator));
-#else
-			i = interp_r;
-#endif
 			interp_sum += i;
 		}
 
 		// Get 4 interpolation ratios for the bounding boxes in bboxes2
 		for (auto&& i : bbinterp_ratio2) {
-#ifndef RUN_TESTS
 			// Randomly deviate the interpolation ratio for each bounding box
 			i = clamp_0_1(1.0f - interp_r + normal_distribution(generator));
-#else
-			i = 1.0f - interp_r;
-#endif
 			interp_sum += i;
 		}
 
