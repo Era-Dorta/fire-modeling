@@ -40,15 +40,39 @@ LOGFILE=`pwd`"/"$LOGFILE
 CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Launch the first Maya instance
-nice -n20 "$CDIR/runMayaBatch.sh" "$INIT_PORT"
+nice -n20 "$CDIR/runMayaBatch.sh" "$INIT_PORT" > /dev/null
 
+if [ "$?" -ne 0 ]; then
+	echo "Could not launch Maya:${INIT_PORT}"
+	exit 2
+fi
+
+echo "Launched Maya:${INIT_PORT}"
 # Add the port to the list of ports
 PORTS=${INIT_PORT}
 
 # Launch the rest of the Maya instances
 for i in `seq 2 $NUM_MAYA`;
 do
-	nice -n20 "$CDIR/runMayaBatch.sh" $((${INIT_PORT} + $i - 1))
+	nice -n20 "$CDIR/runMayaBatch.sh" $((${INIT_PORT} + $i - 1)) > /dev/null
+
+	if [ "$?" -ne 0 ]; then
+		# Close all the previous Maya instances
+		for j in `seq 1 $(($i - 1))`;
+		do
+			"$CDIR/maya_comm/sendMaya.rb" $((${INIT_PORT} + $j - 1)) "quit -f"
+			if [ "$?" -ne 0 ]; then
+				echo "Could not close Maya:$((${INIT_PORT} + $j - 1))"
+			else
+				echo "Closed Maya:$((${INIT_PORT} + $j - 1))"
+			fi
+		done
+	
+		echo "Could not launch Maya:$((${INIT_PORT} + $i - 1))"
+		exit 2
+	fi
+	
+	echo "Launched Maya:$((${INIT_PORT} + $i - 1))"
 	PORTS="$PORTS, $((${INIT_PORT} + $i - 1))"
 done
 
@@ -61,5 +85,10 @@ nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction('$1', $PORTS, '$
 for i in `seq 1 $NUM_MAYA`;
 do
 	"$CDIR/maya_comm/sendMaya.rb" $((${INIT_PORT} + $i - 1)) "quit -f"
+	if [ "$?" -ne 0 ]; then
+		echo "Could not close Maya:$((${INIT_PORT} + $i - 1))"
+	else
+		echo "Closed Maya:$((${INIT_PORT} + $i - 1))"
+	fi
 done
 

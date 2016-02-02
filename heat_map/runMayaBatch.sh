@@ -22,7 +22,7 @@ isOpen=$?
 # If it fails, tell the user to use a different port
 while [ "$isOpen" -eq 0 ] ; do
 	echo "Port $PORT already in use, try runMayaBath <newPort>"
-	exit -1
+	exit 2
 done
 
 maya -batch -command "commandPort -n \":$PORT\";" &
