@@ -42,3 +42,5 @@ title('Crossover function comparison');
 ylabel('Error function');
 xlabel('Initial Guess Perturbation Variance');
 legend('CrossoverCombinePrior','CrossoverScattered', 'Location', 'northwest')
+
+% saveas(gca, 'croosoverComparison.svg', 'svg');
