@@ -304,10 +304,16 @@ try
     % With the ga-re solver there are several initial population files so
     % avoid the rendering in that case
     if ~strcmp(solver, 'ga-re')
-        load([paths_str.output_folder 'InitialPopulation.mat']);
+        L = load([paths_str.output_folder 'InitialPopulation.mat']);
         
         disp(['Rendering the initial population in ' scene_img_folder ...
             output_img_folder_name 'InitialPopulationCam<d>' ]);
+        
+        if( strcmp(solver,'cmaes'))
+            % Transpose to get row order as the cmaes initial population is
+            % in column order
+            L.InitialPopulation = L.InitialPopulation';
+        end
         
         for i=1:num_goal
             istr = num2str(i);
@@ -316,7 +322,7 @@ try
             cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
             sendToMaya(sendMayaScript, ports(1), cmd);
             
-            render_heat_maps( InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
+            render_heat_maps( L.InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
                 scene_name, scene_img_folder, output_img_folder_name, ...
                 ['InitialPopulationCam' istr], sendMayaScript, ports(1), ...
                 mrLogPath);

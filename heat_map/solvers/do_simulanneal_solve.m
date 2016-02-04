@@ -25,13 +25,17 @@ UB = ones(init_heat_map.count, 1) * UB;
 
 % Initial guess for SA, is a row vector
 % init_guess = init_heat_map.v';
-init_guess = getRandomInitPopulation( LB', UB', 1);
+InitialPopulation = getRandomInitPopulation( LB', UB', 1);
+
+% Path where the initial population will be saved
+init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
+save(init_population_path, 'InitialPopulation');
 
 %% Call the simulated annealing optimization
 % Use initial_heat_map as first guess
 
 [heat_map_v, best_error, exitflag] = simulannealbnd(fitness_foo, ...
-    init_guess, LB, UB, options);
+    InitialPopulation, LB, UB, options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);

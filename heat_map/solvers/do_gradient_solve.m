@@ -26,13 +26,17 @@ nonlcon = [];
 
 % Initial guess for SA, is a row vector
 % init_guess = init_heat_map.v';
-init_guess = getRandomInitPopulation( LB', UB', 1);
+InitialPopulation = getRandomInitPopulation( LB', UB', 1);
+
+% Path where the initial population will be saved
+init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
+save(init_population_path, 'InitialPopulation');
 
 %% Call the gradient descent optimization
 
 startTime = tic;
 
-[heat_map_v, best_error, exitflag] = fmincon(fitness_foo, init_guess, ...
+[heat_map_v, best_error, exitflag] = fmincon(fitness_foo, InitialPopulation, ...
     A, b, Aeq, beq, LB, UB, nonlcon, options);
 
 totalTime = toc(startTime);
