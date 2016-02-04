@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_cmaes_solve( ...
     max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
-    summary_data, parallel)
+    summary_data, parallel, creation_fnc_sigma)
 %DO_CMAES_SOLVE CMAES solver for heat map reconstruction
 %% Options for the CMAES
 % Get default values
@@ -17,8 +17,14 @@ if(parallel)
     options.EvalParallel = 'yes';
 end
 
-% Set guess point to be the mean of the bounds
-InitialPopulation = ones(init_heat_map.count, 1) * mean([LB, UB]);
+% Perturb the guess point with some normal noise
+mean_error = 0;
+InitialPopulation = init_heat_map.v + random('norm', mean_error, ...
+    creation_fnc_sigma, [init_heat_map.count, 1]);
+
+% Clamp to lower and upper bounds
+InitialPopulation = max(InitialPopulation, LB);
+InitialPopulation = min(InitialPopulation, UB);
 
 % The solution should be in the range of x0 +- 2 * sigma_0
 % according to the cmaes documentation
