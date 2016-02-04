@@ -1,4 +1,4 @@
-function fire_attr_search2(solver, logfile)
+function fire_attr_search2(solver, ports, logfile)
 %FIRE_ATTR_SEARCH2 Fire render parameters estimate from image
 % Solver should be one of the following
 % 'ga' -> Genetic Algorithms
@@ -35,7 +35,20 @@ UB = [10000, 1000, 100, 100];
 project_path = '~/maya/projects/fire/';
 scene_name = 'test78_like_72_4x4x4_raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
-goal_img_path = [scene_img_folder 'goalimage.tif'];
+goal_img_path = [scene_img_folder 'googlefire1.tif'];
+
+% Checks for number of goal images
+if(~iscell(goal_img_path))
+    num_goal = 1;
+else
+    if(numel(goal_img_path) == 1)
+        goal_img_path = goal_img_path{1};
+        num_goal = 1;
+    else
+        error('Several goal images not supported.');
+        %num_goal = numel(goal_img_path);
+    end
+end
 
 % Error function to be used for the fitness function, it must accept two
 % images and return an error value
@@ -78,32 +91,32 @@ try
     sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
     
     %% Maya initialization
-    % Launch Maya
-    % TODO If another Matlab instance is run after we get the port but
-    % before Maya opens, they would use the same port
-    port = getNextFreePort();
-    disp(['Launching Maya listening to port ' num2str(port)]);
-    if(system([currentFolder '/runMayaBatch.sh ' num2str(port)]) ~= 0)
-        error('Could not open Maya');
+    % Each maya instance usually renders using 4 cores
+    numMayas = numel(ports);
+    
+    for i=1:numMayas
+        disp(['Loading scene in Maya:' num2str(ports(i))]);
+        % Set project to fire project directory
+        cmd = 'setProject \""$HOME"/maya/projects/fire\"';
+        sendToMaya(sendMayaScript, ports(i), cmd);
+        
+        % Open our test scene
+        cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
+        sendToMaya(sendMayaScript, ports(i), cmd);
+        
+        % Force a frame update, as batch rendering later does not do it, this
+        % will fix any file name errors due to using the same scene on
+        % different computers
+        cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
+        sendToMaya(sendMayaScript, ports(i), cmd);
+        
+        % Deactive all but the first camera if there is more than one goal
+        % image
+        for j=2:num_goal
+            cmd = ['setAttr \"camera' num2str(j) 'Shape.renderable\" 0'];
+            sendToMaya(sendMayaScript, ports(i), cmd);
+        end
     end
-    % Maya was launched successfully, so we are responsible for closing it
-    % the cleanup function is more robust (Ctrl-c, ...) than the try-catch
-    mayaCloseObj = onCleanup(@() closeMaya(sendMayaScript, port));
-    
-    disp('Loading scene in Maya')
-    % Set project to fire project directory
-    cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-    sendToMaya(sendMayaScript, port, cmd);
-    
-    % Open our test scene
-    cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
-    sendToMaya(sendMayaScript, port, cmd);
-    
-    % Force a frame update, as batch rendering later does not do it, this
-    % will fix any file name errors due to using the same scene on
-    % different computers
-    cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-    sendToMaya(sendMayaScript, port, cmd);
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
@@ -113,14 +126,29 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    fitness_foo = memoize(@(x)render_attr_fitness(x, error_foo, ...
-        scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-        port, mrLogPath, goal_img));
+    if(numMayas == 1)
+        fitness_foo = @(x)render_attr_fitness(x, error_foo, ...
+            scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
+            ports, mrLogPath, goal_img);
+    else
+        fitness_foo = @(x)render_attr_fitness_par(x, error_foo, ...
+            scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
+            ports, mrLogPath, goal_img);
+        
+        % If we are using the parallel fitness foo, do a preevaluation of
+        % the error functions to initialize their persistent variables, as
+        % there could be a racing condition during the parallel evaluation
+        cellfun(@(foo) feval(foo, goal_img, goal_img), error_foo);
+    end
+    
+    % render_attr_fitness uses a cache with persisten variables, after
+    % optimizing delete the cache
+    fitnessFooCloseObj = onCleanup(@() clear('render_attr_fitness'));
     
     %% Summary extra data
     summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...
         [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
-        func2str(error_foo{:}));
+        func2str(error_foo{:}), 'NumMaya', numMayas);
     
     %% Solver call
     disp('Launching optimization algorithm');
@@ -134,6 +162,7 @@ try
             options.TimeLimit = time_limit;
             options.Display = 'iter'; % Give some output on each iteration
             options.StallGenLimit = 10;
+            options.Vectorized = 'on';
             
             % Function executed on each iteration, there is a PlotFcns too, but it
             % creates a figure outside of our control and it makes the plotting and
@@ -193,19 +222,19 @@ try
     cmd = ['setAllFireAttributes(\"fire_volume_shader\", ' ...
         '0.010, 0,' num2str(render_attr(1)) ', ' num2str(render_attr(2)) ', ' ...
         num2str(render_attr(3)) ', ' num2str(render_attr(4)) ')'];
-    sendToMaya(sendMayaScript, port, cmd);
+    sendToMaya(sendMayaScript, ports(1), cmd);
     
     % Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
-    sendToMaya(sendMayaScript, port, cmd);
+    sendToMaya(sendMayaScript, ports(1), cmd);
     
     disp(['Rendering final image in ' output_img_folder 'optimized.tif' ]);
     
     % Render the image
     tic;
     cmd = 'Mayatomr -render -renderVerbosity 2';
-    sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
+    sendToMaya(sendMayaScript, ports(1), cmd, 1, mrLogPath);
     disp(['Image rendered in ' num2str(toc) ]);
     
     %% Resource clean up after execution
