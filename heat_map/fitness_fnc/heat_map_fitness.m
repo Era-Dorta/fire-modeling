@@ -24,7 +24,7 @@ for pop=1:size(heat_map_v, 1)
         error(:, pop) = CACHE(key);
     else
         %% Make temp dir for the render image
-        tmpdirName = ['dir' num2str(pop) '-' num2str(port) '-' ];
+        tmpdirName = ['dir' num2str(pop) '-' num2str(port)];
         tmpdir = [output_img_folder tmpdirName];
         system(['mkdir ' tmpdir ' < /dev/null']);
         
