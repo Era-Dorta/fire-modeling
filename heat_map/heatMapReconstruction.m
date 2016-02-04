@@ -45,7 +45,7 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 % have the rendererable attribute set to false. Each camera must be named
 % as "cameraNShape". The first goal image belongs to camera1Shape, the
 % second to camera2Shape and so on.
-goal_img_path = {[scene_img_folder 'goalimage1.tif'], [scene_img_folder 'goalimage2.tif']};
+goal_img_path = {[scene_img_folder 'goalimage1.tif']};
 
 % Checks for number of goal images
 if(~iscell(goal_img_path))
