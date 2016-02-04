@@ -28,6 +28,10 @@ save(init_population_path, 'InitialPopulation');
 %% Call the CMAES solver
 startTime = tic;
 
+% TODO A C++ newer and faster implementation is provided in the link below,
+% adding it as a mex file shouldn't be too dificult
+% https://github.com/beniz/libcmaes
+
 [heat_map_v, best_error, exitflag] = cmaes(fitness_foo, InitialPopulation, ...
     sigma_0, options);
 
