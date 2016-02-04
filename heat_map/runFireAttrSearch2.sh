@@ -30,6 +30,12 @@ else
 	NUM_MAYA=$3
 fi
 
+# Put the solver in a decent variable name
+SOLVER="${1}"
+
+# Get the full path to the image
+GOAL_IMG=$(readlink -e "${2}")
+
 # Each Maya will listen to this port + (current Maya number - 1)
 INIT_PORT="2222"
 
@@ -80,7 +86,7 @@ done
 PORTS="[${PORTS}]"
 
 # Runs matlab in batch mode with low priority
-nice -n20 matlab -nodesktop -nosplash -r "fire_attr_search2('$1', '$2', $PORTS, '$LOGFILE')" -logfile $LOGFILE
+nice -n20 matlab -nodesktop -nosplash -r "fire_attr_search2('${SOLVER}', '${GOAL_IMG}', $PORTS, '$LOGFILE')" -logfile $LOGFILE
 
 # Close all the Maya instances
 for i in `seq 1 $NUM_MAYA`;
