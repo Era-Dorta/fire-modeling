@@ -163,6 +163,10 @@ try
             options.StallGenLimit = 10;
             options.Vectorized = 'on';
             
+            % Have at least one elite individual so that we don't loose
+            % the best option by a mutation
+            options.EliteCount = 1;
+            
             % Function executed on each iteration, there is a PlotFcns too, but it
             % creates a figure outside of our control and it makes the plotting and
             % saving too dificult
