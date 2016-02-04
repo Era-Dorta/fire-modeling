@@ -19,6 +19,7 @@ if [ "$#" -lt 2 ]; then
 		echo "	\"ga-re\" -> Genetic Algorithm with heat map resampling"
 		echo "	\"grad\"  -> Gradient Descent"
 		echo "	\"cmaes\" -> Covariance Matrix Adaptation Evolution Strategy"
+		echo "	\"lhs\"   -> Latin Hypercube Sampling"
 		echo ""
 		echo "	<maya_threads> must be an positive integer which indicates how many"
 		echo "	Maya instances will launched for rendering"

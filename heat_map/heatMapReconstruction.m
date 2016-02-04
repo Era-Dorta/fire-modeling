@@ -251,7 +251,9 @@ try
             heat_map_v = do_cmaes_solve( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
                 paths_str, summary_data, numMayas > 1);
-            
+        case 'lhs'
+             heat_map_v = do_lhs_solve( max_ite, time_limit, LB, UB, ...
+                 init_heat_map, fitness_foo, paths_str, summary_data);
         otherwise
             solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'']';
             error(['Invalid solver, choose one of ' solver_names ]);
@@ -303,7 +305,7 @@ try
     %% Render the initial population in a folder
     % With the ga-re solver there are several initial population files so
     % avoid the rendering in that case
-    if ~strcmp(solver, 'ga-re')
+    if ~any(strcmp(solver, {'ga-re', 'lhs'}))
         L = load([paths_str.output_folder 'InitialPopulation.mat']);
         
         disp(['Rendering the initial population in ' scene_img_folder ...

@@ -1,7 +1,7 @@
 function [ heat_map_v, best_error, exitflag] = do_cmaes_solve( ...
     max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
     summary_data, parallel)
-% CMAES solver for heat map reconstruction
+%DO_CMAES_SOLVE CMAES solver for heat map reconstruction
 %% Options for the CMAES
 % Get default values
 options = cmaes('defaults');
