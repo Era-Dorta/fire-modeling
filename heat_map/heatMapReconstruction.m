@@ -251,7 +251,7 @@ try
             
             heat_map_v = do_cmaes_solve( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, summary_data, numMayas > 1);
+                paths_str, summary_data, numMayas > 1, creation_fnc_sigma);
             
         otherwise
             solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'']';
