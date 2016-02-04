@@ -1,4 +1,4 @@
-function fire_attr_search2(solver, ports, logfile)
+function fire_attr_search2(solver, goal_img_path, ports, logfile)
 %FIRE_ATTR_SEARCH2 Fire render parameters estimate from image
 % Solver should be one of the following
 % 'ga' -> Genetic Algorithms
@@ -35,7 +35,6 @@ UB = [10000, 1000, 100, 100];
 project_path = '~/maya/projects/fire/';
 scene_name = 'test78_like_72_4x4x4_raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
-goal_img_path = [scene_img_folder 'googlefire1.tif'];
 
 % Checks for number of goal images
 if(~iscell(goal_img_path))
@@ -57,11 +56,11 @@ errorFooCloseObj = onCleanup(@() clear(func2str(error_foo{:})));
 
 %% Avoid data overwrites by always creating a new folder
 try
-    if(nargin == 0)
+    if(nargin < 3)
         error('Not enough input arguments.');
     end
     
-    if(isBatchMode() && nargin < 2)
+    if(isBatchMode() && nargin < 4)
         error('Logfile name is required when running in batch mode');
     end
     
@@ -205,7 +204,9 @@ try
             save_summary_file(paths_str.summary, summary_data, options);
         case 'sa'
             %
+            error('To be implemented');
         case 'grad'
+            error('To be implemented');
             %
         otherwise
             solver_names = '[''ga'', ''sa'', ''grad'']';
