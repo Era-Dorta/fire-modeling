@@ -93,8 +93,8 @@ do
 	nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction('$1', ${SIGMA[$i]}, $PORTS, '$LOGFILE')" -logfile $LOGFILE
 	
 	cp --recursive "${OUT_DIR}/hm_search_${i}" "${OUT_DIR}/VarianceTest${TEST_NUM}/hm_search_${i}"
-	cp "${OUT_DIR}/hm_search_${i}/optimized.tif" "${OUT_DIR}/VarianceTest${TEST_NUM}/FinalResult/${SIGMA[$i]}optimized.tif"
-	cp "${OUT_DIR}/hm_search_${i}/InitialPopulation/AllPopulation.tif" "${OUT_DIR}/VarianceTest${TEST_NUM}/FinalResult/${SIGMA[$i]}InitPop.tif"
+	cp "${OUT_DIR}/hm_search_${i}/optimized1.tif" "${OUT_DIR}/VarianceTest${TEST_NUM}/FinalResult/${SIGMA[$i]}optimized1.tif"
+	cp "${OUT_DIR}/hm_search_${i}/InitialPopulationCam1/AllPopulation.tif" "${OUT_DIR}/VarianceTest${TEST_NUM}/FinalResult/${SIGMA[$i]}InitPop.tif"
 done
 
 # Close all the Maya instances
