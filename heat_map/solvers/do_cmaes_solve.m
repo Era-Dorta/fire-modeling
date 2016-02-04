@@ -5,8 +5,8 @@ function [ heat_map_v, best_error, exitflag] = do_cmaes_solve( ...
 %% Options for the CMAES
 % Get default values
 options = cmaes('defaults');
-options.MaxIter = 1;
-options.MaxFunEvals = 1;
+options.MaxIter = max_ite;
+options.MaxFunEvals = max_ite;
 options.LBounds = LB;
 options.UBounds = UB;
 
