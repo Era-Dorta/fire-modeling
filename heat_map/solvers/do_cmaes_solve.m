@@ -10,6 +10,9 @@ options.MaxFunEvals = max_ite;
 options.LBounds = LB;
 options.UBounds = UB;
 
+% Default is -Inf but our error function is minimum value is 0
+options.StopFitness = eps;
+
 if(parallel)
     options.EvalParallel = 'yes';
 end
