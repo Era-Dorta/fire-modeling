@@ -70,7 +70,7 @@ for pop=1:size(heat_map_v, 1)
             try
                 c_img{i} = imread([output_img_folder tmpdirName '/fireimage' istr '.tif']);
             catch ME
-                msg = 'Could not read rendered image, check renderable cameras';
+                msg = 'Could not read rendered image, try disabling any extra camera';
                 causeException = MException('MATLAB:heat_map_fitness',msg);
                 ME = addCause(ME,causeException);
                 rethrow(ME);
