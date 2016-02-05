@@ -553,6 +553,11 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	miaux_copy_color_scaled(&result->color, &volume_color,
 			rm_data.transparency);
 
+	if (!miaux_color_is_black(&result->color)) {
+		miaux_set_rgb(&result->transparency, 0);
+		miaux_add_inv_rgb_color(&result->transparency, &result->color);
+	}
+
 	state->type = ray_type;
 	state->point = original_point;
 	state->pri = original_state_pri;
