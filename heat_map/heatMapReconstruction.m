@@ -252,8 +252,8 @@ try
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
                 paths_str, summary_data, numMayas > 1);
         case 'lhs'
-             heat_map_v = do_lhs_solve( max_ite, time_limit, LB, UB, ...
-                 init_heat_map, fitness_foo, paths_str, summary_data);
+            heat_map_v = do_lhs_solve( max_ite, time_limit, LB, UB, ...
+                init_heat_map, fitness_foo, paths_str, summary_data);
         otherwise
             solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'']';
             error(['Invalid solver, choose one of ' solver_names ]);
@@ -300,6 +300,20 @@ try
         % Deactivate the current camera
         cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
         sendToMaya(sendMayaScript, ports(1), cmd);
+    end
+    
+    %% Add single view fitness value for multigoal optimization
+    if(num_goal > 1)
+        L = load([paths_str.summary '.mat']);
+        
+        c_img = imread([output_img_folder '/optimized1.tif']);
+        c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
+        
+        clear(func2str(error_foo{1}));
+        L.summary_data.ImageErrorSingleView = feval(error_foo{1}, goal_img(1), {c_img});
+        
+        summary_data = L.summary_data;
+        save([paths_str.summary '.mat'], 'summary_data', '-append');
     end
     
     %% Render the initial population in a folder
