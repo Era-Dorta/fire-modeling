@@ -47,6 +47,8 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 % second to camera2Shape and so on.
 goal_img_path = {[scene_img_folder 'goalimage1.tif']};
 
+mask_img_path = [scene_img_folder 'goalimage.tif'];
+
 % Checks for number of goal images
 if(~iscell(goal_img_path))
     num_goal = 1;
