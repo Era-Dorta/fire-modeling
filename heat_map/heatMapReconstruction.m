@@ -107,6 +107,17 @@ try
         end
     end
     
+    % Read mask image
+    img_mask = imread(mask_img_path);
+    img_mask = img_mask(:,:,1:3);
+    
+    % Valid pixels are the ones that are not black
+    img_mask = (img_mask(:,:,1) > 0 & img_mask(:,:,2) > 0 & img_mask(:,:,3) > 0);
+    
+    % Replicate the mask for rgb
+    img_mask(:,:,2) = img_mask;
+    img_mask(:,:,3) = img_mask(:,:,2);
+    
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
@@ -157,30 +168,39 @@ try
             fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz,  ...
                 init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                 output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                goal_img);
+                goal_img, img_mask);
+            
+            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness'));
         else
             fitness_foo = @(x)heat_map_fitnessN(x, init_heat_map.xyz,  ...
                 init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                 output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                goal_img);
+                goal_img, img_mask);
+            
+            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitnessN'));
         end
     else
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
             init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
             output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-            goal_img);
+            goal_img, img_mask);
         
-        % If we are using the parallel fitness foo, do a preevaluation of
-        % the error functions to initialize their persistent variables, as
-        % there could be a racing condition during the parallel evaluation
-        cellfun(@(foo) feval(foo, goal_img, goal_img), error_foo);
-    end
-    % heat_map_fitness uses a cache with persisten variables, after
-    % optimizing delete the cache
-    if(num_goal == 1)
-        fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness'));
-    else
-        fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitnessN'));
+        % heat_map_fitness uses a cache with persisten variables, after
+        % optimizing delete the cache
+        if(num_goal == 1)
+            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness'));
+            fitnessFooCloseObjPar = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
+                'heat_map_fitness'));
+        else
+            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitnessN'));
+            fitnessFooCloseObjPar = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
+                'heat_map_fitnessN'));
+        end
+        
+        % If we are running in parallel also add parallel cleanup for the
+        % erro function
+        errorFooCloseObjPar = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
+            func2str(error_foo{:})));
     end
     
     %% Summary extra data
@@ -310,7 +330,8 @@ try
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
         
         clear(func2str(error_foo{1}));
-        L.summary_data.ImageErrorSingleView = feval(error_foo{1}, goal_img(1), {c_img});
+        L.summary_data.ImageErrorSingleView = feval(error_foo{1}, goal_img(1), ...
+            {c_img}, img_mask);
         
         summary_data = L.summary_data;
         save([paths_str.summary '.mat'], 'summary_data', '-append');
