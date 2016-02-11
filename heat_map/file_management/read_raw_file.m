@@ -17,6 +17,9 @@ for i=1:numPoints
 end
 fclose(fileID);
 
+% Flip y and z
+xyz = [xyz(:, 1), xyz(:, 3), xyz(:, 2)];
+
 volumetricData = struct('xyz', xyz, 'v', values, 'count', numPoints, ...
     'size', whd', 'filename', filePath);
 end

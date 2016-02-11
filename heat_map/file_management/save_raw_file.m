@@ -17,6 +17,10 @@ fwrite(fileID, volumetricData.count, 'int32');
 volZeros = zeros(volumetricData.count, 1);
 rgba = [volumetricData.v  * 256, volZeros , volZeros, volZeros + 1];
 
+% Flip y and z
+volumetricData.xyz = [volumetricData.xyz(:, 1), volumetricData.xyz(:, 3), ...
+    volumetricData.xyz(:, 2)];
+
 for i=1:volumetricData.count
     fwrite(fileID, volumetricData.xyz(i,:), 'int32');
     fwrite(fileID, rgba(i,:), 'double');
