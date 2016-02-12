@@ -115,7 +115,17 @@ try
     
     % Valid pixels are the ones that are not black
     img_mask = (img_mask(:,:,1) > 0 & img_mask(:,:,2) > 0 & img_mask(:,:,3) > 0);
+    
+    if(isequal(error_foo{1}, @MSE))
+        % For MSE the goal and the render image have to be same size
+        goal_img = imresize(goal_img, size(img_mask));
         
+        % MSE uses an RGB mask, the other error functions use a single
+        % channel image mask
+        img_mask(:,:,2) = img_mask;
+        img_mask(:,:,3) = img_mask(:,:,2);
+    end
+    
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
