@@ -29,7 +29,7 @@ if isempty(HC_GOAL)
         % Set goal image as not having black pixels
         HC_GOAL{i}(:,1) = 0;
     end
-    TESTIM_FACTOR = 1 / sum(sum(img_mask(:,:,1) == 1));
+    TESTIM_FACTOR = 1 / sum(img_mask(:) == 1);
 end
 
 % Compute the error as in Dobashi et. al. 2012
@@ -37,9 +37,14 @@ cerror = 0;
 for i=1:numel(goal_imgs)
     
     % Compute the histogram count for each color channel
-    hc_test(1, :) = histcounts( test_imgs{i}(img_mask(:, :, 1)), edges) * TESTIM_FACTOR;
-    hc_test(2, :) = histcounts( test_imgs{i}(img_mask(:, :, 2)), edges) * TESTIM_FACTOR;
-    hc_test(3, :) = histcounts( test_imgs{i}(img_mask(:, :, 3)), edges) * TESTIM_FACTOR;
+    subImga = test_imgs{i}(:, :, 1);
+    hc_test(1, :) = histcounts(subImga(img_mask), edges) * TESTIM_FACTOR;
+    
+    subImga = test_imgs{i}(:, :, 2);
+    hc_test(2, :) = histcounts(subImga(img_mask), edges) * TESTIM_FACTOR;
+    
+    subImga = test_imgs{i}(:, :, 3);
+    hc_test(3, :) = histcounts(subImga(img_mask), edges) * TESTIM_FACTOR;
     
     cerror = cerror + (sum(abs(hc_test(1, :) - HC_GOAL{i}(1, :))) + ...
         sum(abs(hc_test(2, :) - HC_GOAL{i}(2, :))) + ...

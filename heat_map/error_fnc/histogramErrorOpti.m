@@ -22,13 +22,18 @@ if isempty(HC_GOAL)
     % Set goal image as not having black pixels
     HC_GOAL(:,1) = 0;
     
-    IMGA_FACTOR = 1 / sum(sum(img_mask(:,:,1) == 1));
+    IMGA_FACTOR = 1 / sum(img_mask(:) == 1);
 end
 
 % Compute the histogram count for each color channel
-Na(1, :) = histcounts( imga(img_mask(:, :, 1)), edges) * IMGA_FACTOR;
-Na(2, :) = histcounts( imga(img_mask(:, :, 2)), edges) * IMGA_FACTOR;
-Na(3, :) = histcounts( imga(img_mask(:, :, 3)), edges) * IMGA_FACTOR;
+subImga = imga(:, :, 1);
+Na(1, :) = histcounts( subImga(img_mask), edges) * IMGA_FACTOR;
+
+subImga = imga(:, :, 2);
+Na(2, :) = histcounts( subImga(img_mask), edges) * IMGA_FACTOR;
+
+subImga = imga(:, :, 3);
+Na(3, :) = histcounts( subImga(img_mask), edges) * IMGA_FACTOR;
 
 % Compute the error as in Dobashi et. al. 2012
 cerror = (sum(abs(Na(1, :) - HC_GOAL(1, :))) + sum(abs(Na(2, :) - ...
