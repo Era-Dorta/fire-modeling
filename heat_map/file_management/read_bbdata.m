@@ -12,4 +12,3 @@ fileCloseObj = onCleanup(@() fclose(fid));
 % fscanf reads in column order, transpose to row order
 bb_data = fscanf(fid, '%d %d %d %d\n', [4 Inf])';
 end
-

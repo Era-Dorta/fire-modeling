@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve( ...
     max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
-    summary_data)
+    summary_data, goal_img, goal_mask)
 % Genetics Algorithm solver for heat map reconstruction
 %% Options for the ga
 % Get an empty gaoptions structure
@@ -17,15 +17,23 @@ init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
 
 % Random initial population
 % options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
-creation_fnc_mean = 0;
-creation_fnc_sigma = 250;
-options.CreationFcn = @( GenomeLength, FitnessFcn, options) gacreationfrominitguess ...
-    ( GenomeLength, FitnessFcn, options, init_heat_map, creation_fnc_mean, ...
-    creation_fnc_sigma, init_population_path );
+
+% Initial population from a user provide guess
+% creation_fnc_mean = 0;
+% creation_fnc_sigma = 250;
+% options.CreationFcn = @( GenomeLength, FitnessFcn, options) gacreationfrominitguess ...
+%     ( GenomeLength, FitnessFcn, options, init_heat_map, creation_fnc_mean, ...
+%     creation_fnc_sigma, init_population_path );
+
 % Linearly spaced population, giving an extra path argument makes the
 % creation function save the population in a file
 % options.CreationFcn = @(x, y, z)gacreationlinspace(x , y, z, ...
 %      init_population_path);
+
+% Initial population from the goal image
+options.CreationFcn = @( GenomeLength, FitnessFcn, options) gacreationheuristic1 ...
+    (GenomeLength, FitnessFcn, options, init_heat_map, goal_img, ...
+    goal_mask, init_population_path);
 
 % Crossover function, update the coordinates and the bounding box size
 options.CrossoverFcn = @(parents, options, GenomeLength, FitnessFcn, ...
@@ -34,9 +42,9 @@ options.CrossoverFcn = @(parents, options, GenomeLength, FitnessFcn, ...
     init_heat_map.size, min(init_heat_map.xyz), max(init_heat_map.xyz));
 
 % Mutation function, update the coordinates and the volume size
-options.MutationFcn = @(parents, options, GenomeLength, FitnessFcn,  ...
-    state, thisScore, thisPopulation) gamutationnone (parents, options, ...
-    GenomeLength, FitnessFcn, state, thisScore, thisPopulation);
+% options.MutationFcn = @(parents, options, GenomeLength, FitnessFcn,  ...
+%     state, thisScore, thisPopulation) gamutationnone (parents, options, ...
+%     GenomeLength, FitnessFcn, state, thisScore, thisPopulation);
 
 % Function executed on each iteration, there is a PlotFcns too, but it
 % creates a figure outside of our control and it makes the plotting and
