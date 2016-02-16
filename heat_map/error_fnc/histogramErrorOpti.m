@@ -4,6 +4,7 @@ function [ cerror ] = histogramErrorOpti( goal_im, imga, img_mask )
 %   version of HISTOGRAM_ERROR, assumes RGB images, ignores black pixels
 %   and if the goal image changes, call clear 'histogramErrorOpti';
 
+%TODO Add goal_mask argument
 persistent HC_GOAL IMGA_FACTOR
 
 % Create 256 bins, image can be 0..255
