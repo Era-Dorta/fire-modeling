@@ -229,11 +229,15 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
 	}
+	float maxT = 0, currentT = 0;
+
 	for (auto i = start_offset; i < end_offset && iter; ++iter) {
 		t = iter.getValue();
 		// As it has the same exponential as black body, with low temperatures
 		// there is no absorption
 		if (t.x() > 400) {
+			currentT = t.x();
+
 			// TODO Pass a real refraction index, not 1
 			// Compute the chemical absorption spectrum values, as we are
 			// normalizing afterwards, the units used here don't matter
@@ -252,7 +256,14 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// Convert to XYZ, the visual adaption function will convert to RGB
 			chem_spec.ToXYZ(&t.x());
 
-			clamp_0_1(t);
+			if(currentT > maxT){
+				maxT = currentT;
+				max_ind = iter.getCoord();
+
+				max_color.r = t.x();
+				max_color.g = t.y();
+				max_color.b = t.z();
+			}
 		} else {
 			// Negative and zero absorption
 			t.setZero();
@@ -281,11 +292,16 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		iter.next();
 	}
 
+	float maxT = 0, currentT = 0;
+
 	for (auto i = start_offset; i < end_offset && iter; ++iter) {
 		openvdb::Vec3f t = iter.getValue();
 
 		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
 		if (t.x() > 400) {
+			currentT = t.x();
+
+			auto max_ind = iter.getCoord();
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
 			Blackbody(&bb_lambdas[0], bb_lambdas.size(), t.x(), 1,
@@ -344,6 +360,15 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 			// Transform the spectrum to XYZ coefficients
 			b_spec.ToXYZ(&t.x());
+
+			if(currentT > maxT){
+				maxT = currentT;
+				max_ind = iter.getCoord();
+
+				max_color.r = t.x();
+				max_color.g = t.y();
+				max_color.b = t.z();
+			}
 		} else {
 			// If the temperature is low, just set the colour to 0
 			t.setZero();
@@ -355,26 +380,18 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 // TODO This could be threaded too, make all threads wait for each other and
 // then use this code with start end indices
 void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
-	openvdb::Coord max_ind = get_maximum_voxel_index();
-	const openvdb::Vec3f& max_xyz = accessor.getValue(max_ind);
 	float max_xyz_float[3];
 
-	max_xyz_float[0] = max_xyz.x();
-	max_xyz_float[1] = max_xyz.y();
-	max_xyz_float[2] = max_xyz.z();
+	max_xyz_float[0] = max_color.r;
+	max_xyz_float[1] = max_color.g;
+	max_xyz_float[2] = max_color.b;
 
 	openvdb::Vec3f inv_max_lms;
 	XYZtoLMS(max_xyz_float, &inv_max_lms[0]);
 
-	if (inv_max_lms.x() != 0) {
-		inv_max_lms.x() = 1.0 / inv_max_lms.x();
-	}
-	if (inv_max_lms.y() != 0) {
-		inv_max_lms.y() = 1.0 / inv_max_lms.y();
-	}
-	if (inv_max_lms.z() != 0) {
-		inv_max_lms.z() = 1.0 / inv_max_lms.z();
-	}
+	inv_max_lms.x() = 1.0 / (inv_max_lms.x() + FLT_EPSILON);
+	inv_max_lms.y() = 1.0 / (inv_max_lms.y() + FLT_EPSILON);
+	inv_max_lms.z() = 1.0 / (inv_max_lms.z() + FLT_EPSILON);
 
 	// Nguyen normalization in Matlab would be
 	/*

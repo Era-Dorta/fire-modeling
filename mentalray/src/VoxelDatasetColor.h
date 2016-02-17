@@ -53,6 +53,7 @@ private:
 
 protected:
 	miColor max_color;
+	openvdb::Coord max_ind;
 private:
 	/*
 	 * TODO Use separate classes to store the data
