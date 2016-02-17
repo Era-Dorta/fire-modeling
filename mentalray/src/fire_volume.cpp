@@ -138,6 +138,7 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			init_ray_march_common_data(rm_data, state, params);
 			init_ray_march_lights_data(rm_data, state, params);
 			rm_data.density_shader = *mi_eval_tag(&params->density_shader);
+			rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
 			rm_data.transparency = *mi_eval_scalar(&params->transparency);
 
 			// Only the light specified in the light list will be used

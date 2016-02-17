@@ -448,20 +448,14 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		* pow(10, 12);
 #endif
 		if (density > 0) {
-			// Restore ray type for total light at point
-			state->type = ray_type;
-
 			// Here is where the equation is solved
 			// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
 			density *= rm_data.march_increment;
-			// Convert point to internal space before calling the light shader
-			mi_point_from_object(state, &state->point, &state->point);
-			miaux_total_light_at_point(&point_color, state, rm_data.light,
-					rm_data.n_light);
-			miaux_add_transparent_color(&volume_color, &point_color, density);
 
-			// Reset for the density shader calls
-			state->type = static_cast<miRay_type>(VOXEL_DATA);
+			mi_call_shader_x(&point_color, miSHADER_MATERIAL, state,
+					rm_data.emission_shader, nullptr);
+
+			miaux_add_transparent_color(&volume_color, &point_color, density);
 		}
 		if (volume_color.a == 1.0) {
 			break;
@@ -474,9 +468,10 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	miaux_copy_color_scaled(&result->color, &volume_color,
 			rm_data.transparency);
 
-	// In RGBA, 0 alpha is transparent, but in in transparency for maya
-	// volumetric 1 is transparent
-	miaux_set_rgb(&result->transparency, 1 - volume_color.a);
+	if (!miaux_color_is_black(&result->color)) {
+		miaux_set_rgb(&result->transparency, 0);
+		miaux_add_inv_rgb_color(&result->transparency, &result->color);
+	}
 
 	state->type = ray_type;
 	state->point = original_point;
@@ -535,7 +530,7 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			exp_sigma_dx.g = exp(-sigma_a.g * rm_data.march_increment);
 			exp_sigma_dx.b = exp(-sigma_a.b * rm_data.march_increment);
 
-			// (1 - exp(-sigma_a * Dx) * L_e
+			// (1 - exp(-sigma_a * Dx)) * L_e
 			light_color.r *= 1.0 - exp_sigma_dx.r;
 			light_color.g *= 1.0 - exp_sigma_dx.g;
 			light_color.b *= 1.0 - exp_sigma_dx.b;
