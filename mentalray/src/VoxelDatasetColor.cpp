@@ -249,10 +249,8 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// Divide each coefficient by the max, to get a normalized spectrum
 			chem_spec.NormalizeByMax();
 
-			// Transform the spectrum to RGB coefficients, since CIE is
-			// not fully represented by RGB clamp negative intensities
-			// to zero
-			chem_spec.ToRGB(&t.x());
+			// Convert to XYZ, the visual adaption function will convert to RGB
+			chem_spec.ToXYZ(&t.x());
 
 			clamp_0_1(t);
 		} else {
