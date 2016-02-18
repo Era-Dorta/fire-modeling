@@ -256,7 +256,7 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// Convert to XYZ, the visual adaption function will convert to RGB
 			chem_spec.ToXYZ(&t.x());
 
-			if(currentT > maxT){
+			if (currentT > maxT) {
 				maxT = currentT;
 				max_ind = iter.getCoord();
 
@@ -306,8 +306,6 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			// Get the blackbody values
 			Blackbody(&bb_lambdas[0], bb_lambdas.size(), t.x(), 1,
 					&spec_values[0]);
-
-			NormalizeBlackbody(spec_values.size(), t.x(), 1, &spec_values[0]);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
@@ -361,7 +359,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			// Transform the spectrum to XYZ coefficients
 			b_spec.ToXYZ(&t.x());
 
-			if(currentT > maxT){
+			if (currentT > maxT) {
 				maxT = currentT;
 				max_ind = iter.getCoord();
 
@@ -380,57 +378,52 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 // TODO This could be threaded too, make all threads wait for each other and
 // then use this code with start end indices
 void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
-	float max_xyz_float[3];
 
-	max_xyz_float[0] = max_color.r;
-	max_xyz_float[1] = max_color.g;
-	max_xyz_float[2] = max_color.b;
+	openvdb::Vec3f max_l(max_color.r, max_color.g, max_color.b);
 
-	openvdb::Vec3f inv_max_lms;
-	XYZtoLMS(max_xyz_float, &inv_max_lms[0]);
+	const float inv_gamma = 1.0 / 2.2;
+	const float k_exponential = 0.001;
 
-	inv_max_lms.x() = 1.0 / (inv_max_lms.x() + FLT_EPSILON);
-	inv_max_lms.y() = 1.0 / (inv_max_lms.y() + FLT_EPSILON);
-	inv_max_lms.z() = 1.0 / (inv_max_lms.z() + FLT_EPSILON);
+	// Computer the e^(mean(luminance))
+	float exp_mean_log = 0;
+	for (auto iter = block->cbeginValueOn(); iter; ++iter) {
+		exp_mean_log += log(iter->y() + FLT_EPSILON);
+	}
 
-	// Nguyen normalization in Matlab would be
-	/*
-	 *  m = [0.4002, 0.7076, -0.0808; -0.2263, 1.1653, 0.0457; 0, 0, 0.9182];
-	 * invm = inv(m);
-	 * lmslw = m * maxxyz;
-	 * lmslw = 1 ./ lmslw;
-	 * mLW = diag(lmslw);
-	 * newxyz = invm * mLW * m * oldxyz; % For all the points
-	 */
+	exp_mean_log = exp(exp_mean_log / block->activeVoxelCount())
+			* k_exponential;
 
-	// TODO This normalisation is assuming the fire is the main light in the
-	// scene, it should pick the brightest object and normalise with that
-	// Print all active ("on") voxels by means of an iterator.
-	for (openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn(); iter;
-			++iter) {
+	// Compute visual adaptation with the previous value
+	for (auto iter = block->beginValueOn(); iter; ++iter) {
 		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
-			openvdb::Vec3f aux, color_lms;
+			openvdb::Vec3f color_rgb_adapted, color_rgb;
 
-			openvdb::Vec3f current_color = iter.getValue();
+			openvdb::Vec3f current_color_xyz = iter.getValue();
 
-			XYZtoLMS(&current_color.x(), &color_lms.x());
+			XYZToRGB(&current_color_xyz.x(), &color_rgb.x());
 
-			// Apply adaptation, is a diagonal matrix so we can just multiply
-			// the values
-			aux = color_lms * inv_max_lms;
+			// Apply adaptation
+			const float new_l = 1 - exp(-current_color_xyz.y() / exp_mean_log);
+			color_rgb_adapted = (color_rgb * new_l) / current_color_xyz.y();
 
-			LMStoXYZ(&aux.x(), &color_lms.x());
+			// Gamma correction
+			color_rgb_adapted.x() = pow(color_rgb_adapted.x(), inv_gamma);
+			color_rgb_adapted.y() = pow(color_rgb_adapted.y(), inv_gamma);
+			color_rgb_adapted.z() = pow(color_rgb_adapted.z(), inv_gamma);
+
+			color_rgb.x() = pow(color_rgb.x(), inv_gamma);
+			color_rgb.y() = pow(color_rgb.y(), inv_gamma);
+			color_rgb.z() = pow(color_rgb.z(), inv_gamma);
+
+			clamp_0_1(color_rgb_adapted);
+			clamp_0_1(color_rgb);
 
 			// Give the user a control parameter between the old and the new
 			// colours
-			color_lms = linear_interp(visual_adaptation_factor, current_color,
-					color_lms);
+			color_rgb_adapted = linear_interp(visual_adaptation_factor,
+					color_rgb, color_rgb_adapted);
 
-			XYZToRGB(&color_lms.x(), &current_color.x());
-
-			clamp_0_1(current_color);
-
-			iter.setValue(current_color);
+			iter.setValue(color_rgb_adapted);
 		}
 	}
 
@@ -466,6 +459,10 @@ void VoxelDatasetColor::clamp_0_1(float &v) {
 	}
 	if (v > 1) {
 		v = 1;
+		return;
+	}
+	if (isnan(v)) {
+		v = 0;
 	}
 }
 
