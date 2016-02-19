@@ -260,11 +260,12 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity,
 	const double inv_kt = 1.0 / (BB::k * temp);
 
 	for (int i = 0; i < n; ++i) {
+		// E data comes in 1/cm but we need it in 1/m
 		const double N2 = (density * (g2[i] / g1[i])
-				* exp((E1[i] - E2[i]) * inv_kt));
+				* exp((E1[i] * 100 - E2[i] * 100) * inv_kt));
 		// Absorption coefficient
 		vals[i] = C1 * intensity[i] * A21[i] * N2 * pow(wl[i], 4.0)
-				* ((exp(C2 / wl[i]) - 1.0));
+		* ((exp(C2 / wl[i]) - 1.0));
 	}
 }
 

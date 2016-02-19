@@ -347,8 +347,6 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
 						&other_spec_values[0], lambdas.size());
 
-				chem_spec.NormalizeByMax();
-
 				b_spec = b_spec * chem_spec;
 
 				break;
