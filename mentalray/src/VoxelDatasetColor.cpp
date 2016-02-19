@@ -301,7 +301,6 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		if (t.x() > 400) {
 			currentT = t.x();
 
-			auto max_ind = iter.getCoord();
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
 			Blackbody(&bb_lambdas[0], bb_lambdas.size(), t.x(), 1,
