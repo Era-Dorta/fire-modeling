@@ -58,9 +58,10 @@ public:
 
 	InterpolationMode getInterpolationMode() const;
 	void setInterpolationMode(InterpolationMode interpolation_mode);
-private:
+protected:
 	double fit(double v, double oldmin, double oldmax, double newmin,
 			double newmax) const;
+private:
 	DataT trilinear_interpolation(float x, float y, float z,
 			const Accessor& accessor) const;
 	DataT triquadratic_interpolation(float x, float y, float z,

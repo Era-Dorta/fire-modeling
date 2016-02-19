@@ -42,8 +42,10 @@ private:
 			unsigned end_offset);
 	void normalize_bb_radiation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
-	static void clamp_0_1(openvdb::Vec3f& v);
-	static void clamp_0_1(float &v);
+	static void clamp(openvdb::Vec3f& v, float min = 0, float max = 0);
+	static void clamp(float &v, float min = 0, float max = 0);
+	static void remove_specials(openvdb::Vec3f& v);
+	static void remove_specials(float &v);
 	bool read_spectral_line_file(const std::string& filename);
 	bool read_optical_constants_file(const std::string& filename);
 	template<typename T>
