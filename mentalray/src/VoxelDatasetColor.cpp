@@ -378,10 +378,11 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 	// This section is heavily inspired by the Reinhard Tone Mapping code
 	// in https://github.com/banterle/HDR_Toolbox
 	const float inv_gamma = 1.0 / 2.2;
-	const int pAlpha = 256;
 	const float lMax = max_color.g, lMin = 0;
 	const float log2Max = log2(lMax + 1e-9);
 	const float log2Min = log2(lMin + 1e-9);
+
+	// Estimate the white point luminance
 	float pWhite = 1.5 * pow(2, log2Max - log2Min - 5);
 
 	pWhite = pWhite * pWhite;
@@ -391,9 +392,13 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 	for (auto iter = block->cbeginValueOn(); iter; ++iter) {
 		exp_mean_log += log(iter->y() + 1e-6);
 	}
-	// Scale the mean with an user defined value
-	exp_mean_log = exp(exp_mean_log / block->activeVoxelCount())
-			* visual_adaptation_factor;
+	exp_mean_log = exp(exp_mean_log / block->activeVoxelCount());
+
+	// Estimate the image exposure
+	const float pAlpha = 0.18
+			* pow(4,
+					((2.0 * log2(exp_mean_log + 1e-9) - log2Min - log2Max)
+							/ (log2Max - log2Min))) * visual_adaptation_factor;
 
 	// Compute visual adaptation with the previous value
 	for (auto iter = block->beginValueOn(); iter; ++iter) {
