@@ -64,6 +64,14 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 		voxels->setInterpolationMode(
 				(VoxelDatasetColor::InterpolationMode) interpolation_mode);
 
+		/*
+		 * TODO This should be set automatically from the image type, but
+		 * mi_query(miQ_IMAGE_COLORCLIP, ...) is not available here,
+		 * state->options->colorclip always outputs 2 and I cannot figure out
+		 * how to access the rgbe/rgb_fp buffer property
+		 */
+		voxels->setToneMapped(true);
+
 		// Get the data file path
 		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
 		VoxelDatasetColor::BB_TYPE bb_type = VoxelDatasetColor::BB_ONLY;

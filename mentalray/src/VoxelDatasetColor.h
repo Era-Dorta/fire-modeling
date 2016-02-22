@@ -29,6 +29,9 @@ public:
 			float visual_adaptation_factor, const std::string& filename);
 	const miColor& get_max_voxel_value();
 	virtual void compute_max_voxel_value();
+	bool isToneMapped() const;
+	void setToneMapped(bool tone_mapped);
+
 private:
 	openvdb::Vec3f linear_interp(float t, const openvdb::Vec3f& c0,
 			const openvdb::Vec3f& c1) const;
@@ -75,6 +78,7 @@ private:
 	miScalar soot_radius;
 	miScalar alpha_lambda;
 	BB_TYPE bb_type;
+	bool tone_mapped;
 };
 
 #endif /* VOXELDATASETCOLOR_H_ */

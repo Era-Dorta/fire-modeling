@@ -19,6 +19,7 @@ VoxelDatasetColor::VoxelDatasetColor() :
 	soot_radius = 0;
 	alpha_lambda = 0;
 	bb_type = BB_ONLY;
+	tone_mapped = true;
 }
 
 VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
@@ -28,6 +29,7 @@ VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
 	soot_radius = 0;
 	alpha_lambda = 0;
 	bb_type = BB_ONLY;
+	tone_mapped = true;
 }
 
 bool VoxelDatasetColor::compute_black_body_emission_threaded(
@@ -375,6 +377,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 // TODO This could be threaded too, make all threads wait for each other and
 // then use this code with start end indices
 void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
+
 	// This section is heavily inspired by the Reinhard Tone Mapping code
 	// in https://github.com/banterle/HDR_Toolbox
 	const float inv_gamma = 1.0 / 2.2;
@@ -416,35 +419,43 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 			// Remove negative RGB values
 			clamp(color_rgb, 0, FLT_MAX);
 
-			// Compute new luminance as in Reinhard et. al. 2002
-			// "Photographic tone reproduction for digital images"
-			float new_l = (pAlpha * color_xyz.y()) / exp_mean_log;
-			new_l = (new_l * (1 + new_l / pWhite2)) / (1 + new_l);
+			if (tone_mapped) {
 
-			// Apply luminance change to the original RGB color
-			color_rgb_adapted = (color_rgb * new_l) / color_xyz.y();
+				// Compute new luminance as in Reinhard et. al. 2002
+				// "Photographic tone reproduction for digital images"
+				float new_l = (pAlpha * color_xyz.y()) / exp_mean_log;
+				new_l = (new_l * (1 + new_l / pWhite2)) / (1 + new_l);
 
-			remove_specials(color_rgb_adapted);
+				// Apply luminance change to the original RGB color
+				color_rgb_adapted = (color_rgb * new_l) / color_xyz.y();
 
-			// Apply Schlick color correction, with 0.5 coefficient, i.e. sqrt
-			RGBToXYZ(&color_rgb_adapted.x(), &color_xyz.x());
+				remove_specials(color_rgb_adapted);
 
-			color_rgb_adapted.x() = sqrt(color_rgb_adapted.x() / color_xyz.y())
-					* color_xyz.y();
-			color_rgb_adapted.y() = sqrt(color_rgb_adapted.y() / color_xyz.y())
-					* color_xyz.y();
-			color_rgb_adapted.z() = sqrt(color_rgb_adapted.z() / color_xyz.y())
-					* color_xyz.y();
+				// Apply Schlick color correction, with 0.5 coefficient, i.e. sqrt
+				RGBToXYZ(&color_rgb_adapted.x(), &color_xyz.x());
 
-			remove_specials(color_rgb_adapted);
+				color_rgb_adapted.x() = sqrt(
+						color_rgb_adapted.x() / color_xyz.y()) * color_xyz.y();
+				color_rgb_adapted.y() = sqrt(
+						color_rgb_adapted.y() / color_xyz.y()) * color_xyz.y();
+				color_rgb_adapted.z() = sqrt(
+						color_rgb_adapted.z() / color_xyz.y()) * color_xyz.y();
 
-			// Apply Gamma correction, with Gamma 2.2
-			color_rgb_adapted.x() = pow(color_rgb_adapted.x(), inv_gamma);
-			color_rgb_adapted.y() = pow(color_rgb_adapted.y(), inv_gamma);
-			color_rgb_adapted.z() = pow(color_rgb_adapted.z(), inv_gamma);
+				remove_specials(color_rgb_adapted);
 
-			// Final clamping for [0..1] RGB space
-			clamp(color_rgb_adapted, 0, 1);
+				// Apply Gamma correction, with Gamma 2.2
+				color_rgb_adapted.x() = pow(color_rgb_adapted.x(), inv_gamma);
+				color_rgb_adapted.y() = pow(color_rgb_adapted.y(), inv_gamma);
+				color_rgb_adapted.z() = pow(color_rgb_adapted.z(), inv_gamma);
+
+				// Final clamping for [0..1] RGB space
+				clamp(color_rgb_adapted, 0, 1);
+			} else {
+				// Without tone mapping simply copy the color and remove any nan
+				// and inf values
+				color_rgb_adapted = color_rgb;
+				remove_specials(color_rgb_adapted);
+			}
 
 			iter.setValue(color_rgb_adapted);
 		}
@@ -593,4 +604,12 @@ void VoxelDatasetColor::clear_coefficients() {
 	E2.clear();
 	g1.clear();
 	g2.clear();
+}
+
+bool VoxelDatasetColor::isToneMapped() const {
+	return tone_mapped;
+}
+
+void VoxelDatasetColor::setToneMapped(bool tone_mapped) {
+	this->tone_mapped = tone_mapped;
 }
