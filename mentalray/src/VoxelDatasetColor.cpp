@@ -382,10 +382,14 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 	const float log2Max = log2(lMax + 1e-9);
 	const float log2Min = log2(lMin + 1e-9);
 
-	// Estimate the white point luminance
-	float pWhite = 1.5 * pow(2, log2Max - log2Min - 5);
+	// Estimate the white point luminance as in Reinhard
+	// float pWhite2 = 1.5 * pow(2, log2Max - log2Min - 5);
 
-	pWhite = pWhite * pWhite;
+	// Set the white point as the luminance of the voxel with highest
+	// temperature, Nguyen 2002
+	float pWhite2 = max_color.g;
+
+	pWhite2 = pWhite2 * pWhite2;
 
 	// Computer the e^(mean(luminance))
 	float exp_mean_log = 0;
@@ -415,7 +419,7 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 			// Compute new luminance as in Reinhard et. al. 2002
 			// "Photographic tone reproduction for digital images"
 			float new_l = (pAlpha * color_xyz.y()) / exp_mean_log;
-			new_l = (new_l * (1 + new_l / pWhite)) / (1 + new_l);
+			new_l = (new_l * (1 + new_l / pWhite2)) / (1 + new_l);
 
 			// Apply luminance change to the original RGB color
 			color_rgb_adapted = (color_rgb * new_l) / color_xyz.y();
