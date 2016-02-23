@@ -265,7 +265,7 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity,
 				* exp((E1[i] * 100 - E2[i] * 100) * inv_kt));
 		// Absorption coefficient
 		vals[i] = C1 * intensity[i] * A21[i] * N2 * pow(wl[i], 4.0)
-		* ((exp(C2 / wl[i]) - 1.0));
+				* ((exp(C2 / wl[i]) - 1.0));
 	}
 }
 
