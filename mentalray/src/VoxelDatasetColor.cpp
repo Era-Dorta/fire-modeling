@@ -198,7 +198,7 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
 	}
-	for (auto i = start_offset; i < end_offset && iter; ++iter) {
+	for (auto i = start_offset; i < end_offset && iter; i++, ++iter) {
 		density = iter.getValue();
 		if (density.x() > 0.0) {
 			for (unsigned j = 0; j < spec_values.size(); j++) {
@@ -233,7 +233,7 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 	}
 	float maxT = 0, currentT = 0;
 
-	for (auto i = start_offset; i < end_offset && iter; ++iter) {
+	for (auto i = start_offset; i < end_offset && iter; i++, ++iter) {
 		t = iter.getValue();
 		// As it has the same exponential as black body, with low temperatures
 		// there is no absorption
@@ -296,7 +296,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 	float maxT = 0, currentT = 0;
 
-	for (auto i = start_offset; i < end_offset && iter; ++iter) {
+	for (auto i = start_offset; i < end_offset && iter; i++, ++iter) {
 		openvdb::Vec3f t = iter.getValue();
 
 		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
