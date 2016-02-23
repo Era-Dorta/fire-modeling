@@ -62,7 +62,7 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 
 	compute_function_threaded(&VoxelDatasetColor::compute_black_body_emission);
 
-	normalize_bb_radiation(visual_adaptation_factor);
+	apply_visual_adaptation(visual_adaptation_factor);
 
 	clear_coefficients();
 
@@ -100,7 +100,7 @@ bool VoxelDatasetColor::compute_chemical_absorption_threaded(
 
 	compute_function_threaded(&VoxelDatasetColor::compute_chemical_absorption);
 
-	normalize_bb_radiation(visual_adaptation_factor);
+	apply_visual_adaptation(visual_adaptation_factor);
 
 	clear_coefficients();
 
@@ -376,7 +376,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 // TODO This could be threaded too, make all threads wait for each other and
 // then use this code with start end indices
-void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
+void VoxelDatasetColor::apply_visual_adaptation(
+		float visual_adaptation_factor) {
 
 	// This section is heavily inspired by the Reinhard Tone Mapping code
 	// in https://github.com/banterle/HDR_Toolbox
@@ -386,11 +387,11 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 	const float log2Min = log2(lMin + 1e-9);
 
 	// Estimate the white point luminance as in Reinhard
-	// float pWhite2 = 1.5 * pow(2, log2Max - log2Min - 5);
+	float pWhite2 = 1.5 * pow(2, log2Max - log2Min - 5);
 
 	// Set the white point as the luminance of the voxel with highest
 	// temperature, Nguyen 2002
-	float pWhite2 = max_color.g;
+	// float pWhite2 = max_color.g;
 
 	pWhite2 = pWhite2 * pWhite2;
 
@@ -406,6 +407,8 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 			* pow(4,
 					((2.0 * log2(exp_mean_log + 1e-9) - log2Min - log2Max)
 							/ (log2Max - log2Min))) * visual_adaptation_factor;
+
+	mi_info("Estimated exposure in tone mapping: %f", pAlpha);
 
 	// TODO Use mi_colorprofile_... functions
 	// If true output will be in RGB otherwise it will be in the XYZ colorspace

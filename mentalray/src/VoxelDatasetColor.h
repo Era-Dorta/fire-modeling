@@ -43,7 +43,7 @@ private:
 			unsigned end_offset);
 	void compute_black_body_emission(unsigned start_offset,
 			unsigned end_offset);
-	void normalize_bb_radiation(float visual_adaptation_factor);
+	void apply_visual_adaptation(float visual_adaptation_factor);
 	openvdb::Coord get_maximum_voxel_index();
 	static void clamp(openvdb::Vec3f& v, float min = 0, float max = 0);
 	static void clamp(float &v, float min = 0, float max = 0);
