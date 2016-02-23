@@ -44,6 +44,7 @@ private:
 	void compute_black_body_emission(unsigned start_offset,
 			unsigned end_offset);
 	void apply_visual_adaptation(float visual_adaptation_factor);
+	void fix_chem_absorption();
 	openvdb::Coord get_maximum_voxel_index();
 	static void clamp(openvdb::Vec3f& v, float min = 0, float max = 0);
 	static void clamp(float &v, float min = 0, float max = 0);
@@ -75,6 +76,7 @@ private:
 	std::vector<float> E2;
 	std::vector<int> g1;
 	std::vector<int> g2;
+	std::vector<float> densities;
 	miScalar soot_radius;
 	miScalar alpha_lambda;
 	BB_TYPE bb_type;

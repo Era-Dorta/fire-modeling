@@ -102,6 +102,8 @@ bool VoxelDatasetColor::compute_chemical_absorption_threaded(
 
 	apply_visual_adaptation(visual_adaptation_factor);
 
+	fix_chem_absorption();
+
 	clear_coefficients();
 
 	return true;
@@ -233,8 +235,18 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 	}
 	float maxT = 0, currentT = 0;
 
+	if (tone_mapped) {
+		// Vector where the densities will be saved for later use
+		densities.resize(block->activeVoxelCount());
+	}
+
 	for (auto i = start_offset; i < end_offset && iter; i++, ++iter) {
 		t = iter.getValue();
+
+		if (tone_mapped) {
+			densities.at(i) = t.y();
+		}
+
 		// As it has the same exponential as black body, with low temperatures
 		// there is no absorption
 		if (t.x() > 400) {
@@ -251,9 +263,6 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// Spectrum expects the wavelengths to be in nanometres
 			Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
 					&spec_values[0], lambdas.size());
-
-			// Divide each coefficient by the max, to get a normalized spectrum
-			chem_spec.NormalizeByMax();
 
 			// Convert to XYZ, the visual adaption function will convert to RGB
 			chem_spec.ToXYZ(&t.x());
@@ -482,6 +491,23 @@ void VoxelDatasetColor::apply_visual_adaptation(
 	max_color.b = accessor.getValue(max_ind).z();
 }
 
+void VoxelDatasetColor::fix_chem_absorption() {
+	/*
+	 * If the absorption coefficients were toned mapped, multiply the visually
+	 * adapted absorption by the densities, otherwise the densities would have
+	 * no effect during the ray marching
+	 */
+	if (tone_mapped) {
+		auto density = densities.begin();
+		for (auto iter = block->beginValueOn(); iter; ++iter) {
+
+			iter.setValue(iter.getValue() * (*density));
+
+			++density;
+		}
+	}
+}
+
 openvdb::Coord VoxelDatasetColor::get_maximum_voxel_index() {
 	openvdb::Coord max_ind;
 	float current_val, max_val = 0;
@@ -620,6 +646,7 @@ void VoxelDatasetColor::clear_coefficients() {
 	E2.clear();
 	g1.clear();
 	g2.clear();
+	densities.clear();
 }
 
 bool VoxelDatasetColor::isToneMapped() const {
