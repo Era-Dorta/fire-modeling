@@ -407,6 +407,11 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 					((2.0 * log2(exp_mean_log + 1e-9) - log2Min - log2Max)
 							/ (log2Max - log2Min))) * visual_adaptation_factor;
 
+	// TODO Use mi_colorprofile_... functions
+	// If true output will be in RGB otherwise it will be in the XYZ colorspace
+	const bool isRGB = mi_colorprofile_internalspace_id()
+			!= mi_colorprofile_ciexyz_color_id();
+
 	// Compute visual adaptation with the previous value
 	for (auto iter = block->beginValueOn(); iter; ++iter) {
 		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
@@ -414,7 +419,11 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 
 			openvdb::Vec3f color_xyz = iter.getValue();
 
-			XYZToRGB(&color_xyz.x(), &color_rgb.x());
+			if (isRGB) {
+				XYZToRGB(&color_xyz.x(), &color_rgb.x());
+			} else {
+				color_rgb = color_xyz;
+			}
 
 			// Remove negative RGB values
 			clamp(color_rgb, 0, FLT_MAX);
@@ -431,9 +440,13 @@ void VoxelDatasetColor::normalize_bb_radiation(float visual_adaptation_factor) {
 
 				remove_specials(color_rgb_adapted);
 
-				// Apply Schlick color correction, with 0.5 coefficient, i.e. sqrt
-				RGBToXYZ(&color_rgb_adapted.x(), &color_xyz.x());
+				if (isRGB) {
+					RGBToXYZ(&color_rgb_adapted.x(), &color_xyz.x());
+				} else {
+					color_xyz = color_rgb_adapted;
+				}
 
+				// Apply Schlick color correction, with 0.5 coefficient -> sqrt
 				color_rgb_adapted.x() = sqrt(
 						color_rgb_adapted.x() / color_xyz.y()) * color_xyz.y();
 				color_rgb_adapted.y() = sqrt(
