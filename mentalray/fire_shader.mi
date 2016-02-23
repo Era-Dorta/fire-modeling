@@ -120,9 +120,9 @@ declare shader
 				#: default 1
 				#: enum "Black Body:Propane:Acetylene:Copper-Green:Sulfur-Purple:Lithium-Red:Barium-Pale-Green:Sodium-Yellow:Cobalt-Silver-White:Scandium-Orange"
 			scalar "visual_adaptation_factor",
-				#: default 0.0
+				#: default 1.0
 				#: min 0.0
-				#: max 1.0	
+				#: softmax 2.0	
 			scalar "intensity",
 				#: default 1.0
 				#: softmin 0.0

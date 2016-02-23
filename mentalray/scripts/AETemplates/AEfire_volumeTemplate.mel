@@ -125,7 +125,7 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 
 		editorTemplate -annotation "Interpolation method to be used when querying for points between voxels" -addControl "interpolation_mode";
 		editorTemplate -annotation "Variety of fuel used for the fire" -addControl "fuel_type";
-		editorTemplate -annotation "Controls how much a human eye has adapted to the rendered fire" -addControl "visual_adaptation_factor";
+		editorTemplate -annotation "Controls how much a human eye has adapted to the rendered fire, works as a exposure parameter in a camera" -addControl "visual_adaptation_factor";
 		editorTemplate -annotation "How intense is the emitted fire light" -addControl "intensity";
 		editorTemplate -annotation "Transparency scale, 0.5 double transparency, 1 default transparency, 2 double opacity" -label "Opacity" -addControl "transparency";
 		editorTemplate -annotation "If the contribution is smaller than the threshold, no shadow rays for the sample will be computed" -addControl "shadow_threshold";
