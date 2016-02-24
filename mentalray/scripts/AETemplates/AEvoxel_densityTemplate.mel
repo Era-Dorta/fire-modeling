@@ -54,11 +54,13 @@ global proc AEvoxel_densityTemplate ( string $nodeName )
 		
 	editorTemplate -endLayout;
 	
+	editorTemplate -beginLayout "Node Behaviour" -collapse 1;
+		editorTemplate -addControl "caching";
+		editorTemplate -addControl "nodeState";
+	editorTemplate -endLayout;
+	
 	editorTemplate -suppress "min_point";
 	editorTemplate -suppress "max_point";
-	
-	editorTemplate -suppress "caching"; 
-	editorTemplate -suppress "nodeState"; 
 	
 	editorTemplate -endScrollLayout;
 }

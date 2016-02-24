@@ -206,15 +206,15 @@ declare shader
 		scalar "white_point",
 			#: default 0.0
 			#: min 0.0
-			#: softmax 1000
+			#: softmax 1e8
 		scalar "image_exposure",
 			#: default 0
 			#: min 0.0
-			#: softmax 1000
+			#: softmax 1e3
 		scalar "gamma",
 			#: default 2.2
 			#: min 0.0
-			#: softmax 10.0
+			#: softmax 5.0
 		scalar "schlick_coeff",
 			#: default 0.5
 			#: min 0.0
