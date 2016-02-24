@@ -462,7 +462,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		}
 	}
 
-	// Note changing result->color or result->transparecy alpha channel
+	// Note changing result->color or result->transparency alpha channel
 	// has no effect, the transparency is controlled with the transparency
 	// rgb channels
 	miaux_copy_color_scaled(&result->color, &volume_color,
@@ -542,7 +542,7 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			miaux_add_color(&volume_color, &light_color);
 		}
 	}
-	// Note changing result->color or result->transparecy alpha channel
+	// Note changing result->color or result->transparency alpha channel
 	// has no effect, the transparency is controlled with the transparency
 	// rgb channels
 	miaux_copy_color_scaled(&result->color, &volume_color,
