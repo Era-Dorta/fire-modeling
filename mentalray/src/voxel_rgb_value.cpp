@@ -70,7 +70,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 		 * state->options->colorclip always outputs 2 and I cannot figure out
 		 * how to access the rgbe/rgb_fp buffer property
 		 */
-		voxels->setToneMapped(true);
+		voxels->setToneMapped(false);
 
 		// Get the data file path
 		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);

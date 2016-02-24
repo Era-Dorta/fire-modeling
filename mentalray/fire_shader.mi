@@ -199,4 +199,29 @@ declare shader
 	apply light
 end declare
 
+# Tone mapping shader
+
+declare shader
+	color "reinhard_tone_map" (
+		scalar "white_point",
+			#: default 0.0
+			#: min 0.0
+			#: softmax 1000
+		scalar "image_exposure",
+			#: default 0
+			#: min 0.0
+			#: softmax 1000
+		scalar "gamma",
+			#: default 2.2
+			#: min 0.0
+			#: softmax 10.0
+		scalar "schlick_coeff",
+			#: default 0.5
+			#: min 0.0
+			#: max 1
+			)
+	version 1
+	apply output
+end declare
+
 $endif # if not "mental_ray_fire_shader_included"
