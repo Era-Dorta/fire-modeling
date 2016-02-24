@@ -28,8 +28,9 @@ void VoxelDatasetColorSorted::resize(unsigned width, unsigned height,
 }
 
 bool VoxelDatasetColorSorted::compute_soot_absorption_threaded(
-		const std::string& filename) {
-	if (!VoxelDatasetColor::compute_soot_absorption_threaded(filename)) {
+		float visual_adaptation_factor, const std::string& filename) {
+	if (!VoxelDatasetColor::compute_soot_absorption_threaded(
+			visual_adaptation_factor, filename)) {
 		return false;
 	}
 	sort();

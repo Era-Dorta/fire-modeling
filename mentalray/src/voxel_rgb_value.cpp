@@ -65,10 +65,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				(VoxelDatasetColor::InterpolationMode) interpolation_mode);
 
 		/*
-		 * TODO This should be set automatically from the image type, but
-		 * mi_query(miQ_IMAGE_COLORCLIP, ...) is not available here,
-		 * state->options->colorclip always outputs 2 and I cannot figure out
-		 * how to access the rgbe/rgb_fp buffer property
+		 * TODO This should be from an user parameter, assuming the user always
+		 * wants to render in hdr and do post processing tone mapping
 		 */
 		voxels->setToneMapped(false);
 
@@ -135,7 +133,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 				miaux_copy_sparse_voxel_dataset(voxels, state, density_shader,
 						width, height, depth, 1, 0);
 
-				if (!voxels->compute_soot_absorption_threaded(data_file)) {
+				if (!voxels->compute_soot_absorption_threaded(
+						visual_adaptation_factor, data_file)) {
 					// If there was an error clear all for early exit
 					voxels->clear();
 				}

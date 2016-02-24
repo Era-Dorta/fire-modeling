@@ -70,7 +70,7 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 }
 
 bool VoxelDatasetColor::compute_soot_absorption_threaded(
-		const std::string& filename) {
+		float visual_adaptation_factor, const std::string& filename) {
 	if (!read_optical_constants_file(filename)) {
 		return false;
 	}
@@ -80,6 +80,8 @@ bool VoxelDatasetColor::compute_soot_absorption_threaded(
 	scale_coefficients_to_custom_range();
 
 	compute_function_threaded(&VoxelDatasetColor::compute_soot_absorption);
+
+	apply_visual_adaptation(visual_adaptation_factor);
 
 	clear_coefficients();
 
@@ -211,12 +213,8 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 			Spectrum sigma_a_spec = Spectrum::FromSampled(&lambdas[0],
 					&spec_values[0], lambdas.size());
 
-			// Transform the spectrum to RGB coefficients, since CIE is
-			// not fully represented by RGB clamp negative intensities
-			// to zero
-			sigma_a_spec.ToRGB(&density.x());
-
-			clamp(density, 0, 1);
+			// Transform the spectrum to XYZ coefficients
+			sigma_a_spec.ToXYZ(&density.x());
 		} else {
 			// Negative and zero densities
 			density.setZero();
@@ -388,6 +386,36 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 void VoxelDatasetColor::apply_visual_adaptation(
 		float visual_adaptation_factor) {
 
+	// TODO Use mi_colorprofile_... functions
+	// If true output will be in RGB otherwise it will be in the XYZ colorspace
+	const bool isRGB = mi_colorprofile_renderspace_id()
+			!= mi_colorprofile_ciexyz_color_id();
+
+	if (!tone_mapped) {
+		// Convert the values to current colorprofile and exit
+		for (auto iter = block->beginValueOn(); iter; ++iter) {
+			if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
+				openvdb::Vec3f color_adapted;
+
+				openvdb::Vec3f color_xyz = iter.getValue();
+
+				if (isRGB) {
+					XYZToRGB(&color_xyz.x(), &color_adapted.x());
+				} else {
+					color_adapted = color_xyz;
+				}
+
+				// Remove negative values
+				clamp(color_adapted, 0, FLT_MAX);
+
+				remove_specials(color_adapted);
+
+				iter.setValue(color_adapted);
+			}
+		}
+		return;
+	}
+
 	// This section is heavily inspired by the Reinhard Tone Mapping code
 	// in https://github.com/banterle/HDR_Toolbox
 	const float inv_gamma = 1.0 / 2.2;
@@ -419,11 +447,6 @@ void VoxelDatasetColor::apply_visual_adaptation(
 
 	mi_info("Estimated exposure in tone mapping: %f", pAlpha);
 
-	// TODO Use mi_colorprofile_... functions
-	// If true output will be in RGB otherwise it will be in the XYZ colorspace
-	const bool isRGB = mi_colorprofile_internalspace_id()
-			!= mi_colorprofile_ciexyz_color_id();
-
 	// Compute visual adaptation with the previous value
 	for (auto iter = block->beginValueOn(); iter; ++iter) {
 		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
@@ -440,47 +463,39 @@ void VoxelDatasetColor::apply_visual_adaptation(
 			// Remove negative RGB values
 			clamp(color_rgb, 0, FLT_MAX);
 
-			if (tone_mapped) {
+			// Compute new luminance as in Reinhard et. al. 2002
+			// "Photographic tone reproduction for digital images"
+			float new_l = (pAlpha * color_xyz.y()) / exp_mean_log;
+			new_l = (new_l * (1 + new_l / pWhite2)) / (1 + new_l);
 
-				// Compute new luminance as in Reinhard et. al. 2002
-				// "Photographic tone reproduction for digital images"
-				float new_l = (pAlpha * color_xyz.y()) / exp_mean_log;
-				new_l = (new_l * (1 + new_l / pWhite2)) / (1 + new_l);
+			// Apply luminance change to the original RGB color
+			color_rgb_adapted = (color_rgb * new_l) / color_xyz.y();
 
-				// Apply luminance change to the original RGB color
-				color_rgb_adapted = (color_rgb * new_l) / color_xyz.y();
+			remove_specials(color_rgb_adapted);
 
-				remove_specials(color_rgb_adapted);
-
-				if (isRGB) {
-					RGBToXYZ(&color_rgb_adapted.x(), &color_xyz.x());
-				} else {
-					color_xyz = color_rgb_adapted;
-				}
-
-				// Apply Schlick color correction, with 0.5 coefficient -> sqrt
-				color_rgb_adapted.x() = sqrt(
-						color_rgb_adapted.x() / color_xyz.y()) * color_xyz.y();
-				color_rgb_adapted.y() = sqrt(
-						color_rgb_adapted.y() / color_xyz.y()) * color_xyz.y();
-				color_rgb_adapted.z() = sqrt(
-						color_rgb_adapted.z() / color_xyz.y()) * color_xyz.y();
-
-				remove_specials(color_rgb_adapted);
-
-				// Apply Gamma correction, with Gamma 2.2
-				color_rgb_adapted.x() = pow(color_rgb_adapted.x(), inv_gamma);
-				color_rgb_adapted.y() = pow(color_rgb_adapted.y(), inv_gamma);
-				color_rgb_adapted.z() = pow(color_rgb_adapted.z(), inv_gamma);
-
-				// Final clamping for [0..1] RGB space
-				clamp(color_rgb_adapted, 0, 1);
+			if (isRGB) {
+				RGBToXYZ(&color_rgb_adapted.x(), &color_xyz.x());
 			} else {
-				// Without tone mapping simply copy the color and remove any nan
-				// and inf values
-				color_rgb_adapted = color_rgb;
-				remove_specials(color_rgb_adapted);
+				color_xyz = color_rgb_adapted;
 			}
+
+			// Apply Schlick color correction, with 0.5 coefficient -> sqrt
+			color_rgb_adapted.x() = sqrt(color_rgb_adapted.x() / color_xyz.y())
+					* color_xyz.y();
+			color_rgb_adapted.y() = sqrt(color_rgb_adapted.y() / color_xyz.y())
+					* color_xyz.y();
+			color_rgb_adapted.z() = sqrt(color_rgb_adapted.z() / color_xyz.y())
+					* color_xyz.y();
+
+			remove_specials(color_rgb_adapted);
+
+			// Apply Gamma correction, with Gamma 2.2
+			color_rgb_adapted.x() = pow(color_rgb_adapted.x(), inv_gamma);
+			color_rgb_adapted.y() = pow(color_rgb_adapted.y(), inv_gamma);
+			color_rgb_adapted.z() = pow(color_rgb_adapted.z(), inv_gamma);
+
+			// Final clamping for [0..1] RGB space
+			clamp(color_rgb_adapted, 0, 1);
 
 			iter.setValue(color_rgb_adapted);
 		}

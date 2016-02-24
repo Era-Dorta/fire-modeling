@@ -24,7 +24,8 @@ public:
 	virtual bool compute_black_body_emission_threaded(
 			float visual_adaptation_factor, BB_TYPE bb_type,
 			const std::string& filename = "");
-	virtual bool compute_soot_absorption_threaded(const std::string& filename);
+	virtual bool compute_soot_absorption_threaded(
+			float visual_adaptation_factor, const std::string& filename);
 	virtual bool compute_chemical_absorption_threaded(
 			float visual_adaptation_factor, const std::string& filename);
 	const miColor& get_max_voxel_value();
