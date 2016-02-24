@@ -25,6 +25,9 @@ Fire Shader for Mental Ray in Maya
   * Both paths should be for the first file in a data sequence
   * The file name format requires the frame number to be located in the end of the name, e.g. ```my-file-001.raw```
   * Batch rendering is not supported with the GUI, the input files will not update; instead render from the command line with the ```Render``` command with the ```-perframe``` flag.
+* A tone mapping shader can be used for HDR to LDR convertion, otherwise HDR rendering can be performed if a compatible file format is selected, e.g. tiff, hdr or exr.  
+  * The following command can be used to conect a tone map shader to a camera ```connectAttr  "my tone map shader".message "my camera shape".miOutputShader```.
+  * A custom tone mapping shader `reinhard_tone_map` is provided in addition to Mental Ray default shaders `mia_exposure_photographic` and `mia_exposure_simple`.
 * The shader will automatically advance to new data files when the playback frame changes in Maya
 * All the parameters that affect the result of the shading network can be modified from the ```fire_volume_shader``` attribute editor
   * On each execution the shader will output the upper limit for ```High Samples``` for the current data in the Mental Ray log.
@@ -33,7 +36,7 @@ Fire Shader for Mental Ray in Maya
 #### Known issues
 * **Wrong data file paths**: data file paths are automatically set only when the file dialog is used. If the attributes are set via mel commands or copying and pasting, the hidden attributes `density_file_first` and `temperature_file_first` must be set to the data relative paths. Then `density_file` and `temperature_file` can be updated by either calling the mel script `fireFrameUpdate(<fire_volume_shader>)`, going manually to a new frame or with the `setAttr` command where the new path is the full path to the data file.
 * **Flame does not appear on saved images**: go the cameraShape, Environment section, Image Plane -> Create, on the image plane change the Type to Texture and in Texture attach a lambert node with your preferred background colour.
-* **Tooltip clarification**: the help values indicated in scale attributes of the shader refer to the mean of the data after they are applied, e.g. if the mean of your temperature voxel data is 10 units then the scale should be around 200 so that the final temperatures are around 2000K. Note that the mean, max and other values are outputted in the Mental Ray log when the verbosity is set to 5 (info messages).
+* **Tooltip clarification**: the help values indicated in scale attributes of the shader refer to the mean of the data after they are applied, e.g. if the mean of your temperature voxel data is 10 units then the scale should be around 150 so that the final temperatures are in the range of 1000K to 2000K. Note that the mean, max and other values are outputted in the Mental Ray log if the verbosity is set to 4 or more (info messages).
 * **Maya .mb scenes**: the scenes which use the shader must be saved in the `.ma` ascii format
 * **Sequence does not update on batch rendering**: due to internal animation optimizations Mental Ray does not call the update script during batch rendering, the workaround is to batch render in the console with `Render -r mr -perframe -s <start_frame_number> -e <end_frame_number> <path_to_scene_file>`
 
