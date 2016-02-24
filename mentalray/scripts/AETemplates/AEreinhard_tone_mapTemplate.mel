@@ -1,0 +1,23 @@
+global proc AEreinhard_tone_mapTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -beginLayout "Tone Mapping" -collapse 0;
+			
+		editorTemplate -annotation "White point luminance in cd/m^2, set to 0 for automatic estimation" -addControl "white_point";
+		editorTemplate -annotation "Image exposure value, set to 0 for automatic estimation" -addControl "image_exposure";
+		
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Color Correction" -collapse 0;
+		editorTemplate -annotation "Monitor gamma value for gamma correction" -addControl "gamma";
+		editorTemplate -annotation "Color correction coefficient, controls image saturation" -addControl "schlick_coeff";
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Node Behaviour" -collapse 1;
+		editorTemplate -addControl "caching";
+		editorTemplate -addControl "nodeState"; 
+	editorTemplate -endLayout;
+	
+	editorTemplate -endScrollLayout;
+}
