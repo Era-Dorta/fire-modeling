@@ -45,6 +45,62 @@ static void clamp(miColor& v, float min, float max) {
 	clamp(v.b, min, max);
 }
 
+void extract_luminance_parameters(miState* state, const miImg_image* fb_color,
+		float& lMax, float& lMin, float& exp_mean_log) {
+	int x, y;
+	miColor color_xyz;
+
+	lMax = 0;
+	lMin = FLT_MAX;
+	exp_mean_log = 0;
+
+	// Computer the e^(mean(luminance)), max luminance and min luminance
+	for (y = 0; y < state->camera->y_resolution; y++) {
+		if (mi_par_aborted()) {
+			break;
+		}
+		for (x = 0; x < state->camera->x_resolution; x++) {
+
+			mi_img_get_color(fb_color, &color_xyz, x, y);
+			mi_colorprofile_render_to_ciexyz(&color_xyz);
+
+			if (lMax < color_xyz.g) {
+				lMax = color_xyz.g;
+			}
+			if (lMin > color_xyz.g) {
+				lMin = color_xyz.g;
+			}
+
+			exp_mean_log += log(color_xyz.g + 1e-6);
+		}
+	}
+	exp_mean_log /= state->camera->y_resolution * state->camera->x_resolution;
+	exp_mean_log = exp(exp_mean_log);
+}
+
+float estimate_white_point(const miScalar white_point, const float log2Max,
+		const float log2Min) {
+	float pWhite2;
+	if (white_point == 0) {
+		pWhite2 = 1.5 * pow(2, log2Max - log2Min - 5);
+	} else {
+		pWhite2 = white_point;
+	}
+	return pWhite2 * pWhite2;
+}
+
+float estimate_img_exposure(const miScalar image_exposure, float exp_mean_log,
+		const float log2Min, const float log2Max) {
+	if (image_exposure == 0) {
+		return 0.18
+				* pow(4,
+						((2.0 * log2(exp_mean_log + 1e-9) - log2Min - log2Max)
+								/ (log2Max - log2Min)));
+	} else {
+		return image_exposure;
+	}
+}
+
 extern "C" DLLEXPORT int reinhard_tone_map_version(void) {
 	return 1;
 }
@@ -56,78 +112,43 @@ extern "C" DLLEXPORT miBoolean reinhard_tone_map(void *result, miState *state,
 	const miScalar gamma = *mi_eval_scalar(&paras->gamma);
 	const miScalar schlick_coeff = *mi_eval_scalar(&paras->schlick_coeff);
 
-	int x, y;
-	miColor color, color_xyz;
-	miImg_image *fb_color;
-	const int num_pixels = state->camera->y_resolution
-			* state->camera->x_resolution;
-
 	// This section is heavily inspired by the Reinhard Tone Mapping code
 	// in https://github.com/banterle/HDR_Toolbox
-	const float inv_gamma = 1.0 / gamma;
-	float lMax = 0, lMin = FLT_MAX;
+	if(gamma <= 0){
+		mi_error("reinhard_tone_map: Gamma must be a positive scalar");
+		return miTRUE;
+	}
 
-	fb_color = mi_output_image_open(state, miRC_IMAGE_RGBA);
+	const float inv_gamma = 1.0 / gamma;
+
+	// Open the color buffer
+	miImg_image *fb_color = mi_output_image_open(state, miRC_IMAGE_RGBA);
+
+	float lMax, lMin, exp_mean_log;
 
 	// Computer the e^(mean(luminance)), max luminance and min luminance
-	float exp_mean_log = 0;
-	for (y = 0; y < state->camera->y_resolution; y++) {
-		if (mi_par_aborted()) {
-			break;
-		}
-		for (x = 0; x < state->camera->x_resolution; x++) {
-			mi_img_get_color(fb_color, &color, x, y);
-
-			miaux_copy_color(&color_xyz, &color);
-
-			mi_colorprofile_render_to_ciexyz(&color_xyz);
-
-			if (lMax < color_xyz.g) {
-				lMax = color_xyz.g;
-			}
-
-			if (lMin > color_xyz.g) {
-				lMin = color_xyz.g;
-			}
-
-			exp_mean_log += log(color_xyz.g + 1e-6);
-		}
-	}
-	exp_mean_log = exp(exp_mean_log / num_pixels);
+	extract_luminance_parameters(state, fb_color, lMax, lMin, exp_mean_log);
 
 	const float log2Max = log2(lMax + 1e-9);
 	const float log2Min = log2(lMin + 1e-9);
 
 	// Estimate the white point luminance
-	float pWhite2;
-	if (white_point == 0) {
-		pWhite2 = 1.5 * pow(2, log2Max - log2Min - 5);
-	} else {
-		pWhite2 = white_point;
-	}
-	pWhite2 = pWhite2 * pWhite2;
+	const float pWhite2 = estimate_white_point(white_point, log2Max, log2Min);
 
 	// Estimate the image exposure
-	float pAlpha;
-	if (image_exposure == 0) {
-		pAlpha = 0.18
-				* pow(4,
-						((2.0 * log2(exp_mean_log + 1e-9) - log2Min - log2Max)
-								/ (log2Max - log2Min)));
-	} else {
-		pAlpha = image_exposure;
-	}
+	const float pAlpha = estimate_img_exposure(image_exposure, exp_mean_log,
+			log2Min, log2Max);
 
 	mi_info("Exposure: %f, White: %f, Gamma: %f, Schlick %f", pAlpha, pWhite2,
 			gamma, schlick_coeff);
 
 	// Compute visual adaptation with the previous value
-	for (y = 0; y < state->camera->y_resolution; y++) {
+	for (int y = 0; y < state->camera->y_resolution; y++) {
 		if (mi_par_aborted()) {
 			break;
 		}
-		for (x = 0; x < state->camera->x_resolution; x++) {
-			miColor color_rgb_adapted, color_rgb;
+		for (int x = 0; x < state->camera->x_resolution; x++) {
+			miColor color_rgb_adapted, color_rgb, color_xyz;
 
 			mi_img_get_color(fb_color, &color_rgb, x, y);
 
