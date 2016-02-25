@@ -202,7 +202,7 @@ end declare
 # Tone mapping shader
 
 declare shader
-	color "reinhard_tone_map" (
+	"reinhard_tone_map" (
 		scalar "white_point",
 			#: default 0.0
 			#: min 0.0

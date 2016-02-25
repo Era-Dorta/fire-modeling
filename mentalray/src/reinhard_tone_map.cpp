@@ -45,6 +45,10 @@ static void clamp(miColor& v, float min, float max) {
 	clamp(v.b, min, max);
 }
 
+extern "C" DLLEXPORT int reinhard_tone_map_version(void) {
+	return 1;
+}
+
 extern "C" DLLEXPORT miBoolean reinhard_tone_map(void *result, miState *state,
 		struct reinhard_tone_map *paras) {
 	const miScalar white_point = *mi_eval_scalar(&paras->white_point);
@@ -119,7 +123,7 @@ extern "C" DLLEXPORT miBoolean reinhard_tone_map(void *result, miState *state,
 
 	// Compute visual adaptation with the previous value
 	for (y = 0; y < state->camera->y_resolution; y++) {
-		if (mi_par_aborted()){
+		if (mi_par_aborted()) {
 			break;
 		}
 		for (x = 0; x < state->camera->x_resolution; x++) {
