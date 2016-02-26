@@ -49,7 +49,7 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 
 		// Densities coefficients need to be scale up heavily here so that the
 		// user does not need to use insane density scale parameters
-		scale_coefficients_to_custom_range();
+		scale_coefficients_to_physical_range();
 		break;
 	}
 	case BB_CHEM: {
@@ -77,7 +77,7 @@ bool VoxelDatasetColor::compute_soot_absorption_threaded(
 
 	compute_soot_constant_coefficients();
 
-	scale_coefficients_to_custom_range();
+	scale_coefficients_to_physical_range();
 
 	compute_function_threaded(&VoxelDatasetColor::compute_soot_absorption);
 
@@ -661,7 +661,7 @@ void VoxelDatasetColor::safe_ascii_read(std::ifstream& fp, T &output) {
 	}
 }
 
-void VoxelDatasetColor::scale_coefficients_to_custom_range() {
+void VoxelDatasetColor::scale_coefficients_to_physical_range() {
 	/* Our input data is in the range of [0..1], when the physical densities are
 	 * several orders of magnitude higher, as they represent the number of
 	 * molecules per unit volume

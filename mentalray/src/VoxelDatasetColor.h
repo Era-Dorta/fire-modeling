@@ -55,7 +55,7 @@ private:
 	bool read_optical_constants_file(const std::string& filename);
 	template<typename T>
 	void safe_ascii_read(std::ifstream& fp, T &output);
-	void scale_coefficients_to_custom_range();
+	void scale_coefficients_to_physical_range();
 	void clear_coefficients();
 
 protected:
