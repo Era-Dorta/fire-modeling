@@ -71,7 +71,7 @@ private:
 	std::vector<float> phi;
 	std::vector<float>& n = phi;
 	std::vector<float> A21;
-	std::vector<float>& nk = A21;
+	std::vector<float>& k = A21;
 	std::vector<float> E1;
 	std::vector<float>& soot_coef = E1;
 	std::vector<float> E2;

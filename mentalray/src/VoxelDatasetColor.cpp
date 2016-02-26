@@ -176,11 +176,6 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 	// compute lambda^alpha_lambda in compute_sigma_a, in any case I don't think
 	// it makes sense, as we do not have more n or k data
 	soot_coef.resize(n.size());
-	std::vector<float> k(n.size());
-
-	for (unsigned i = 0; i < n.size(); i++) {
-		k[i] = nk[i] / n[i];
-	}
 
 	// In m^3
 	float pi_r3_36 = (4.0f / 3.0f) * M_PI * soot_radius * soot_radius
@@ -193,9 +188,9 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 		// Convert wavelengths to m, result looks like is 1/m^(alpha_lambda)
 		// but because its an empirical fit we can assume that it outputs the
 		// right units
-		soot_coef[i] = pi_r3_36 * nk[i]
+		soot_coef[i] = pi_r3_36 * n[i] * k[i]
 				/ (std::pow(lambdas[i] * 1e-9, alpha_lambda)
-						* (n2_k2_2 + 4 * nk[i] * nk[i]));
+						* (n2_k2_2 + 4 * n[i] * k[i] * n[i] * k[i]));
 	}
 }
 
@@ -630,12 +625,12 @@ bool VoxelDatasetColor::read_optical_constants_file(
 
 		// Optical constants, dimensionless
 		n.resize(num_lines);
-		nk.resize(num_lines);
+		k.resize(num_lines);
 
 		for (unsigned i = 0; i < num_lines; i++) {
 			safe_ascii_read(fp, lambdas[i]);
 			safe_ascii_read(fp, n[i]);
-			safe_ascii_read(fp, nk[i]);
+			safe_ascii_read(fp, k[i]);
 		}
 		fp.close();
 		return true;
