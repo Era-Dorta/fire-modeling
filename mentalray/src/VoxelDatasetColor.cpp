@@ -19,7 +19,7 @@ VoxelDatasetColor::VoxelDatasetColor() :
 	soot_radius = 0;
 	alpha_lambda = 0;
 	bb_type = BB_ONLY;
-	tone_mapped = true;
+	tone_mapped = false;
 }
 
 VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
@@ -29,7 +29,7 @@ VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
 	soot_radius = 0;
 	alpha_lambda = 0;
 	bb_type = BB_ONLY;
-	tone_mapped = true;
+	tone_mapped = false;
 }
 
 bool VoxelDatasetColor::compute_black_body_emission_threaded(
