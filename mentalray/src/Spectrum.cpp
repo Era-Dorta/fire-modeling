@@ -227,12 +227,17 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 
 	for (int i = 0; i < n; ++i) {
 		/*
-		 * Black body radiation with Planck's formula, use standard SI units,
-		 * switch wavelengths from nm to m
+		 * Black body radiation with Planck's formula, using standard SI units,
+		 * convert wavelengths from nm to m
 		 */
 		vals[i] = C1
 				/ (std::pow(wl[i] * 1e-9, 5.0)
 						* (exp(C2 / (wl[i] * 1e-9)) - 1.0));
+
+		// Convert final result from J/(s * m^3 * sr) to J/(s * m^2 * sr * nm),
+		// because that is what it is given by Pegoraro and leaving the
+		// intensity in the original units produces bad results
+		vals[i] = vals[i] * 1e-9;
 	}
 }
 
