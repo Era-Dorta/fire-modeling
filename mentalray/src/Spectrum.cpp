@@ -197,7 +197,7 @@ void Blackbody(const float *wl, int n, float temp, float *vals) {
 								* (exp(C2 / (wl[i] * temp)) - 1.)));
 }
 
-#define BB_IN_NANOMETRES
+//#define BB_IN_NANOMETRES
 // Data from Optical Constants of Soot and Their Application to Heat-Flux
 // Calculations, 1969
 namespace BB {
@@ -226,8 +226,13 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 	const double C2 = (BB::h * c) / (BB::k * temp);
 
 	for (int i = 0; i < n; ++i) {
-		// Black body radiation with Planck's formula
-		vals[i] = C1 / (std::pow(wl[i], 5.0) * (exp(C2 / wl[i]) - 1.0));
+		/*
+		 * Black body radiation with Planck's formula, use standard SI units,
+		 * switch wavelengths from nm to m
+		 */
+		vals[i] = C1
+				/ (std::pow(wl[i] * 1e-9, 5.0)
+						* (exp(C2 / (wl[i] * 1e-9)) - 1.0));
 	}
 }
 
