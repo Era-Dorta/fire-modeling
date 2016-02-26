@@ -139,8 +139,9 @@ public:
 #endif // DEBUG
 	void Print(FILE *f) const {
 		for (int i = 0; i < nSamples; ++i) {
-			fprintf(f, "%f\n", c[i]);
+			fprintf(f, "%f ", c[i]);
 		}
+		fprintf(f, "\n");
 	}
 
 	CoefficientSpectrum &operator+=(const CoefficientSpectrum &s2) {
