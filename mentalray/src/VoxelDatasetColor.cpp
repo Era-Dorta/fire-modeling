@@ -186,23 +186,16 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 	float pi_r3_36 = (4.0f / 3.0f) * M_PI * soot_radius * soot_radius
 			* soot_radius * 36.0f * M_PI;
 
-	const float alpha_to_one = alpha_lambda - 1;
-
 	for (unsigned i = 0; i < n.size(); i++) {
 		miScalar n2_k2_2 = n[i] * n[i] - k[i] * k[i] + 2;
 		n2_k2_2 = n2_k2_2 * n2_k2_2;
 
-		// Convert wavelengths to m, result is in 1/m^(alpha_lambda)
+		// Convert wavelengths to m, result looks like is 1/m^(alpha_lambda)
+		// but because its an empirical fit we can assume that it outputs the
+		// right units
 		soot_coef[i] = pi_r3_36 * nk[i]
 				/ (std::pow(lambdas[i] * 1e-9, alpha_lambda)
 						* (n2_k2_2 + 4 * nk[i] * nk[i]));
-
-		// Convert from 1/m^(alpha_lambda) to 1/m
-		if (alpha_to_one >= 0) {
-			soot_coef[i] = soot_coef[i] * pow(soot_coef[i], alpha_to_one);
-		} else {
-			soot_coef[i] = soot_coef[i] / pow(soot_coef[i], -alpha_to_one);
-		}
 	}
 }
 
