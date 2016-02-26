@@ -413,6 +413,11 @@ void VoxelDatasetColor::apply_visual_adaptation(
 				iter.setValue(color_adapted);
 			}
 		}
+
+		max_color.r = accessor.getValue(max_ind).x();
+		max_color.g = accessor.getValue(max_ind).y();
+		max_color.b = accessor.getValue(max_ind).z();
+
 		return;
 	}
 
