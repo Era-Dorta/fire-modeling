@@ -662,12 +662,14 @@ void VoxelDatasetColor::safe_ascii_read(std::ifstream& fp, T &output) {
 }
 
 void VoxelDatasetColor::scale_coefficients_to_physical_range() {
-	/* Our input data is in the range of [0..1], when the physical densities are
+	/* Our input data is in the range of [0..10], when the physical densities are
 	 * several orders of magnitude higher, as they represent the number of
-	 * molecules per unit volume
+	 * molecules per unit volume. We are effectively multiplying the densities
+	 * by this scale factor.
+	 * https://en.wikipedia.org/wiki/Number_density
 	 */
 	for (auto iter = soot_coef.begin(); iter != soot_coef.end(); ++iter) {
-		*iter *= 1e12;
+		*iter *= 1e27;
 	}
 }
 
