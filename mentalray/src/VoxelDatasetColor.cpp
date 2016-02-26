@@ -178,19 +178,19 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 	soot_coef.resize(n.size());
 
 	// In m^3
-	float pi_r3_36 = (4.0f / 3.0f) * M_PI * soot_radius * soot_radius
+	double pi_r3_36 = (4.0f / 3.0f) * M_PI * soot_radius * soot_radius
 			* soot_radius * 36.0f * M_PI;
 
 	for (unsigned i = 0; i < n.size(); i++) {
-		miScalar n2_k2_2 = n[i] * n[i] - k[i] * k[i] + 2;
+		double n2_k2_2 = n[i] * n[i] - k[i] * k[i] + 2;
 		n2_k2_2 = n2_k2_2 * n2_k2_2;
 
-		// Convert wavelengths to m, result looks like is 1/m^(alpha_lambda)
-		// but because its an empirical fit we can assume that it outputs the
-		// right units
-		soot_coef[i] = pi_r3_36 * n[i] * k[i]
-				/ (std::pow(lambdas[i] * 1e-9, alpha_lambda)
-						* (n2_k2_2 + 4 * n[i] * k[i] * n[i] * k[i]));
+		// Convert wavelengths to micrometers, result looks like is
+		// 1/micrometer^(alpha_lambda) but because its an empirical fit we can
+		// assume that it outputs the right units
+		soot_coef[i] = (pi_r3_36 * n[i] * k[i])
+				/ (std::pow(lambdas[i] * 1e-3, alpha_lambda)
+						* (n2_k2_2 + 4 * n[i] * n[i] * k[i] * k[i]));
 	}
 }
 
@@ -657,7 +657,7 @@ void VoxelDatasetColor::scale_coefficients_to_physical_range() {
 	 * https://en.wikipedia.org/wiki/Number_density
 	 */
 	for (auto iter = soot_coef.begin(); iter != soot_coef.end(); ++iter) {
-		*iter *= 1e27;
+		*iter *= 1e25;
 	}
 }
 
