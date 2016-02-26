@@ -54,10 +54,19 @@ for molecule in molecules:
     #     describeTable(molecule.name)
         nu, sw = getColumns(molecule.name, ['nu', 'sw'])
         
-        nu1,coef = absorptionCoefficient_Lorentz(SourceTables=molecule.name)
-        nu2,absorp = absorptionSpectrum(nu1,coef)
-        nu3,radi = radianceSpectrum(nu1,coef)
+        nu1, coef = absorptionCoefficient_Lorentz(SourceTables=molecule.name)
+        nu2, absorp = absorptionSpectrum(nu1, coef)
+        nu3, radi = radianceSpectrum(nu1, coef)
             
+        # Normalize the intensities
+        max_sw = 0
+        for i in range(len(sw)):
+            if sw[i] > max_sw:
+                max_sw = sw[i]
+        
+        for i in range(len(sw)):
+            sw[i] /= max_sw
+                        
         # Convert to wavelengths in nm again
         for i in range(len(nu)):
             nu[i] = 1e7 / nu[i]
