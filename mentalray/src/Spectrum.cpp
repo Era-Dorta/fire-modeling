@@ -202,6 +202,11 @@ void Blackbody(const float *wl, int n, float temp, float *vals) {
 // Calculations, 1969
 namespace BB {
 const static double inv_8_pi = 1.0 / (8 * M_PI);
+
+// Converts 1/cm to Joules, first factor converts to eV and the second to J,
+// note that 1/cm for electrons is an energy unit
+const static double cmtoJ = 1.23984e4 * 1.602176565e-19;
+
 #ifdef BB_IN_NANOMETRES
 const static double k = 1.3806488e-5; // Bolztmann constant in (kg nm^2)/s^2
 const static double h = 6.62606957e-16; // Planck constant in (kg nm^2)/s^2
@@ -272,10 +277,11 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity,
 	for (int i = 0; i < n; ++i) {
 		// E data comes in 1/cm but we need it in 1/m
 		const double N2 = (density * (g2[i] / g1[i])
-				* exp((E1[i] * 100 - E2[i] * 100) * inv_kt));
-		// Absorption coefficient
-		vals[i] = C1 * intensity[i] * A21[i] * N2 * pow(wl[i], 4.0)
-				* ((exp(C2 / wl[i]) - 1.0));
+				* exp((E1[i] * BB::cmtoJ - E2[i] * BB::cmtoJ) * inv_kt));
+
+		// Absorption coefficient, in 1/m
+		vals[i] = C1 * intensity[i] * A21[i] * N2 * pow(wl[i] * 1e-9, 4.0)
+				* ((exp(C2 / (wl[i] * 1e-9)) - 1.0));
 	}
 }
 
