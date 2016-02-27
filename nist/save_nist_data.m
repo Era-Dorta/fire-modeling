@@ -44,9 +44,8 @@ for i=1:size(spec, 2)
             specline_data(valid_ind, 1) = nistln(ii).meanor;
             specline_data(valid_ind, 2) = nistln(ii).rint/mxrint;
             specline_data(valid_ind, 3) = nistln(ii).Aki;
-            % Energies come in cm^-1, convert to nm^-1
-            specline_data(valid_ind, 4) = nistln(ii).Ei * 1e-7;
-            specline_data(valid_ind, 5) = nistln(ii).Ek * 1e-7;
+            specline_data(valid_ind, 4) = nistln(ii).Ei;
+            specline_data(valid_ind, 5) = nistln(ii).Ek;
             % g1 and g2 are in a string '%d - %d'
             C = textscan(nistln(ii).gigk,'%d%s%d');
             specline_data(valid_ind, 6) = C{1};
@@ -60,6 +59,6 @@ for i=1:size(spec, 2)
     fprintf(fileID, '%d\n',num_valid);
     % Each file line corresponds to a visible is a spectrum line:
     % \lambda \phi A21 E1 E2 g1 g2
-    fprintf(fileID, '%f %f %f %f %f %d %d\n',specline_data');
+    fprintf(fileID, '%e %e %e %e %e %d %d\n',specline_data');
     fclose(fileID);
 end
