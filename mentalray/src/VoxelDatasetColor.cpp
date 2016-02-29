@@ -187,7 +187,7 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 
 		// Convert wavelengths to micrometers, result looks like is
 		// 1/micrometer^(alpha_lambda) but because its an empirical fit we can
-		// assume that it outputs the right units
+		// assume that it outputs the right units, 1/m
 		soot_coef[i] = (pi_r3_36 * n[i] * k[i])
 				/ (std::pow(lambdas[i] * 1e-3, alpha_lambda)
 						* (n2_k2_2 + 4 * n[i] * n[i] * k[i] * k[i]));
@@ -254,7 +254,7 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 			// Compute the chemical absorption spectrum values, as we are
 			// normalizing afterwards, the units used here don't matter
 			ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0], &E2[0],
-					&g1[0], &g2[0], lambdas.size(), t.x(), 1, t.y(),
+					&g1[0], &g2[0], lambdas.size(), t.x(), 1, t.y() * 1e26,
 					&spec_values[0]);
 
 			// Create a Spectrum representation with the computed values
@@ -348,8 +348,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				// Compute the chemical absorption spectrum values, as we are
 				// normalizing afterwards, the units used here don't matter
 				ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0],
-						&E2[0], &g1[0], &g2[0], lambdas.size(), t.x(), 1, t.y(),
-						&other_spec_values[0]);
+						&E2[0], &g1[0], &g2[0], lambdas.size(), t.x(), 1,
+						t.y() * 1e26, &other_spec_values[0]);
 
 				// Create a Spectrum representation with the computed values
 				// Spectrum expects the wavelengths to be in nanometres
@@ -655,14 +655,14 @@ void VoxelDatasetColor::safe_ascii_read(std::ifstream& fp, T &output) {
 }
 
 void VoxelDatasetColor::scale_coefficients_to_physical_range() {
-	/* Our input data is in the range of [0..10], when the physical densities are
+	/* Our input data is in the range of [0..10], yet the physical densities are
 	 * several orders of magnitude higher, as they represent the number of
 	 * molecules per unit volume. We are effectively multiplying the densities
 	 * by this scale factor.
 	 * https://en.wikipedia.org/wiki/Number_density
 	 */
 	for (auto iter = soot_coef.begin(); iter != soot_coef.end(); ++iter) {
-		*iter *= 1e25;
+		*iter *= 1e26;
 	}
 }
 
