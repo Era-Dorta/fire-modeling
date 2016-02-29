@@ -198,23 +198,29 @@ void Blackbody(const float *wl, int n, float temp, float *vals) {
 }
 
 //#define BB_IN_NANOMETRES
-// Data from Optical Constants of Soot and Their Application to Heat-Flux
-// Calculations, 1969
+// Common spectral constants
+//#define BB_IN_MICROMETERS
 namespace BB {
 const static double inv_8_pi = 1.0 / (8 * M_PI);
 
-// Converts 1/cm to Joules, first factor converts to eV and the second to J,
-// note that 1/cm for electrons is an energy unit
-const static double cmtoJ = 1.23984e4 * 1.602176565e-19;
+#ifdef BB_IN_MICROMETERS
+const static double k = 1.3806488e-11; // Bolztmann constant in kg num^2 s^-2 K^-1
+const static double h = 6.62606957e-22;// Planck constant in kg num^2 s
+const static double c0 = 299792458e6;// Speed of light in num/s
+const static double toM = 1e-3;
+const static double toMinv = 1e6;
 
-#ifdef BB_IN_NANOMETRES
-const static double k = 1.3806488e-5; // Bolztmann constant in (kg nm^2)/s^2
-const static double h = 6.62606957e-16; // Planck constant in (kg nm^2)/s^2
-const static double c0 = 299792458e9; // Speed of light in nm/s
+const static double cmtoJ = BB::h * BB::c0 * 1e2 * (1 / toMinv);// kg num^2 s^-2
 #else
 const static double k = 1.3806488e-23; // Bolztmann constant in J/K
-const static double h = 6.62606957e-34;// Planck constant in J/s
-const static double c0 = 299792458;// Speed of light m/s
+const static double h = 6.62606957e-34; // Planck constant in J s
+const static double c0 = 299792458; // Speed of light m/s
+const static double toM = 1e-9;
+const static double toMinv = 1;
+
+// Converts 1/cm to Joules, E = hc / lambda -> h * c * 1e2
+// http://physics.nist.gov/cgi-bin/cuu/CCValue?minvj|ShowFirst=meter
+const static double cmtoJ = BB::h * BB::c0 * 1e2;
 #endif
 }
 
@@ -233,16 +239,13 @@ extern void Blackbody(const float *wl, int n, float temp, float r_index,
 	for (int i = 0; i < n; ++i) {
 		/*
 		 * Black body radiation with Planck's formula, using standard SI units,
-		 * convert wavelengths from nm to m
+		 * convert wavelengths from nm to m, multiply one of the wavelenghts in
+		 * nm to convert from J/(s * m^3 * sr) to J/(s * m^2 * sr * nm),
 		 */
 		vals[i] = C1
-				/ (std::pow(wl[i] * 1e-9, 5.0)
-						* (exp(C2 / (wl[i] * 1e-9)) - 1.0));
+				/ (std::pow(wl[i] * BB::toM, 4.0) * wl[i]
+						* (exp(C2 / (wl[i] * BB::toM)) - 1.0));
 
-		// Convert final result from J/(s * m^3 * sr) to J/(s * m^2 * sr * nm),
-		// because that is what it is given by Pegoraro and leaving the
-		// intensity in the original units produces bad results
-		vals[i] = vals[i] * 1e-9;
 	}
 }
 
@@ -274,14 +277,19 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity,
 	const double C2 = (BB::h * c) / (BB::k * temp);
 	const double inv_kt = 1.0 / (BB::k * temp);
 
+	// Convert density to 1 / num^3 or to 1/m^3
+	density /= BB::toMinv * BB::toMinv * BB::toMinv;
+
 	for (int i = 0; i < n; ++i) {
-		// E data comes in 1/cm but we need it in 1/m
-		const double N2 = (density * (g2[i] / g1[i])
-				* exp((E1[i] * BB::cmtoJ - E2[i] * BB::cmtoJ) * inv_kt));
+		// E data comes in 1/cm convert to Joules so that the exp is
+		// dimensionless. Cast one of the g to double to force floating point
+		// division, as both of them as int
+		const double N2 = (density * (static_cast<double>(g2[i]) / g1[i])
+				* exp((E1[i] - E2[i]) * BB::cmtoJ * inv_kt));
 
 		// Absorption coefficient, in 1/m
-		vals[i] = C1 * intensity[i] * A21[i] * N2 * pow(wl[i] * 1e-9, 4.0)
-				* ((exp(C2 / (wl[i] * 1e-9)) - 1.0));
+		vals[i] = C1 * intensity[i] * N2 * A21[i] * pow(wl[i] * BB::toM, 4.0)
+				* ((exp(C2 / (wl[i] * BB::toM)) - 1.0));
 	}
 }
 
