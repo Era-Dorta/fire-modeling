@@ -135,10 +135,6 @@ void miaux_set_rgb(miColor *c, miScalar new_value) {
 
 void miaux_add_transparent_color(miColor *result, const miColor *color,
 		miScalar transparency) {
-	miScalar new_alpha = result->a + transparency;
-	if (new_alpha > 1.0) {
-		transparency = 1.0 - result->a;
-	}
 	result->r += color->r * transparency;
 	result->g += color->g * transparency;
 	result->b += color->b * transparency;
@@ -456,9 +452,6 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 					rm_data.emission_shader, nullptr);
 
 			miaux_add_transparent_color(&volume_color, &point_color, density);
-		}
-		if (volume_color.a == 1.0) {
-			break;
 		}
 	}
 
