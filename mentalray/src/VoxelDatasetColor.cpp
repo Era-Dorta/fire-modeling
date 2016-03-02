@@ -188,7 +188,16 @@ void VoxelDatasetColor::compute_soot_constant_coefficients() {
 		// Convert wavelengths to micrometers, result looks like is
 		// 1/micrometer^(alpha_lambda) but because its an empirical fit we can
 		// assume that it outputs the right units, 1/m
-		soot_coef[i] = (pi_r3_36 * n[i] * k[i])
+
+		/*
+		 * TODO The fix factor is added because using the coefficient turns out
+		 * to be a huge number. Using alpha_lambda = 1 and lambda in nanometers,
+		 * also gives decent results, but that would mean that the coefficient
+		 * is in 1/nm
+		 */
+
+		const float fix_factor = 1e-6;
+		soot_coef[i] = (pi_r3_36 * n[i] * k[i] * fix_factor)
 				/ (std::pow(lambdas[i] * 1e-3, alpha_lambda)
 						* (n2_k2_2 + 4 * n[i] * n[i] * k[i] * k[i]));
 	}
