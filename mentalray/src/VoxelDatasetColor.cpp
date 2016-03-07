@@ -219,7 +219,7 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 			}
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum sigma_a_spec = Spectrum::FromSampledNoAverage(&lambdas[0],
+			Spectrum sigma_a_spec = Spectrum::FromSampled(&lambdas[0],
 					&spec_values[0], lambdas.size());
 
 			// Transform the spectrum to XYZ coefficients
@@ -268,7 +268,7 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum chem_spec = Spectrum::FromSampledNoAverage(&lambdas[0],
+			Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
 					&spec_values[0], lambdas.size());
 
 			// Convert to XYZ, the visual adaption function will convert to RGB
@@ -346,8 +346,8 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 				// Create a Spectrum representation with the absorption values
 				// Spectrum expects the wavelengths to be in nanometres
-				Spectrum sigma_a_spec = Spectrum::FromSampledNoAverage(
-						&lambdas[0], &other_spec_values[0], lambdas.size());
+				Spectrum sigma_a_spec = Spectrum::FromSampled(&lambdas[0],
+						&other_spec_values[0], lambdas.size());
 
 				b_spec = b_spec * sigma_a_spec;
 
@@ -362,7 +362,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 				// Create a Spectrum representation with the computed values
 				// Spectrum expects the wavelengths to be in nanometres
-				Spectrum chem_spec = Spectrum::FromSampledNoAverage(&lambdas[0],
+				Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
 						&other_spec_values[0], lambdas.size());
 
 				b_spec = b_spec * chem_spec;
