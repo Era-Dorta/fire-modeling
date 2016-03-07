@@ -114,7 +114,7 @@ extern "C" DLLEXPORT miBoolean reinhard_tone_map(void *result, miState *state,
 
 	// This section is heavily inspired by the Reinhard Tone Mapping code
 	// in https://github.com/banterle/HDR_Toolbox
-	if(gamma <= 0){
+	if (gamma <= 0) {
 		mi_error("reinhard_tone_map: Gamma must be a positive scalar");
 		return miTRUE;
 	}
