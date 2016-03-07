@@ -80,10 +80,10 @@ try
     total_time = 0;
     
     % Fuel names and fuel indices in Maya
-    fuel_name = {'BlackBody', 'Propane', 'Acetylene', 'Cu', 'S', 'Li', 'Ba', 'Na', 'Co', 'Sc' };
-    fuel_index =0:9;
-    
-    totalSize = numel(fuel_index);
+    fuel_name = {'BlackBody', 'Propane', 'Acetylene', 'Cu', 'S', 'Li', 'Ba', ...
+        'Na', 'Co', 'Sc'};
+    totalSize = numel(fuel_name);
+    fuel_index =0:totalSize-1;
     
     for i=1:totalSize
         starttic = tic;
