@@ -3,7 +3,7 @@ function [ InitialPopulation ] = gacreationheuristic1( GenomeLength, FitnessFcn,
 %GACREATIONHEURISTIC1 Create a population for ga
 
 code_dir = fileparts(fileparts(mfilename('fullpath')));
-bbdata = read_bbdata([code_dir '/data/bbr_precomputed.txt']);
+bbdata = load([code_dir '/data/CT-BlackBody.mat'], '-ascii');
 
 mean_noise = 0;
 sigma_noise = 500;
@@ -39,9 +39,9 @@ end
 
 T = bbdata(Tidx, 1);
 
-% The black body table lower value is 1000K, lowe than that there is no 
-% radiation, so move the temperature up to generate good guesses. Since is 
-% going to be randomly perturb we are going to get heat maps with 
+% The black body table lower value is 1000K, lower than that there is no
+% radiation, so move the temperature up to generate good guesses. Since is
+% going to be randomly perturb we are going to get heat maps with
 % temperatures close to the original one
 if(T < 1000 + mean_noise + sigma_noise)
     T = 1000 + mean_noise + sigma_noise;
