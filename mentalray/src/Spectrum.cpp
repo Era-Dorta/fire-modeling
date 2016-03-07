@@ -95,6 +95,35 @@ float AverageSpectrumSamples(const float *lambda, const float *vals, int n,
 	return sum / (lambdaEnd - lambdaStart);
 }
 
+float MaxSpectrumSamples(const float *lambda, const float *vals, int n,
+		float lambdaStart, float lambdaEnd) {
+	for (int i = 0; i < n - 1; ++i)
+		Assert(lambda[i+1] > lambda[i]);
+	Assert(lambdaStart < lambdaEnd);
+	// Handle cases with out-of-bounds range or single sample only
+	if (lambdaEnd <= lambda[0])
+		return 0;
+	if (lambdaStart >= lambda[n - 1])
+		return 0;
+	if (n == 1)
+		return 0;
+
+	// Advance to first relevant wavelength segment
+	int i = 0;
+	while (lambdaStart > lambda[i])
+		++i;
+	Assert(i < n);
+
+	float valOut = 0.0f;
+	// Loop over wavelength sample segments and pick max contribution
+	for (; i < n && lambdaEnd >= lambda[i]; i++) {
+		if (vals[i] > valOut) {
+			valOut = vals[i];
+		}
+	}
+	return valOut;
+}
+
 RGBSpectrum SampledSpectrum::ToRGBSpectrum() const {
 	float rgb[3];
 	ToRGB(rgb);

@@ -48,6 +48,8 @@ extern bool SpectrumSamplesSorted(const float *lambda, const float *vals,
 extern void SortSpectrumSamples(float *lambda, float *vals, int n);
 extern float AverageSpectrumSamples(const float *lambda, const float *vals,
 		int n, float lambdaStart, float lambdaEnd);
+extern float MaxSpectrumSamples(const float *lambda, const float *vals, int n,
+		float lambdaStart, float lambdaEnd);
 inline void XYZToRGB(const float xyz[3], float rgb[3]) {
 	rgb[0] = 3.240479f * xyz[0] - 1.537150f * xyz[1] - 0.498535f * xyz[2];
 	rgb[1] = -0.969256f * xyz[0] + 1.875991f * xyz[1] + 0.041556f * xyz[2];
@@ -343,6 +345,27 @@ public:
 		}
 		return r;
 	}
+	static SampledSpectrum FromSampledNoAverage(const float *lambda,
+			const float *v, int n) {
+		// Sort samples if unordered, use sorted for returned spectrum
+		if (!SpectrumSamplesSorted(lambda, v, n)) {
+			std::vector<float> slambda(&lambda[0], &lambda[n]);
+			std::vector<float> sv(&v[0], &v[n]);
+			SortSpectrumSamples(&slambda[0], &sv[0], n);
+			return FromSampledNoAverage(&slambda[0], &sv[0], n);
+		}
+		SampledSpectrum r;
+		for (int i = 0; i < nSpectralSamples; ++i) {
+			// Compute average value of given SPD over $i$th sample's range
+			float lambda0 = Lerp(float(i) / float(nSpectralSamples),
+					sampledLambdaStart, sampledLambdaEnd);
+			float lambda1 = Lerp(float(i + 1) / float(nSpectralSamples),
+					sampledLambdaStart, sampledLambdaEnd);
+			r.c[i] = MaxSpectrumSamples(lambda, v, n, lambda0, lambda1);
+		}
+		return r;
+	}
+
 	static void Init() {
 		if (initialised) {
 			return;
