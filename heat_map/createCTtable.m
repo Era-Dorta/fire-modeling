@@ -22,7 +22,6 @@ rng(rand_seed);
 
 project_path = '~/maya/projects/fire/';
 scene_name = 'test89_bbr_table';
-raw_file_path = 'data/heat_maps/constDensity3x3x3.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
 temp_div = 25;
@@ -49,14 +48,7 @@ try
     output_img_folder = [scene_img_folder 'ct_table' num2str(dir_num) '/'];
     output_img_folder_name = ['ct_table' num2str(dir_num) '/'];
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
-    
-    %% Volumetric data initialization
-    init_heat_map = read_raw_file([project_path raw_file_path]);
-    
-    %% SendMaya script initialization
-    % Render script is located in the same maya_comm folder
-    [currentFolder,~,~] = fileparts(mfilename('fullpath'));
-    sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
+    output_ct_folder = [fileparts(mfilename('fullpath')) '/data/'];
     
     %% Maya initialization
     % Render script is located in the same maya_comm folder
@@ -152,8 +144,11 @@ try
                 ' rendered, remaining time ' datestr(remaining_time, 'HH:MM:SS.FFF')]);
             
         end
-        
-        save([output_img_folder fuel_name{i} '.mat'], 'color_temp_table');
+        if(exist([output_ct_folder fuel_name{i} '.mat'], 'file'))
+            error(['Data file ' output_ct_folder fuel_name{i} '.mat exits,' ...
+                ' output folder must be empty' ]);
+        end
+        save([output_ct_folder fuel_name{i} '.mat'], 'color_temp_table');
     end
     
     %% Resource clean up after execution
