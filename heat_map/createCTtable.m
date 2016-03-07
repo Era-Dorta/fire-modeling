@@ -144,11 +144,12 @@ try
                 ' rendered, remaining time ' datestr(remaining_time, 'HH:MM:SS.FFF')]);
             
         end
-        if(exist([output_ct_folder fuel_name{i} '.mat'], 'file'))
-            error(['Data file ' output_ct_folder fuel_name{i} '.mat exits,' ...
-                ' output folder must be empty' ]);
+        ct_file_path = [output_ct_folder 'CT-' fuel_name{i} '.mat'];
+        if(exist(ct_file_path, 'file'))
+            error(['Data file ' ct_file_path '.mat exits output folder ' ...
+                'must be empty' ]);
         end
-        save([output_ct_folder fuel_name{i} '.mat'], 'color_temp_table');
+        save(ct_file_path, 'color_temp_table', '-ascii', '-double');
     end
     
     %% Resource clean up after execution
