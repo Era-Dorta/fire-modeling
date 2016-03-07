@@ -589,6 +589,9 @@ bool VoxelDatasetColor::read_spectral_line_file(const std::string& filename) {
 	unsigned num_lines = 0;
 	try {
 		safe_ascii_read(fp, num_lines);
+		if (num_lines == 0) {
+			throw std::ios_base::failure("No data in file");
+		}
 
 		lambdas.resize(num_lines);
 		phi.resize(num_lines);

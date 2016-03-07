@@ -101,18 +101,18 @@ float MaxSpectrumSamples(const float *lambda, const float *vals, int n,
 		Assert(lambda[i+1] > lambda[i]);
 	Assert(lambdaStart < lambdaEnd);
 	// Handle cases with out-of-bounds range or single sample only
+	if (n == 0 || n == 1)
+		return 0;
 	if (lambdaEnd <= lambda[0])
 		return 0;
 	if (lambdaStart >= lambda[n - 1])
 		return 0;
-	if (n == 1)
-		return 0;
 
 	// Advance to first relevant wavelength segment
 	int i = 0;
-	while (lambdaStart > lambda[i])
-		++i;
-	Assert(i < n);
+	while (i < n && lambdaStart > lambda[i]) {
+		i++;
+	}
 
 	float valOut = 0.0f;
 	// Loop over wavelength sample segments and pick max contribution
