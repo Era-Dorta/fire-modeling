@@ -423,6 +423,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 	state->type = static_cast<miRay_type>(VOXEL_DATA);
 
+	float totaldensity = 0;
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = 0; i <= steps; i++) {
 		// Compute the distance on each time step to avoid numerical errors
@@ -445,13 +446,19 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 #endif
 		if (density > 0) {
 			// Here is where the equation is solved
-			// exp(-a * march) * L_next_march + (1 - exp(-a *march)) * L_e
+			// sigma_a * delta_x
 			density *= rm_data.march_increment;
 
+			// Get emission at current point, Le
 			mi_call_shader_x(&point_color, miSHADER_MATERIAL, state,
 					rm_data.emission_shader, nullptr);
 
-			miaux_add_transparent_color(&volume_color, &point_color, density);
+			// L_i = L_{i - 1} + exp(-Sum_{j from i-1 to 0} sigma_j * d_x) *
+			// 	exp(-sigma_a{i} * d_x) L_e{i}
+			miaux_add_scaled_color(&volume_color, &point_color,
+					exp(-totaldensity) * (1.0f - exp(-density)));
+
+			totaldensity += density;
 		}
 	}
 
@@ -462,8 +469,11 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 			rm_data.transparency);
 
 	if (!miaux_color_is_black(&result->color)) {
-		miaux_set_rgb(&result->transparency, 0);
-		miaux_add_inv_rgb_color(&result->transparency, &result->color);
+		// Maya transparency, 0 for opaque, larger values more transparent
+		// Apply the negative exp to get close to 0 for large densities and
+		// large valuesfor low densities
+		totaldensity = exp(-totaldensity);
+		miaux_set_rgb(&result->transparency, totaldensity);
 	}
 
 	state->type = ray_type;
