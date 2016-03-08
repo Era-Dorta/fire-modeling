@@ -471,7 +471,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	if (!miaux_color_is_black(&result->color)) {
 		// Maya transparency, 0 for opaque, larger values more transparent
 		// Apply the negative exp to get close to 0 for large densities and
-		// large valuesfor low densities
+		// large values for low densities
 		totaldensity = exp(-totaldensity);
 		miaux_set_rgb(&result->transparency, totaldensity);
 	}
@@ -484,7 +484,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		const RayMarchSigmaData& rm_data) {
 
-	miColor volume_color = { 0, 0, 0, 0 };
+	miColor volume_color = { 0, 0, 0, 0 }, total_sigma = { 0, 0, 0, 0 };
 
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
@@ -496,12 +496,13 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	state->type = static_cast<miRay_type>(VOXEL_DATA);
 
 	// Compute it as steps, so that rounding errors are not carried in the loop
-	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 
 	// This loop is where the equation is solved
-	// L_current = exp(a * march) * L_next_march + (1 - exp(a *march)) * L_e
+	// L_i = L_{i - 1} + exp(-Sum_{j from i-1 to 0} sigma_j * d_x) *
+	// 	exp(-sigma_a{i} * d_x) L_e{i}
 
-	for (int i = steps; i >= 0; i--) {
+	int steps = static_cast<int>(state->dist / rm_data.march_increment);
+	for (int i = 0; i <= steps; i++) {
 		// Compute the distance on each time step to avoid numerical errors
 		float distance = rm_data.march_increment * i;
 		miaux_march_point(&state->point, &rm_data.origin, &rm_data.direction,
@@ -521,28 +522,30 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 
 			// Higher order interpolation methods can produce negative colors,
 			// if that is the case ignore this value
-			if (!miaux_color_is_ge(light_color, 0)) {
-				continue;
+			if (miaux_color_is_ge(light_color, 0)) {
+				miaux_scale_color(&light_color, rm_data.intensity);
+
+				// Compute (1 - exp(-sum_sigma_a * Dx)) * exp(-sigma_a * Dx)
+				miColor exp_sigma_dx;
+				exp_sigma_dx.r = 1.0f
+						- exp(-sigma_a.r * rm_data.march_increment);
+				exp_sigma_dx.g = 1.0f
+						- exp(-sigma_a.g * rm_data.march_increment);
+				exp_sigma_dx.b = 1.0f
+						- exp(-sigma_a.b * rm_data.march_increment);
+
+				exp_sigma_dx.r *= exp(-total_sigma.r);
+				exp_sigma_dx.g *= exp(-total_sigma.g);
+				exp_sigma_dx.b *= exp(-total_sigma.b);
+
+				// weight * Le(x)
+				miaux_multiply_colors(&light_color, &light_color,
+						&exp_sigma_dx);
+
+				// Sum previous and current contributions
+				miaux_add_color(&volume_color, &light_color);
 			}
-
-			miaux_scale_color(&light_color, rm_data.intensity);
-
-			// Compute exp(-sigma_a * Dx)
-			miColor exp_sigma_dx;
-			exp_sigma_dx.r = exp(-sigma_a.r * rm_data.march_increment);
-			exp_sigma_dx.g = exp(-sigma_a.g * rm_data.march_increment);
-			exp_sigma_dx.b = exp(-sigma_a.b * rm_data.march_increment);
-
-			// (1 - exp(-sigma_a * Dx)) * L_e
-			light_color.r *= 1.0 - exp_sigma_dx.r;
-			light_color.g *= 1.0 - exp_sigma_dx.g;
-			light_color.b *= 1.0 - exp_sigma_dx.b;
-
-			// exp(-sigma_a * Dx) * L(x + Dx)
-			miaux_multiply_colors(&volume_color, &volume_color, &exp_sigma_dx);
-
-			// Sum previous and current contributions
-			miaux_add_color(&volume_color, &light_color);
+			miaux_add_color(&total_sigma, &sigma_a);
 		}
 	}
 	// Note changing result->color or result->transparency alpha channel
@@ -552,8 +555,12 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			rm_data.transparency);
 
 	if (!miaux_color_is_black(&result->color)) {
-		miaux_set_rgb(&result->transparency, 0);
-		miaux_add_inv_rgb_color(&result->transparency, &result->color);
+		// Maya transparency, 0 for opaque, larger values more transparent
+		// Apply the negative exp to get close to 0 for large densities and
+		// large values for low densities
+		result->transparency.r = exp(-total_sigma.r);
+		result->transparency.g = exp(-total_sigma.g);
+		result->transparency.b = exp(-total_sigma.b);
 	}
 
 	state->type = ray_type;
