@@ -424,7 +424,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	state->type = static_cast<miRay_type>(VOXEL_DATA);
 
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
-	for (int i = steps; i >= 0; i--) {
+	for (int i = 0; i <= steps; i++) {
 		// Compute the distance on each time step to avoid numerical errors
 		float distance = rm_data.march_increment * i;
 
