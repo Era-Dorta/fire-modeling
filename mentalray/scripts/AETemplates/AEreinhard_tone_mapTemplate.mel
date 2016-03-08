@@ -10,8 +10,8 @@ global proc AEreinhard_tone_mapTemplate ( string $nodeName )
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Color Correction" -collapse 0;
-		editorTemplate -annotation "Monitor gamma value for gamma correction" -addControl "gamma";
-		editorTemplate -annotation "Color correction coefficient, controls image saturation" -addControl "schlick_coeff";
+		editorTemplate -annotation "Monitor gamma value for gamma correction, a value of 1 leaves the colors unchanged, 2.2 is a good value for a standard monitor" -addControl "gamma";
+		editorTemplate -annotation "Color correction coefficient, controls image saturation, a value of 1 leaves the colors unchanged, 0.5 is a good value for a standard monitor" -addControl "schlick_coeff";
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Node Behaviour" -collapse 1;
