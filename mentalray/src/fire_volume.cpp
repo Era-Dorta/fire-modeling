@@ -33,7 +33,8 @@ struct fire_volume {
 	miInteger interpolation_mode; // Dummy
 	miInteger fuel_type;
 	miScalar visual_adaptation_factor; // Dummy
-	miScalar intensity;
+	miScalar intensity; // Dummy
+	miScalar linear_density;
 	miScalar shadow_threshold; // Dummy
 	miScalar decay; // Dummy
 	miScalar march_increment;
@@ -45,7 +46,7 @@ struct fire_volume {
 };
 
 extern "C" DLLEXPORT int fire_volume_version(void) {
-	return 2;
+	return 3;
 }
 
 extern "C" DLLEXPORT miBoolean fire_volume_init(miState *state,
@@ -87,6 +88,7 @@ void init_ray_march_data(RayMarchData& rm_data, miState *state,
 	rm_data.density_shader = *mi_eval_tag(&params->density_shader);
 	rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
 	rm_data.transparency = *mi_eval_scalar(&params->transparency);
+	rm_data.linear_density = *mi_eval_scalar(&params->linear_density);
 }
 
 extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
@@ -110,9 +112,9 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			return miFALSE;
 		}
 
-		RayMarchOcclusionData rm_data;
+		RayMarchCommonData rm_data;
 		init_ray_march_common_data(rm_data, state, params);
-		rm_data.absorption_shader = *mi_eval_tag(&params->absorption_shader);
+
 		/*
 		 * Seems to be affected only by transparency, 0 to not produce hard
 		 * shadows (default) effect, 1 to let that colour pass

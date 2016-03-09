@@ -80,7 +80,7 @@ declare shader
 				#: hidden true
 			scalar "transparency",
 				#: default 1
-				#: softmin 0
+				#: min 0
 				#: softmax 10
 			shader "density_shader",
 			shader "absorption_shader",
@@ -125,9 +125,12 @@ declare shader
 				#: softmax 2.0	
 			scalar "intensity",
 				#: default 1.0
-				#: softmin 0.0
+				#: min 0.0
 				#: softmax 10.0
-				#: min 0.0	
+			scalar "linear_density",
+				#: default 1.0
+				#: min 0.0
+				#: softmax 10.0
 			scalar "shadow_threshold",
 				#: default 0.0
 				#: softmin 0.0
@@ -151,7 +154,7 @@ declare shader
 			array light "lights",
 				)
 	apply volume
-	version 2
+	version 3
 end declare
 
 

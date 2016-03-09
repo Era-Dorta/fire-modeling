@@ -466,13 +466,13 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	// has no effect, the transparency is controlled with the transparency
 	// rgb channels
 	miaux_copy_color_scaled(&result->color, &volume_color,
-			rm_data.transparency);
+			rm_data.linear_density);
 
 	if (!miaux_color_is_black(&result->color)) {
 		// Maya transparency, 0 for opaque, larger values more transparent
 		// Apply the negative exp to get close to 0 for large densities and
 		// large values for low densities
-		totaldensity = exp(-totaldensity);
+		totaldensity = exp(-totaldensity) * rm_data.transparency;
 		miaux_set_rgb(&result->transparency, totaldensity);
 	}
 
@@ -485,6 +485,7 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		const RayMarchData& rm_data) {
 
 	miColor volume_color = { 0, 0, 0, 0 }, total_sigma = { 0, 0, 0, 0 };
+	float density = 0, totaldensity = 0;
 
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
@@ -543,6 +544,10 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 				// Sum previous and current contributions
 				miaux_add_color(&volume_color, &light_color);
 			}
+			mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
+					rm_data.density_shader, nullptr);
+			totaldensity += density;
+
 			miaux_add_color(&total_sigma, &sigma_a);
 		}
 	}
@@ -550,15 +555,15 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	// has no effect, the transparency is controlled with the transparency
 	// rgb channels
 	miaux_copy_color_scaled(&result->color, &volume_color,
-			rm_data.transparency);
+			rm_data.linear_density);
 
 	if (!miaux_color_is_black(&result->color)) {
 		// Maya transparency, 0 for opaque, larger values more transparent
 		// Apply the negative exp to get close to 0 for large densities and
 		// large values for low densities
-		result->transparency.r = exp(-total_sigma.r);
-		result->transparency.g = exp(-total_sigma.g);
-		result->transparency.b = exp(-total_sigma.b);
+		totaldensity = exp(-totaldensity * rm_data.march_increment)
+				* rm_data.transparency;
+		miaux_set_rgb(&result->transparency, totaldensity);
 	}
 
 	state->type = ray_type;

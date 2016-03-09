@@ -36,6 +36,7 @@ typedef struct RayMarchData: public RayMarchCommonData {
 	miTag density_shader;
 	miTag emission_shader;
 	miScalar transparency;
+	miScalar linear_density;
 } RayMarchData;
 
 void miaux_initialize_external_libs();
