@@ -62,7 +62,7 @@ extern "C" DLLEXPORT miBoolean fire_volume_exit(miState *state,
 	return miTRUE;
 }
 
-// Initialise the data used for ray marching
+// Initialise the common data used for ray marching
 void init_ray_march_common_data(RayMarchCommonData& rm_data, miState *state,
 		struct fire_volume *params) {
 	// Transform to object space, as voxel_shader and the voxel object assume
@@ -75,15 +75,18 @@ void init_ray_march_common_data(RayMarchCommonData& rm_data, miState *state,
 	mi_vector_to_object(state, &rm_data.direction, &state->dir);
 
 	rm_data.march_increment = *mi_eval_scalar(&params->march_increment);
+
+	rm_data.absorption_shader = *mi_eval_tag(&params->absorption_shader);
 }
 
-// State argument is used internally by mi_eval_* methods
-template<typename T>
-void init_ray_march_lights_data(T &rm_data, miState *state,
+// Initialise the data used for ray marching
+void init_ray_march_data(RayMarchData& rm_data, miState *state,
 		struct fire_volume *params) {
-	rm_data.i_light = *mi_eval_integer(&params->i_light);
-	rm_data.n_light = *mi_eval_integer(&params->n_light);
-	rm_data.light = mi_eval_tag(&params->light) + rm_data.i_light;
+	init_ray_march_common_data(rm_data, state, params);
+
+	rm_data.density_shader = *mi_eval_tag(&params->density_shader);
+	rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
+	rm_data.transparency = *mi_eval_scalar(&params->transparency);
 }
 
 extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
@@ -126,38 +129,19 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 		// Initialise to black-transparent volume
 		miaux_initialize_volume_output(result);
 
-		//miColor *color = mi_eval_color(&params->color);
-		//miColor *glowColor = mi_eval_color(&params->glowColor);
-		//miColor *matteOpacity = mi_eval_color(&params->matteOpacity);
-		//miColor *transparency = mi_eval_color(&params->transparency);
+		RayMarchData rm_data;
+		init_ray_march_data(rm_data, state, params);
+
+		// Use only the current fire light
+		miInteger i_lights = *mi_eval_integer(&params->i_light);
+		miInteger n_lights = *mi_eval_integer(&params->n_light);
+		miTag* lights = mi_eval_tag(&params->light) + i_lights;
+		mi_inclusive_lightlist(&n_lights, &lights, state);
 
 		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
-
 		if (fuel_type == FuelType::BlackBody) {
-			RayMarchSimpleData rm_data;
-			init_ray_march_common_data(rm_data, state, params);
-			init_ray_march_lights_data(rm_data, state, params);
-			rm_data.density_shader = *mi_eval_tag(&params->density_shader);
-			rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
-			rm_data.transparency = *mi_eval_scalar(&params->transparency);
-
-			// Only the light specified in the light list will be used
-			mi_inclusive_lightlist(&rm_data.n_light, &rm_data.light, state);
-
 			miaux_ray_march_simple(result, state, rm_data);
 		} else {
-			RayMarchSigmaData rm_data;
-			init_ray_march_common_data(rm_data, state, params);
-			init_ray_march_lights_data(rm_data, state, params);
-			rm_data.density_shader = *mi_eval_tag(&params->density_shader);
-			rm_data.absorption_shader = *mi_eval_tag(
-					&params->absorption_shader);
-			rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
-			rm_data.transparency = *mi_eval_scalar(&params->transparency);
-
-			// Only the light specified in the light list will be used
-			mi_inclusive_lightlist(&rm_data.n_light, &rm_data.light, state);
-
 			miaux_ray_march_with_sigma_a(result, state, rm_data);
 		}
 	}

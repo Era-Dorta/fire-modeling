@@ -29,30 +29,14 @@ typedef struct RayMarchCommonData {
 	miVector origin;
 	miVector direction;
 	miScalar march_increment;
+	miTag absorption_shader;
 } RayMarchCommonData;
 
-typedef struct RayMarchSimpleData: public RayMarchCommonData {
+typedef struct RayMarchData: public RayMarchCommonData {
 	miTag density_shader;
 	miTag emission_shader;
 	miScalar transparency;
-	miInteger i_light;
-	miInteger n_light;
-	miTag *light;
-} RayMarchSimpleData;
-
-typedef struct RayMarchSigmaData: public RayMarchCommonData {
-	miTag density_shader;
-	miTag absorption_shader;
-	miTag emission_shader;
-	miScalar transparency;
-	miInteger i_light;
-	miInteger n_light;
-	miTag *light;
-} RayMarchSigmaData;
-
-typedef struct RayMarchOcclusionData: public RayMarchCommonData {
-	miTag absorption_shader;
-} RayMarchOcclusionData;
+} RayMarchData;
 
 void miaux_initialize_external_libs();
 
@@ -149,13 +133,13 @@ void miaux_copy_vector(miVector *result, const miVector *vector);
 void miaux_copy_vector_neg(miVector *result, const miVector *vector);
 
 void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
-		miState* state, const RayMarchOcclusionData& rm_data);
+		miState* state, const RayMarchCommonData& rm_data);
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
-		const RayMarchSimpleData& rm_data);
+		const RayMarchData& rm_data);
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
-		const RayMarchSigmaData& rm_data);
+		const RayMarchData& rm_data);
 
 void miaux_vector_info(const char* s, const miVector& v);
 

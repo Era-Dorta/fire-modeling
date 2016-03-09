@@ -372,7 +372,7 @@ void miaux_copy_vector_neg(miVector *result, const miVector *vector) {
 }
 
 void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
-		miState* state, const RayMarchOcclusionData& rm_data) {
+		miState* state, const RayMarchCommonData& rm_data) {
 	miColor total_sigma = { 0, 0, 0, 0 };
 
 	miVector original_point = state->point;
@@ -410,7 +410,7 @@ void miaux_fractional_shader_occlusion_at_point(VolumeShader_R *result,
 }
 
 void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
-		const RayMarchSimpleData& rm_data) {
+		const RayMarchData& rm_data) {
 
 	miColor volume_color = { 0, 0, 0, 0 }, point_color;
 
@@ -482,7 +482,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 }
 
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
-		const RayMarchSigmaData& rm_data) {
+		const RayMarchData& rm_data) {
 
 	miColor volume_color = { 0, 0, 0, 0 }, total_sigma = { 0, 0, 0, 0 };
 
