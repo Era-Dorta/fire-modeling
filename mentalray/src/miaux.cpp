@@ -523,8 +523,6 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			// Higher order interpolation methods can produce negative colors,
 			// if that is the case ignore this value
 			if (miaux_color_is_ge(light_color, 0)) {
-				miaux_scale_color(&light_color, rm_data.intensity);
-
 				// Compute (1 - exp(-sum_sigma_a * Dx)) * exp(-sigma_a * Dx)
 				miColor exp_sigma_dx;
 				exp_sigma_dx.r = 1.0f

@@ -153,7 +153,6 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 			rm_data.absorption_shader = *mi_eval_tag(
 					&params->absorption_shader);
 			rm_data.emission_shader = *mi_eval_tag(&params->emission_shader);
-			rm_data.intensity = *mi_eval_scalar(&params->intensity);
 			rm_data.transparency = *mi_eval_scalar(&params->transparency);
 
 			// Only the light specified in the light list will be used
