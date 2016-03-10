@@ -494,7 +494,6 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		const RayMarchData& rm_data) {
 
 	miColor volume_color = { 0, 0, 0, 0 }, total_sigma = { 0, 0, 0, 0 };
-	float density = 0, totaldensity = 0;
 
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
@@ -522,9 +521,10 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		miColor sigma_a;
 		mi_call_shader_x(&sigma_a, miSHADER_MATERIAL, state,
 				rm_data.absorption_shader, nullptr);
+		miaux_scale_color(&sigma_a, rm_data.march_increment);
 
 		// If the color is black e^sigma_a == 1, thus Lx = L_next_march
-		if (miaux_color_is_ge(sigma_a, 0)) {
+		if (miaux_color_any_is_gt(sigma_a, 0)) {
 			// Get L_e = sigma_a * black body at state->point
 			miColor light_color;
 			mi_call_shader_x(&light_color, miSHADER_MATERIAL, state,
@@ -535,12 +535,9 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			if (miaux_color_is_ge(light_color, 0)) {
 				// Compute (1 - exp(-sum_sigma_a * Dx)) * exp(-sigma_a * Dx)
 				miColor exp_sigma_dx;
-				exp_sigma_dx.r = 1.0f
-						- exp(-sigma_a.r * rm_data.march_increment);
-				exp_sigma_dx.g = 1.0f
-						- exp(-sigma_a.g * rm_data.march_increment);
-				exp_sigma_dx.b = 1.0f
-						- exp(-sigma_a.b * rm_data.march_increment);
+				exp_sigma_dx.r = 1.0f - exp(-sigma_a.r);
+				exp_sigma_dx.g = 1.0f - exp(-sigma_a.g);
+				exp_sigma_dx.b = 1.0f - exp(-sigma_a.b);
 
 				exp_sigma_dx.r *= exp(-total_sigma.r);
 				exp_sigma_dx.g *= exp(-total_sigma.g);
@@ -553,26 +550,24 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 				// Sum previous and current contributions
 				miaux_add_color(&volume_color, &light_color);
 			}
-			mi_call_shader_x((miColor*) &density, miSHADER_MATERIAL, state,
-					rm_data.density_shader, nullptr);
-			totaldensity += density;
-
 			miaux_add_color(&total_sigma, &sigma_a);
 		}
 	}
-	// Note changing result->color or result->transparency alpha channel
-	// has no effect, the transparency is controlled with the transparency
-	// rgb channels
+
 	miaux_copy_color_scaled(&result->color, &volume_color,
 			rm_data.linear_density);
 
 	if (!miaux_color_is_black(&result->color)) {
-		// Maya transparency, 0 for opaque, larger values more transparent
-		// Apply the negative exp to get close to 0 for large densities and
-		// large values for low densities
-		totaldensity = exp(-totaldensity * rm_data.march_increment)
+		// Maya transparency -> pixel = background * transparency + foreground
+		// Compute transmittance, e^(- sum sigma_a * d_x) and scale with user
+		// coefficient
+		result->transparency.r = (exp(-total_sigma.r) + FLT_EPSILON)
 				* rm_data.transparency;
-		miaux_set_rgb(&result->transparency, totaldensity);
+		result->transparency.g = (exp(-total_sigma.g) + FLT_EPSILON)
+				* rm_data.transparency;
+		result->transparency.b = (exp(-total_sigma.b) + FLT_EPSILON)
+				* rm_data.transparency;
+		miaux_clamp_color(&result->transparency, FLT_EPSILON, 1);
 	}
 
 	state->type = ray_type;
