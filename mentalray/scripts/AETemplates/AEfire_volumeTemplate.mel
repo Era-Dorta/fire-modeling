@@ -127,6 +127,7 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 		editorTemplate -annotation "Variety of fuel used for the fire" -addControl "fuel_type";
 		editorTemplate -annotation "How intense is the emitted fire light, it does not affect the fire itself" -addControl "intensity";
 		editorTemplate -annotation "Transparency scale, how the fire blends with other objects, 0 opaque, 1 default transparency, 2 double transparency" -addControl "transparency";
+		editorTemplate -annotation "color scale, how the fire blends with other objects, 0 opaque, 1 default transparency, 2 double transparency" -addControl "color";
 		editorTemplate -annotation "Linear scale factor on the fire density, 0 black, 1 default, 2 double brightness on each fire pixel" -addControl "linear_density";
 		editorTemplate -annotation "If the contribution is smaller than the threshold, no shadow rays for the sample will be computed" -addControl "shadow_threshold";
 		editorTemplate -annotation "Light extinction over distance, physical fall-off is 2" -addControl "decay";
@@ -141,7 +142,6 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 		editorTemplate -addControl "nodeState"; 
 	editorTemplate -endLayout;
 	
-	editorTemplate -suppress "color";
 	editorTemplate -suppress "glowColor";
 	editorTemplate -suppress "matteOpacity";
 	editorTemplate -suppress "density_shader";

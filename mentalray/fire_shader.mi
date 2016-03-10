@@ -78,10 +78,8 @@ declare shader
 			color "matteOpacity",
 				#: default 1 1 1
 				#: hidden true
-			scalar "transparency",
-				#: default 1
-				#: min 0
-				#: softmax 10
+			color "transparency",
+				#: default 1 1 1
 			shader "density_shader",
 			shader "absorption_shader",
 			shader "emission_shader",

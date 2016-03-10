@@ -16,7 +16,7 @@ struct fire_volume {
 	miColor color;
 	miColor glowColor;
 	miColor matteOpacity;
-	miScalar transparency;
+	miColor transparency;
 	miTag density_shader;
 	miTag absorption_shader;
 	miTag emission_shader;
@@ -130,7 +130,10 @@ extern "C" DLLEXPORT miBoolean fire_volume(VolumeShader_R *result,
 
 		// Initialise to black-transparent volume
 		miaux_initialize_volume_output(result);
-
+//		miaux_set_rgb(&result->transparency, 0);
+		result->color = *mi_eval_color(&params->color);
+		result->transparency = *mi_eval_color(&params->transparency);
+return miTRUE;
 		RayMarchData rm_data;
 		init_ray_march_data(rm_data, state, params);
 
