@@ -219,8 +219,16 @@ miBoolean miaux_color_is_ge(const miColor& c, miScalar x) {
 	return (c.r >= x && c.g >= x && c.b >= x);
 }
 
+miBoolean miaux_color_any_is_gt(const miColor& c, miScalar x) {
+	return (c.r > x || c.g > x || c.b > x);
+}
+
 miBoolean miaux_color_is_lt(const miColor& c, miScalar x) {
 	return (c.r < x && c.g < x && c.b < x);
+}
+
+miBoolean miaux_color_any_is_lt(const miColor& c, miScalar x) {
+	return (c.r < x || c.g < x || c.b < x);
 }
 
 void miaux_initialize_volume_output(VolumeShader_R* result) {
@@ -457,7 +465,6 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 			// 	exp(-sigma_a{i} * d_x) L_e{i}
 			miaux_add_scaled_color(&volume_color, &point_color,
 					exp(-totaldensity) * (1.0f - exp(-density)));
-
 			totaldensity += density;
 		}
 	}
