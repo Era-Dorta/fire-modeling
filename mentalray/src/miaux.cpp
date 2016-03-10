@@ -74,7 +74,6 @@ void miaux_clamp_color(miColor *c, miScalar min, miScalar max) {
 	miaux_clamp(&c->r, min, max);
 	miaux_clamp(&c->g, min, max);
 	miaux_clamp(&c->b, min, max);
-	miaux_clamp(&c->a, min, max);
 }
 
 void miaux_march_point(miVector *result, const miVector *point,
