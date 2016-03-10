@@ -468,11 +468,13 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	miaux_copy_color_scaled(&result->color, &volume_color,
 			rm_data.linear_density);
 
-	if (!miaux_color_is_black(&result->color)) {
-		// Maya transparency, 0 for opaque, larger values more transparent
-		// Apply the negative exp to get close to 0 for large densities and
-		// large values for low densities
-		totaldensity = exp(-totaldensity) * rm_data.transparency;
+	if (totaldensity > 0) {
+		// Maya transparency -> pixel = background * transparency + foreground
+		// Compute transmittance, e^(- sum sigma_a * d_x) and scale with user
+		// coefficient
+		totaldensity = Clamp(
+				(exp(-totaldensity) + FLT_EPSILON) * rm_data.transparency,
+				FLT_EPSILON, 1.0f);
 		miaux_set_rgb(&result->transparency, totaldensity);
 	}
 
