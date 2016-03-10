@@ -484,9 +484,8 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		// Maya transparency -> pixel = background * transparency + foreground
 		// Where we are the foreground and transparency is result->transparency
 		// Scale with user coefficient
-		total_transmittance = Clamp(
-				(total_transmittance + FLT_EPSILON) * rm_data.transparency,
-				FLT_EPSILON, 1.0f);
+		total_transmittance = Clamp(total_transmittance + rm_data.transparency,
+		FLT_EPSILON, 1.0f);
 		miaux_set_rgb(&result->transparency, total_transmittance);
 	}
 
@@ -566,12 +565,9 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		// Maya transparency -> pixel = background * transparency + foreground
 		// Compute transmittance, e^(- sum sigma_a * d_x) and scale with user
 		// coefficient
-		result->transparency.r = (exp(-total_sigma.r) + FLT_EPSILON)
-				* rm_data.transparency;
-		result->transparency.g = (exp(-total_sigma.g) + FLT_EPSILON)
-				* rm_data.transparency;
-		result->transparency.b = (exp(-total_sigma.b) + FLT_EPSILON)
-				* rm_data.transparency;
+		result->transparency.r = total_transmittance.r + rm_data.transparency;
+		result->transparency.g = total_transmittance.g + rm_data.transparency;
+		result->transparency.b = total_transmittance.b + rm_data.transparency;
 		miaux_clamp_color(&result->transparency, FLT_EPSILON, 1);
 	}
 

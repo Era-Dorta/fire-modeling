@@ -79,9 +79,9 @@ declare shader
 				#: default 1 1 1
 				#: hidden true
 			scalar "transparency",
-				#: default 1
-				#: min 0
-				#: softmax 10
+				#: default 0
+				#: min -1
+				#: max 1
 			shader "density_shader",
 			shader "absorption_shader",
 			shader "emission_shader",
