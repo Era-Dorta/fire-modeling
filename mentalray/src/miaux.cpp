@@ -478,7 +478,10 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	miaux_copy_color_scaled(&result->color, &volume_color,
 			rm_data.linear_density);
 
-	if (total_transmittance > 0) {
+	// If the total_transmittance is not one it means that some densities were
+	// found along the way, this check allows the user only to change the
+	// transparency of actual fire pixels
+	if (total_transmittance != 1) {
 		// Maya transparency -> pixel = background * transparency + foreground
 		// Where we are the foreground and transparency is result->transparency
 		// Scale with user coefficient
