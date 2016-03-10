@@ -431,7 +431,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 
 	state->type = static_cast<miRay_type>(VOXEL_DATA);
 
-	float totaldensity = 0;
+	double total_transmittance = 1.0; // exp(0)
 	int steps = static_cast<int>(state->dist / rm_data.march_increment);
 	for (int i = 0; i <= steps; i++) {
 		// Compute the distance on each time step to avoid numerical errors
@@ -453,9 +453,9 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		* pow(10, 12);
 #endif
 		if (density > 0) {
-			// Here is where the equation is solved
-			// sigma_a * delta_x
-			density *= rm_data.march_increment;
+			// Here is where the equation is solved, take density as sigma
+			// e^(sigma_a * delta_x)
+			density = exp(-density * rm_data.march_increment);
 
 			// Get emission at current point, Le
 			mi_call_shader_x(&point_color, miSHADER_MATERIAL, state,
@@ -464,8 +464,11 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 			// L_i = L_{i - 1} + exp(-Sum_{j from i-1 to 0} sigma_j * d_x) *
 			// 	exp(-sigma_a{i} * d_x) L_e{i}
 			miaux_add_scaled_color(&volume_color, &point_color,
-					exp(-totaldensity) * (1.0f - exp(-density)));
-			totaldensity += density;
+					total_transmittance * (1.0f - density));
+
+			// Since the total transmittance is the sum of exp, we can just
+			// multiply by the current transmittance
+			total_transmittance *= density;
 		}
 	}
 
@@ -475,14 +478,14 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 	miaux_copy_color_scaled(&result->color, &volume_color,
 			rm_data.linear_density);
 
-	if (totaldensity > 0) {
+	if (total_transmittance > 0) {
 		// Maya transparency -> pixel = background * transparency + foreground
-		// Compute transmittance, e^(- sum sigma_a * d_x) and scale with user
-		// coefficient
-		totaldensity = Clamp(
-				(exp(-totaldensity) + FLT_EPSILON) * rm_data.transparency,
+		// Where we are the foreground and transparency is result->transparency
+		// Scale with user coefficient
+		total_transmittance = Clamp(
+				(total_transmittance + FLT_EPSILON) * rm_data.transparency,
 				FLT_EPSILON, 1.0f);
-		miaux_set_rgb(&result->transparency, totaldensity);
+		miaux_set_rgb(&result->transparency, total_transmittance);
 	}
 
 	state->type = ray_type;
