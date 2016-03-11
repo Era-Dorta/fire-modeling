@@ -67,7 +67,7 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 		return miFALSE;
 	}
 
-	pic::Image img0(fb_color->width, fb_color->height, 3);
+	pic::Image pic_img(fb_color->width, fb_color->height, 3);
 
 	miColor color;
 
@@ -80,7 +80,7 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 
 			mi_img_get_color(fb_color, &color, x, y);
 
-			float *img_pix = img0(x, y);
+			float *img_pix = pic_img(x, y);
 			img_pix[0] = color.r;
 			img_pix[1] = color.g;
 			img_pix[2] = color.b;
@@ -92,10 +92,10 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 		const miScalar white_point = *mi_eval_scalar(&paras->white_point);
 		const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
 
-		pic::ReinhardTMO(&img0, &img0, image_exposure, white_point);
+		pic::ReinhardTMO(&pic_img, &pic_img, image_exposure, white_point);
 
 		// Apply gamma correction and save the result in img0
-		pic::FilterSimpleTMO::Execute(&img0, &img0, gamma, f_stop);
+		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, gamma, f_stop);
 		break;
 	}
 	case 1: { // Exposure Fusion
@@ -104,20 +104,20 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 		const miScalar wS = *mi_eval_scalar(&paras->weight_saturation);
 
 		// Exposure fusion requires a stack of LDR images
-		pic::ImageVec stack = pic::getAllExposuresImages(&img0);
+		pic::ImageVec stack = pic::getAllExposuresImages(&pic_img);
 
 		for (auto& i : stack) {
 			i->clamp(0.0f, 1.0f);
 		}
 
-		pic::ExposureFusion(stack, wC, wE, wS, &img0);
+		pic::ExposureFusion(stack, wC, wE, wS, &pic_img);
 
-		pic::FilterSimpleTMO::Execute(&img0, &img0, 1.0f, f_stop);
+		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, 1.0f, f_stop);
 		break;
 	}
 	case 2: { // Only Gamma Correction
 
-		pic::FilterSimpleTMO::Execute(&img0, &img0, gamma, f_stop);
+		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, gamma, f_stop);
 		break;
 	}
 	default: {
@@ -133,7 +133,7 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 			break;
 		}
 		for (int x = 0; x < state->camera->x_resolution; x++) {
-			float *img_pix = img0(x, y);
+			float *img_pix = pic_img(x, y);
 			color.r = img_pix[0];
 			color.g = img_pix[1];
 			color.b = img_pix[2];
