@@ -26,7 +26,6 @@
 #define PIC_DISABLE_EIGEN
 #define PIC_DISABLE_OPENGL
 #define PIC_DISABLE_QT
-#define PIC_DEBUG
 
 #include "piccante.hpp"
 
@@ -88,11 +87,11 @@ extern "C" DLLEXPORT miBoolean reinhard_tone_map(void *result, miState *state,
 	}
 
 	// Apply the tone mapping and save the result in img1
-	pic::Image *img1, *img2;
+	pic::Image *img1;
 	img1 = pic::ReinhardTMO(&img0, nullptr, image_exposure, white_point);
 
 	// Apply gamma correction and save the result in img0
-	img2 = pic::FilterSimpleTMO::Execute(img1, nullptr, gamma, schlick_coeff);
+	pic::FilterSimpleTMO::Execute(img1, &img0, gamma, schlick_coeff);
 
 	// Copy the tone mapped image to the buffer
 	for (int y = 0; y < state->camera->y_resolution; y++) {
@@ -100,7 +99,7 @@ extern "C" DLLEXPORT miBoolean reinhard_tone_map(void *result, miState *state,
 			break;
 		}
 		for (int x = 0; x < state->camera->x_resolution; x++) {
-			float *img_pix = (*img2)(x, y);
+			float *img_pix = img0(x, y);
 			color.r = img_pix[0];
 			color.g = img_pix[1];
 			color.b = img_pix[2];
