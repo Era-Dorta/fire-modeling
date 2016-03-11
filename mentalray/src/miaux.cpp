@@ -76,6 +76,18 @@ void miaux_clamp_color(miColor *c, miScalar min, miScalar max) {
 	miaux_clamp(&c->b, min, max);
 }
 
+void miaux_clamp_min_color(miColor *c, miScalar min) {
+	if (c->r < min) {
+		c->r = min;
+	}
+	if (c->g < min) {
+		c->g = min;
+	}
+	if (c->b < min) {
+		c->b = min;
+	}
+}
+
 void miaux_march_point(miVector *result, const miVector *point,
 		const miVector *direction, miScalar distance) {
 	result->x = point->x + distance * direction->x;
@@ -452,6 +464,7 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 		* pow(10, 12);
 #endif
 		if (density > 0) {
+
 			// Here is where the equation is solved, take density as sigma
 			// e^(sigma_a * delta_x)
 			density = exp(-density * rm_data.march_increment);
@@ -459,6 +472,13 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 			// Get emission at current point, Le
 			mi_call_shader_x(&point_color, miSHADER_MATERIAL, state,
 					rm_data.emission_shader, nullptr);
+
+			// Clamp negative values that arise when using high order
+			// interpolation methods, doing the if and then clamping is faster
+			// than just clamping for all the values
+			if (miaux_color_any_is_lt(point_color, 0)) {
+				miaux_clamp_min_color(&point_color, 0);
+			}
 
 			// L_i = L_{i - 1} + exp(-Sum_{j from i-1 to 0} sigma_j * d_x) *
 			// 	exp(-sigma_a{i} * d_x) L_e{i}
