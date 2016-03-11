@@ -533,7 +533,8 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		const RayMarchData& rm_data) {
 
-	miColor volume_color = { 0, 0, 0, 0 }, total_sigma = { 0, 0, 0, 0 };
+	miColor volume_color = { 0, 0, 0, 0 };
+	miColor total_transmittance = { 1.0, 1.0, 1.0, 1.0 }; // exp(0)
 
 	miVector original_point = state->point;
 	miRay_type ray_type = state->type;
@@ -563,6 +564,11 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 				rm_data.absorption_shader, nullptr);
 		miaux_scale_color(&sigma_a, rm_data.march_increment);
 
+		// Clamp negative values
+		if (miaux_color_any_is_lt(sigma_a, 0)) {
+			miaux_clamp_min_color(&sigma_a, 0);
+		}
+
 		// If the color is black e^sigma_a == 1, thus Lx = L_next_march
 		if (miaux_color_any_is_gt(sigma_a, 0)) {
 			// Get L_e = sigma_a * black body at state->point
@@ -570,18 +576,22 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 			mi_call_shader_x(&light_color, miSHADER_MATERIAL, state,
 					rm_data.emission_shader, nullptr);
 
-			// Higher order interpolation methods can produce negative colors,
-			// if that is the case ignore this value
-			if (miaux_color_is_ge(light_color, 0)) {
+			// Clamp negative values
+			if (miaux_color_any_is_lt(light_color, 0)) {
+				miaux_clamp_min_color(&light_color, 0);
+			}
+
+			sigma_a.r = exp(-sigma_a.r);
+			sigma_a.g = exp(-sigma_a.g);
+			sigma_a.b = exp(-sigma_a.b);
+
+			// If L_e == 0, then Lx = L_next_march
+			if (miaux_color_any_is_gt(light_color, 0)) {
 				// Compute (1 - exp(-sum_sigma_a * Dx)) * exp(-sigma_a * Dx)
 				miColor exp_sigma_dx;
-				exp_sigma_dx.r = 1.0f - exp(-sigma_a.r);
-				exp_sigma_dx.g = 1.0f - exp(-sigma_a.g);
-				exp_sigma_dx.b = 1.0f - exp(-sigma_a.b);
-
-				exp_sigma_dx.r *= exp(-total_sigma.r);
-				exp_sigma_dx.g *= exp(-total_sigma.g);
-				exp_sigma_dx.b *= exp(-total_sigma.b);
+				exp_sigma_dx.r = total_transmittance.r * (1.0f - sigma_a.r);
+				exp_sigma_dx.g = total_transmittance.g * (1.0f - sigma_a.g);
+				exp_sigma_dx.b = total_transmittance.b * (1.0f - sigma_a.b);
 
 				// weight * Le(x)
 				miaux_multiply_colors(&light_color, &light_color,
@@ -590,14 +600,15 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 				// Sum previous and current contributions
 				miaux_add_color(&volume_color, &light_color);
 			}
-			miaux_add_color(&total_sigma, &sigma_a);
+			miaux_multiply_colors(&total_transmittance, &total_transmittance,
+					&sigma_a);
 		}
 	}
 
 	miaux_copy_color_scaled(&result->color, &volume_color,
 			rm_data.linear_density);
 
-	if (!miaux_color_is_black(&result->color)) {
+	if (miaux_color_any_is_neq(total_transmittance, 1)) {
 		// Maya transparency -> pixel = background * transparency + foreground
 		// Compute transmittance, e^(- sum sigma_a * d_x) and scale with user
 		// coefficient
