@@ -27,7 +27,7 @@
 
 #include <cstring> // For memcpy in piccante
 #include <climits> // For INT_MAX in piccante
-#include "piccante/piccante.hpp"
+#include "piccante.hpp"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -103,7 +103,14 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 		const miScalar wE = *mi_eval_scalar(&paras->wE);
 		const miScalar wS = *mi_eval_scalar(&paras->wS);
 
-		pic::ExposureFusion(pic::Single(&img0), wC, wE, wS, &img0);
+		// Exposure fusion requires a stack of LDR images
+		pic::ImageVec stack = pic::getAllExposuresImages(&img0);
+
+		for (auto& i : stack) {
+			i->clamp(0.0f, 1.0f);
+		}
+
+		pic::ExposureFusion(stack, wC, wE, wS, &img0);
 
 		pic::FilterSimpleTMO::Execute(&img0, &img0, 1.0f, f_stop);
 		break;
