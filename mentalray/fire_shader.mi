@@ -217,18 +217,18 @@ declare shader
 			#: default 0
 			#: min 0.0
 			#: softmax 1e3
-		scalar "wC",
+		scalar "weight_contrast",
 			#: default 1
-			#: min 0.0
-			#: softmax 1e2
-		scalar "wE",
+			#: min 0
+			#: max 1
+		scalar "weight_exposedness",
 			#: default 1
-			#: min 0.0
-			#: softmax 1e2
-		scalar "wS",
+			#: min 0
+			#: max 1
+		scalar "weight_saturation",
 			#: default 1
-			#: min 0.0
-			#: softmax 1e2			
+			#: min 0
+			#: max 1			
 		scalar "gamma",
 			#: default 2.2
 			#: min 0.0

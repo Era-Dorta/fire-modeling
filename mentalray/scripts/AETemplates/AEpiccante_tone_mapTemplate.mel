@@ -14,9 +14,9 @@ global proc AEpiccante_tone_mapTemplate ( string $nodeName )
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Exposure Fusion" -collapse 0;
-		editorTemplate -annotation "wC" -addControl "wC";
-		editorTemplate -annotation "wE" -addControl "wE";
-		editorTemplate -annotation "wS" -addControl "wS";
+		editorTemplate -annotation "Strong edgese are taken more into account if the weight_contrast is near 1 otherwise they are not taken into account" -addControl "weight_contrast";
+		editorTemplate -annotation "Well exposed pixels are taken more into account if the weight_exposedness is near 1 otherwise they are not taken into account" -addControl "weight_exposedness";
+		editorTemplate -annotation "Saturated pixels are taken more into account if the weight_saturation is near 1 otherwise they are not taken into account" -addControl "weight_saturation";
 		editorTemplate -annotation "Image exposure for the gamma correction" -addControl "f_stop";
 	editorTemplate -endLayout;
 	

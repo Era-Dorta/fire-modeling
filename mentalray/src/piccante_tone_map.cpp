@@ -37,9 +37,9 @@ struct piccante_tone_map {
 	miInteger tm_operator;
 	miScalar white_point; // For ReinhardTMO
 	miScalar image_exposure; // For ReinhardTMO
-	miScalar wC; // For Exposure Fusion
-	miScalar wE; // For Exposure Fusion
-	miScalar wS; // For Exposure Fusion
+	miScalar weight_contrast; // For Exposure Fusion
+	miScalar weight_exposedness; // For Exposure Fusion
+	miScalar weight_saturation; // For Exposure Fusion
 	miScalar gamma; // For Gamma correction
 	miScalar f_stop; // For Exposure correction
 };
@@ -99,9 +99,9 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 		break;
 	}
 	case 1: { // Exposure Fusion
-		const miScalar wC = *mi_eval_scalar(&paras->wC);
-		const miScalar wE = *mi_eval_scalar(&paras->wE);
-		const miScalar wS = *mi_eval_scalar(&paras->wS);
+		const miScalar wC = *mi_eval_scalar(&paras->weight_contrast);
+		const miScalar wE = *mi_eval_scalar(&paras->weight_exposedness);
+		const miScalar wS = *mi_eval_scalar(&paras->weight_saturation);
 
 		// Exposure fusion requires a stack of LDR images
 		pic::ImageVec stack = pic::getAllExposuresImages(&img0);
