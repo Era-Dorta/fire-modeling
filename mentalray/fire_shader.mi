@@ -205,7 +205,10 @@ end declare
 # Tone mapping shader
 
 declare shader
-	"reinhard_tone_map" (
+	"piccante_tone_map" (
+		integer "tm_operator",
+			#: default 0
+			#: enum "Reinhard:Exposure Fusion:Gamma Correction"
 		scalar "white_point",
 			#: default 0.0
 			#: min 0.0
@@ -214,14 +217,26 @@ declare shader
 			#: default 0
 			#: min 0.0
 			#: softmax 1e3
+		scalar "wC",
+			#: default 1
+			#: min 0.0
+			#: softmax 1e2
+		scalar "wE",
+			#: default 1
+			#: min 0.0
+			#: softmax 1e2
+		scalar "wS",
+			#: default 1
+			#: min 0.0
+			#: softmax 1e2			
 		scalar "gamma",
 			#: default 2.2
 			#: min 0.0
 			#: softmax 5.0
-		scalar "schlick_coeff",
-			#: default 0.5
-			#: min 0.0
-			#: max 1
+		scalar "f_stop",
+			#: default 0
+			#: min 0
+			#: softmax 1e2
 			)
 	version 1
 	apply output

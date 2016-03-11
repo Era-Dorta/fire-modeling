@@ -1,0 +1,34 @@
+global proc AEpiccante_tone_mapTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -annotation "Tone mapping operator" -label "Operator" -addControl "tm_operator";
+
+	editorTemplate -beginLayout "Reinhard Parameters" -collapse 0;
+			
+		editorTemplate -annotation "White point luminance in cd/m^2, set to 0 for automatic estimation" -addControl "white_point";
+		editorTemplate -annotation "Image exposure value, set to 0 for automatic estimation" -addControl "image_exposure";
+		editorTemplate -annotation "Monitor gamma value for gamma correction, a value of 1 leaves the colors unchanged, 2.2 is a good value for a standard monitor" -addControl "gamma";
+		editorTemplate -annotation "Image exposure for the gamma correction" -addControl "f_stop";
+		
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Exposure Fusion" -collapse 0;
+		editorTemplate -annotation "wC" -addControl "wC";
+		editorTemplate -annotation "wE" -addControl "wE";
+		editorTemplate -annotation "wS" -addControl "wS";
+		editorTemplate -annotation "Image exposure for the gamma correction" -addControl "f_stop";
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Gamma Correction" -collapse 0;
+		editorTemplate -annotation "Monitor gamma value for gamma correction, a value of 1 leaves the colors unchanged, 2.2 is a good value for a standard monitor" -addControl "gamma";
+		editorTemplate -annotation "Image exposure for the gamma correction" -addControl "f_stop";
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Node Behaviour" -collapse 1;
+		editorTemplate -addControl "caching";
+		editorTemplate -addControl "nodeState"; 
+	editorTemplate -endLayout;
+	
+	editorTemplate -endScrollLayout;
+}

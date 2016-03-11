@@ -1,13 +1,11 @@
 /*
- * reinhard_tone_map.cpp
+ * piccante_tone_map.cpp
  *
  *  Created on: 23 Feb 2016
  *      Author: gdp24
  */
 
 #include "shader.h"
-
-#include "miaux.h"
 
 // Disable warnings for piccante if using gcc
 #ifdef __GNUC__
@@ -27,32 +25,35 @@
 #define PIC_DISABLE_OPENGL
 #define PIC_DISABLE_QT
 
-#include "piccante.hpp"
+#include <cstring> // For memcpy in piccante
+#include <climits> // For INT_MAX in piccante
+#include "piccante/piccante.hpp"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif /* __GNUC__ */
 
-struct reinhard_tone_map {
-	miScalar white_point;
-	miScalar image_exposure;
-	miScalar gamma;
-	miScalar schlick_coeff;
+struct piccante_tone_map {
+	miInteger tm_operator;
+	miScalar white_point; // For ReinhardTMO
+	miScalar image_exposure; // For ReinhardTMO
+	miScalar wC; // For Exposure Fusion
+	miScalar wE; // For Exposure Fusion
+	miScalar wS; // For Exposure Fusion
+	miScalar gamma; // For Gamma correction
+	miScalar f_stop; // For Exposure correction
 };
 
-extern "C" DLLEXPORT int reinhard_tone_map_version(void) {
-	return 2;
+extern "C" DLLEXPORT int piccante_tone_map_version(void) {
+	return 1;
 }
 
-extern "C" DLLEXPORT miBoolean reinhard_tone_map(void *result, miState *state,
-		struct reinhard_tone_map *paras) {
-	const miScalar white_point = *mi_eval_scalar(&paras->white_point);
-	const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
+extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
+		struct piccante_tone_map *paras) {
+	const miInteger tm_operator = *mi_eval_integer(&paras->tm_operator);
 	const miScalar gamma = *mi_eval_scalar(&paras->gamma);
-	const miScalar schlick_coeff = *mi_eval_scalar(&paras->schlick_coeff);
+	const miScalar f_stop = *mi_eval_scalar(&paras->f_stop);
 
-	// This section is heavily inspired by the Reinhard Tone Mapping code
-	// in https://github.com/banterle/HDR_Toolbox
 	if (gamma <= 0) {
 		mi_error("reinhard_tone_map: Gamma must be a positive scalar");
 		return miTRUE;
@@ -86,12 +87,38 @@ extern "C" DLLEXPORT miBoolean reinhard_tone_map(void *result, miState *state,
 		}
 	}
 
-	// Apply the tone mapping and save the result in img1
-	pic::Image *img1;
-	img1 = pic::ReinhardTMO(&img0, nullptr, image_exposure, white_point);
+	switch (tm_operator) {
+	case 0: { // Reinhard
+		const miScalar white_point = *mi_eval_scalar(&paras->white_point);
+		const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
 
-	// Apply gamma correction and save the result in img0
-	pic::FilterSimpleTMO::Execute(img1, &img0, gamma, schlick_coeff);
+		pic::ReinhardTMO(&img0, &img0, image_exposure, white_point);
+
+		// Apply gamma correction and save the result in img0
+		pic::FilterSimpleTMO::Execute(&img0, &img0, gamma, f_stop);
+		break;
+	}
+	case 1: { // Exposure Fusion
+		const miScalar wC = *mi_eval_scalar(&paras->wC);
+		const miScalar wE = *mi_eval_scalar(&paras->wE);
+		const miScalar wS = *mi_eval_scalar(&paras->wS);
+
+		pic::ExposureFusion(pic::Single(&img0), wC, wE, wS, &img0);
+
+		pic::FilterSimpleTMO::Execute(&img0, &img0, 1.0f, f_stop);
+		break;
+	}
+	case 2: { // Only Gamma Correction
+
+		pic::FilterSimpleTMO::Execute(&img0, &img0, gamma, f_stop);
+		break;
+	}
+	default: {
+		mi_output_image_close(state, miRC_IMAGE_RGBA);
+		mi_error("Invalid tone mapping operator");
+		return miFALSE;
+	}
+	}
 
 	// Copy the tone mapped image to the buffer
 	for (int y = 0; y < state->camera->y_resolution; y++) {
