@@ -131,8 +131,8 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	setAttr ($absorption_shader + ".compute_mode") 1;
 
 	// Set the read modes for the voxel data
-	setAttr ($fire_shader + ".temperature_read_mode") 2; // Max rgb value
-	setAttr ($fire_shader + ".density_read_mode") 1; // Red channel only
+	setAttr ($fire_shader + ".temperature_read_mode") 5; // Max rgb value
+	setAttr ($fire_shader + ".density_read_mode") 4; // Red channel only
 
 	// Set the material of the cube to be the Shading Group 
 	select -r $cube;
