@@ -9,9 +9,11 @@ Fire Shader for Mental Ray in Maya
 * [OpenVDB](http://www.openvdb.org/) 2.1
 * [Maya DevKit](https://apps.exchange.autodesk.com/en) needed for Maya 2016 and above, download "Maya Developer Kit"
 * [MentalRay DevKit](http://knowledge.autodesk.com/support/maya/downloads/caas/downloads/content/mental-ray-plugin-for-maya-2016.html) 2015
-* For Ubuntu, all the dependencies can be installed with 
+* [Piccante](http://vcg.isti.cnr.it/piccante/) 0.4
+* For Ubuntu, the dependencies can be installed with 
   * `sudo apt-get install cmake libboost-all-dev zlib1g-dev libopenexr-dev libtbb-dev libopenvdb-dev`
-  * [This script](https://gist.github.com/Garoe/859324436d1273aa56ff) can be used to install Maya 2015 with Mental Ray . 
+  * [This script](https://gist.github.com/Garoe/859324436d1273aa56ff) can be used to install Maya 2015 with Mental Ray.
+  * Piccante consists only of headers files, after download cmake will try to find it, if it fails set `PICCANTE_INCLUDE_DIRS` to the picante include folder.
 
 #### Compile and install
 * Create build folder and the run the following commands in it
