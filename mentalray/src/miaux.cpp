@@ -242,6 +242,22 @@ miBoolean miaux_color_any_is_lt(const miColor& c, miScalar x) {
 	return (c.r < x || c.g < x || c.b < x);
 }
 
+miBoolean miaux_color_is_eq(const miColor& c, miScalar x) {
+	return (c.r == x && c.g == x && c.b == x);
+}
+
+miBoolean miaux_color_any_is_eq(const miColor& c, miScalar x) {
+	return (c.r == x || c.g == x || c.b == x);
+}
+
+miBoolean miaux_color_is_neq(const miColor& c, miScalar x) {
+	return (c.r != x && c.g != x && c.b != x);
+}
+
+miBoolean miaux_color_any_is_neq(const miColor& c, miScalar x) {
+	return (c.r != x || c.g != x || c.b != x);
+}
+
 void miaux_initialize_volume_output(VolumeShader_R* result) {
 	miaux_set_rgb(&result->color, 0);
 	miaux_set_rgb(&result->glowColor, 0);

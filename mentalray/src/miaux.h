@@ -116,6 +116,14 @@ miBoolean miaux_color_any_is_lt(const miColor& c, miScalar x);
 
 miBoolean miaux_color_is_lt(const miColor& c, miScalar x);
 
+miBoolean miaux_color_is_eq(const miColor& c, miScalar x);
+
+miBoolean miaux_color_any_is_eq(const miColor& c, miScalar x);
+
+miBoolean miaux_color_is_neq(const miColor& c, miScalar x);
+
+miBoolean miaux_color_any_is_neq(const miColor& c, miScalar x);
+
 void miaux_initialize_volume_output(VolumeShader_R* result);
 
 void miaux_get_voxel_dataset_dims(unsigned *width, unsigned *height,
