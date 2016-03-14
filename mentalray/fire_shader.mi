@@ -208,7 +208,7 @@ declare shader
 	"piccante_tone_map" (
 		integer "tm_operator",
 			#: default 0
-			#: enum "Reinhard:Exposure Fusion:Gamma Correction"
+			#: enum "Gamma Correction:Exposure Fusion:Reinhard:Lischinski"
 		scalar "white_point",
 			#: default 0.0
 			#: min 0.0

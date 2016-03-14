@@ -21,7 +21,6 @@
 #endif /* __GNUC__ */
 
 // Disable QT and OpenGL in piccate as we don't need them
-#define PIC_DISABLE_EIGEN
 #define PIC_DISABLE_OPENGL
 #define PIC_DISABLE_QT
 
@@ -88,13 +87,7 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 	}
 
 	switch (tm_operator) {
-	case 0: { // Reinhard
-		const miScalar white_point = *mi_eval_scalar(&paras->white_point);
-		const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
-
-		pic::ReinhardTMO(&pic_img, &pic_img, image_exposure, white_point);
-
-		// Apply gamma correction and save the result in img0
+	case 0: { // Only Gamma Correction
 		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, gamma, f_stop);
 		break;
 	}
@@ -112,11 +105,28 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 
 		pic::ExposureFusion(stack, wC, wE, wS, &pic_img);
 
+		// Exposure fusion doesn't needa gamma correction, but we can apply
+		/// exposure correction
 		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, 1.0f, f_stop);
 		break;
 	}
-	case 2: { // Only Gamma Correction
+	case 2: { // Reinhard
+		const miScalar white_point = *mi_eval_scalar(&paras->white_point);
+		const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
 
+		pic::ReinhardTMO(&pic_img, &pic_img, image_exposure, white_point);
+
+		// Apply gamma correction
+		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, gamma, f_stop);
+		break;
+	}
+	case 3: { // Lischinski
+		const miScalar white_point = *mi_eval_scalar(&paras->white_point);
+		const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
+
+		pic::LischinskiTMO(&pic_img, &pic_img, image_exposure, white_point);
+
+		// Apply gamma correction
 		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, gamma, f_stop);
 		break;
 	}
