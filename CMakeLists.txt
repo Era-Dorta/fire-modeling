@@ -64,7 +64,7 @@ MARK_AS_ADVANCED(MAYA_LOCATION MENTALRAY_LOCATION)
 #All warnings and thread compiling on linux
 IF(UNIX)
 	SET(CMAKE_CXX_COMPILER g++)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fopenmp -pthread -D_REENTRANT -fPIC -ansi -std=c++11 -shared -export-dynamic -static-libgcc -Wl,-Bsymbolic")
 ENDIF(UNIX)
 
 IF(IS_DEFAULT_PREFIX)
