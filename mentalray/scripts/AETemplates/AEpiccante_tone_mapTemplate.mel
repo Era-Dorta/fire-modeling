@@ -1,40 +1,38 @@
 global proc update_piccante(string $nodeName){
 
+    // Dimm all the parameters
+    editorTemplate -dimControl $nodeName "gamma" false;
+	editorTemplate -dimControl $nodeName "f_stop" false;
+	editorTemplate -dimControl $nodeName "white_point" true;
+	editorTemplate -dimControl $nodeName "image_exposure" true;
+	editorTemplate -dimControl $nodeName "sharpenning" true;
+	editorTemplate -dimControl $nodeName "weight_contrast" true;
+	editorTemplate -dimControl $nodeName "weight_exposedness" true;
+	editorTemplate -dimControl $nodeName "weight_saturation" true;
+
 	// When there is a operator change, activate the controls for the active
 	// operator and deactive the ones for the inactives
 	int $oper = `getAttr ($nodeName + ".tm_operator")`;
 
 	switch($oper){
 	case 0: // Gamma correction
+	    // Undim the parameters for this method
 		editorTemplate -dimControl $nodeName "gamma" false;
 		editorTemplate -dimControl $nodeName "f_stop" false;
-		
-		editorTemplate -dimControl $nodeName "white_point" true;
-		editorTemplate -dimControl $nodeName "image_exposure" true;
-		editorTemplate -dimControl $nodeName "weight_contrast" true;
-		editorTemplate -dimControl $nodeName "weight_exposedness" true;
-		editorTemplate -dimControl $nodeName "weight_saturation" true;	
 		break;
 	case 1: // Exposure Fusion
 		editorTemplate -dimControl $nodeName "weight_contrast" false;
 		editorTemplate -dimControl $nodeName "weight_exposedness" false;
 		editorTemplate -dimControl $nodeName "weight_saturation" false;
 		editorTemplate -dimControl $nodeName "f_stop" false;
-		
-		editorTemplate -dimControl $nodeName "white_point" true;
-		editorTemplate -dimControl $nodeName "image_exposure" true;
-		editorTemplate -dimControl $nodeName "gamma" true;		
 		break;
-	case 2: // Reinhard
+	case 2: // Reinhard, note the lack of break, Lischinski will undim the rest
+	    editorTemplate -dimControl $nodeName "sharpenning" false;
 	case 3: // Lischinski
-		editorTemplate -dimControl $nodeName "white_point" false;
+        editorTemplate -dimControl $nodeName "white_point" false;
 		editorTemplate -dimControl $nodeName "image_exposure" false;
 		editorTemplate -dimControl $nodeName "gamma" false;
 		editorTemplate -dimControl $nodeName "f_stop" false;
-		
-		editorTemplate -dimControl $nodeName "weight_contrast" true;
-		editorTemplate -dimControl $nodeName "weight_exposedness" true;
-		editorTemplate -dimControl $nodeName "weight_saturation" true;
 		break;	
 	default:
 		break;
@@ -50,7 +48,7 @@ global proc AEpiccante_tone_mapTemplate ( string $nodeName )
 	editorTemplate -beginLayout "Gamma Correction" -collapse 0;
 	
 		editorTemplate -annotation "Monitor gamma value for gamma correction, a value of 1 leaves the colors unchanged, 2.2 is a good value for a standard monitor" -addControl "gamma";
-		editorTemplate -annotation "Image exposure for the gamma correction" -addControl "f_stop";
+		editorTemplate -annotation "Image exposure for the gamma correction, represents the relative aperture of the pupil/camera" -addControl "f_stop";
 		
 	editorTemplate -endLayout;
 	
@@ -66,6 +64,7 @@ global proc AEpiccante_tone_mapTemplate ( string $nodeName )
 			
 		editorTemplate -annotation "White point luminance in cd/m^2, set to 0 for automatic estimation" -addControl "white_point";
 		editorTemplate -annotation "Image exposure value, set to 0 for automatic estimation" -addControl "image_exposure";
+		editorTemplate -annotation "Sharpenning factor" -addControl "sharpenning";
 		
 	editorTemplate -endLayout;
 	

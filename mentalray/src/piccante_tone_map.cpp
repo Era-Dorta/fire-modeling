@@ -34,8 +34,9 @@
 
 struct piccante_tone_map {
 	miInteger tm_operator;
-	miScalar white_point; // For ReinhardTMO
-	miScalar image_exposure; // For ReinhardTMO
+	miScalar white_point; // For ReinhardTMO/LischinskiTMO
+	miScalar image_exposure; // For ReinhardTMO/LischinskiTMO
+	miScalar sharpenning; // For ReinhardTMO
 	miScalar weight_contrast; // For Exposure Fusion
 	miScalar weight_exposedness; // For Exposure Fusion
 	miScalar weight_saturation; // For Exposure Fusion
@@ -113,8 +114,10 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 	case 2: { // Reinhard
 		const miScalar white_point = *mi_eval_scalar(&paras->white_point);
 		const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
+		const miScalar sharpenning = *mi_eval_scalar(&paras->sharpenning);
 
-		pic::ReinhardTMO(&pic_img, &pic_img, image_exposure, white_point);
+		pic::ReinhardTMO(&pic_img, &pic_img, image_exposure, white_point,
+				sharpenning);
 
 		// Apply gamma correction
 		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, gamma, f_stop);

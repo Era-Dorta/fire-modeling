@@ -216,7 +216,11 @@ declare shader
 		scalar "image_exposure",
 			#: default 0
 			#: min 0.0
-			#: softmax 1e3
+			#: softmax 1e3,
+		scalar "sharpenning",
+		    #: default 8
+		    #: min 0
+		    #: softmax 1e3
 		scalar "weight_contrast",
 			#: default 1
 			#: min 0
