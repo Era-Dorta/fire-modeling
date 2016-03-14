@@ -1,33 +1,78 @@
+global proc update_piccante(string $nodeName){
+
+	// When there is a operator change, activate the controls for the active
+	// operator and deactive the ones for the inactives
+	int $oper = `getAttr ($nodeName + ".tm_operator")`;
+
+	switch($oper){
+	case 0: // Reinhard
+		editorTemplate -dimControl $nodeName "white_point" false;
+		editorTemplate -dimControl $nodeName "image_exposure" false;
+		editorTemplate -dimControl $nodeName "gamma" false;
+		editorTemplate -dimControl $nodeName "f_stop" false;
+		
+		editorTemplate -dimControl $nodeName "weight_contrast" true;
+		editorTemplate -dimControl $nodeName "weight_exposedness" true;
+		editorTemplate -dimControl $nodeName "weight_saturation" true;
+		break;
+	case 1: // Exposure Fusion
+		editorTemplate -dimControl $nodeName "weight_contrast" false;
+		editorTemplate -dimControl $nodeName "weight_exposedness" false;
+		editorTemplate -dimControl $nodeName "weight_saturation" false;
+		editorTemplate -dimControl $nodeName "f_stop" false;
+		
+		editorTemplate -dimControl $nodeName "white_point" true;
+		editorTemplate -dimControl $nodeName "image_exposure" true;
+		editorTemplate -dimControl $nodeName "gamma" true;		
+		break;
+	case 2: // Gamma correction
+		editorTemplate -dimControl $nodeName "gamma" false;
+		editorTemplate -dimControl $nodeName "f_stop" false;
+		
+		editorTemplate -dimControl $nodeName "white_point" true;
+		editorTemplate -dimControl $nodeName "image_exposure" true;
+		editorTemplate -dimControl $nodeName "weight_contrast" true;
+		editorTemplate -dimControl $nodeName "weight_exposedness" true;
+		editorTemplate -dimControl $nodeName "weight_saturation" true;		
+		break;
+	default:
+		break;
+	}
+}
+
 global proc AEpiccante_tone_mapTemplate ( string $nodeName )
 {
 	editorTemplate -beginScrollLayout;
 
-	editorTemplate -annotation "Tone mapping operator" -label "Operator" -addControl "tm_operator";
+	editorTemplate -annotation "Tone mapping operator" -label "Operator" -addControl "tm_operator" "update_piccante";
 
 	editorTemplate -beginLayout "Reinhard Parameters" -collapse 0;
 			
 		editorTemplate -annotation "White point luminance in cd/m^2, set to 0 for automatic estimation" -addControl "white_point";
 		editorTemplate -annotation "Image exposure value, set to 0 for automatic estimation" -addControl "image_exposure";
+		
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Exposure Fusion" -collapse 0;
+	
+		editorTemplate -annotation "Strong edgese are taken more into account if the weight_contrast is near 1 otherwise they are not taken into account" -addControl "weight_contrast";
+		editorTemplate -annotation "Well exposed pixels are taken more into account if the weight_exposedness is near 1 otherwise they are not taken into account" -addControl "weight_exposedness";
+		editorTemplate -annotation "Saturated pixels are taken more into account if the weight_saturation is near 1 otherwise they are not taken into account" -addControl "weight_saturation";
+		
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Gamma Correction" -collapse 0;
+	
 		editorTemplate -annotation "Monitor gamma value for gamma correction, a value of 1 leaves the colors unchanged, 2.2 is a good value for a standard monitor" -addControl "gamma";
 		editorTemplate -annotation "Image exposure for the gamma correction" -addControl "f_stop";
 		
 	editorTemplate -endLayout;
 	
-	editorTemplate -beginLayout "Exposure Fusion" -collapse 0;
-		editorTemplate -annotation "Strong edgese are taken more into account if the weight_contrast is near 1 otherwise they are not taken into account" -addControl "weight_contrast";
-		editorTemplate -annotation "Well exposed pixels are taken more into account if the weight_exposedness is near 1 otherwise they are not taken into account" -addControl "weight_exposedness";
-		editorTemplate -annotation "Saturated pixels are taken more into account if the weight_saturation is near 1 otherwise they are not taken into account" -addControl "weight_saturation";
-		editorTemplate -annotation "Image exposure for the gamma correction" -addControl "f_stop";
-	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Gamma Correction" -collapse 0;
-		editorTemplate -annotation "Monitor gamma value for gamma correction, a value of 1 leaves the colors unchanged, 2.2 is a good value for a standard monitor" -addControl "gamma";
-		editorTemplate -annotation "Image exposure for the gamma correction" -addControl "f_stop";
-	editorTemplate -endLayout;
-	
 	editorTemplate -beginLayout "Node Behaviour" -collapse 1;
+	
 		editorTemplate -addControl "caching";
 		editorTemplate -addControl "nodeState"; 
+		
 	editorTemplate -endLayout;
 	
 	editorTemplate -endScrollLayout;
