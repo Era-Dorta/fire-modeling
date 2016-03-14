@@ -27,10 +27,10 @@ Fire Shader for Mental Ray in Maya
   * Both paths should be for the first file in a data sequence
   * The file name format requires the frame number to be located in the end of the name, e.g. ```my-file-001.raw```
   * Batch rendering is not supported with the GUI, the input files will not update; instead render from the command line with the ```Render``` command with the ```-perframe``` flag.
-* A tone mapping shader can be used for HDR to LDR convertion, otherwise HDR rendering can be performed if a compatible file format is selected, e.g. tiff, hdr or exr.  
+* A tone mapping shader can be used for HDR to LDR convertion, otherwise HDR rendering can be performed if a compatible file format is selected, e.g. tiff, hdr or exr.
+  * Adding `mia_exposure_photographic` as a Lens shader for the camera is recommended either case, as it will generally decrease rendering times.
   * The following command can be used to conect a tone map shader to a camera ```connectAttr  "my tone map shader".message "my camera shape".miOutputShader```.
-  * A custom tone mapping shader `reinhard_tone_map` is provided.
-  * Adding `mia_exposure_photographic` as a Lens shader for the camera is also recommended.
+  * A custom tone mapping shader `piccante_tone_map` is provided.
 * The shader will automatically advance to new data files when the playback frame changes in Maya
 * All the parameters that affect the result of the shading network can be modified from the ```fire_volume_shader``` attribute editor
   * On each execution the shader will output the upper limit for ```High Samples``` for the current data in the Mental Ray log.
