@@ -34,7 +34,7 @@ try
         error('Too many input arguments.');
     end
     
-    if(isBatchMode() && nargin < 1)
+    if(isBatchMode() && nargin <= 1)
         error('Logfile name is required when running in batch mode');
     end
     
