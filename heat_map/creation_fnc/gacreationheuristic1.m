@@ -13,18 +13,41 @@ sigma_noise = 250;
 % Create 256 bins, image can be 0..255
 edges = linspace(0, 255, 256);
 
-if(size(goal_mask, 3) == 3)
-    goal_mask = goal_mask(:,:,1);
+if(~iscell(goal_img))
+    % Single goal optimization, compute the histogram
+    if(size(goal_mask, 3) == 3)
+        goal_mask = goal_mask(:,:,1);
+    end
+    
+    sub_img = goal_img(:, :, 1);
+    hc_goal(1, :) = histcounts( sub_img(goal_mask), edges);
+    
+    sub_img = goal_img(:, :, 2);
+    hc_goal(2, :) = histcounts( sub_img(goal_mask), edges);
+    
+    sub_img = goal_img(:, :, 3);
+    hc_goal(3, :) = histcounts( sub_img(goal_mask), edges);
+else
+    % Multi goal optimization, compute the mean histogram of all the goal
+    % images
+    hc_goal = zeros(3, 255);
+    num_goal = numel(goal_img);
+    for i=1:num_goal
+        if(size(goal_mask{i}, 3) == 3)
+            goal_mask{i}= goal_mask{i}(:,:,1);
+        end
+        
+        sub_img = goal_img{i}(:, :, 1);
+        hc_goal(1, :) = hc_goal(1, :) + histcounts( sub_img(goal_mask{i}), edges);
+        
+        sub_img = goal_img{i}(:, :, 2);
+        hc_goal(2, :) = hc_goal(2, :) + histcounts( sub_img(goal_mask{i}), edges);
+        
+        sub_img = goal_img{i}(:, :, 3);
+        hc_goal(3, :) = hc_goal(3, :) + histcounts( sub_img(goal_mask{i}), edges);
+    end
+    hc_goal = hc_goal ./ num_goal;
 end
-
-sub_img = goal_img(:, :, 1);
-hc_goal(1, :) = histcounts( sub_img(goal_mask), edges);
-
-sub_img = goal_img(:, :, 2);
-hc_goal(2, :) = histcounts( sub_img(goal_mask), edges);
-
-sub_img = goal_img(:, :, 3);
-hc_goal(3, :) = histcounts( sub_img(goal_mask), edges);
 
 %% Find the closer RGB value for the goal image in black body temperature data
 
