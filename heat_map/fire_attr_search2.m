@@ -25,16 +25,16 @@ time_limit = 24 * 60 * 60; % In seconds
 
 % Lower bounds, mostly due to avoiding division by zero or setting
 % the colour to zero directly
-LB = [1, 1, 1, 1];
+LB = [0, 0, 1, -1];
 
 % Upper bounds, empirically set given the equations and our data
-UB = [10000, 1000, 100, 100];
+UB = [1000, 1000, 100, 1];
 
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test78_like_72_4x4x4_raw';
+scene_name = 'test94_gaussian_rotated_two_cams';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
 % Checks for number of goal images
