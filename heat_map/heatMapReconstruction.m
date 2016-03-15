@@ -35,7 +35,7 @@ time_limit = 24 * 60 * 60; % In seconds
 % do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test79_like_78_rot';
+scene_name = 'test94_gaussian_rotated_two_cams';
 raw_file_path = 'data/heat_maps/gaussian4x4x4.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
@@ -45,11 +45,11 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 % have the rendererable attribute set to false. Each camera must be named
 % as "cameraNShape". The first goal image belongs to camera1Shape, the
 % second to camera2Shape and so on.
-goal_img_path = {[scene_img_folder 'goalimage1.tif']};
+goal_img_path = {[scene_img_folder 'goalimage1-asym.tif']};
 
-goal_mask_img_path = [scene_img_folder 'googlefire1.tif'];
+goal_mask_img_path = [scene_img_folder 'maskgoalimage1.tif'];
 
-mask_img_path = [scene_img_folder 'goalimage.tif'];
+mask_img_path = [scene_img_folder 'maskgoalimage1.tif'];
 
 % Checks for number of goal images
 if(~iscell(goal_img_path))
