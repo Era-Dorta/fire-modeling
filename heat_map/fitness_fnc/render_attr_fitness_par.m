@@ -1,6 +1,6 @@
 function [ error ] = render_attr_fitness_par(  render_attr, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    ports, mrLogPath, goal_img)
+    ports, mrLogPath, goal_img, goal_mask, img_mask)
 %RENDER_ATTR_FITNESS_PAR Heat map fitness parallel function
 %   Render attributes fitness function for optimization algorithms, the parallelism
 %   works best if the Vectorized option of the optimizer is activated. It
@@ -23,7 +23,7 @@ if(size(render_attr, 1) <= num_maya)
     % to render al the data
     error = feval(fitnesss_internal, render_attr, xyz, whd, error_foo, ...
         scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-        ports(1), mrLogPath, goal_img);
+        ports(1), mrLogPath, goal_img, goal_mask, img_mask);
 else
     num_ra = size(render_attr, 1);
     num_ra_per_thread = round(num_ra / num_maya);
@@ -47,7 +47,7 @@ else
         f(c_maya) = parfeval(fitnesss_internal, 1,   ...
             render_attr(start_pop:end_pop, :), error_foo, scene_name, ...
             scene_img_folder, output_img_folder_name, sendMayaScript, ...
-            ports(c_maya), mrLogPath, goal_img);
+            ports(c_maya), mrLogPath, goal_img, goal_mask, img_mask);
     end
     
     % Wait for the results

@@ -1,6 +1,6 @@
 function [ error ] = render_attr_fitness( render_attr, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    port, mrLogPath, goal_img)
+    port, mrLogPath, goal_img, goal_mask, img_mask)
 %RENDER_ATTR_FITNESS Render attr fitness function
 persistent CACHE
 
@@ -25,7 +25,7 @@ for pop=1:size(render_attr, 1)
         
         %% Set the render attributes
         cmd = ['setAllFireAttributes(\"fire_volume_shader\", ' ...
-            '0.010, 0, ' num2str(render_attr(1)) ', ' num2str(render_attr(2)) ', ' ...
+            '0.0001, 0, ' num2str(render_attr(1)) ', ' num2str(render_attr(2)) ', ' ...
             num2str(render_attr(3)) ', ' num2str(render_attr(4)) ')'];
         sendToMaya(sendMayaScript, port, cmd);
         
@@ -54,7 +54,8 @@ for pop=1:size(render_attr, 1)
                 % If the rendered image is completely black set the error manually
                 error(i, pop) = realmax;
             else
-                error(i, pop) = sum(feval(error_foo{i}, goal_img, c_img));
+                error(i, pop) = sum(feval(error_foo{i}, goal_img, c_img, ...
+                    goal_mask, img_mask));
             end
         end
         

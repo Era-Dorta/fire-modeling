@@ -1,4 +1,5 @@
-function fire_attr_search2(solver, goal_img_path, ports, logfile)
+function fire_attr_search2(solver, goal_img_path, goal_mask_img_path, ...
+    mask_img_path, ports, logfile)
 %FIRE_ATTR_SEARCH2 Fire render parameters estimate from image
 % Solver should be one of the following
 % 'ga' -> Genetic Algorithms
@@ -42,6 +43,8 @@ if(~iscell(goal_img_path))
 else
     if(numel(goal_img_path) == 1)
         goal_img_path = goal_img_path{1};
+        goal_mask_img_path = goal_mask_img_path{1};
+        mask_img_path = mask_img_path{1};
         num_goal = 1;
     else
         error('Several goal images not supported.');
@@ -80,9 +83,23 @@ try
         'output_folder',  output_img_folder);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
-    % Read goal image
+    %% Read goal and mask images
     goal_img = imread(goal_img_path);
     goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
+    
+    img_mask = logical(imread(mask_img_path));
+    
+    goal_mask = logical(imread(goal_mask_img_path));
+    
+    if(isequal(error_foo{1}, @MSE))
+        % For MSE the goal and the render image have to be same size
+        goal_img = imresize(goal_img, size(img_mask));
+        goal_mask = imresize(goal_mask, size(img_mask));
+    else
+        % For the other error functions use a single channel mask
+        img_mask = img_mask(:,:,1);
+        goal_mask = goal_mask(:,:,1);
+    end
     
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
@@ -128,16 +145,17 @@ try
     if(numMayas == 1)
         fitness_foo = @(x)render_attr_fitness(x, error_foo, ...
             scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-            ports, mrLogPath, goal_img);
+            ports, mrLogPath, goal_img, goal_mask, img_mask);
     else
         fitness_foo = @(x)render_attr_fitness_par(x, error_foo, ...
             scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-            ports, mrLogPath, goal_img);
+            ports, mrLogPath, goal_img, goal_mask, img_mask);
         
         % If we are using the parallel fitness foo, do a preevaluation of
         % the error functions to initialize their persistent variables, as
         % there could be a racing condition during the parallel evaluation
-        cellfun(@(foo) feval(foo, goal_img, goal_img), error_foo);
+        cellfun(@(foo) feval(foo, goal_img, goal_img, goal_mask, img_mask), ...
+            error_foo);
     end
     
     % render_attr_fitness uses a cache with persisten variables, after
