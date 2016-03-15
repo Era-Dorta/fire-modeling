@@ -1,6 +1,6 @@
 function [ error ] = heat_map_fitnessN( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    port, mrLogPath, goal_img, img_mask)
+    port, mrLogPath, goal_img, goal_mask, img_mask)
 %HEAT_MAP_FITNESSN Heat map fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
@@ -85,7 +85,8 @@ for pop=1:size(heat_map_v, 1)
                 % If any of the rendered image is completely black set the error manually
                 error(i, pop) = realmax;
             else
-                error(i, pop) = sum(feval(error_foo{i}, goal_img, c_img, img_mask));
+                error(i, pop) = sum(feval(error_foo{i}, goal_img, c_img, ...
+                    goal_mask, img_mask));
             end
         end
         

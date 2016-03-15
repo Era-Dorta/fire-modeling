@@ -1,6 +1,6 @@
 function [ error ] = heat_map_fitness_par( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    ports, mrLogPath, goal_img, img_mask)
+    ports, mrLogPath, goal_img, goal_mask, img_mask)
 %HEAT_MAP_FITNESS_PAR Heat map fitness parallel function
 %   Heat map fitness function for optimization algorithms, the parallelism
 %   works best if the Vectorized option of the optimizer is activated. It
@@ -23,7 +23,7 @@ if(size(heat_map_v, 1) <= num_maya)
     % to render al the data
     error = feval(fitnesss_internal, heat_map_v, xyz, whd, error_foo, ...
         scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-        ports(1), mrLogPath, goal_img, img_mask);
+        ports(1), mrLogPath, goal_img, goal_mask, img_mask);
 else
     num_hm = size(heat_map_v, 1);
     num_hm_per_thread = round(num_hm / num_maya);
@@ -47,7 +47,8 @@ else
         f(c_maya) = parfeval(fitnesss_internal, 1,   ...
             heat_map_v(start_pop:end_pop, :), xyz, whd, error_foo,   ...
             scene_name, scene_img_folder, output_img_folder_name, ...
-            sendMayaScript, ports(c_maya), mrLogPath, goal_img, img_mask);
+            sendMayaScript, ports(c_maya), mrLogPath, goal_img, goal_mask, ...
+            img_mask);
     end
     
     % Wait for the results

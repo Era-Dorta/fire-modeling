@@ -1,4 +1,5 @@
-function [ cerror ] = histogramErrorOptiN( goal_imgs, test_imgs, img_mask)
+function [ cerror ] = histogramErrorOptiN( goal_imgs, test_imgs, goal_mask, ...
+    img_mask)
 %HISTOGRAMERROROPTIN Computes an error measure between several images
 %   CERROR = HISTOGRAMERROROPTIN(GOAL_IMGS, TEST_IMGS) this is an optimized
 %   version of HISTOGRAM_ERROR, assumes RGB images, ignores black pixels
@@ -12,24 +13,21 @@ edges = linspace(0, 255, 256);
 
 if isempty(HC_GOAL)
     HC_GOAL = cell(numel(goal_imgs), 1);
+    TESTIM_FACTOR = zeros(1, numel(goal_imgs));
     
     for i=1:numel(goal_imgs)
-        HC_GOAL{i}(1, :) = histcounts( goal_imgs{i}(:, :, 1), edges);
-        HC_GOAL{i}(2, :) = histcounts( goal_imgs{i}(:, :, 2), edges);
-        HC_GOAL{i}(3, :) = histcounts( goal_imgs{i}(:, :, 3), edges);
+        sub_img = goal_imgs{i}(:, :, 1);
+        HC_GOAL{i}(1, :) = histcounts( sub_img(goal_mask{i}), edges);
+        sub_img = goal_imgs{i}(:, :, 2);
+        HC_GOAL{i}(2, :) = histcounts( sub_img(goal_mask{i}), edges);
+        sub_img = goal_imgs{i}(:, :, 3);
+        HC_GOAL{i}(3, :) = histcounts( sub_img(goal_mask{i}), edges);
         
-        % Normalize by the number of pixels not counting the black ones
-        HC_GOAL{i}(1, :) = HC_GOAL{i}(1, :) / (size(goal_imgs{i}, 1) * ...
-            size(goal_imgs{i}, 2) - HC_GOAL{i}(1, 1));
-        HC_GOAL{i}(2, :) = HC_GOAL{i}(2, :) / (size(goal_imgs{i}, 1) * ...
-            size(goal_imgs{i}, 2) - HC_GOAL{i}(2, 1));
-        HC_GOAL{i}(3, :) = HC_GOAL{i}(3, :) / (size(goal_imgs{i}, 1) * ...
-            size(goal_imgs{i}, 2) - HC_GOAL{i}(3, 1));
+        % Normalize by the number of pixels
+        HC_GOAL{i} = HC_GOAL{i} ./ sum(goal_mask{i}(:) == 1);
         
-        % Set goal image as not having black pixels
-        HC_GOAL{i}(:,1) = 0;
+        TESTIM_FACTOR(i) = 1 / sum(img_mask{i}(:) == 1);
     end
-    TESTIM_FACTOR = 1 / sum(img_mask(:) == 1);
 end
 
 % Compute the error as in Dobashi et. al. 2012
@@ -38,13 +36,13 @@ for i=1:numel(goal_imgs)
     
     % Compute the histogram count for each color channel
     subImga = test_imgs{i}(:, :, 1);
-    hc_test(1, :) = histcounts(subImga(img_mask), edges) * TESTIM_FACTOR;
+    hc_test(1, :) = histcounts(subImga(img_mask{i}), edges) * TESTIM_FACTOR(i);
     
     subImga = test_imgs{i}(:, :, 2);
-    hc_test(2, :) = histcounts(subImga(img_mask), edges) * TESTIM_FACTOR;
+    hc_test(2, :) = histcounts(subImga(img_mask{i}), edges) * TESTIM_FACTOR(i);
     
     subImga = test_imgs{i}(:, :, 3);
-    hc_test(3, :) = histcounts(subImga(img_mask), edges) * TESTIM_FACTOR;
+    hc_test(3, :) = histcounts(subImga(img_mask{i}), edges) * TESTIM_FACTOR(i);
     
     cerror = cerror + (sum(abs(hc_test(1, :) - HC_GOAL{i}(1, :))) + ...
         sum(abs(hc_test(2, :) - HC_GOAL{i}(2, :))) + ...

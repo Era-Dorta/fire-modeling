@@ -1,4 +1,4 @@
-function [ cerror ] = histogramErrorOpti( goal_im, imga, img_mask )
+function [ cerror ] = histogramErrorOpti( goal_im, imga, goal_mask, img_mask )
 %HISTOGRAMERROROPTI Computes an error measure between two images
 %   CERROR = HISTOGRAMERROROPTI(IMGA, GOAL_IM) this is an optimized
 %   version of HISTOGRAM_ERROR, assumes RGB images, ignores black pixels
@@ -11,17 +11,15 @@ persistent HC_GOAL IMGA_FACTOR
 edges = linspace(0, 255, 256);
 
 if isempty(HC_GOAL)
-    HC_GOAL(1, :) = histcounts( goal_im(:, :, 1), edges);
-    HC_GOAL(2, :) = histcounts( goal_im(:, :, 2), edges);
-    HC_GOAL(3, :) = histcounts( goal_im(:, :, 3), edges);
+    sub_img = goal_im(:, :, 1);
+    HC_GOAL(1, :) = histcounts( sub_img(goal_mask), edges);
+    sub_img = goal_im(:, :, 2);
+    HC_GOAL(2, :) = histcounts( sub_img(goal_mask), edges);
+    sub_img = goal_im(:, :, 3);
+    HC_GOAL(3, :) = histcounts( sub_img(goal_mask), edges);
     
-    % Normalize by the number of pixels not counting the black ones
-    HC_GOAL(1, :) = HC_GOAL(1, :) / (size(goal_im, 1) * size(goal_im, 2) - HC_GOAL(1, 1));
-    HC_GOAL(2, :) = HC_GOAL(2, :) / (size(goal_im, 1) * size(goal_im, 2) - HC_GOAL(2, 1));
-    HC_GOAL(3, :) = HC_GOAL(3, :) / (size(goal_im, 1) * size(goal_im, 2) - HC_GOAL(3, 1));
-    
-    % Set goal image as not having black pixels
-    HC_GOAL(:,1) = 0;
+    % Normalize by the number of pixels
+    HC_GOAL = HC_GOAL ./ sum(goal_mask(:) == 1);
     
     IMGA_FACTOR = 1 / sum(img_mask(:) == 1);
 end

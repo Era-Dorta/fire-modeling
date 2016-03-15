@@ -47,9 +47,9 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 % second to camera2Shape and so on.
 goal_img_path = {[scene_img_folder 'goalimage1-asym.tif']};
 
-goal_mask_img_path = [scene_img_folder 'maskgoalimage1.tif'];
+goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png']};
 
-mask_img_path = [scene_img_folder 'maskgoalimage1.tif'];
+mask_img_path = {[scene_img_folder 'maskrenderimage1.png']};
 
 % Checks for number of goal images
 if(~iscell(goal_img_path))
@@ -57,6 +57,9 @@ if(~iscell(goal_img_path))
 else
     if(numel(goal_img_path) == 1)
         goal_img_path = goal_img_path{1};
+        goal_mask_img_path = goal_mask_img_path{1};
+        mask_img_path = mask_img_path{1};
+        
         num_goal = 1;
     else
         num_goal = numel(goal_img_path);
@@ -99,42 +102,9 @@ try
         'output_folder',  output_img_folder);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
-    % Read goal image/s
-    if(num_goal == 1)
-        goal_img = imread(goal_img_path);
-        goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
-    else
-        goal_img = cell(numel(goal_img_path), 1);
-        for i=1:numel(goal_img_path)
-            goal_img{i} = imread(goal_img_path{i});
-            goal_img{i} = goal_img{i}(:,:,1:3); % Transparency is not used, so ignore it
-        end
-    end
-    
-    %%  Read mask images
-    img_mask = imread(mask_img_path);
-    img_mask = img_mask(:,:,1:3);
-    
-    % Valid pixels are the ones that are not black
-    img_mask = (img_mask(:,:,1) > 0 & img_mask(:,:,2) > 0 & img_mask(:,:,3) > 0);
-    
-    goal_img_mask = imread(goal_mask_img_path);
-    goal_img_mask = goal_img_mask(:,:,1:3);
-    
-    % Valid pixels are the ones that are not black
-    goal_img_mask = (goal_img_mask(:,:,1) > 0 & goal_img_mask(:,:,2) > 0 ...
-        & goal_img_mask(:,:,3) > 0);
-    
-    if(isequal(error_foo{1}, @MSE))
-        % For MSE the goal and the render image have to be same size
-        goal_img = imresize(goal_img, size(img_mask));
-        goal_img_mask = imresize(goal_img_mask, size(img_mask));
-        
-        % MSE uses an RGB mask, the other error functions use a single
-        % channel image mask
-        img_mask(:,:,2) = img_mask;
-        img_mask(:,:,3) = img_mask(:,:,2);
-    end
+    %% Read goal and mask image/s
+    [ goal_img, goal_mask, img_mask ] = readGoalAndMask( num_goal, ...
+        goal_img_path, mask_img_path, goal_mask_img_path, error_foo);
     
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
@@ -186,14 +156,14 @@ try
             fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz,  ...
                 init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                 output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                goal_img, img_mask);
+                goal_img, goal_mask, img_mask);
             
             fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness'));
         else
             fitness_foo = @(x)heat_map_fitnessN(x, init_heat_map.xyz,  ...
                 init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                 output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                goal_img, img_mask);
+                goal_img, goal_mask, img_mask);
             
             fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitnessN'));
         end
@@ -201,7 +171,7 @@ try
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
             init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
             output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-            goal_img, img_mask);
+            goal_img, goal_mask, img_mask);
         
         % heat_map_fitness uses a cache with persisten variables, after
         % optimizing delete the cache
@@ -239,7 +209,7 @@ try
         case 'ga'
             [heat_map_v, ~, ~] = do_genetic_solve( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, summary_data, goal_img, goal_img_mask);
+                paths_str, summary_data, goal_img, goal_mask);
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
@@ -272,18 +242,18 @@ try
                     fitness_foo = @(x)heat_map_fitness(x', init_heat_map.xyz,  ...
                         init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                         output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                        goal_img);
+                        goal_img, goal_mask, img_mask);
                 else
                     fitness_foo = @(x)heat_map_fitnessN(x', init_heat_map.xyz,  ...
                         init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                         output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                        goal_img);
+                        goal_img, goal_mask, img_mask);
                 end
             else
                 fitness_foo = @(x)heat_map_fitness_par(x', init_heat_map.xyz,  ...
                     init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                     output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                    goal_img);
+                    goal_img, goal_mask, img_mask);
             end
             
             heat_map_v = do_cmaes_solve( max_ite, ...
@@ -347,9 +317,18 @@ try
         c_img = imread([output_img_folder '/optimized1.tif']);
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
         
-        clear(func2str(error_foo{1}));
-        L.summary_data.ImageErrorSingleView = feval(error_foo{1}, goal_img(1), ...
-            {c_img}, img_mask);
+        if(isequal(error_foo{1}, @histogramErrorOptiN))
+            L.summary_data.ImageErrorSingleView = histogramErrorOpti(goal_img{1}, ...
+                c_img, goal_mask{1}, img_mask{1});
+            clear 'histogramErrorOpti';
+        else
+            if(isequal(error_foo{1}, @MSE))
+                L.summary_data.ImageErrorSingleView = MSE(goal_img{1}, ...
+                    c_img, goal_mask{1}, img_mask{1});
+            else
+                warning('Unknown error function');
+            end
+        end
         
         summary_data = L.summary_data;
         save([paths_str.summary '.mat'], 'summary_data', '-append');

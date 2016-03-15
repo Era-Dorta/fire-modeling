@@ -1,10 +1,10 @@
 function [ error ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    port, mrLogPath, goal_img, img_mask)
+    port, mrLogPath, goal_img, goal_mask, img_mask)
 %HEAT_MAP_FITNESSN Heat map fitness function
 %   ERROR = HEAT_MAP_FITNESS( HEAT_MAP_V, XYZ, WHD, ERROR_FOO, ...
 %   SCENE_NAME, SCENE_IMG_FOLDER, OUTPUT_IMG_FOLDER_NAME, SENDMAYASCRIPT, ...
-%   PORT, MRLOGPATH, GOAL_IMG) Fitness function for optimization 
+%   PORT, MRLOGPATH, GOAL_IMG) Fitness function for optimization
 %   algorithms
 
 persistent CACHE
@@ -74,7 +74,8 @@ for pop=1:size(heat_map_v, 1)
                 % If the rendered image is completely black set the error manually
                 error(i, pop) = realmax;
             else
-                error(i, pop) = sum(feval(error_foo{i}, goal_img, c_img, img_mask));
+                error(i, pop) = sum(feval(error_foo{i}, goal_img, c_img, ...
+                    goal_mask, img_mask));
             end
         end
         
