@@ -28,7 +28,7 @@ rng(rand_seed);
 max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 LB = 300; % Lower bounds, no less than 300K -> 27C
-UB = 10000; % Upper bounds, no more than 10000K -> 9727C
+UB = 2000; % Upper bounds, no more than 2000K -> 1727C
 time_limit = 24 * 60 * 60; % In seconds
 
 % To modigy parameters specific to each solver go to the
