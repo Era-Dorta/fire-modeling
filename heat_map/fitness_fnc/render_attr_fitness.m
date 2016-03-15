@@ -12,6 +12,7 @@ output_img_folder = [scene_img_folder output_img_folder_name];
 
 num_error_foos = size(error_foo, 2);
 error = zeros(num_error_foos, size(render_attr, 1));
+num_variables = size(render_attr, 2);
 
 for pop=1:size(render_attr, 1)
     key = num2str(render_attr(pop, :));
@@ -24,9 +25,11 @@ for pop=1:size(render_attr, 1)
         system(['mkdir ' tmpdir ' < /dev/null']);
         
         %% Set the render attributes
-        cmd = ['setAllFireAttributes(\"fire_volume_shader\", ' ...
-            '0.0001, 0, ' num2str(render_attr(1)) ', ' num2str(render_attr(2)) ', ' ...
-            num2str(render_attr(3)) ', ' num2str(render_attr(4)) ')'];
+        cmd = 'setFireAttributesNew(\"fire_volume_shader\"';
+        for i=1:num_variables
+            cmd = [cmd ', ' num2str(render_attr(pop, i))];
+        end
+        cmd = [cmd ')'];
         sendToMaya(sendMayaScript, port, cmd);
         
         %% Set the folder and name of the render image

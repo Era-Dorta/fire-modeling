@@ -23,12 +23,14 @@ max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 time_limit = 24 * 60 * 60; % In seconds
 
+num_variables = 5;
+
 % Lower bounds, mostly due to avoiding division by zero or setting
 % the colour to zero directly
-LB = [0, 0, 1, -1];
+LB = [0, 0, 1, -1, 0];
 
 % Upper bounds, empirically set given the equations and our data
-UB = [1000, 1000, 100, 1];
+UB = [1000, 1000, 10, 1, 10];
 
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
@@ -206,11 +208,11 @@ try
             beq = [];
             nonlcon = [];
             disp(['Population size ' num2str(options.PopulationSize) ', number of '...
-                'variables 4']);
+                'variables ' num2str(num_variables)]);
             
             %% Call the genetic algorithm optimization
             
-            [render_attr, best_error, exitflag] = ga(fitness_foo, 4, ...
+            [render_attr, best_error, exitflag] = ga(fitness_foo, num_variables, ...
                 A, b, Aeq, beq, LB, UB, nonlcon, options);
             
             totalTime = toc(startTime);
@@ -218,7 +220,7 @@ try
             
             summary_data.OptimizationMethod = 'Genetic Algorithms';
             summary_data.ImageError = best_error;
-            summary_data.NumVariables = 4;
+            summary_data.NumVariables = num_variables;
             summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
             summary_data.LowerBounds = LB;
             summary_data.UpperBounds = UB;
@@ -242,9 +244,11 @@ try
     
     %%  Render the best image again
     % Set the render attributes
-    cmd = ['setAllFireAttributes(\"fire_volume_shader\", ' ...
-        '0.010, 0,' num2str(render_attr(1)) ', ' num2str(render_attr(2)) ', ' ...
-        num2str(render_attr(3)) ', ' num2str(render_attr(4)) ')'];
+    cmd = 'setFireAttributesNew(\"fire_volume_shader\"';
+    for i=1:num_variables
+        cmd = [cmd ', ' num2str(render_attr(i))];
+    end
+    cmd = [cmd ')'];
     sendToMaya(sendMayaScript, ports(1), cmd);
     
     % Set the folder and name of the render image
