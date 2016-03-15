@@ -12,7 +12,7 @@ set(gca,'zlim', [0, heat_map.size(3)]);
 xlabel('x');
 ylabel('z');
 zlabel('y');
-view(150,-10)
+view(-37,20)
 scatter3(heat_map.xyz(:,1), heat_map.xyz(:,3), heat_map.xyz(:,2), 1, colors);
 hold off;
 end
