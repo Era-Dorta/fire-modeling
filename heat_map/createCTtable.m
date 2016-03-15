@@ -91,6 +91,17 @@ try
     
     img_count = 0;
     
+    % Check that the output folder is empty before rendering, better tell
+    % the user as soon as possible
+    for i=1:totalSize
+        ct_file_path = [output_ct_folder 'CT-' fuel_name{i} '.mat'];
+        if(exist(ct_file_path, 'file'))
+            error(['Data file ' ct_file_path '.mat exits output folder ' ...
+                'must be empty' ]);
+        end
+    end
+    
+    % Render for all fuels and for all temperature samples
     for i=1:totalSize
         
         istr = sprintf('%d', fuel_index(i));
@@ -145,10 +156,6 @@ try
             
         end
         ct_file_path = [output_ct_folder 'CT-' fuel_name{i} '.mat'];
-        if(exist(ct_file_path, 'file'))
-            error(['Data file ' ct_file_path '.mat exits output folder ' ...
-                'must be empty' ]);
-        end
         save(ct_file_path, 'color_temp_table', '-ascii', '-double');
     end
     
