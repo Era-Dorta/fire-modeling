@@ -54,10 +54,19 @@ else
     end
 end
 
-% Error function to be used for the fitness function, it must accept two
-% images and return an error value
-error_foo = {@histogramErrorOpti};
-errorFooCloseObj = onCleanup(@() clear(func2str(error_foo{:})));
+% List of function with persistent variables that need to be clean up after
+% execution
+clear_foo_str = {'histogramErrorOpti', 'histogramErrorOptiN', ...
+    'heat_map_fitness', 'heat_map_fitnessN', 'heat_map_fitness_interp',  ...
+    'render_attr_fitness', 'histogramEstimate'};
+
+% Clear all the functions
+clearCloseObj = onCleanup(@() clear(clear_foo_str{:}));
+if(numel(ports) > 1)
+    % If running of parallel, clear the functions in the workers as well
+    clearParCloseObj = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
+        clear_foo_str{:}));
+end
 
 %% Avoid data overwrites by always creating a new folder
 try
@@ -159,10 +168,6 @@ try
         cellfun(@(foo) feval(foo, goal_img, goal_img, goal_mask, img_mask), ...
             error_foo);
     end
-    
-    % render_attr_fitness uses a cache with persisten variables, after
-    % optimizing delete the cache
-    fitnessFooCloseObj = onCleanup(@() clear('render_attr_fitness'));
     
     %% Summary extra data
     summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...

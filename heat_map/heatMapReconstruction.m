@@ -74,7 +74,20 @@ else
     % Error function for multiple goal images
     error_foo = {@histogramErrorOptiN};
 end
-errorFooCloseObj = onCleanup(@() clear(func2str(error_foo{:})));
+
+% List of function with persistent variables that need to be clean up after
+% execution
+clear_foo_str = {'histogramErrorOpti', 'histogramErrorOptiN', ...
+    'heat_map_fitness', 'heat_map_fitnessN', 'heat_map_fitness_interp',  ...
+    'render_attr_fitness', 'histogramEstimate'};
+
+% Clear all the functions
+clearCloseObj = onCleanup(@() clear(clear_foo_str{:}));
+if(numel(ports) > 1)
+    % If running of parallel, clear the functions in the workers as well
+    clearParCloseObj = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
+        clear_foo_str{:}));
+end
 
 %% Avoid data overwrites by always creating a new folder
 try
@@ -157,38 +170,17 @@ try
                 init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                 output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
                 goal_img, goal_mask, img_mask);
-            
-            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness'));
         else
             fitness_foo = @(x)heat_map_fitnessN(x, init_heat_map.xyz,  ...
                 init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                 output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
                 goal_img, goal_mask, img_mask);
-            
-            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitnessN'));
         end
     else
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
             init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
             output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
             goal_img, goal_mask, img_mask);
-        
-        % heat_map_fitness uses a cache with persisten variables, after
-        % optimizing delete the cache
-        if(num_goal == 1)
-            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitness'));
-            fitnessFooCloseObjPar = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
-                'heat_map_fitness'));
-        else
-            fitnessFooCloseObj = onCleanup(@() clear('heat_map_fitnessN'));
-            fitnessFooCloseObjPar = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
-                'heat_map_fitnessN'));
-        end
-        
-        % If we are running in parallel also add parallel cleanup for the
-        % erro function
-        errorFooCloseObjPar = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
-            func2str(error_foo{:})));
     end
     
     %% Summary extra data
