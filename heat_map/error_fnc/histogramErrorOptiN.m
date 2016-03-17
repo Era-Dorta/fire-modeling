@@ -49,4 +49,8 @@ for i=1:numel(goal_imgs)
         sum(abs(hc_test(3, :) - HC_GOAL{i}(3, :)))) / 6;
 end
 
+% Divide by the number of images so that the error function is still in the
+% range of 0..1
+cerror = cerror ./ numel(goal_imgs);
+
 end
