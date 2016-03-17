@@ -51,10 +51,10 @@ for i=1:num_vol
     histo_est(1, :) = histcounts( colors_est(:,1), edges) * num_temp_inv;
     histo_est(2, :) = histcounts( colors_est(:,2), edges) * num_temp_inv;
     histo_est(3, :) = histcounts( colors_est(:,3), edges) * num_temp_inv;
-
+    
     histoV(i) = (sum(abs(histo_est(1, :) - GoalHisto(1, :))) +  ...
         sum(abs(histo_est(2, :) - GoalHisto(2, :))) + ...
-        sum(abs(histo_est(3, :) - GoalHisto(3, :)))) / 3;
+        sum(abs(histo_est(3, :) - GoalHisto(3, :)))) / 6;
 end
 
 end

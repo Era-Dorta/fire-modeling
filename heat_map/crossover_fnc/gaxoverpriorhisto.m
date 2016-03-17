@@ -1,4 +1,4 @@
-function [ xoverKids ] = gaxoverpriorhisto(parents, ~, GenomeLength, ~, ...
+function [ xoverKids ] = gaxoverpriorhisto(parents, options, GenomeLength, ~, ...
     thisScore, thisPopulation, xyz, volumeSize, bboxmin, bboxmax, goal_img, goal_mask)
 %GAXOVERPRIORHISTO ga crossover operator
 %   GAXOVERPRIORHISTO uses the combineHeatMap8 function to generate
@@ -54,7 +54,8 @@ for i=1:nKids
     end
     
     % A smoothness estimate of the volume
-    smooth_val = smoothnessEstimateGrad(xyz, xoverCandidates, volumeSize);
+    smooth_val = smoothnessEstimateGrad(xyz, xoverCandidates, volumeSize, ...
+        options.LinearConstr.ub(1), options.LinearConstr.lb(1));
     
     % Low values -> smoother -> higher weights
     smooth_val = weights2prob(smooth_val, true);

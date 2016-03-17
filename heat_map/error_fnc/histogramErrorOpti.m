@@ -36,6 +36,6 @@ Na(3, :) = histcounts( subImga(img_mask), edges) * IMGA_FACTOR;
 
 % Compute the error as in Dobashi et. al. 2012
 cerror = (sum(abs(Na(1, :) - HC_GOAL(1, :))) + sum(abs(Na(2, :) - ...
-    HC_GOAL(2, :))) + sum(abs(Na(3, :) - HC_GOAL(3, :)))) / 3;
+    HC_GOAL(2, :))) + sum(abs(Na(3, :) - HC_GOAL(3, :)))) / 6;
 
 end

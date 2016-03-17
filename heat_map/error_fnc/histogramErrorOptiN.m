@@ -46,7 +46,7 @@ for i=1:numel(goal_imgs)
     
     cerror = cerror + (sum(abs(hc_test(1, :) - HC_GOAL{i}(1, :))) + ...
         sum(abs(hc_test(2, :) - HC_GOAL{i}(2, :))) + ...
-        sum(abs(hc_test(3, :) - HC_GOAL{i}(3, :)))) / 3;
+        sum(abs(hc_test(3, :) - HC_GOAL{i}(3, :)))) / 6;
 end
 
 end
