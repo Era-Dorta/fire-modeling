@@ -1,11 +1,10 @@
 function smoothness = smoothnessEstimate( xyz, v, volumeSize )
-%SMOOTHNESS_ESTIMATE estimate heatMap smoothness
-%   SMOOTH_V = SMOOTHNESS_ESTIMATE( XYZ, V, VOLUME_SIZE ) gives a
-%   smoothness estimate in arbitrary units for the heatmaps defined by the
-%   common coordinates matrix 3xM XYZ, the value matrix NxM V, where the
-%   coordinates are in a volume given by VOLUME_SIZE 1X3. A small value in
-%   SMOOTH_V means high smoothness and a large values indicate low
-%   smoothness.
+%SMOOTHNESSESTIMATE estimate heatMap smoothness
+%   SMOOTHNESS = SMOOTHNESSESTIMATE( XYZ, V, VOLUME_SIZE ) gives a
+%   smoothness estimate the heatmaps defined by the common coordinates
+%   matrix 3xM XYZ, the value matrix NxM V, where the coordinates are in a
+%   volume given by VOLUME_SIZE 1X3. If SMOOTHNESS == 0 denotes complete
+%   smoothness and SMOOTHNESS == 1 the opposite
 
 num_vol = size(v, 1);
 

@@ -54,10 +54,14 @@ for i=1:nKids
     
     % The lower the value the smoother the volume is
     smooth_val = smoothnessEstimateGrad(xyz, xoverCandidates, volumeSize);
+    
+    % Low values -> smoother -> higher weights
     smooth_val = weights2prob(smooth_val, true);
     
     % Up heat val
     upheat_val = upHeatEstimate(xyz, xoverCandidates, volumeSize);
+    
+    % High values -> more heat up -> higher weights
     upheat_val = weights2prob(upheat_val);
     
     % Relative weights for smoothness and upheat estimates,

@@ -79,7 +79,7 @@ for i=1:nKids
     upheat_k = 1 / 3;
     hist_k = 1 / 3;
     
-    total_prob = smooth_val * smooth_k + upheat_val * upheat_k + ... 
+    total_prob = smooth_val * smooth_k + upheat_val * upheat_k + ...
         hist_val * hist_k;
     
     % Choose a kid randomly with a probability proportional to a

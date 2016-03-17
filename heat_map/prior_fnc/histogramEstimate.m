@@ -1,10 +1,9 @@
 function histoV = histogramEstimate( xyz, v, volumeSize, goal_img, goal_mask)
-%UPHEATESTIMATE estimate heatMap upwards heat
-%   UP_HEAT_V = UPHEATESTIMATE( XYZ, V, VOLUME_SIZE ) returns large values
-%   in UP_HEAT_V if the heat in the flame goes "up" and lower values
-%   otherwise. The estimate is in arbitrary units for the heatmaps defined
-%   by the common coordinates matrix 3xM XYZ, the value matrix NxM V, where
-%   the coordinates are in a volume given by VOLUME_SIZE 1X3.
+%HISTOGRAMESTIMATE computes an error measure between v and goal image
+%   HISTOV = HISTOGRAMESTIMATE( V, GOAL_IMG, GOAL_MASK ) V is a value
+%   matrix NxM, with N heat maps with M values per heat map. GOAL_IMG is
+%   and PxQ RGB of image and GOAL_MASK is a PxQ logical matrix used as a
+%   mask for GOAL_IMG
 
 persistent CTtable GoalHisto
 
@@ -43,8 +42,8 @@ for i=1:num_vol
     % temperatures in the table are discrete samples, use an interpolation
     % method to get the colors for the current temperatures
     colors_est = interp1(CTtable(:, 1), CTtable(:, 2:4), v(i,:), interp_method);
-
-    % Compute the histograms of the color estimates    
+    
+    % Compute the histograms of the color estimates
     % Normalize by the number of voxels, which should be equivalent to
     % normalize by the number of pixels, in the end just getting a normalized
     % histogram
