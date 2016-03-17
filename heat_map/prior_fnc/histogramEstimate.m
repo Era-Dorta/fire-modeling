@@ -1,4 +1,4 @@
-function histoV = histogramEstimate( xyz, v, volumeSize, goal_img, goal_mask)
+function histoV = histogramEstimate( v, goal_img, goal_mask)
 %HISTOGRAMESTIMATE computes an error measure between v and goal image
 %   HISTOV = HISTOGRAMESTIMATE( V, GOAL_IMG, GOAL_MASK ) V is a value
 %   matrix NxM, with N heat maps with M values per heat map. GOAL_IMG is
