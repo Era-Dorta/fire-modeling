@@ -6,6 +6,13 @@ function [ xoverKids ] = gacrossovercombine(parents, ~, GenomeLength, ~, ...
 %
 %   See also COMBINEHEATMAP8.
 
+persistent FixSeed
+
+if(isempty(FixSeed) || FixSeed == false)
+    warning('Disable fixed seed in combineHeatMap8');
+    FixSeed = true;
+end
+
 % How many children to produce?
 nKids = length(parents)/2;
 
@@ -24,7 +31,14 @@ for i=1:nKids
     index = index + 1;
     
     % Combine the heatmaps with equal probabilities
-    xoverKids(i,:) = combineHeatMap8(xyz, parent1', parent2', bboxmin, bboxmax, 0.5)';
+    weight = 0.5;
+    
+    if(FixSeed)
+        % For testing use a rand here to deviate the weight randomly,
+        % and a fixed seed in combineHeatMap8
+        weight = rand(1);
+    end
+    xoverKids(i,:) = combineHeatMap8(xyz, parent1', parent2', bboxmin, bboxmax, weight)';
 end
 end
 
