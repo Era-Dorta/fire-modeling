@@ -1,4 +1,4 @@
-function [ xoverKids ] = gacrossovercombineprior(parents, ~, GenomeLength, ~, ...
+function [ xoverKids ] = gacrossovercombineprior(parents, options, GenomeLength, ~, ...
     thisScore, thisPopulation, xyz, volumeSize, bboxmin, bboxmax)
 %GACROSSOVERCOMBINEPRIOR ga crossover operator
 %   GACROSSOVERCOMBINEPRIOR uses the combineHeatMap8 function to generate
@@ -53,7 +53,8 @@ for i=1:nKids
     end
     
     % The lower the value the smoother the volume is
-    smooth_val = smoothnessEstimateGrad(xyz, xoverCandidates, volumeSize);
+    smooth_val = smoothnessEstimateGrad(xyz, xoverCandidates, volumeSize, ...
+        options.LinearConstr.ub(1), options.LinearConstr.lb(1));
     
     % Low values -> smoother -> higher weights
     smooth_val = weights2prob(smooth_val, true);
