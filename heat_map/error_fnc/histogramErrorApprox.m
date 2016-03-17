@@ -1,9 +1,9 @@
-function histoV = histogramEstimate( v, goal_img, goal_mask)
-%HISTOGRAMESTIMATE computes an error measure between v and goal image
-%   HISTOV = HISTOGRAMESTIMATE( V, GOAL_IMG, GOAL_MASK ) V is a value
+function histoE = histogramErrorApprox( v, goal_img, goal_mask)
+%HISTOGRAMERRORAPPROX computes an error measure between v and goal image
+%   HISTOE = HISTOGRAMERRORAPPROX( V, GOAL_IMG, GOAL_MASK ) V is a value
 %   matrix NxM, with N heat maps with M values per heat map. GOAL_IMG is
 %   and PxQ RGB of image and GOAL_MASK is a PxQ logical matrix used as a
-%   mask for GOAL_IMG
+%   mask for GOAL_IMG, HISTOE is the error value
 
 persistent CTtable GoalHisto
 
