@@ -46,10 +46,15 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 % as "cameraNShape". The first goal image belongs to camera1Shape, the
 % second to camera2Shape and so on.
 goal_img_path = {[scene_img_folder 'goalimage1-asym.tif']};
-
 goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png']};
-
 mask_img_path = {[scene_img_folder 'maskrenderimage1.png']};
+
+% goal_img_path = {[scene_img_folder 'goalimage1-asym.tif'], ...
+%     [scene_img_folder 'goalimage2-asym.tif']};
+% goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png'], ...
+%     [scene_img_folder 'maskgoalimage2.png']};
+% mask_img_path = {[scene_img_folder 'maskrenderimage1.png'], ...
+%     [scene_img_folder 'maskrenderimage2.png']};
 
 % Checks for number of goal images
 if(~iscell(goal_img_path))
