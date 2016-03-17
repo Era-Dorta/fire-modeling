@@ -2,11 +2,18 @@ function [ xoverKids ] = gaxoverpriorhisto(parents, ~, GenomeLength, ~, ...
     thisScore, thisPopulation, xyz, volumeSize, bboxmin, bboxmax, goal_img, goal_mask)
 %GAXOVERPRIORHISTO ga crossover operator
 %   GAXOVERPRIORHISTO uses the combineHeatMap8 function to generate
-%   xoverKids from parents, it uses upheat, smoothness and histogram priors 
+%   xoverKids from parents, it uses upheat, smoothness and histogram priors
 %   to select to favor certain genes, use only if histogram error function
 %   is used in the fitness function
 %
 %   See also COMBINEHEATMAP8, GACROSSOVERCOMBINEPRIOR.
+
+persistent FixSeed
+
+if(isempty(FixSeed) || FixSeed == false)
+    warning('Disable fixed seed in combineHeatMap8 for the final version');
+    FixSeed = true;
+end
 
 % How many children to produce?
 nKids = length(parents)/2;
@@ -18,7 +25,7 @@ xoverKids = zeros(nKids,GenomeLength);
 nCandidates = 10;
 xoverCandidates = zeros(nCandidates,GenomeLength);
 
-% To move through the parents twice as fast as thekids are
+% To move through the parents twice as fast as the kids are
 % being produced, a separate index for the parents is needed
 index = 1;
 
@@ -37,6 +44,11 @@ for i=1:nKids
     % Try a few random crossover giving more priority to the genes of the
     % parent with the higher score (weight)
     for j=1:nCandidates
+        if(FixSeed)
+            % For testing use a rand here to deviate the weight randomly,
+            % and a fixed seed in combineHeatMap8
+            weight = rand(1);
+        end
         xoverCandidates(j,:) = combineHeatMap8(xyz, parent1', parent2', ...
             bboxmin, bboxmax, weight)';
     end

@@ -7,6 +7,13 @@ function [ xoverKids ] = gacrossovercombineprior(parents, ~, GenomeLength, ~, ..
 %
 %   See also COMBINEHEATMAP8.
 
+persistent FixSeed
+
+if(isempty(FixSeed) || FixSeed == false)
+    warning('Disable fixed seed in combineHeatMap8');
+    FixSeed = true;
+end
+
 % How many children to produce?
 nKids = length(parents)/2;
 
@@ -36,6 +43,11 @@ for i=1:nKids
     % Try a few random crossover giving more priority to the genes of the
     % parent with the higher score (weight)
     for j=1:nCandidates
+        if(FixSeed)
+            % For testing use a rand here to deviate the weight randomly,
+            % and a fixed seed in combineHeatMap8
+            weight = rand(1);
+        end
         xoverCandidates(j,:) = combineHeatMap8(xyz, parent1', parent2', ...
             bboxmin, bboxmax, weight)';
     end
