@@ -10,18 +10,10 @@ function [ error ] = heat_map_fitness_par( heat_map_v, xyz, whd, error_foo, ...
 
 num_maya = size(ports, 2);
 
-% If the goal image is a cell of images use the fitness function
-% which supports several goal images
-if(~iscell(goal_img))
-    fitnesss_internal = @heat_map_fitness;
-else
-    fitnesss_internal = @heat_map_fitnessN;
-end
-
-if(size(heat_map_v, 1) <= num_maya)
-    % When there are more Maya instances than data, use a single instance
-    % to render al the data
-    error = feval(fitnesss_internal, heat_map_v, xyz, whd, error_foo, ...
+if(num_maya == 1 || size(heat_map_v, 1) <= num_maya)
+    % When there are more Maya instances than data or if only one port was
+    % given use a single instance to render al the data
+    error = heat_map_fitnessN(heat_map_v, xyz, whd, error_foo, ...
         scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
         ports(1), mrLogPath, goal_img, goal_mask, img_mask);
 else
@@ -44,7 +36,7 @@ else
         end
         
         % Asynchronous parallel call to the fitness function
-        f(c_maya) = parfeval(fitnesss_internal, 1,   ...
+        f(c_maya) = parfeval(@heat_map_fitnessN, 1,   ...
             heat_map_v(start_pop:end_pop, :), xyz, whd, error_foo,   ...
             scene_name, scene_img_folder, output_img_folder_name, ...
             sendMayaScript, ports(c_maya), mrLogPath, goal_img, goal_mask, ...

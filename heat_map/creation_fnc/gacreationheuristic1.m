@@ -13,13 +13,6 @@ sigma_noise = 250;
 % Create 256 bins, image can be 0..255
 edges = linspace(0, 255, 256);
 
-if(~iscell(goal_img))
-    if(~iscell(goal_img))
-        goal_img = {goal_img};
-        goal_mask = {goal_mask};
-    end
-end
-
 % Multi goal optimization, compute the mean histogram of all the goal
 % images
 hc_goal = zeros(3, 255);

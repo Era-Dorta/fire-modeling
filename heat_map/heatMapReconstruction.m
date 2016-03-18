@@ -30,6 +30,7 @@ max_ite = 1000; % Num of maximum iterations
 LB = 300; % Lower bounds, no less than 300K -> 27C
 UB = 2000; % Upper bounds, no more than 2000K -> 1727C
 time_limit = 24 * 60 * 60; % In seconds
+use_approx_fitness = false;
 
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
@@ -56,29 +57,10 @@ mask_img_path = {[scene_img_folder 'maskrenderimage1.png']};
 % mask_img_path = {[scene_img_folder 'maskrenderimage1.png'], ...
 %     [scene_img_folder 'maskrenderimage2.png']};
 
-% Checks for number of goal images
-if(~iscell(goal_img_path))
-    num_goal = 1;
-else
-    if(numel(goal_img_path) == 1)
-        goal_img_path = goal_img_path{1};
-        goal_mask_img_path = goal_mask_img_path{1};
-        mask_img_path = mask_img_path{1};
-        
-        num_goal = 1;
-    else
-        num_goal = numel(goal_img_path);
-    end
-end
+num_goal = numel(goal_img_path);
 
-if(num_goal == 1)
-    % Error function to be used for the fitness function, it must accept two
-    % images and return an error value
-    error_foo = {@histogramErrorOpti};
-else
-    % Error function for multiple goal images
-    error_foo = {@histogramErrorOptiN};
-end
+% Error function used in the fitness function
+error_foo = {@histogramErrorOptiN};
 
 % List of function with persistent variables that need to be clean up after
 % execution
@@ -105,6 +87,10 @@ try
         error('Logfile name is required when running in batch mode');
     end
     
+    if(use_approx_fitness && isequal(error_foo{1}, @MSE))
+        error('Approx fitness function can only be used with histogram error function');
+    end
+    
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'hm_search_' num2str(dir_num)], 'dir') == 7)
@@ -122,8 +108,14 @@ try
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
     %% Read goal and mask image/s
-    [ goal_img, goal_mask, img_mask ] = readGoalAndMask( num_goal, ...
-        goal_img_path, mask_img_path, goal_mask_img_path, error_foo);
+    % For MSE resize the goal image to match the synthetic image
+    if(isequal(error_foo{1}, @MSE))
+        resize_goal = true;
+    else
+        resize_goal = false;
+    end
+    [ goal_img, goal_mask, img_mask ] = readGoalAndMask( goal_img_path, ...
+        mask_img_path, goal_mask_img_path, resize_goal);
     
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
@@ -169,39 +161,21 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    %     if(numMayas == 1)
-    %         % If there is only one Maya do not use the parallel fitness foo
-    %         if(num_goal == 1)
-    %             fitness_foo = @(x)heat_map_fitness(x, init_heat_map.xyz,  ...
-    %                 init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-    %                 output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-    %                 goal_img, goal_mask, img_mask);
-    %         else
-    %             fitness_foo = @(x)heat_map_fitnessN(x, init_heat_map.xyz,  ...
-    %                 init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-    %                 output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-    %                 goal_img, goal_mask, img_mask);
-    %         end
-    %     else
-    %         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
-    %             init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-    %             output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-    %             goal_img, goal_mask, img_mask);
-    %     end
-    if(num_goal == 1)
-        goal_img = {goal_img};
-        goal_mask = {goal_mask};
+    if(use_approx_fitness)
+        fitness_foo = @(x)heat_map_fitness_approx(x, goal_img, goal_mask);
+    else
+        fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
+            init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
+            output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
+            goal_img, goal_mask, img_mask);
     end
-    fitness_foo = @(x)heat_map_fitness_approx(x, goal_img, goal_mask);
     
     %% Summary extra data
-    if(num_goal == 1)
-        goal_img_summay = goal_img_path;
-    else
-        % If there are several images, convert them into a string to put in
-        % the summary data struct
-        goal_img_summay = strjoin(goal_img_path, ', ');
-    end
+    
+    % If there are several images, convert them into a string to put in
+    % the summary data struct
+    goal_img_summay = strjoin(goal_img_path, ', ');
+    
     summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
         [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
         func2str(error_foo{:}), 'NumMaya', numMayas);
@@ -239,19 +213,8 @@ try
         case 'cmaes'
             % CMAES gets the data in column order so transpose it for it
             % to work
-            if(numMayas == 1)
-                % If there is only one Maya do not use the parallel fitness foo
-                if(num_goal == 1)
-                    fitness_foo = @(x)heat_map_fitness(x', init_heat_map.xyz,  ...
-                        init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-                        output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                        goal_img, goal_mask, img_mask);
-                else
-                    fitness_foo = @(x)heat_map_fitnessN(x', init_heat_map.xyz,  ...
-                        init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-                        output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                        goal_img, goal_mask, img_mask);
-                end
+            if(use_approx_fitness)
+                fitness_foo = @(x)heat_map_fitness_approx(x', goal_img, goal_mask);
             else
                 fitness_foo = @(x)heat_map_fitness_par(x', init_heat_map.xyz,  ...
                     init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
@@ -320,18 +283,8 @@ try
         c_img = imread([output_img_folder '/optimized1.tif']);
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
         
-        if(isequal(error_foo{1}, @histogramErrorOptiN))
-            L.summary_data.ImageErrorSingleView = histogramErrorOpti(goal_img{1}, ...
-                c_img, goal_mask{1}, img_mask{1});
-            clear 'histogramErrorOpti';
-        else
-            if(isequal(error_foo{1}, @MSE))
-                L.summary_data.ImageErrorSingleView = MSE(goal_img{1}, ...
-                    c_img, goal_mask{1}, img_mask{1});
-            else
-                warning('Unknown error function');
-            end
-        end
+        L.summary_data.ImageErrorSingleView = sum(feval(error_foo{1},  ...
+            goal_img(1), {c_img}, goal_mask(1), img_mask(1)));
         
         summary_data = L.summary_data;
         save([paths_str.summary '.mat'], 'summary_data', '-append');

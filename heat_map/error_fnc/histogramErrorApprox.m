@@ -13,12 +13,7 @@ edges = linspace(0, 255, 256);
 if(isempty(CTtable))
     code_dir = fileparts(fileparts(mfilename('fullpath')));
     CTtable = load([code_dir '/data/CT-BlackBody.mat'], '-ascii');
-    
-    if(~iscell(goal_img))
-        goal_img = {goal_img};
-        goal_mask = {goal_mask};
-    end
-    
+        
     NumGoal = numel(goal_img);
     GoalHisto = cell(NumGoal, 1);
     

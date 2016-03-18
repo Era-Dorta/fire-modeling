@@ -3,7 +3,7 @@ function [ error ] = heat_map_fitness_interp( heat_map_v, xyz, whd, error_foo, .
     port, mrLogPath, goal_img)
 %HEAT_MAP_FITNESS_INTERP Heat map fitness function
 %   Same as HEAT_MAP_FITNESS, but uses a interpolation to acelerate the
-%   computation.
+%   computation. Legacy code, do NOT use.
 %
 %   See also HEAT_MAP_FITNESS
 persistent IS_INITIALIZED IMAGES_DB IMAGES_DB_HEATMAPS IMAGES_DB_DIR
