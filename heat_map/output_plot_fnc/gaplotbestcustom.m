@@ -3,26 +3,21 @@ function [state, options, optchanged] = gaplotbestcustom(options, state, flag, f
 
 % Ugly hack to allow for better plotting, as we cannot change the output of
 % the function
-persistent GAPLOTBEST GAPLOTMEAN MAXERROR
+persistent GAPLOTBEST GAPLOTMEAN MAXERROR FIG_H
 
 optchanged = false;
-
-% Create/Get the handle for the figure
-h = figure(1);
-
-% If in batch mode no need to actually draw
-if isBatchMode()
-    set(h, 'Visible', 'off');
-end
 
 % The plot function is called when the algorithm is finished, save the
 % image here
 if strcmp(flag, 'done')
+    % Make our figure the current figure
+    set(groot, 'CurrentFigure', FIG_H);
+    
     legend('Best', 'Mean');
     
     if isBatchMode()
-        print(h, figurePath, '-dtiff');
-        saveas(h, figurePath, 'fig');
+        print(FIG_H, figurePath, '-dtiff');
+        saveas(FIG_H, figurePath, 'fig');
         
         % Matlab older than 2015 does not support svg conversion, use a
         % custom function to save the file, the custom function is slower
@@ -31,9 +26,9 @@ if strcmp(flag, 'done')
         custom_svg = str2double(matversion(1:4)) < 2015;
         
         if custom_svg
-            plot2svg([figurePath '.svg'], h);
+            plot2svg([figurePath '.svg'], FIG_H);
         else
-            saveas(h, figurePath, 'svg')
+            saveas(FIG_H, figurePath, 'svg')
         end
     end
     return;
@@ -42,15 +37,14 @@ end
 inf_error_idx = state.Score == realmax;
 
 if state.Generation == 0
-    % Clear everything on the first draw
-    clf(h);
-    
-    % If in batch mode no need to actually draw
+    % Create a new figure
     if isBatchMode()
-        set(h, 'Visible', 'off');
+        FIG_H = figure('Visible', 'off');
+    else
+        FIG_H = figure;
     end
     
-    set(h, 'Name', 'Error function');
+    set(FIG_H, 'Name', 'Error function');
     xlabel('Generation')
     ylabel('Error')
     set(gca,'xlim', [0, 1]);
@@ -64,6 +58,9 @@ if state.Generation == 0
         MAXERROR = 1;
     end
 else
+    % Make our figure the current figure
+    set(groot, 'CurrentFigure', FIG_H);
+    
     GAPLOTBEST = [GAPLOTBEST, state.Best(end)];
     set(gca,'xlim', [0, state.Generation]);
     c_error = max(state.Score(~inf_error_idx));
