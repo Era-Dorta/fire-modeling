@@ -52,8 +52,6 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 % mask_img_path = {[scene_img_folder 'maskrenderimage1.png'], ...
 %     [scene_img_folder 'maskrenderimage2.png']};
 
-num_goal = numel(goal_img_path);
-
 % Error function used in the fitness function
 error_foo = {@histogramErrorOpti};
 
@@ -82,6 +80,12 @@ try
         error('Logfile name is required when running in batch mode');
     end
     
+    if(~iscell(goal_img_path) || ~iscell(mask_img_path) || ~iscell(goal_mask_img_path) )
+        error('Image paths must be cells of strings');
+    end
+    
+    num_goal = numel(goal_img_path);
+        
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
