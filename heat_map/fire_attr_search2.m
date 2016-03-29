@@ -39,26 +39,30 @@ project_path = '~/maya/projects/fire/';
 scene_name = 'test94_gaussian_rotated_two_cams';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
-% Checks for number of goal images
-if(~iscell(goal_img_path))
-    num_goal = 1;
-else
-    if(numel(goal_img_path) == 1)
-        goal_img_path = goal_img_path{1};
-        goal_mask_img_path = goal_mask_img_path{1};
-        mask_img_path = mask_img_path{1};
-        num_goal = 1;
-    else
-        error('Several goal images not supported.');
-        %num_goal = numel(goal_img_path);
-    end
-end
+% Single and multiple goal image path examples
+
+% goal_img_path = {[scene_img_folder 'goalimage1-asym.tif']};
+% goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png']};
+% mask_img_path = {[scene_img_folder 'maskrenderimage1.png']};
+
+% goal_img_path = {[scene_img_folder 'goalimage1-asym.tif'], ...
+%     [scene_img_folder 'goalimage2-asym.tif']};
+% goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png'], ...
+%     [scene_img_folder 'maskgoalimage2.png']};
+% mask_img_path = {[scene_img_folder 'maskrenderimage1.png'], ...
+%     [scene_img_folder 'maskrenderimage2.png']};
+
+num_goal = numel(goal_img_path);
+
+% Error function used in the fitness function
+error_foo = {@histogramErrorOpti};
 
 % List of function with persistent variables that need to be clean up after
 % execution
-clear_foo_str = {'histogramErrorOpti', 'histogramErrorOptiN', ...
-    'heat_map_fitness', 'heat_map_fitnessN', 'heat_map_fitness_interp',  ...
-    'render_attr_fitness', 'histogramEstimate'};
+clear_foo_str = {'histogramErrorOpti', ...
+    'heat_map_fitness', 'heat_map_fitness_interp',  ...
+    'render_attr_fitness', 'histogramEstimate', 'histogramErrorApprox', ...
+    'gaxoverpriorhisto', 'gacrossovercombine'};
 
 % Clear all the functions
 clearCloseObj = onCleanup(@() clear(clear_foo_str{:}));
@@ -94,23 +98,15 @@ try
         'output_folder',  output_img_folder);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
-    %% Read goal and mask images
-    goal_img = imread(goal_img_path);
-    goal_img = goal_img(:,:,1:3); % Transparency is not used, so ignore it
-    
-    img_mask = logical(imread(mask_img_path));
-    
-    goal_mask = logical(imread(goal_mask_img_path));
-    
+    %% Read goal and mask image/s
+    % For MSE resize the goal image to match the synthetic image
     if(isequal(error_foo{1}, @MSE))
-        % For MSE the goal and the render image have to be same size
-        goal_img = imresize(goal_img, size(img_mask));
-        goal_mask = imresize(goal_mask, size(img_mask));
+        resize_goal = true;
     else
-        % For the other error functions use a single channel mask
-        img_mask = img_mask(:,:,1);
-        goal_mask = goal_mask(:,:,1);
+        resize_goal = false;
     end
+    [ goal_img, goal_mask, img_mask ] = readGoalAndMask( goal_img_path, ...
+        mask_img_path, goal_mask_img_path, resize_goal);
     
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
@@ -153,24 +149,14 @@ try
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    if(numMayas == 1)
-        fitness_foo = @(x)render_attr_fitness(x, error_foo, ...
-            scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-            ports, mrLogPath, goal_img, goal_mask, img_mask);
-    else
-        fitness_foo = @(x)render_attr_fitness_par(x, error_foo, ...
-            scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-            ports, mrLogPath, goal_img, goal_mask, img_mask);
-        
-        % If we are using the parallel fitness foo, do a preevaluation of
-        % the error functions to initialize their persistent variables, as
-        % there could be a racing condition during the parallel evaluation
-        cellfun(@(foo) feval(foo, goal_img, goal_img, goal_mask, img_mask), ...
-            error_foo);
-    end
+    fitness_foo = @(x)render_attr_fitness_par(x, error_foo, ...
+        scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
+        ports, mrLogPath, goal_img, goal_mask, img_mask);
     
     %% Summary extra data
-    summary_data = struct('GoalImage', goal_img_path, 'MayaScene', ...
+    goal_img_summay = strjoin(goal_img_path, ', ');
+    
+    summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
         [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
         func2str(error_foo{:}), 'NumMaya', numMayas);
     
@@ -222,6 +208,7 @@ try
             
             totalTime = toc(startTime);
             disp(['Optimization total time ' num2str(totalTime)]);
+            disp(['Optimization result: ' num2str(render_attr)]);
             
             summary_data.OptimizationMethod = 'Genetic Algorithms';
             summary_data.ImageError = best_error;
@@ -256,18 +243,44 @@ try
     cmd = [cmd ')'];
     sendToMaya(sendMayaScript, ports(1), cmd);
     
-    % Set the folder and name of the render image
-    cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-    cmd = [cmd scene_name '/' output_img_folder_name 'optimized' '\"'];
-    sendToMaya(sendMayaScript, ports(1), cmd);
+    disp(['Rendering final images in ' output_img_folder 'optimized<d>.tif' ]);
     
-    disp(['Rendering final image in ' output_img_folder 'optimized.tif' ]);
+    for i=1:num_goal
+        istr = num2str(i);
+        
+        % Active current camera
+        cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
+        sendToMaya(sendMayaScript, ports(1), cmd);
+        
+        % Set the folder and name of the render image
+        cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
+        cmd = [cmd scene_name '/' output_img_folder_name 'optimized' ...
+            istr '\"'];
+        sendToMaya(sendMayaScript, ports(1), cmd);
+        
+        % Render the image
+        tic;
+        cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
+        sendToMaya(sendMayaScript, ports(1), cmd, 1, mrLogPath);
+        
+        % Deactivate the current camera
+        cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
+        sendToMaya(sendMayaScript, ports(1), cmd);
+    end
     
-    % Render the image
-    tic;
-    cmd = 'Mayatomr -render -renderVerbosity 2';
-    sendToMaya(sendMayaScript, ports(1), cmd, 1, mrLogPath);
-    disp(['Image rendered in ' num2str(toc) ]);
+    %% Add single view fitness value for multigoal optimization
+    if(num_goal > 1)
+        L = load([paths_str.summary '.mat']);
+        
+        c_img = imread([output_img_folder '/optimized1.tif']);
+        c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
+        
+        L.summary_data.ImageErrorSingleView = sum(feval(error_foo{1},  ...
+            goal_img(1), {c_img}, goal_mask(1), img_mask(1)));
+        
+        summary_data = L.summary_data;
+        save([paths_str.summary '.mat'], 'summary_data', '-append');
+    end
     
     %% Resource clean up after execution
     
@@ -277,9 +290,13 @@ try
         exit;
     else
         % If GUI running, show the computed final image
-        figure;
-        optimized_img = imread([output_img_folder 'optimized.tif']);
-        imshow(optimized_img(:,:,1:3));
+        for i=1:num_goal
+            istr = num2str(i);
+            figure('Name', ['Optimized Camera' istr] );
+            optimized_img = imread([output_img_folder 'optimized' istr ...
+                '.tif']);
+            imshow(optimized_img(:,:,1:3));
+        end
         return;
     end
 catch ME

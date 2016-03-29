@@ -10,19 +10,11 @@ function [ error ] = render_attr_fitness_par(  render_attr, error_foo, ...
 
 num_maya = size(ports, 2);
 
-% If the goal image is a cell of images use the fitness function
-% which supports several goal images
-if(~iscell(goal_img))
-    fitnesss_internal = @render_attr_fitness;
-else
-    error('Multiple goal images not supported yet.');
-end
-
-if(size(render_attr, 1) <= num_maya)
+if(num_maya == 1 || size(render_attr, 1) <= num_maya)
     % When there are more Maya instances than data, use a single instance
     % to render al the data
-    error = feval(fitnesss_internal, render_attr, xyz, whd, error_foo, ...
-        scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
+    error = feval(@render_attr_fitness, render_attr, error_foo, scene_name, ...
+        scene_img_folder, output_img_folder_name, sendMayaScript, ...
         ports(1), mrLogPath, goal_img, goal_mask, img_mask);
 else
     num_ra = size(render_attr, 1);
@@ -44,7 +36,7 @@ else
         end
         
         % Asynchronous parallel call to the fitness function
-        f(c_maya) = parfeval(fitnesss_internal, 1,   ...
+        f(c_maya) = parfeval(@render_attr_fitness, 1,   ...
             render_attr(start_pop:end_pop, :), error_foo, scene_name, ...
             scene_img_folder, output_img_folder_name, sendMayaScript, ...
             ports(c_maya), mrLogPath, goal_img, goal_mask, img_mask);
