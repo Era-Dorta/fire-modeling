@@ -63,6 +63,7 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 	miImg_image *fb_color = mi_output_image_open(state, miRC_IMAGE_RGBA);
 
 	if (fb_color->comp < 3) {
+		mi_output_image_close(state, miRC_IMAGE_RGBA);
 		mi_error("Tone mapper only supports color images");
 		return miFALSE;
 	}
