@@ -48,8 +48,13 @@ for pop=1:size(heat_map_v, 1)
             istr = num2str(i);
             
             %% Activate the current camera
-            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-            sendToMaya(sendMayaScript, port, cmd);
+            % Avoid activating/deactivating for single goal images, this is
+            % a minor optimization, 0.02s for activating, 0.004s overhead
+            % in multiple goal case
+            if(num_goal > 1)
+                cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
+                sendToMaya(sendMayaScript, port, cmd);
+            end
             
             %% Set the folder and name of the render image
             cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
@@ -63,8 +68,10 @@ for pop=1:size(heat_map_v, 1)
             %fprintf('Image rendered with');
             
             %% Deactivate the current camera
-            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-            sendToMaya(sendMayaScript, port, cmd);
+            if(num_goal > 1)
+                cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
+                sendToMaya(sendMayaScript, port, cmd);
+            end
             
             %% Compute the error with respect to the goal image
             try
