@@ -1,5 +1,5 @@
 function [ heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
-    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, summary_file, ...
+    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, paths_str, ...
     summary_data)
 % Simulated Annealing solver for heat map reconstruction
 %% Options for the SA
@@ -51,6 +51,6 @@ summary_data.LowerBounds = LB(1);
 summary_data.UpperBounds = UB(1);
 summary_data.InitGuessFile = init_heat_map.filename;
 
-save_summary_file(summary_file, summary_data, options);
+save_summary_file(paths_str.summary, summary_data, options);
 end
 

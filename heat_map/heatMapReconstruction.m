@@ -190,7 +190,7 @@ try
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                summary_file, summary_data);
+                paths_str, summary_data);
         case 'ga-re'
             % For the solve with reconstruction the size changes so leave
             % those two parameters open, so the function can modify them.
