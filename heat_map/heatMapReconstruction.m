@@ -210,7 +210,7 @@ try
         case 'grad'
             [heat_map_v, ~, ~] = do_gradient_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                summary_file, summary_data);
+                paths_str, summary_data);
         case 'cmaes'
             % CMAES gets the data in column order so transpose it for it
             % to work

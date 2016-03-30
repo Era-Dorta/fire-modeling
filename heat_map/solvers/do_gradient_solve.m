@@ -1,5 +1,5 @@
 function [ heat_map_v, best_error, exitflag] = do_gradient_solve( ...
-    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, summary_file, ...
+    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, paths_str, ...
     summary_data)
 % Gradient descent solver for heat map reconstruction
 %% Options for the gradient descent solver
@@ -13,7 +13,10 @@ options = optimoptions(@fmincon);
 options.MaxIter = max_ite;
 options.MaxFunEvals = max_ite;
 options.Display = 'iter-detailed'; % Give some output on each iteration
-options.OutputFcn = @(x, optimValues, state) gradient_time_limit(x, optimValues, state, time_limit);
+
+startTime = tic;
+options.OutputFcn = @(x, optimValues, state) gradient_time_limit(x, ...
+    optimValues, state, time_limit, startTime);
 
 LB = ones(init_heat_map.count, 1) * LB;
 UB = ones(init_heat_map.count, 1) * UB;
@@ -33,8 +36,6 @@ init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
 save(init_population_path, 'InitialPopulation');
 
 %% Call the gradient descent optimization
-
-startTime = tic;
 
 [heat_map_v, best_error, exitflag] = fmincon(fitness_foo, InitialPopulation, ...
     A, b, Aeq, beq, LB, UB, nonlcon, options);
@@ -61,7 +62,7 @@ for i=1:numel(fields)
     opt_struct.(fields{i}) = options.(fields{i});
 end
 
-save_summary_file(summary_file, summary_data, opt_struct);
+save_summary_file(paths_str.summary, summary_data, opt_struct);
 
 end
 
