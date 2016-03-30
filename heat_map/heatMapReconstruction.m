@@ -277,6 +277,21 @@ try
         sendToMaya(sendMayaScript, ports(1), cmd);
     end
     
+    %% Append the real error if using the approx fitness
+    if(use_approx_fitness)
+        L = load([paths_str.summary '.mat']);
+        
+        c_img = imread([output_img_folder '/optimized1.tif']);
+        c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
+        
+        L.summary_data.RealError = sum(feval(error_foo{1},  ...
+            goal_img(1), {c_img}, goal_mask(1), img_mask(1)));
+        
+        disp(['Real error ' num2str(L.summary_data.RealError)]);
+        summary_data = L.summary_data;
+        save([paths_str.summary '.mat'], 'summary_data', '-append');
+    end
+    
     %% Add single view fitness value for multigoal optimization
     if(num_goal > 1)
         L = load([paths_str.summary '.mat']);
@@ -332,6 +347,13 @@ try
         exit;
     else
         % If GUI running, show the computed heat map
+        for i=1:num_goal
+            istr = num2str(i);
+            figure('Name', ['Optimized Camera' istr] );
+            optimized_img = imread([output_img_folder 'optimized' istr ...
+                '.tif']);
+            imshow(optimized_img(:,:,1:3));
+        end
         plotHeatMap( heat_map );
         return;
     end
