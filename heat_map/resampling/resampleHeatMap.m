@@ -36,9 +36,14 @@ Znew = Znew(:);
 % Get the new indices in the old index space, we are going to query all the
 % points in the new space in the old space, this is quite wastefull but we
 % don't have to worry about how to generate the query points efficiently
-Xq = fitToRange(Xnew, 1, newsize(1), 1, inheatmap.size(1));
-Yq = fitToRange(Ynew, 1, newsize(2), 1, inheatmap.size(2));
-Zq = fitToRange(Znew, 1, newsize(3), 1, inheatmap.size(3));
+
+% The 0.5 displacements are needed to get the right coordinates as we
+% assume that the index represents the voxel value in the middle of the
+% voxel, e.g. old size 1..4, new size 1..2, without displacement query
+% points are 1 and 4, but they should be 1.5 and 3.5
+Xq = fitToRange(Xnew, 0.5, newsize(1) + 0.5, 0.5, inheatmap.size(1) + 0.5);
+Yq = fitToRange(Ynew, 0.5, newsize(2) + 0.5, 0.5, inheatmap.size(2) + 0.5);
+Zq = fitToRange(Znew, 0.5, newsize(3) + 0.5, 0.5, inheatmap.size(3) + 0.5);
 
 %% Interpolate the data
 % We have linear, cubic and spline interpolation, cubic and spline can
