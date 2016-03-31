@@ -12,6 +12,9 @@ paths_str.summary = [summarydir '/' summaryname];
 % Get an empty gaoptions structure
 options = gaoptimset;
 options.Display = 'iter'; % Give some output on each iteration
+options.TimeLimit = time_limit;
+options.StallGenLimit = 5;
+options.Vectorized = 'on';
 
 % The volume size will be at least this small, as we are recursively
 % dividing by 2 the original size, it might be smaller if there is no
@@ -141,8 +144,14 @@ for i=1:num_ite
     end
     
     %% Fitness function
-    new_fitness_foo = @(v)fitness_foo(v, d_heat_map{i}.xyz, ...
-        d_heat_map{i}.size);
+    if(nargin(fitness_foo) > 1)
+        % Fitness function requires heat map size and coordinates
+        new_fitness_foo = @(v)fitness_foo(v, d_heat_map{i}.xyz, ...
+            d_heat_map{i}.size);
+    else
+        % Fitness function does not requires extra parameters
+        new_fitness_foo = fitness_foo;
+    end
     
     %% Send Maya iteration specific parameters
     disp('Setting size parameters in Maya');
@@ -221,7 +230,7 @@ for i=1:num_ite
         
         % Render the image
         tic;
-        cmd = 'Mayatomr -render -renderVerbosity 2';
+        cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
         sendToMaya(sendMayaScript, port, cmd, 1, paths_str.mrLogPath);
         disp(['Image rendered in ' num2str(toc) ]);
     end
