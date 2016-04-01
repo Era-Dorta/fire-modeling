@@ -54,15 +54,21 @@ global proc fireFrameUpdate(string $fireShader) {
 	$densityFileName = `workspace -expandName $densityFileName`;
 	$newFile = `fireNewFileName $densityFileName $currentFrame`;
 
-	if(`filetest -r $newFile`){ // If file does not exits, do not update
-		setAttr -type "string" ($fireShader + ".density_file") $newFile;
+	if(!(`filetest -r $newFile`)){
+		// If the file does not exit, update the absolute path
+		$newFile = $densityFileName;
 	}
+	
+	setAttr -type "string" ($fireShader + ".density_file") $newFile;
 	
 	$temperatureFileName = `getAttr ($fireShader + ".temperature_file_first")`;
 	$temperatureFileName = `workspace -expandName $temperatureFileName`;
 	$newFile = `fireNewFileName $temperatureFileName $currentFrame`;
 	
-	if(`filetest -r $newFile`){ 
-		setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
+    if(!(`filetest -r $newFile`)){
+		// If the file does not exit, update the absolute path
+		$newFile = $temperatureFileName;
 	}
+	
+	setAttr -type "string" ($fireShader + ".temperature_file") $newFile;
 }
