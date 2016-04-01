@@ -13,29 +13,18 @@ else
     end
 end
 
-%% Prepare the data for interp3
-% Compute a dense copy of the XYZ and the V values, this horribly bad for
-% memory usage, but that is the format required for interp3
+%% Compute the indices of the points to be interpolated
 
-% X is a size^3 matrix which contains all the X corrdinates in the grid,
-% and the same with Y and Z
-[X,Y,Z] = meshgrid(1:inheatmap.size(1),1:inheatmap.size(2),1:inheatmap.size(3));
-
-% Get a dense copy of V
-V = zeros(inheatmap.size(1), inheatmap.size(2), inheatmap.size(3));
-vInd = sub2ind(inheatmap.size, inheatmap.xyz(:,1), inheatmap.xyz(:,2), inheatmap.xyz(:,3));
-V(vInd) = inheatmap.v;
-
-% Compute the new indices of newsize
+% Get the indices for all the points for the new size, pretty bad for
+% memory, specially when upsampling
 [Xnew, Ynew, Znew] = meshgrid(1:newsize(1),1:newsize(2),1:newsize(3));
+
 % Put them in a vector so we can index them easily afterwards
 Xnew = Xnew(:);
 Ynew = Ynew(:);
 Znew = Znew(:);
 
-% Get the new indices in the old index space, we are going to query all the
-% points in the new space in the old space, this is quite wastefull but we
-% don't have to worry about how to generate the query points efficiently
+% Get the new indices in the old index space
 
 % The 0.5 displacements are needed to get the right coordinates as we
 % assume that the index represents the voxel value in the middle of the
@@ -46,9 +35,14 @@ Yq = fitToRange(Ynew, 0.5, newsize(2) + 0.5, 0.5, inheatmap.size(2) + 0.5);
 Zq = fitToRange(Znew, 0.5, newsize(3) + 0.5, 0.5, inheatmap.size(3) + 0.5);
 
 %% Interpolate the data
-% We have linear, cubic and spline interpolation, cubic and spline can
-% output negative temperatures, so for our case it is better to use linear
-Vq = interp3(X, Y, Z, V, Xq, Yq, Zq, 'linear', 0);
+% Create a sparse interpolator, linear extrapolation keeps the slope
+% between the last two known points creating too large and negative
+% temperatures, compromise is to use nearest. Could also add zeros or
+% lower bound values surrounding the cube of data
+fs = scatteredInterpolant(inheatmap.xyz(:, 1), inheatmap.xyz(:, 2), ...
+    inheatmap.xyz(:, 3), inheatmap.v, 'linear', 'nearest' );
+
+Vq = fs(Xq, Yq, Zq);
 
 %% Build the output
 

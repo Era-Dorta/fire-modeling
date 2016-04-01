@@ -130,7 +130,7 @@ for i=1:num_ite
     else
         % Create from upsampling the result of the previous iteration
         temp_heat_map = d_heat_map{i - 1};
-        temp_heat_map.v = heat_map_v;
+        temp_heat_map.v = heat_map_v';
         temp_heat_map = resampleHeatMap(temp_heat_map, 'up', d_heat_map{i}.xyz);
         options.InitialPopulation = temp_heat_map.v';
         
@@ -232,7 +232,7 @@ for i=1:num_ite
         tic;
         cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
         sendToMaya(sendMayaScript, port, cmd, 1, paths_str.mrLogPath);
-        disp(['Image rendered in ' num2str(toc) ]);
+        disp(['Image rendered in ' num2str(toc) 's']);
     end
 end
 
