@@ -13,6 +13,8 @@ values = zeros(numPoints, 1);
 for i=1:numPoints
     xyz(i,:) = fread(fileID, 3, 'int32');
     rgba = fread(fileID, 4, 'double');
+    
+    % Divide by 256 to get 0 normalized values
     values(i) = max(rgba(1:3)) / 256;
 end
 fclose(fileID);
