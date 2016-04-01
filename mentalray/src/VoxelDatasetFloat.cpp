@@ -221,6 +221,11 @@ bool VoxelDatasetFloat::initialize_with_file_raw_red(
 			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
 			read_bin_xyz(fp, x, z, y);
 
+			// Data comes from Matlab in 1..N, but here we use 0..N-1
+			x--;
+			y--;
+			z--;
+
 			// RGBA components, double, 8 bytes
 			read_bin_rgba(fp, r, g, b, a);
 
@@ -229,6 +234,7 @@ bool VoxelDatasetFloat::initialize_with_file_raw_red(
 
 			// Divide by 256 to get the rgb values in [0..1]
 			r = r * 0.00390625 * scale + offset;
+
 			// For the moment assume the red component is the density
 			if (r != block->background()) {
 				set_voxel_value(x, y, z, r);
@@ -285,6 +291,11 @@ bool VoxelDatasetFloat::initialize_with_file_raw_max_rgb(
 		for (int i = 0; i < count; i++) {
 			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
 			read_bin_xyz(fp, x, z, y);
+
+			// Data comes from Matlab in 1..N, but here we use 0..N-1
+			x--;
+			y--;
+			z--;
 
 			// RGBA components, double, 8 bytes
 			read_bin_rgba(fp, r, g, b, a);
