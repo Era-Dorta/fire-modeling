@@ -36,8 +36,9 @@ use_approx_fitness = false;
 % do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test94_gaussian_rotated_two_cams';
-raw_file_path = 'data/heat_maps/gaussian4x4x4.raw';
+scene_name = 'test95_gaussian_new';
+raw_file_path = 'data/heat_maps/gaussian4x4x4new.raw';
+%raw_file_path = 'data/heat_maps/asymmetric4x4x4new.raw';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
 % For single goal image the Maya scene must have only one renderable
@@ -46,16 +47,23 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 % have the rendererable attribute set to false. Each camera must be named
 % as "cameraNShape". The first goal image belongs to camera1Shape, the
 % second to camera2Shape and so on.
-goal_img_path = {[scene_img_folder 'goalimage1-asym.tif']};
-goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png']};
-mask_img_path = {[scene_img_folder 'maskrenderimage1.png']};
+goal_img_path = {[scene_img_folder 'goalimage1.tif']};
+goal_mask_img_path = {[scene_img_folder 'maskcam1.png']};
+mask_img_path = {[scene_img_folder 'maskcam1.png']};
 
 % goal_img_path = {[scene_img_folder 'goalimage1-asym.tif'], ...
 %     [scene_img_folder 'goalimage2-asym.tif']};
-% goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png'], ...
-%     [scene_img_folder 'maskgoalimage2.png']};
-% mask_img_path = {[scene_img_folder 'maskrenderimage1.png'], ...
-%     [scene_img_folder 'maskrenderimage2.png']};
+% goal_mask_img_path = {[scene_img_folder 'maskcam1.png'], ...
+%     [scene_img_folder 'maskcam2.png']};
+% mask_img_path = {[scene_img_folder 'maskcam1.png'], ...
+%     [scene_img_folder 'maskcam2.png']};
+
+% goal_img_path = {[scene_img_folder 'goalimage1.tif'], ...
+%     [scene_img_folder 'goalimage2.tif']};
+% goal_mask_img_path = {[scene_img_folder 'maskcam1.png'], ...
+%     [scene_img_folder 'maskcam2.png']};
+% mask_img_path = {[scene_img_folder 'maskcam1.png'], ...
+%     [scene_img_folder 'maskcam2.png']};
 
 num_goal = numel(goal_img_path);
 
@@ -201,7 +209,7 @@ try
                     output_img_folder_name, sendMayaScript, ports, ...
                     mrLogPath, goal_img, goal_mask, img_mask);
             end
-                
+            
             % Extra paths needed in the solver
             paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
             paths_str.mrLogPath = mrLogPath;
