@@ -300,6 +300,9 @@ try
         disp(['Real error ' num2str(L.summary_data.RealError)]);
         summary_data = L.summary_data;
         save([paths_str.summary '.mat'], 'summary_data', '-append');
+        
+        append_to_summary_file(paths_str.summary, ['Real error is '...
+            num2str(L.summary_data.RealError)]);
     end
     
     %% Add single view fitness value for multigoal optimization
@@ -314,6 +317,9 @@ try
         
         summary_data = L.summary_data;
         save([paths_str.summary '.mat'], 'summary_data', '-append');
+        
+        append_to_summary_file(paths_str.summary, ['ImageErrorSingleView is '...
+            num2str(L.summary_data.ImageErrorSingleView)]);
     end
     
     %% Render the initial population in a folder
