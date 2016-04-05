@@ -39,7 +39,9 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 		} else {
 			bb_type = VoxelDatasetColor::BB_CHEM;
 		}
-		fill_absorption_spec(fuel_type);
+		if (!fill_absorption_spec(fuel_type)) {
+			return false;
+		}
 	}
 
 	compute_function_threaded(&VoxelDatasetColor::compute_black_body_emission);
@@ -53,7 +55,9 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 
 bool VoxelDatasetColor::compute_soot_absorption_threaded(
 		float visual_adaptation_factor, FuelType fuel_type) {
-	fill_absorption_spec(fuel_type);
+	if (!fill_absorption_spec(fuel_type)) {
+		return false;
+	}
 
 	compute_function_threaded(&VoxelDatasetColor::compute_soot_absorption);
 
@@ -67,7 +71,9 @@ bool VoxelDatasetColor::compute_soot_absorption_threaded(
 bool VoxelDatasetColor::compute_chemical_absorption_threaded(
 		float visual_adaptation_factor, FuelType fuel_type) {
 
-	fill_absorption_spec(fuel_type);
+	if (!fill_absorption_spec(fuel_type)) {
+		return false;
+	}
 
 	/*
 	 * As we are normalising with bb_radiation, there is no need to call
@@ -448,19 +454,24 @@ void VoxelDatasetColor::fix_chem_absorption() {
 	}
 }
 
-void VoxelDatasetColor::fill_absorption_spec(FuelType fuel_type) {
+bool VoxelDatasetColor::fill_absorption_spec(FuelType fuel_type) {
 	assert(fuel_type != FuelType::BlackBody);
 
 	absorption_spec.clear();
 
 	if (fuel_type == FuelType::C3H8) {
+		// For C3H8 put both C and H in a vector
 		absorption_spec.push_back(AbsorptionSpectrum(FuelType::C));
-		absorption_spec.begin()->getCoefSpec() *= 3.0 / 12.0;
-
-		absorption_spec.push_back(AbsorptionSpectrum(FuelType::H));
-		absorption_spec.begin()->getCoefSpec() *= 8.0 / 12.0;
+		if (absorption_spec.begin()->isInValidState()) {
+			absorption_spec.push_back(AbsorptionSpectrum(FuelType::H));
+			return absorption_spec.at(1).isInValidState();
+		} else {
+			return false;
+		}
 	} else {
+		// For all other fuels it is just a single atom
 		absorption_spec.push_back(AbsorptionSpectrum(fuel_type));
+		return absorption_spec.begin()->isInValidState();
 	}
 }
 

@@ -45,7 +45,7 @@ private:
 			unsigned end_offset);
 	void apply_visual_adaptation(float visual_adaptation_factor);
 	void fix_chem_absorption();
-	void fill_absorption_spec(FuelType fuel_type);
+	bool fill_absorption_spec(FuelType fuel_type);
 	openvdb::Coord get_maximum_voxel_index();
 	static void clamp(openvdb::Vec3f& v, float min = 0, float max = 0);
 	static void clamp(float &v, float min = 0, float max = 0);
@@ -57,11 +57,6 @@ protected:
 	miColor max_color;
 	openvdb::Coord max_ind;
 private:
-	/*
-	 * TODO Use separate classes to store the data
-	 * Since the class will not compute chemical and soot absorption at the same
-	 * time, use variable references for better naming in the code
-	 */
 	std::vector<float> lambdas;
 	std::vector<float> densities;
 	std::vector<AbsorptionSpectrum> absorption_spec;

@@ -8,12 +8,13 @@
 #include <cassert>
 #include "AbsorptionSpectrum.h"
 
-AbsorptionSpectrum::AbsorptionSpectrum(FuelType fuel_type){
+AbsorptionSpectrum::AbsorptionSpectrum(FuelType fuel_type) {
 	assert(fuel_type != FuelType::BlackBody);
 
 	this->fuel_type = fuel_type;
 	soot_radius = 0;
 	alpha_lambda = 0;
+	in_valid_state = false;
 
 	std::string data_file;
 
@@ -21,11 +22,13 @@ AbsorptionSpectrum::AbsorptionSpectrum(FuelType fuel_type){
 	assert(static_cast<unsigned>(fuel_type) < FuelTypeStr.size());
 	if (fuel_type <= FuelType::SootMax) {
 		data_file += "/" + FuelTypeStr[fuel_type] + ".optconst";
-		read_optical_constants_file(data_file);
-		compute_soot_constant_coefficients();
+		in_valid_state = read_optical_constants_file(data_file);
+		if (in_valid_state) {
+			compute_soot_constant_coefficients();
+		}
 	} else {
 		data_file += "/" + FuelTypeStr[fuel_type] + ".specline";
-		read_spectral_line_file(data_file);
+		in_valid_state = read_spectral_line_file(data_file);
 	}
 }
 
@@ -200,4 +203,8 @@ Spectrum& AbsorptionSpectrum::getCoefSpec() {
 
 void AbsorptionSpectrum::setCoefSpec(const Spectrum& coefSpec) {
 	coef_spec = coefSpec;
+}
+
+bool AbsorptionSpectrum::isInValidState() const {
+	return in_valid_state;
 }

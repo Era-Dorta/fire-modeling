@@ -27,6 +27,8 @@ public:
 	Spectrum& getCoefSpec();
 	void setCoefSpec(const Spectrum& coefSpec);
 
+	bool isInValidState() const;
+
 private:
 	void compute_soot_constant_coefficients();
 	bool read_spectral_line_file(const std::string& filename);
@@ -50,6 +52,7 @@ private:
 
 	Spectrum coef_spec;
 	FuelType fuel_type;
+	bool in_valid_state;
 };
 
 #endif /* ABSORPTIONSPECTRUM_H_ */
