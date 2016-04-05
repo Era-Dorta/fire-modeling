@@ -22,11 +22,15 @@ enum FuelType {
 	Na,
 	Co,
 	Sc,
+	C,
+	H,
+	C3H8,
 	SootMax = Acetylene,
-	FuelTypeMax = Sc
+	FuelTypeMax = C3H8
 };
 
 static const std::array<std::string, FuelTypeMax + 1> FuelTypeStr { "BlackBody",
-		"Propane", "Acetylene", "Cu", "S", "Li", "Ba", "Na", "Co", "Sc" };
+		"Propane", "Acetylene", "Cu", "S", "Li", "Ba", "Na", "Co", "Sc", "C",
+		"H", "C3H8" };
 
 #endif /* FUELTYPES_H_ */

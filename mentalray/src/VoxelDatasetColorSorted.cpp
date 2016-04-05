@@ -28,9 +28,9 @@ void VoxelDatasetColorSorted::resize(unsigned width, unsigned height,
 }
 
 bool VoxelDatasetColorSorted::compute_soot_absorption_threaded(
-		float visual_adaptation_factor, const std::string& filename) {
+		float visual_adaptation_factor, FuelType fuel_type) {
 	if (!VoxelDatasetColor::compute_soot_absorption_threaded(
-			visual_adaptation_factor, filename)) {
+			visual_adaptation_factor, fuel_type)) {
 		return false;
 	}
 	sort();
@@ -38,10 +38,9 @@ bool VoxelDatasetColorSorted::compute_soot_absorption_threaded(
 }
 
 bool VoxelDatasetColorSorted::compute_black_body_emission_threaded(
-		float visual_adaptation_factor, BB_TYPE bb_type,
-		const std::string& filename) {
+		float visual_adaptation_factor, FuelType fuel_type) {
 	if (!VoxelDatasetColor::compute_black_body_emission_threaded(
-			visual_adaptation_factor, bb_type, filename)) {
+			visual_adaptation_factor, fuel_type)) {
 		return false;
 	}
 	sort();
@@ -49,9 +48,9 @@ bool VoxelDatasetColorSorted::compute_black_body_emission_threaded(
 }
 
 bool VoxelDatasetColorSorted::compute_chemical_absorption_threaded(
-		float visual_adaptation_factor, const std::string& filename) {
+		float visual_adaptation_factor, FuelType fuel_type) {
 	if (!VoxelDatasetColor::compute_chemical_absorption_threaded(
-			visual_adaptation_factor, filename)) {
+			visual_adaptation_factor, fuel_type)) {
 		return false;
 	}
 	sort();

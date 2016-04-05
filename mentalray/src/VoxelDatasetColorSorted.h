@@ -18,14 +18,11 @@ public:
 			override;
 	void sort();
 	virtual bool compute_black_body_emission_threaded(
-			float visual_adaptation_factor, BB_TYPE bb_type,
-			const std::string& filename) override;
+			float visual_adaptation_factor, FuelType fuel_type) override;
 	virtual bool compute_soot_absorption_threaded(
-			float visual_adaptation_factor, const std::string& filename)
-					override;
+			float visual_adaptation_factor, FuelType fuel_type) override;
 	virtual bool compute_chemical_absorption_threaded(
-			float visual_adaptation_factor, const std::string& filename)
-					override;
+			float visual_adaptation_factor, FuelType fuel_type) override;
 	miColor get_sorted_voxel_value(unsigned index) const;
 	miColor get_sorted_voxel_value(unsigned index,
 			const Accessor& accessor) const;

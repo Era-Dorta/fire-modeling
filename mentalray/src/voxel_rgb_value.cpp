@@ -71,20 +71,8 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 		voxels->setToneMapped(false);
 
 		// Get the data file path
-		miInteger fuel_type = *mi_eval_integer(&params->fuel_type);
-		VoxelDatasetColor::BB_TYPE bb_type = VoxelDatasetColor::BB_ONLY;
-		std::string data_file;
-		if (fuel_type != FuelType::BlackBody) {
-			data_file = LIBRARY_DATA_PATH;
-			assert(static_cast<unsigned>(fuel_type) < FuelTypeStr.size());
-			if (fuel_type <= FuelType::SootMax) {
-				data_file += "/" + FuelTypeStr[fuel_type] + ".optconst";
-				bb_type = VoxelDatasetColor::BB_SOOT;
-			} else {
-				data_file += "/" + FuelTypeStr[fuel_type] + ".specline";
-				bb_type = VoxelDatasetColor::BB_CHEM;
-			}
-		}
+		FuelType fuel_type = static_cast<FuelType>(*mi_eval_integer(
+				&params->fuel_type));
 
 		// Save previous state
 		miVector original_point = state->point;
@@ -108,7 +96,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 					temperature_shader, width, height, depth);
 
 			if (!voxels->compute_black_body_emission_threaded(
-					visual_adaptation_factor, bb_type, data_file)) {
+					visual_adaptation_factor, fuel_type)) {
 				// If there was an error clear all for early exit
 				voxels->clear();
 			}
@@ -134,7 +122,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 						width, height, depth, 1, 0);
 
 				if (!voxels->compute_soot_absorption_threaded(
-						visual_adaptation_factor, data_file)) {
+						visual_adaptation_factor, fuel_type)) {
 					// If there was an error clear all for early exit
 					voxels->clear();
 				}
@@ -150,7 +138,7 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 						temperature_shader, width, height, depth);
 
 				if (!voxels->compute_chemical_absorption_threaded(
-						visual_adaptation_factor, data_file)) {
+						visual_adaptation_factor, fuel_type)) {
 					// If there was an error clear all for early exit
 					voxels->clear();
 				}

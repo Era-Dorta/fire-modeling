@@ -16,8 +16,6 @@ VoxelDatasetColor::VoxelDatasetColor() :
 		VoxelDataset<openvdb::Vec3f, openvdb::Vec3fTree>(
 				openvdb::Vec3f(0, 0, 0)) {
 	miaux_set_rgb(&max_color, 0);
-	soot_radius = 0;
-	alpha_lambda = 0;
 	bb_type = BB_ONLY;
 	tone_mapped = false;
 }
@@ -26,38 +24,22 @@ VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
 		VoxelDataset<openvdb::Vec3f, openvdb::Vec3fTree>(
 				openvdb::Vec3f(background.r, background.g, background.b)) {
 	miaux_set_rgb(&max_color, 0);
-	soot_radius = 0;
-	alpha_lambda = 0;
 	bb_type = BB_ONLY;
 	tone_mapped = false;
 }
 
 bool VoxelDatasetColor::compute_black_body_emission_threaded(
-		float visual_adaptation_factor, BB_TYPE bb_type,
-		const std::string& filename) {
-	this->bb_type = bb_type;
+		float visual_adaptation_factor, FuelType fuel_type) {
 
-	switch (bb_type) {
-	case BB_ONLY: {
-		break;
-	}
-	case BB_SOOT: {
-		if (!read_optical_constants_file(filename)) {
-			return false;
+	if (fuel_type == FuelType::BlackBody) {
+		bb_type = VoxelDatasetColor::BB_ONLY;
+	} else {
+		if (fuel_type <= FuelType::SootMax) {
+			bb_type = VoxelDatasetColor::BB_SOOT;
+		} else {
+			bb_type = VoxelDatasetColor::BB_CHEM;
 		}
-		compute_soot_constant_coefficients();
-
-		// Densities coefficients need to be scale up heavily here so that the
-		// user does not need to use insane density scale parameters
-		scale_coefficients_to_physical_range();
-		break;
-	}
-	case BB_CHEM: {
-		if (!read_spectral_line_file(filename)) {
-			return false;
-		}
-		break;
-	}
+		fill_absorption_spec(fuel_type);
 	}
 
 	compute_function_threaded(&VoxelDatasetColor::compute_black_body_emission);
@@ -70,14 +52,8 @@ bool VoxelDatasetColor::compute_black_body_emission_threaded(
 }
 
 bool VoxelDatasetColor::compute_soot_absorption_threaded(
-		float visual_adaptation_factor, const std::string& filename) {
-	if (!read_optical_constants_file(filename)) {
-		return false;
-	}
-
-	compute_soot_constant_coefficients();
-
-	scale_coefficients_to_physical_range();
+		float visual_adaptation_factor, FuelType fuel_type) {
+	fill_absorption_spec(fuel_type);
 
 	compute_function_threaded(&VoxelDatasetColor::compute_soot_absorption);
 
@@ -89,10 +65,9 @@ bool VoxelDatasetColor::compute_soot_absorption_threaded(
 }
 
 bool VoxelDatasetColor::compute_chemical_absorption_threaded(
-		float visual_adaptation_factor, const std::string& filename) {
-	if (!read_spectral_line_file(filename)) {
-		return false;
-	}
+		float visual_adaptation_factor, FuelType fuel_type) {
+
+	fill_absorption_spec(fuel_type);
 
 	/*
 	 * As we are normalising with bb_radiation, there is no need to call
@@ -171,42 +146,10 @@ void VoxelDatasetColor::compute_function_threaded(
 	}
 }
 
-void VoxelDatasetColor::compute_soot_constant_coefficients() {
-	// TODO If we wanted to sample more from the spectrum, we would have to
-	// compute lambda^alpha_lambda in compute_sigma_a, in any case I don't think
-	// it makes sense, as we do not have more n or k data
-	soot_coef.resize(n.size());
-
-	// In m^3
-	double pi_r3_36 = (4.0f / 3.0f) * M_PI * soot_radius * soot_radius
-			* soot_radius * 36.0f * M_PI;
-
-	for (unsigned i = 0; i < n.size(); i++) {
-		double n2_k2_2 = n[i] * n[i] - k[i] * k[i] + 2;
-		n2_k2_2 = n2_k2_2 * n2_k2_2;
-
-		// Convert wavelengths to micrometers, result looks like is
-		// 1/micrometer^(alpha_lambda) but because its an empirical fit we can
-		// assume that it outputs the right units, 1/m
-
-		/*
-		 * TODO The fix factor is added because using the coefficient turns out
-		 * to be a huge number. Using alpha_lambda = 1 and lambda in nanometers,
-		 * also gives decent results, but that would mean that the coefficient
-		 * is in 1/nm
-		 */
-
-		const float fix_factor = 1e-6;
-		soot_coef[i] = (pi_r3_36 * n[i] * k[i] * fix_factor)
-				/ (std::pow(lambdas[i] * 1e-3, alpha_lambda)
-						* (n2_k2_2 + 4 * n[i] * n[i] * k[i] * k[i]));
-	}
-}
-
 void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f density;
-	std::vector<float> spec_values(soot_coef.size());
+
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -214,13 +157,8 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 	for (auto i = start_offset; i < end_offset && iter; i++, ++iter) {
 		density = iter.getValue();
 		if (density.x() > 0.0) {
-			for (unsigned j = 0; j < spec_values.size(); j++) {
-				spec_values.at(j) = density.x() * soot_coef[j];
-			}
-			// Create a Spectrum representation with the computed values
-			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum sigma_a_spec = Spectrum::FromSampled(&lambdas[0],
-					&spec_values[0], lambdas.size());
+			const Spectrum& sigma_a_spec = absorption_spec.at(0).compute(
+					density.x());
 
 			// Transform the spectrum to XYZ coefficients
 			sigma_a_spec.ToXYZ(&density.x());
@@ -235,7 +173,6 @@ void VoxelDatasetColor::compute_soot_absorption(unsigned start_offset,
 void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 		unsigned end_offset) {
 	openvdb::Vec3f t;
-	std::vector<float> spec_values(lambdas.size());
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
 	for (unsigned i = 0; i < start_offset; i++) {
 		iter.next();
@@ -259,17 +196,10 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 		if (t.x() > 400) {
 			currentT = t.x();
 
-			// TODO Pass a real refraction index, not 1
-			// Compute the chemical absorption spectrum values, as we are
-			// normalizing afterwards, the units used here don't matter
-			ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0], &E2[0],
-					&g1[0], &g2[0], lambdas.size(), t.x(), 1, t.y() * 1e26,
-					&spec_values[0]);
-
-			// Create a Spectrum representation with the computed values
-			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
-					&spec_values[0], lambdas.size());
+			Spectrum chem_spec;
+			for (auto& absorption_i : absorption_spec) {
+				chem_spec += absorption_i.compute(t.y(), t.x());
+			}
 
 			// Convert to XYZ, the visual adaption function will convert to RGB
 			chem_spec.ToXYZ(&t.x());
@@ -292,9 +222,9 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 
 void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 		unsigned end_offset) {
-	std::vector<float> spec_values(nSpectralSamples), other_spec_values(
-			lambdas.size());
-	std::vector<float> bb_lambdas(nSpectralSamples);
+
+	lambdas.resize(nSpectralSamples);
+	std::vector<float> spec_values(lambdas.size());
 
 	// Initialise the lambdas for blackbody computation as big as nSpectralSamples
 	for (int i = 0; i < nSpectralSamples; ++i) {
@@ -302,7 +232,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				sampledLambdaEnd);
 		float wl1 = Lerp(float(i + 1) / float(nSpectralSamples),
 				sampledLambdaStart, sampledLambdaEnd);
-		bb_lambdas[i] = (wl0 + wl1) * 0.5;
+		lambdas[i] = (wl0 + wl1) * 0.5;
 	}
 
 	openvdb::Vec3SGrid::ValueOnIter iter = block->beginValueOn();
@@ -321,13 +251,12 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 			// TODO Pass a real refraction index, not 1
 			// Get the blackbody values
-			Blackbody(&bb_lambdas[0], bb_lambdas.size(), t.x(), 1,
-					&spec_values[0]);
+			Blackbody(&lambdas[0], lambdas.size(), t.x(), 1, &spec_values[0]);
 
 			// Create a Spectrum representation with the computed values
 			// Spectrum expects the wavelengths to be in nanometres
-			Spectrum b_spec = Spectrum::FromSampled(&bb_lambdas[0],
-					&spec_values[0], bb_lambdas.size());
+			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0],
+					&spec_values[0], lambdas.size());
 
 			/*
 			 * With SOOT and CHEM, compute the absorption coefficient in
@@ -339,34 +268,16 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				break;
 			}
 			case BB_SOOT: {
-				// Soot absorption spectrum is precomputed values * density
-				for (unsigned j = 0; j < other_spec_values.size(); j++) {
-					other_spec_values.at(j) = t.y() * soot_coef[j];
-				}
-
-				// Create a Spectrum representation with the absorption values
-				// Spectrum expects the wavelengths to be in nanometres
-				Spectrum sigma_a_spec = Spectrum::FromSampled(&lambdas[0],
-						&other_spec_values[0], lambdas.size());
-
-				b_spec = b_spec * sigma_a_spec;
-
+				b_spec = b_spec * absorption_spec.at(0).compute(t.y());
 				break;
 			}
 			case BB_CHEM: {
-				// Compute the chemical absorption spectrum values, as we are
-				// normalizing afterwards, the units used here don't matter
-				ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0],
-						&E2[0], &g1[0], &g2[0], lambdas.size(), t.x(), 1,
-						t.y() * 1e26, &other_spec_values[0]);
-
-				// Create a Spectrum representation with the computed values
-				// Spectrum expects the wavelengths to be in nanometres
-				Spectrum chem_spec = Spectrum::FromSampled(&lambdas[0],
-						&other_spec_values[0], lambdas.size());
+				Spectrum chem_spec;
+				for (auto& absorption_i : absorption_spec) {
+					chem_spec += absorption_i.compute(t.y(), t.x());
+				}
 
 				b_spec = b_spec * chem_spec;
-
 				break;
 			}
 			}
@@ -537,6 +448,22 @@ void VoxelDatasetColor::fix_chem_absorption() {
 	}
 }
 
+void VoxelDatasetColor::fill_absorption_spec(FuelType fuel_type) {
+	assert(fuel_type != FuelType::BlackBody);
+
+	absorption_spec.clear();
+
+	if (fuel_type == FuelType::C3H8) {
+		absorption_spec.push_back(AbsorptionSpectrum(FuelType::C));
+		absorption_spec.begin()->getCoefSpec() *= 3.0 / 12.0;
+
+		absorption_spec.push_back(AbsorptionSpectrum(FuelType::H));
+		absorption_spec.begin()->getCoefSpec() *= 8.0 / 12.0;
+	} else {
+		absorption_spec.push_back(AbsorptionSpectrum(fuel_type));
+	}
+}
+
 openvdb::Coord VoxelDatasetColor::get_maximum_voxel_index() {
 	openvdb::Coord max_ind;
 	float current_val, max_val = 0;
@@ -580,113 +507,10 @@ void VoxelDatasetColor::remove_specials(float &v) {
 	}
 }
 
-bool VoxelDatasetColor::read_spectral_line_file(const std::string& filename) {
-	std::ifstream fp(filename, std::ios_base::in);
-	if (!fp.is_open()) {
-		mi_error("Could not open spectral line file \"%s\".", filename.c_str());
-		return false;
-	}
-	unsigned num_lines = 0;
-	try {
-		safe_ascii_read(fp, num_lines);
-		if (num_lines == 0) {
-			throw std::ios_base::failure("No data in file");
-		}
-
-		lambdas.resize(num_lines);
-		phi.resize(num_lines);
-		A21.resize(num_lines);
-		E1.resize(num_lines);
-		E2.resize(num_lines);
-		g1.resize(num_lines);
-		g2.resize(num_lines);
-
-		for (unsigned i = 0; i < num_lines; i++) {
-			safe_ascii_read(fp, lambdas[i]);
-			safe_ascii_read(fp, phi[i]);
-			safe_ascii_read(fp, A21[i]);
-			safe_ascii_read(fp, E1[i]);
-			safe_ascii_read(fp, E2[i]);
-			safe_ascii_read(fp, g1[i]);
-			safe_ascii_read(fp, g2[i]);
-		}
-		fp.close();
-		return true;
-	} catch (const std::ios_base::failure& e) {
-		fp.close();
-		mi_error("Wrong format in file \"%s\".", filename.c_str());
-		return false;
-	}
-}
-
-bool VoxelDatasetColor::read_optical_constants_file(
-		const std::string& filename) {
-	std::ifstream fp(filename, std::ios_base::in);
-	if (!fp.is_open()) {
-		mi_error("Could not open optical constant file \"%s\".",
-				filename.c_str());
-		return false;
-	}
-	unsigned num_lines = 0;
-	try {
-		safe_ascii_read(fp, num_lines);
-
-		// Soot radius in metres
-		safe_ascii_read(fp, soot_radius);
-
-		// Alpha(lambda) coefficient, dimensionless
-		safe_ascii_read(fp, alpha_lambda);
-
-		// Wave lengths in nanometres
-		lambdas.resize(num_lines);
-
-		// Optical constants, dimensionless
-		n.resize(num_lines);
-		k.resize(num_lines);
-
-		for (unsigned i = 0; i < num_lines; i++) {
-			safe_ascii_read(fp, lambdas[i]);
-			safe_ascii_read(fp, n[i]);
-			safe_ascii_read(fp, k[i]);
-		}
-		fp.close();
-		return true;
-	} catch (const std::ios_base::failure& e) {
-		fp.close();
-		mi_error("Wrong format in file \"%s\".", filename.c_str());
-		return false;
-	}
-}
-
-template<typename T>
-void VoxelDatasetColor::safe_ascii_read(std::ifstream& fp, T &output) {
-	fp >> output;
-	if (!fp) {
-		fp.exceptions(fp.failbit);
-	}
-}
-
-void VoxelDatasetColor::scale_coefficients_to_physical_range() {
-	/* Our input data is in the range of [0..10], yet the physical densities are
-	 * several orders of magnitude higher, as they represent the number of
-	 * molecules per unit volume. We are effectively multiplying the densities
-	 * by this scale factor.
-	 * https://en.wikipedia.org/wiki/Number_density
-	 */
-	for (auto iter = soot_coef.begin(); iter != soot_coef.end(); ++iter) {
-		*iter *= 1e26;
-	}
-}
-
 void VoxelDatasetColor::clear_coefficients() {
 	lambdas.clear();
-	phi.clear();
-	A21.clear();
-	E1.clear();
-	E2.clear();
-	g1.clear();
-	g2.clear();
 	densities.clear();
+	absorption_spec.clear();
 }
 
 bool VoxelDatasetColor::isToneMapped() const {
