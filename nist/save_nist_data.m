@@ -12,9 +12,10 @@ max_lambda = 700;
 % The ionization states should be choosen to be the "common" ones, as those
 % are the ones used in the familiar flame tests
 % https://en.wikipedia.org/wiki/List_of_oxidation_states_of_the_elements
-% Note that the numbering scheme is +1 the above link, e.g. Cu i would be 
-% neutral copper. Elements wihout number mean using all of the oxidation 
-% states
+% Note that the numbering scheme is +1 the above link, e.g. Cu i would be
+% neutral copper. Search for any element in the following link to check
+% http://physics.nist.gov/PhysRefData/ASD/ionEnergy.html
+% Elements wihout number mean using all of the oxidation states
 spec={'Cu', 'S', 'Li', 'Ba', 'Na', 'Co', 'Sc', 'C', 'H'};
 
 file_dest = fileparts(mfilename('fullpath'));
