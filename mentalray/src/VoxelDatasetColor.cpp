@@ -253,6 +253,7 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 
 		// Anything below 0 degrees Celsius or 400 Kelvin will not glow
 		if (t.x() > 400) {
+			t.x() = 2000;
 			currentT = t.x();
 
 			// TODO Pass a real refraction index, not 1
@@ -264,6 +265,13 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 			Spectrum b_spec = Spectrum::FromSampled(&lambdas[0],
 					&spec_values[0], lambdas.size());
 
+			std::string folder(
+					"/home/gdp24/workspaces/matlab/fire-shader/nist/spec_11/");
+			FILE * pFile;
+			pFile = fopen((folder + "bb.txt").c_str(), "w");
+			b_spec.Print(pFile);
+			fclose(pFile);
+
 			/*
 			 * With SOOT and CHEM, compute the absorption coefficient in
 			 * spectral form, multiply here the absorption by the emission,
@@ -274,16 +282,54 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 				break;
 			}
 			case BB_SOOT: {
-				b_spec = b_spec * absorption_spec.at(0).compute(t.y());
+				pFile = fopen((folder + "abs.txt").c_str(), "w");
+				absorption_spec.at(0).compute(t.y()).Print(pFile);
+				fclose(pFile);
+
+				b_spec = b_spec * absorption_spec.at(0).getCoefSpec();
+
+				pFile = fopen((folder + "bb-abs.txt").c_str(), "w");
+				b_spec.Print(pFile);
+				fclose(pFile);
+
+				mi_info("temperature %f", t.x());
+				b_spec.ToRGB(&t.x());
+				miaux_vector_info("final colour rgb ", t);
+
+				mi_fatal("");
 				break;
 			}
 			case BB_CHEM: {
+				int j = 0;
 				Spectrum chem_spec;
 				for (auto& absorption_i : absorption_spec) {
-					chem_spec += absorption_i.compute(t.y(), t.x());
+					pFile =
+							fopen(
+									(folder + "abs" + std::to_string(j) + ".txt").c_str(),
+									"w");
+					absorption_i.compute(t.y()).Print(pFile);
+					fclose(pFile);
+
+					chem_spec += absorption_i.getCoefSpec();
+
+					j++;
 				}
 
+				pFile = fopen((folder + "abs.txt").c_str(), "w");
+				chem_spec.Print(pFile);
+				fclose(pFile);
+
 				b_spec = b_spec * chem_spec;
+
+				pFile = fopen((folder + "bb-abs.txt").c_str(), "w");
+				b_spec.Print(pFile);
+				fclose(pFile);
+
+				mi_info("temperature %f", t.x());
+				b_spec.ToRGB(&t.x());
+				miaux_vector_info("final colour rgb ", t);
+
+				mi_fatal("");
 				break;
 			}
 			}
