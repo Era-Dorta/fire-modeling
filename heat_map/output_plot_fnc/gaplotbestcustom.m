@@ -3,7 +3,7 @@ function [state, options, optchanged] = gaplotbestcustom(options, state, flag, f
 
 % Ugly hack to allow for better plotting, as we cannot change the output of
 % the function
-persistent GAPLOTBEST GAPLOTMEAN MAXERROR FIG_H
+persistent GAPLOTBEST GAPLOTMEAN FIG_H
 
 optchanged = false;
 
@@ -48,29 +48,19 @@ if state.Generation == 0
     xlabel('Generation')
     ylabel('Error')
     set(gca,'xlim', [0, 1]);
+    set(gca,'ylim', [0, 1]);
     
     % For the initial population the state.Best variable is empty, so
     % compute the values from the Score
     GAPLOTBEST = min(state.Score);
     GAPLOTMEAN = [];
-    MAXERROR = max(state.Score(~inf_error_idx));
-    if(isempty(MAXERROR))
-        MAXERROR = 1;
-    end
 else
     % Make our figure the current figure
     set(groot, 'CurrentFigure', FIG_H);
     
     GAPLOTBEST = [GAPLOTBEST, state.Best(end)];
     set(gca,'xlim', [0, state.Generation]);
-    c_error = max(state.Score(~inf_error_idx));
-    if c_error > MAXERROR
-        MAXERROR = c_error;
-    end
 end
-
-% Y axis from max error to 0
-set(gca,'ylim', [0, MAXERROR]);
 
 hold on;
 
@@ -80,5 +70,8 @@ plot(0:state.Generation, GAPLOTBEST, '-rx');
 % Plot the mean error
 GAPLOTMEAN = [GAPLOTMEAN, mean(state.Score(~inf_error_idx))];
 plot(0:state.Generation, GAPLOTMEAN, '-go');
+
 hold off;
+
+drawnow; % Force a graphics update in the figure
 end
