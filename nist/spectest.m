@@ -2,7 +2,7 @@ clear all;
 close all;
 
 %% Spectral lines
-folder = 'spec_11/';
+folder = 'spec_12/';
 
 is_chem = false;
 
@@ -18,6 +18,10 @@ if is_chem
     e2 = specline(5:7:end,:);
     g1 = specline(6:7:end,:);
     g2 = specline(7:7:end,:);
+    
+    lambdas = [400; lambdas; 700];
+    values = [0; values; 0];
+    a21 = [0; a21; 0];
 else
     fileID = fopen('Propane.optconst','r');
     formatSpec = '%f %f %f';
@@ -32,24 +36,19 @@ else
     values = fix_factor .* (4/3) .* pi .* R^3 .* ((36 * pi) ./ (lambdas .* 1e-3).^alpha) .* ...
         ((n .* k) ./ ((n.^2 - k.^2 + 2).^2 + 4 .* n.^2 .* k.^2));
 end
-if is_chem
-    
-    lambdas = [400; lambdas; 700];
-    values = [0; values; 0];
-    a21 = [0; a21; 0];
-end
 
 figure(1);
 set(gcf,'Name', 'Spectral line', 'Position', [105 515 570 450]);
-plot(lambdas, values);
+plot(lambdas, values, 'b*-');
+ylim([0, max(values)]);
 
 if is_chem
     figure(2);
     set(gcf,'Name', 'A21', 'Position', [1329 513  570 450]);
-    plot(lambdas, a21);
+    plot(lambdas, a21, 'b*-');
 end
 
-lambdas = linspace(405, 695, 30);
+lambdas1 = linspace(405, 695, 30);
 
 fileID = fopen([folder 'abs.txt'],'r');
 formatSpec = '%f';
@@ -57,21 +56,32 @@ abs = fscanf(fileID,formatSpec);
 
 figure(3);
 set(gcf,'Name', 'Absorption', 'Position', [736 516 570 450]);
-plot(lambdas, abs);
+plot(lambdas1, abs, 'b*-');
+ylim([0, max(abs)]);
 
 fileID = fopen([folder 'bb.txt'],'r');
 bb = fscanf(fileID,formatSpec);
 
 figure(4);
 set(gcf,'Name', 'Black body', 'Position', [128 14 570 450]);
-plot(lambdas, bb);
+plot(lambdas1, bb, 'b*-');
 
 fileID = fopen([folder 'bb-abs.txt'],'r');
 bbabs = fscanf(fileID,formatSpec);
 
 figure(5);
 set(gcf,'Name', 'Black body * Absorption', 'Position', [736 1 570 450]);
-plot(lambdas, bbabs);
+plot(lambdas1, bbabs, 'b*-');
+
+figure(6);
+set(gcf,'Name', 'All', 'Position', [1302 26 570 450]);
+hold on
+plot(lambdas, values, 'r*-');
+plot(lambdas1, abs, 'g*-');
+plot(lambdas1, bb, 'b*-');
+plot(lambdas1, bbabs, 'y*-');
+legend('Spectral Line', 'Absorption', 'Black Body', 'BB * Abs')
+hold off
 
 %% Whole black body curve
 % temp = [1000:100:1000];
