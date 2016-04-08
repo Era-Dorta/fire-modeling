@@ -32,9 +32,10 @@ else
     values = fix_factor .* (4/3) .* pi .* R^3 .* ((36 * pi) ./ (lambdas .* 1e-3).^alpha) .* ...
         ((n .* k) ./ ((n.^2 - k.^2 + 2).^2 + 4 .* n.^2 .* k.^2));
 end
-lambdas = [400; lambdas; 700];
-values = [0; values; 0];
 if is_chem
+    
+    lambdas = [400; lambdas; 700];
+    values = [0; values; 0];
     a21 = [0; a21; 0];
 end
 

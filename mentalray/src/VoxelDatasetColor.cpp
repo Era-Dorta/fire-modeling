@@ -266,7 +266,10 @@ void VoxelDatasetColor::compute_black_body_emission(unsigned start_offset,
 					&spec_values[0], lambdas.size());
 
 			std::string folder(
-					"/home/gdp24/workspaces/matlab/fire-shader/nist/spec_11/");
+					"/home/gdp24/workspaces/matlab/fire-shader/nist/spec_12/");
+			if (system(std::string("mkdir " + folder).c_str())) {
+				mi_fatal("could not create folder");
+			}
 			FILE * pFile;
 			pFile = fopen((folder + "bb.txt").c_str(), "w");
 			b_spec.Print(pFile);
