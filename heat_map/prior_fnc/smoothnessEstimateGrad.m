@@ -1,4 +1,4 @@
-function smoothness = smoothnessEstimateGrad( xyz, v, volumeSize, ub, lb)
+function smoothness = smoothnessEstimateGrad( xyz, v, volumeSize, lb, ub)
 %SMOOTHNESSESTIMATEGRAD estimate heatMap smoothness
 %   SMOOTH_V = SMOOTHNESSESTIMATEGRAD( XYZ, V, VOLUME_SIZE ) gives a
 %   smoothness estimate in arbitrary units for the heatmaps defined by the

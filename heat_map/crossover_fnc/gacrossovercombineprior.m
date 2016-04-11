@@ -54,7 +54,7 @@ for i=1:nKids
     
     % The lower the value the smoother the volume is
     smooth_val = smoothnessEstimateGrad(xyz, xoverCandidates, volumeSize, ...
-        options.LinearConstr.ub(1), options.LinearConstr.lb(1));
+        options.LinearConstr.lb(1), options.LinearConstr.ub(1));
     
     % Low values -> smoother -> higher weights
     smooth_val = weights2prob(smooth_val, true);
