@@ -1,6 +1,6 @@
 function [ error ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    port, mrLogPath, goal_img, goal_mask, img_mask)
+    port, mrLogPath, goal_img, goal_mask, img_mask, lb, ub)
 %HEAT_MAP_FITNESS Heat map fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
@@ -96,6 +96,23 @@ for pop=1:size(heat_map_v, 1)
                     goal_mask, img_mask));
             end
         end
+        
+        % The lower the value the smoother the volume is
+        smooth_val = smoothnessEstimateGrad(xyz, heat_map_v(pop, :),  ...
+            whd, lb, ub);
+        
+        % Up heat val
+        upheat_val = upHeatEstimate(xyz, heat_map_v(pop, :), whd);
+        
+        % High values -> more heat up -> invert value
+        upheat_val = 1.0 - upheat_val;
+        
+        % Relative weights for histogram, smoothness and upheat estimates.
+        % If we want the fitness function to be [0,1] the weights must sum
+        % up to one
+        e_weights = [1/3, 1/3, 1/3];
+        
+        error(1, pop) = dot(e_weights, [error(1, pop), smooth_val, upheat_val]);
         
         % Delete the temporary files
         system(['rm -rf ' tmpdir ' < /dev/null &']);
