@@ -39,7 +39,8 @@ end
 
 figure(1);
 set(gcf,'Name', 'Spectral line', 'Position', [105 515 570 450]);
-plot(lambdas, values, 'b*-');
+% plot(lambdas, values, 'b*-');
+bar(lambdas, values);
 ylim([0, max(values)]);
 
 if is_chem
@@ -76,15 +77,15 @@ plot(lambdas1, bbabs, 'b*-');
 figure(6);
 set(gcf,'Name', 'All', 'Position', [1302 26 570 450]);
 hold on
-plot(lambdas, values, 'r*-');
+% plot(lambdas, values, 'r*-');
 plot(lambdas1, abs, 'g*-');
 plot(lambdas1, bb, 'b*-');
 plot(lambdas1, bbabs, 'y*-');
-legend('Spectral Line', 'Absorption', 'Black Body', 'BB * Abs')
+legend('Absorption', 'Black Body', 'BB * Abs')
 hold off
 
 %% Whole black body curve
-% temp = [1000:100:1000];
+% temp = fliplr([1000:100:2000]);
 % wl = [400:10:700];
 %
 % inv_8_pi = 1.0 / (8 * pi);
@@ -99,7 +100,7 @@ hold off
 %         res(i,j) = C1 / (wl(j)^5 * (exp(C2(i) / wl(j)) - 1.0));
 %     end
 % end
-
+%
 % figure(4);
 % hold on;
 % for i=1:size(temp,2)
@@ -107,3 +108,4 @@ hold off
 %     plot(wl, res(i,:));
 % end
 % hold off;
+% legend(arrayfun(@num2str, temp, 'unif', 0), 'Location', 'NorthWest');
