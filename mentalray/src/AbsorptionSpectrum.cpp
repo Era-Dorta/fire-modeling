@@ -46,7 +46,7 @@ const Spectrum& AbsorptionSpectrum::compute(float density, float temperature) {
 	}
 	// Create a Spectrum representation with the computed values
 	// Spectrum expects the wavelengths to be in nanometres
-	coef_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
+	coef_spec = Spectrum::FromSampledNoAverage(&lambdas[0], &spec_values[0],
 			lambdas.size());
 
 	return coef_spec;
