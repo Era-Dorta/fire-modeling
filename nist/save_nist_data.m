@@ -24,17 +24,15 @@ file_dest = [file_dest '/fire_shader_data/'];
 for i=1:size(spec, 2)
     nistln=nist_asd([spec{i} ' i'], min_lambda, max_lambda);
     
-    % Get max relative intensity
-    mxrint=1;
+    % Get sum of relative intensities
+    srint=0;
     num_valid = 0;
     for ii=1:length(nistln)
         if ~isempty(nistln(ii).rint) && ~isempty(nistln(ii).Aki) && ...
                 ~isempty(nistln(ii).Ei) && ~isempty(nistln(ii).Ek) && ...
                 ~isempty(nistln(ii).gigk)
             num_valid = num_valid + 1;
-            if nistln(ii).rint>mxrint
-                mxrint=nistln(ii).rint;
-            end
+            srint = srint + nistln(ii).rint;
         end
     end
     
@@ -48,7 +46,7 @@ for i=1:size(spec, 2)
                 ~isempty(nistln(ii).gigk)
             valid_ind = valid_ind + 1;
             specline_data(valid_ind, 1) = nistln(ii).meanor;
-            specline_data(valid_ind, 2) = nistln(ii).rint/mxrint;
+            specline_data(valid_ind, 2) = nistln(ii).rint/srint;
             specline_data(valid_ind, 3) = nistln(ii).Aki;
             specline_data(valid_ind, 4) = nistln(ii).Ei;
             specline_data(valid_ind, 5) = nistln(ii).Ek;
