@@ -11,7 +11,7 @@ if state.Generation == 0
     if isBatchMode()
         FIG_H = figure('Visible', 'off');
     else
-        FIG_H = figure;
+        FIG_H = figure('Position', [806 514 560 420]);
     end
     set(FIG_H, 'Name', 'Best HeatMap');
 end
