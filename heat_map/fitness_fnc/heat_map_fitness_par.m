@@ -43,9 +43,31 @@ else
             img_mask, lb, ub);
     end
     
+    best_error = realmax;
+    output_img_folder = [scene_img_folder output_img_folder_name];
+    
     % Wait for the results
     for c_maya=1:num_maya
         error_thread{c_maya} = fetchOutputs(f(c_maya));
+        c_error_b = min(error_thread{c_maya});
+        if(c_error_b < best_error)
+            best_error = c_error_b;
+            best_save_path = [output_img_folder  'best-' num2str(ports(c_maya)) '.tif'];
+        else
+            % Keep only the best image
+            file_path = [output_img_folder  'best-' num2str(ports(c_maya)) '.tif'];
+            if(exist(file_path, 'file') == 2)
+                delete(file_path);
+            end
+        end
+    end
+    
+    first_path = [output_img_folder  'best-' num2str(ports(1)) '.tif'];
+    
+    % Make the best image have the first port
+    if(~isequal(best_save_path, first_path) && ...
+            exist(best_save_path, 'file') == 2)
+        movefile(best_save_path, first_path);
     end
     
     % Concatenate all the errors in a vector

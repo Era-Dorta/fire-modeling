@@ -18,13 +18,23 @@ output_img_folder = [scene_img_folder output_img_folder_name];
 num_error_foos = size(error_foo, 2);
 error = zeros(num_error_foos, size(heat_map_v, 1));
 
+best_error = realmax;
+best_in_cache = false;
+best_file_exists = false;
+port_str = num2str(port);
+
 for pop=1:size(heat_map_v, 1)
     key = num2str(heat_map_v(pop, :));
     if isKey(CACHE, key)
         error(:, pop) = CACHE(key);
+        
+        if(error(1, pop) < best_error)
+            best_error = error(1, pop);
+            best_in_cache = true;
+        end
     else
         %% Make temp dir for the render image
-        tmpdirName = ['dir' num2str(pop) '-' num2str(port)];
+        tmpdirName = ['dir' num2str(pop) '-' port_str];
         tmpdir = [output_img_folder tmpdirName];
         system(['mkdir ' tmpdir ' < /dev/null']);
         
@@ -75,7 +85,8 @@ for pop=1:size(heat_map_v, 1)
             
             %% Compute the error with respect to the goal image
             try
-                c_img{i} = imread([output_img_folder tmpdirName '/fireimage' istr '.tif']);
+                img_path = [output_img_folder tmpdirName '/fireimage' istr '.tif'];
+                c_img{i} = imread(img_path);
             catch ME
                 msg = 'Could not read rendered image, try disabling any extra camera';
                 causeException = MException('MATLAB:heat_map_fitness',msg);
@@ -114,10 +125,25 @@ for pop=1:size(heat_map_v, 1)
         
         error(1, pop) = dot(e_weights, [error(1, pop), smooth_val, upheat_val]);
         
+        if(error(1, pop) < best_error)
+            best_error = error(1, pop);
+            % Save the best image
+            best_save_path = [output_img_folder  'best-' port_str '.tif'];
+            movefile(img_path, best_save_path);
+            
+            best_in_cache = false;
+            best_file_exists = true;
+        end
+        
         % Delete the temporary files
         system(['rm -rf ' tmpdir ' < /dev/null &']);
         
         CACHE(key) = error(:,pop);
     end
 end
+
+if(best_in_cache && best_file_exists)
+    delete([output_img_folder  'best-' port_str '.tif']);
+end
+
 end

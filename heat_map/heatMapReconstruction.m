@@ -112,7 +112,8 @@ try
     % It will be saved as fig and tiff
     error_figure = [output_img_folder 'error_function'];
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
-        'output_folder',  output_img_folder);
+        'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
+        'best-' num2str(ports(1)) '.tif']);
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
     %% Read goal and mask image/s
