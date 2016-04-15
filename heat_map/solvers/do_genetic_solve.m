@@ -52,6 +52,10 @@ options.MutationFcn = @(parents, options, GenomeLength, FitnessFcn,  ...
 % saving too dificult
 plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.errorfig);
 
+% Plot the rendered image of the best heat map on each iteration
+plothm = @(options,state,flag)gaplotbestgen(options, state, flag, ...
+    paths_str.ite_img, paths_str.output_folder);
+
 % Matlab is using cputime to measure time limits in GA and Simulated
 % Annealing solvers, which just doesn't work with multiple cores and
 % multithreading even if the value is scaled with the number of cores.
@@ -59,7 +63,7 @@ plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.er
 startTime = tic;
 timef = @(options, state, flag)ga_time_limit( options, state, flag, startTime);
 
-options.OutputFcns = {plotf, timef};
+options.OutputFcns = {plotf, plothm, timef};
 
 % Our only constrains are upper and lower bounds
 A = [];
