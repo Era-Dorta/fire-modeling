@@ -22,7 +22,7 @@ for pop=1:size(render_attr, 1)
         %% Make temp dir for the render image
         tmpdirName = ['dir' num2str(pop) '-' num2str(port)];
         tmpdir = [output_img_folder tmpdirName];
-        system(['mkdir ' tmpdir ' < /dev/null']);
+        mkdir(output_img_folder, tmpdirName);
         
         %% Set the render attributes
         cmd = 'setFireAttributesNew(\"fire_volume_shader\"';
@@ -92,7 +92,8 @@ for pop=1:size(render_attr, 1)
         %fprintf(' error %.2f, in %.2f seconds.\n', error(1), toc(startTime));
         
         % Delete the temporary files
-        system(['rm -rf ' tmpdir ' < /dev/null &']);
+        rmdir(tmpdir, 's')
+        
         CACHE(key) = error(:,pop);
     end
 end

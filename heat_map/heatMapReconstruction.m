@@ -164,7 +164,7 @@ try
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
-    system(['mkdir ' output_img_folder ' < /dev/null']);
+    mkdir(scene_img_folder, output_img_folder_name);
     
     %% Fitness function definition
     

@@ -7,7 +7,7 @@ function render_heat_maps( heat_map_v, xyz, whd, scene_name, scene_img_folder, .
 output_img_folder = [scene_img_folder output_img_folder_name];
 
 % Create directory for the render images
-system(['mkdir ' output_img_folder output_folder]);
+mkdir(output_img_folder, output_folder);
 
 all_population_img = [];
 c_row_img = [];

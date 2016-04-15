@@ -36,7 +36,7 @@ for pop=1:size(heat_map_v, 1)
         %% Make temp dir for the render image
         tmpdirName = ['dir' num2str(pop) '-' port_str];
         tmpdir = [output_img_folder tmpdirName];
-        system(['mkdir ' tmpdir ' < /dev/null']);
+        mkdir(output_img_folder, tmpdirName);
         
         %% Save the heat_map in a file
         heat_map_path = [scene_img_folder output_img_folder_name tmpdirName '/heat-map.raw'];
@@ -136,7 +136,7 @@ for pop=1:size(heat_map_v, 1)
         end
         
         % Delete the temporary files
-        system(['rm -rf ' tmpdir ' < /dev/null &']);
+        rmdir(tmpdir, 's')
         
         CACHE(key) = error(:,pop);
     end
