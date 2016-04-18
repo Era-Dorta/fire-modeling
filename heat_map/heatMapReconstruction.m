@@ -356,6 +356,11 @@ try
         end
     end
     
+    %% Move the best per iteration images to a folder
+    mkdir([output_img_folder 'best-iter']);
+    movefile([output_img_folder 'best-*.tif'], ...
+        [output_img_folder 'best-iter']);
+        
     %% Resource clean up after execution
     
     % If running in batch mode, exit matlab
