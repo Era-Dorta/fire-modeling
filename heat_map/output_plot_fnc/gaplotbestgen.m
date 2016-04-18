@@ -54,16 +54,9 @@ if(exist(input_image, 'file') == 2)
         return;
     end
     
-    
     % Read and show the image
     img = imread(first_g_path);
     IMGS{end + 1} = img(:,:,1:3);
-    
-    % Make our figure the current figure
-    set(groot, 'CurrentFigure', FIG_H);
-    
-    imshow(img(:,:,1:3));
-    drawnow; % Force a graphics update in the figure
     
 else
     if isBatchMode()
@@ -76,9 +69,17 @@ else
     end
 end
 
-% Update the current image counter in the GUI
-N_H.String = [num2str(state.Generation) '/' num2str(numel(IMGS) - 1)];
-C_IMG = state.Generation + 1;
+% If current image index points to the last image then update for the
+% current one, i.e. do not update if the user is looking at a different
+% image
+if(C_IMG + 1 == numel(IMGS))
+    C_IMG = numel(IMGS);
+    common_update();
+else
+    % Update the current image counter in the GUI
+    N_H.String = [num2str(C_IMG - 1) '/' num2str(numel(IMGS) - 1)];
+    drawnow;
+end
 
 %% Update button callbacks
     function common_update()
