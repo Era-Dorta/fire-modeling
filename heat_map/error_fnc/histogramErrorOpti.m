@@ -1,14 +1,19 @@
 function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
     img_mask)
 %HISTOGRAMERROROPTI Compues an error measure between several images
-%   CERROR = HISTOGRAMERROROPTI(GOAL_IMGS, TEST_IMGS) this is an optimized
-%   version of HISTOGRAM_ERROR, assumes RGB images, ignores black pixels
-%   and if the goal image changes, call clear 'histogramErrorOpti';
-%   GOAL_IMGS and TEST_IMGS are same sized cells with the images to compare
+%   CERROR = HISTOGRAMERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
+%   this is an optimized version of HISTOGRAMERROR, assumes RGB images,
+%   for the catching mechanism to work consistently, if the goal image
+%   changes, call clear 'HISTOGRAMERROROPTI';
+%   GOAL_IMGS and TEST_IMGS are same sized cells with the images to
+%   compare, GOAL_MASK and IMG_MASK are same sized cells with logical
+%   two dimensional matrices to mask GOAL_IMGS and TEST_IMGS respectively.
+%
+%   See also HISTOGRAMERROR
 
 persistent HC_GOAL TESTIM_FACTOR
 
-% Create 256 bins, image can be 0..255
+% Create 255 bins, images are uint in the range of 0..255
 edges = linspace(0, 255, 256);
 
 if isempty(HC_GOAL)
