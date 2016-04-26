@@ -77,13 +77,13 @@ if(C_IMG + 1 == numel(IMGS))
     common_update();
 else
     % Update the current image counter in the GUI
-    N_H.String = [num2str(C_IMG - 1) '/' num2str(numel(IMGS) - 1)];
+    N_H.String = [num2str(C_IMG) '/' num2str(numel(IMGS))];
     drawnow;
 end
 
 %% Update button callbacks
     function common_update()
-        N_H.String = [num2str(C_IMG - 1) '/' num2str(numel(IMGS) - 1)];
+        N_H.String = [num2str(C_IMG) '/' num2str(numel(IMGS))];
         
         % Make our figure the current figure
         set(groot, 'CurrentFigure', FIG_H);
