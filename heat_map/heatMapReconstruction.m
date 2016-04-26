@@ -360,9 +360,13 @@ try
     end
     
     %% Move the best per iteration images to a folder
-    mkdir([output_img_folder 'best-iter']);
-    movefile([output_img_folder 'best-*.tif'], ...
-        [output_img_folder 'best-iter']);
+    best_img_iter_path = [output_img_folder 'best-*.tif'];
+    if ~isempty(dir(best_img_iter_path)) % Check if any image was generated
+        best_img_iter_folder = [output_img_folder 'best-iter'];
+        
+        mkdir(best_img_iter_folder);
+        movefile(best_img_iter_path, best_img_iter_folder);
+    end
     
     %% Resource clean up after execution
     
