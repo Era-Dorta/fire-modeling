@@ -26,11 +26,15 @@ for i = 1:numel(fncNames)
     % in the code, this ensures that the new version will be used
     [~, nameNoExt, ~] = fileparts(fncNames{i});
     clear(nameNoExt);
-
+    
     % Compile current function
     mex(fncNames{i}, commonSrc, libs_inc, libs_path, libs);
 end
 
 % Return to previous folder
 cd(cdir);
+
+% TODO Move the code to this directory
+% Call extra mex file compiling
+build_dist_fnc;
 end

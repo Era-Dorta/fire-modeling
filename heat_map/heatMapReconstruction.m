@@ -67,7 +67,14 @@ mask_img_path = {[scene_img_folder 'maskcam1.png']};
 
 num_goal = numel(goal_img_path);
 
+% Distance function for the histogram error functions, any of the ones in
+% the folder error_fnc/distance_fnc
+% Common ones: histogram_sum_abs, histogram_intersection,
+% chi_square_statistics_fast
+dist_foo = @chi_square_statistics_fast;
+
 % Error function used in the fitness function
+% One of: histogramErrorOpti, histogramDErrorOpti, MSE
 error_foo = {@histogramErrorOpti};
 
 % List of function with persistent variables that need to be clean up after
@@ -166,20 +173,6 @@ try
     disp(['Creating new output folder ' output_img_folder]);
     mkdir(scene_img_folder, output_img_folder_name);
     
-    %% Fitness function definition
-    
-    % Wrap the fitness function into an anonymous function whose only
-    % parameter is the heat map
-    if(use_approx_fitness)
-        fitness_foo = @(x)heat_map_fitness_approx(x, init_heat_map.xyz, ...
-            init_heat_map.size, goal_img, goal_mask, LB, UB);
-    else
-        fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
-            init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-            output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-            goal_img, goal_mask, img_mask, LB, UB);
-    end
-    
     %% Summary extra data
     
     % If there are several images, convert them into a string to put in
@@ -188,7 +181,27 @@ try
     
     summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
         [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
-        func2str(error_foo{:}), 'NumMaya', numMayas);
+        func2str(error_foo{:}), 'DistFnc', func2str(dist_foo), ...
+        'NumMaya', numMayas);
+    
+    %% Fitness function definition
+    
+    % Encapsulate the distance function in the error function
+    error_foo{1} = @(g_i, t_i, g_m, t_m) error_foo{1}(g_i, t_i, g_m, t_m, ...
+        dist_foo);
+    
+    % Wrap the fitness function into an anonymous function whose only
+    % parameter is the heat map
+    if(use_approx_fitness)
+        summary_data.ErrorFc = '@histogramErrorApprox';
+        fitness_foo = @(x)heat_map_fitness_approx(x, init_heat_map.xyz, ...
+            init_heat_map.size, dist_foo, goal_img, goal_mask, LB, UB);
+    else
+        fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
+            init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
+            output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
+            goal_img, goal_mask, img_mask, LB, UB);
+    end
     
     %% Solver call
     disp('Launching optimization algorithm');
@@ -207,7 +220,7 @@ try
             % Let the solver use a different cache for each fitness foo
             if(use_approx_fitness)
                 fitness_foo = @(v, xyz, whd)heat_map_fitness_approx(v, xyz, ...
-                    whd, goal_img, goal_mask, LB, UB);
+                    whd, dist_foo, goal_img, goal_mask, LB, UB);
             else
                 fitness_foo = @(v, xyz, whd)heat_map_fitness_par(v, xyz, ...
                     whd, error_foo, scene_name, scene_img_folder,  ...
@@ -231,8 +244,8 @@ try
             % to work
             if(use_approx_fitness)
                 fitness_foo = @(x)heat_map_fitness_approx(x',  ...
-                    init_heat_map.xyz, init_heat_map.size, goal_img, ...
-                    goal_mask, LB, UB);
+                    init_heat_map.xyz, init_heat_map.size, dist_foo, ...
+                    goal_img, goal_mask, LB, UB);
             else
                 fitness_foo = @(x)heat_map_fitness_par(x', init_heat_map.xyz,  ...
                     init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...

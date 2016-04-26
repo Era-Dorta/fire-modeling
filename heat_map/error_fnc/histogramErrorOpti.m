@@ -1,5 +1,5 @@
 function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
-    img_mask)
+    img_mask, d_foo)
 %HISTOGRAMERROROPTI Compues an error measure between several images
 %   CERROR = HISTOGRAMERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
 %   this is an optimized version of HISTOGRAMERROR, assumes RGB images,
@@ -49,9 +49,9 @@ for i=1:numel(goal_imgs)
     subImga = test_imgs{i}(:, :, 3);
     hc_test(3, :) = histcounts(subImga(img_mask{i}), edges) * TESTIM_FACTOR(i);
     
-    cerror = cerror + (sum(abs(hc_test(1, :) - HC_GOAL{i}(1, :))) + ...
-        sum(abs(hc_test(2, :) - HC_GOAL{i}(2, :))) + ...
-        sum(abs(hc_test(3, :) - HC_GOAL{i}(3, :)))) / 6;
+    cerror = cerror + (d_foo(hc_test(1, :), HC_GOAL{i}(1, :)) + ...
+        d_foo(hc_test(2, :), HC_GOAL{i}(2, :)) + ...
+        d_foo(hc_test(3, :), HC_GOAL{i}(3, :))) / 3;
 end
 
 % Divide by the number of images so that the error function is still in the

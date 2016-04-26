@@ -1,4 +1,4 @@
-function histoE = histogramErrorApprox( v, goal_img, goal_mask)
+function histoE = histogramErrorApprox( v, goal_img, goal_mask, d_foo)
 %HISTOGRAMERRORAPPROX computes an error measure between v and goal image
 %   HISTOE = HISTOGRAMERRORAPPROX( V, GOAL_IMG, GOAL_MASK ) V is a value
 %   matrix NxM, with N heat maps with M values per heat map. GOAL_IMG is
@@ -61,12 +61,12 @@ for i=1:num_vol
     
     for j=1:NumGoal
         histoE(i) = histoE(i) + ...
-            (sum(abs(histo_est(1, :) - GoalHisto{j}(1, :))) +  ...
-            sum(abs(histo_est(2, :) - GoalHisto{j}(2, :))) + ...
-            sum(abs(histo_est(3, :) - GoalHisto{j}(3, :))));
+            (d_foo(histo_est(1, :), GoalHisto{j}(1, :)) +  ...
+            d_foo(histo_est(2, :), GoalHisto{j}(2, :)) + ...
+            d_foo(histo_est(3, :), GoalHisto{j}(3, :))) / 3;
     end
 end
 
-histoE = histoE ./ (NumGoal * 6);
+histoE = histoE ./ NumGoal;
 
 end

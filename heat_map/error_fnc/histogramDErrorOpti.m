@@ -1,5 +1,5 @@
 function [ cerror ] = histogramDErrorOpti( goal_imgs, test_imgs, goal_mask, ...
-    img_mask)
+    img_mask, d_foo)
 %HISTOGRAMDERROROPTI Compues an error measure between several images
 %   CERROR = HISTOGRAMDERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
 %   similar to HISTOGRAM_ERROR, assumes RGB images, for the catching
@@ -112,9 +112,9 @@ for i=1:numel(goal_imgs)
     
     % For each distance bin compute the error
     for k=1:n_bins_dist
-        cerror = cerror + (sum(abs(hc_test{k}(1, :) - HC_GOAL{i, k}(1, :))) + ...
-            sum(abs(hc_test{k}(2, :) - HC_GOAL{i, k}(2, :))) + ...
-            sum(abs(hc_test{k}(3, :) - HC_GOAL{i, k}(3, :)))) / 6;
+        cerror = cerror + (d_foo(hc_test{k}(1, :), HC_GOAL{i, k}(1, :)) + ...
+            d_foo(hc_test{k}(2, :), HC_GOAL{i, k}(2, :)) + ...
+            d_foo(hc_test{k}(3, :) - HC_GOAL{i, k}(3, :))) / 3;
     end
 end
 
