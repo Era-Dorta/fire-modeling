@@ -95,6 +95,10 @@ for i=1:num_ite
     plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, ...
         [paths_str.errorfig size_str]);
     
+    % Plot the rendered image of the best heat map on each iteration
+    plothm = @(options,state,flag)gaplotbestgen(options, state, flag, ...
+        paths_str.ite_img, paths_str.output_folder);
+    
     % Matlab is using cputime to measure time limits in GA and Simulated
     % Annealing solvers, which just doesn't work with multiple cores and
     % multithreading even if the value is scaled with the number of cores.
@@ -103,7 +107,7 @@ for i=1:num_ite
     startTime = tic;
     timef = @(options, state, flag)ga_time_limit( options, state, flag, startTime);
     
-    options.OutputFcns = {plotf, timef};
+    options.OutputFcns = {plotf, plothm, timef};
     
     % Crossover function, update the coordinates and the bounding box size
     options.CrossoverFcn = @(parents, options, GenomeLength, FitnessFcn, ...
@@ -192,8 +196,14 @@ for i=1:num_ite
     summary_data.LowerBounds = LB(1);
     summary_data.UpperBounds = UB(1);
     
-    save_summary_file([paths_str.summary size_str summaryext], summary_data, ...
-        options);
+    % Save the last one without the iteration number
+    if i < num_ite
+        save_summary_file([paths_str.summary size_str summaryext], summary_data, ...
+            options);
+    else
+        save_summary_file([paths_str.summary summaryext], summary_data, ...
+            options);
+    end
     
     options.InitialPopulation = init_population;
     
@@ -234,6 +244,18 @@ for i=1:num_ite
         sendToMaya(sendMayaScript, port, cmd, 1, paths_str.mrLogPath);
         disp(['Image rendered in ' num2str(toc) 's']);
     end
+    
+    %% Move the best per iteration images to a folder
+    best_img_iter_path = [paths_str.output_folder 'best-*.tif'];
+    if ~isempty(dir(best_img_iter_path)) % Check if any image was generated
+        best_img_iter_folder = [paths_str.output_folder 'best-iter-' size_str];
+        
+        mkdir(best_img_iter_folder);
+        movefile(best_img_iter_path, best_img_iter_folder);
+    end
+    
+    %% Clear the cache variables in the fitness function
+    clear 'heat_map_fitness';
 end
 
 disp(['Total optimization time was ' num2str(toc(mainStartTime))]);
