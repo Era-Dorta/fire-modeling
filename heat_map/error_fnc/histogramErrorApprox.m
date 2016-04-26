@@ -13,7 +13,7 @@ edges = linspace(0, 255, 256);
 if(isempty(CTtable))
     code_dir = fileparts(fileparts(mfilename('fullpath')));
     CTtable = load([code_dir '/data/CT-BlackBody.mat'], '-ascii');
-        
+    
     NumGoal = numel(goal_img);
     GoalHisto = cell(NumGoal, 1);
     
@@ -46,8 +46,10 @@ histo_est = zeros(3, 255);
 for i=1:num_vol
     % Get the estimated color for each voxel using the table, as the
     % temperatures in the table are discrete samples, use an interpolation
-    % method to get the colors for the current temperatures
-    colors_est = interp1(CTtable(:, 1), CTtable(:, 2:4), v(i,:), interp_method);
+    % method to get the colors for the current temperatures, assume that
+    % anything outside the table is black [0, 0, 0]
+    colors_est = interp1(CTtable(:, 1), CTtable(:, 2:4), v(i,:), ...
+        interp_method, 0);
     
     % Compute the histograms of the color estimates
     % Normalize by the number of voxels, which should be equivalent to
