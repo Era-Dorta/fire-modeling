@@ -171,7 +171,8 @@ try
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     if(use_approx_fitness)
-        fitness_foo = @(x)heat_map_fitness_approx(x, goal_img, goal_mask);
+        fitness_foo = @(x)heat_map_fitness_approx(x, init_heat_map.xyz, ...
+            init_heat_map.size, goal_img, goal_mask, LB, UB);
     else
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
             init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
@@ -226,7 +227,9 @@ try
             % CMAES gets the data in column order so transpose it for it
             % to work
             if(use_approx_fitness)
-                fitness_foo = @(x)heat_map_fitness_approx(x', goal_img, goal_mask);
+                fitness_foo = @(x)heat_map_fitness_approx(x',  ...
+                    init_heat_map.xyz, init_heat_map.size, goal_img, ...
+                    goal_mask, LB, UB);
             else
                 fitness_foo = @(x)heat_map_fitness_par(x', init_heat_map.xyz,  ...
                     init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
@@ -360,7 +363,7 @@ try
     mkdir([output_img_folder 'best-iter']);
     movefile([output_img_folder 'best-*.tif'], ...
         [output_img_folder 'best-iter']);
-        
+    
     %% Resource clean up after execution
     
     % If running in batch mode, exit matlab
