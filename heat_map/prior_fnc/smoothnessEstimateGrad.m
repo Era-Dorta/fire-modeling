@@ -7,13 +7,12 @@ function smoothness = smoothnessEstimateGrad( xyz, v, volumeSize, lb, ub)
 %   SMOOTH_V means high smoothness and a large values indicate low
 %   smoothness.
 
+assert(all(volumeSize > 1), ['Volume size of each dimension must be ' ...
+    'larger than one to be able to compute the gradients']);
+
 num_vol = size(v, 1);
 
 smoothness = zeros(1, num_vol);
-
-% Add one to each index to account for the front padding
-xyz = xyz + 1;
-volumeSize = volumeSize + 2;
 
 % Normalization factor, inspired by Dobashi et. al. 2012
 % Number of voxels * number of channels(x,y,z) * max gradient
