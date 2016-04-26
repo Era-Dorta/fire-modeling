@@ -34,7 +34,7 @@ for i=1:num_vol
         % Each voxel that satisfies the rule increases the upHeatV value,
         % divide by the number of active voxels, otherwise we would also be
         % encouraging sparseness
-        upHeatV(i) = sum(Vup >= v(i,valid_idx)) / num_active;
+        upHeatV(i) = sum(Vup > v(i,valid_idx)) / num_active;
     end
 end
 
