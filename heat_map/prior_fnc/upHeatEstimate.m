@@ -10,10 +10,13 @@ num_vol = size(v, 1);
 
 upHeatV = zeros(1, num_vol);
 
-% Get new set of indices without the highest y
+% Get new set of indices without the highest y, where each row corresponds
+% to the voxel above the current one
 xyz_no_last = xyz;
 valid_idx = xyz(:, 2, :) ~= volumeSize(2);
-xyz_no_last(~valid_idx, :) = [];
+
+xyz_no_last(~valid_idx, :) = []; % Remove the top slice
+xyz_no_last(:, 2) = xyz_no_last(:, 2) + 1; % Get the one above
 
 for i=1:num_vol
     num_active = size(xyz_no_last, 1);
@@ -25,7 +28,7 @@ for i=1:num_vol
         
         % Get the value of the voxel the is one voxel higher than the
         % current one, not counting the highest slice in the volume
-        Vup = arrayfun(@(i) V(xyz_no_last(i,1), xyz_no_last(i,2)+1, ...
+        Vup = arrayfun(@(i) V(xyz_no_last(i,1), xyz_no_last(i,2), ...
             xyz_no_last(i,3)), 1:num_active);
         
         % Each voxel that satisfies the rule increases the upHeatV value,
