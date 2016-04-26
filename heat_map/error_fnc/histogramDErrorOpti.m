@@ -14,7 +14,7 @@ function [ cerror ] = histogramDErrorOpti( goal_imgs, test_imgs, goal_mask, ...
 
 persistent HC_GOAL EDGESD
 
-% Create 255 bins, image can be 0..255
+% Create 255 bins, images are uint in the range of 0..255
 edges = linspace(0, 255, 256);
 
 % Number of bins for the distances
@@ -70,8 +70,7 @@ if isempty(HC_GOAL)
                 % Normalize by the number of valid pixels
                 valid_p = sum(new_mask(:) == 1);
                 if valid_p > 0
-                    HC_GOAL{i, k}(j, :) = HC_GOAL{i, k}(j, :) ./ ...
-                        sum(new_mask(:) == 1);
+                    HC_GOAL{i, k}(j, :) = HC_GOAL{i, k}(j, :) ./ valid_p;
                 end
             end
         end
@@ -106,7 +105,7 @@ for i=1:numel(goal_imgs)
             % Normalize by the number of valid pixels
             valid_p = sum(new_mask(:) == 1);
             if valid_p > 0
-                hc_test{k}(j, :) = hc_test{k}(j, :) ./ sum(new_mask(:) == 1);
+                hc_test{k}(j, :) = hc_test{k}(j, :) ./ valid_p;
             end
         end
     end
