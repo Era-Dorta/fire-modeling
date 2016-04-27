@@ -116,7 +116,7 @@ for i=1:numel(test_imgs)
     for k=1:n_bins_dist
         cerror = cerror + (d_foo(hc_test{k}(1, :), HC_GOAL{i, k}(1, :)) + ...
             d_foo(hc_test{k}(2, :), HC_GOAL{i, k}(2, :)) + ...
-            d_foo(hc_test{k}(3, :) - HC_GOAL{i, k}(3, :))) / 3;
+            d_foo(hc_test{k}(3, :), HC_GOAL{i, k}(3, :))) / 3;
     end
 end
 
