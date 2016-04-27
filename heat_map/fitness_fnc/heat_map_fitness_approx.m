@@ -12,9 +12,6 @@ smooth_err = smoothnessEstimateGrad(xyz, heat_map_v, whd, lb, ub);
 % Up heat val
 upheat_err = upHeatEstimate(xyz, heat_map_v, whd);
 
-% High values -> more heat up -> invert value
-upheat_err = 1.0 - upheat_err;
-
 % Relative weights for histogram, smoothness and upheat estimates.
 % If we want the fitness function to be [0,1] the weights must sum
 % up to one

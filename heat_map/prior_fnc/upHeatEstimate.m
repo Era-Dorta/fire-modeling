@@ -1,7 +1,7 @@
 function upHeatV = upHeatEstimate( xyz, v, volumeSize )
 %UPHEATESTIMATE estimate heatMap upwards heat
-%   UP_HEAT_V = UPHEATESTIMATE( XYZ, V, VOLUME_SIZE ) returns 1 in
-%   UP_HEAT_V if the heat in the flame goes "up" for all the voxels, 0 it
+%   UP_HEAT_V = UPHEATESTIMATE( XYZ, V, VOLUME_SIZE ) returns 0 in
+%   UP_HEAT_V if the heat in the flame goes "up" for all the voxels, 1 it
 %   goes "down", and intermediate values otherwise. The heatmaps are
 %   defined by the common coordinates matrix 3xM  XYZ, the value matrix NxM
 %   V, where the coordinates are in a volume given by VOLUME_SIZE 1X3.
@@ -31,10 +31,10 @@ for i=1:num_vol
         Vup = arrayfun(@(i) V(xyz_no_last(i,1), xyz_no_last(i,2), ...
             xyz_no_last(i,3)), 1:num_active);
         
-        % Each voxel that satisfies the rule increases the upHeatV value,
+        % Each voxel that satisfies the rule decreases the upHeatV value,
         % divide by the number of active voxels, otherwise we would also be
         % encouraging sparseness
-        upHeatV(i) = sum(Vup > v(i,valid_idx)) / num_active;
+        upHeatV(i) = 1 - sum(Vup > v(i,valid_idx)) / num_active;
     end
 end
 

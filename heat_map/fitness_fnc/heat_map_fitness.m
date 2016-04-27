@@ -114,10 +114,7 @@ for pop=1:size(heat_map_v, 1)
         
         % Up heat val
         upheat_val = upHeatEstimate(xyz, heat_map_v(pop, :), whd);
-        
-        % High values -> more heat up -> invert value
-        upheat_val = 1.0 - upheat_val;
-        
+                
         % Relative weights for histogram, smoothness and upheat estimates.
         % If we want the fitness function to be [0,1] the weights must sum
         % up to one

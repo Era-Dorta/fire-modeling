@@ -63,8 +63,8 @@ for i=1:nKids
     % Up heat value estimate
     upheat_val = upHeatEstimate(xyz, xoverCandidates, volumeSize);
     
-    % High values -> more heat up -> higher weights
-    upheat_val = weights2prob(upheat_val);
+    % Low values -> more heat up -> higher weights
+    upheat_val = weights2prob(upheat_val, true);
     
     % A estimate of the histogram error for the final image
     hist_val = histogramErrorApprox(xoverCandidates, goal_img, goal_mask);

@@ -62,8 +62,8 @@ for i=1:nKids
     % Up heat val
     upheat_val = upHeatEstimate(xyz, xoverCandidates, volumeSize);
     
-    % High values -> more heat up -> higher weights
-    upheat_val = weights2prob(upheat_val);
+    % Low values -> more heat up -> higher weights
+    upheat_val = weights2prob(upheat_val, true);
     
     % Relative weights for smoothness and upheat estimates,
     % must sum up to one
