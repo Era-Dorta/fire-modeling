@@ -22,7 +22,7 @@ best_error = realmax;
 best_in_cache = false;
 best_file_exists = false;
 id_str = num2str(id);
-best_save_path = [output_img_folder  'current-' id_str '.tif'];
+best_save_path = [output_img_folder  'current' id_str '-Cam'];
 
 for pop=1:size(heat_map_v, 1)
     key = num2str(heat_map_v(pop, :));
@@ -85,8 +85,8 @@ for pop=1:size(heat_map_v, 1)
             
             %% Compute the error with respect to the goal image
             try
-                img_path = [output_img_folder tmpdirName '/fireimage' istr '.tif'];
-                c_img{i} = imread(img_path);
+                img_path = [output_img_folder tmpdirName '/fireimage'];
+                c_img{i} = imread([img_path istr '.tif']);
             catch ME
                 msg = 'Could not read rendered image, try disabling any extra camera';
                 causeException = MException('MATLAB:heat_map_fitness',msg);
@@ -121,9 +121,14 @@ for pop=1:size(heat_map_v, 1)
         
         error(1, pop) = dot(e_weights, [error(1, pop), smooth_val, upheat_val]);
         
+        % Save the best images so far outside of the temp folder
         if(error(1, pop) < best_error)
             best_error = error(1, pop);
-            movefile(img_path, best_save_path);
+            
+            for j=1:num_goal
+                jstr = num2str(j);
+                movefile([img_path jstr '.tif'], [best_save_path jstr '.tif']);
+            end
             
             best_in_cache = false;
             best_file_exists = true;
@@ -137,7 +142,7 @@ for pop=1:size(heat_map_v, 1)
 end
 
 if(best_in_cache && best_file_exists)
-    delete(best_save_path);
+    delete([best_save_path '*.tif']);
 end
 
 end

@@ -15,6 +15,8 @@ options.Vectorized = 'on';
 % Path where the initial population will be saved
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
 
+num_goal = numel(goal_img);
+
 % Random initial population
 % options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
 
@@ -61,7 +63,7 @@ plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.er
 
 % Plot the rendered image of the best heat map on each iteration
 plothm = @(options,state,flag)gaplotbestgen(options, state, flag, ...
-    paths_str.ite_img, paths_str.output_folder);
+    paths_str.ite_img, paths_str.output_folder, num_goal);
 
 % Matlab is using cputime to measure time limits in GA and Simulated
 % Annealing solvers, which just doesn't work with multiple cores and

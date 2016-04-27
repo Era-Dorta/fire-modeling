@@ -50,24 +50,27 @@ else
     end
     
     % Delete the suboptimal images
-    img_name = 'current-';
+    img_name = 'current';
     [~, best_error_idx] = min(error_thread{c_maya});
     for c_maya=1:num_maya
         if c_maya ~= best_error_idx
-            file_path = [output_img_folder img_name num2str(c_maya) '.tif'];
-            if exist(file_path, 'file') == 2
+            file_path = [output_img_folder img_name num2str(c_maya) '-Cam*.tif'];
+            if ~isempty(dir(file_path))
                 delete(file_path);
             end
         end
     end
     
-    first_path = [output_img_folder  img_name '1.tif'];
-    best_save_path = [output_img_folder  img_name num2str(best_error_idx) '.tif'];
+    first_path = [output_img_folder  img_name '1-Cam'];
+    best_save_path = [output_img_folder  img_name num2str(best_error_idx) '-Cam'];
     
-    % Make the best image have the first id
-    if(~isequal(best_save_path, first_path) && ...
-            exist(best_save_path, 'file') == 2)
-        movefile(best_save_path, first_path);
+    % Make the best image have the first id, assume that if the first
+    % camera file exists, the others do as well
+    if(best_error_idx ~= 1 && exist([best_save_path '1.tif'], 'file') == 2)
+        for j=1:num_goal
+            jstr = num2str(j);
+            movefile([best_save_path jstr '.tif'], [first_path jstr '.tif']);
+        end
     end
     
     % Concatenate all the errors in a vector

@@ -99,7 +99,7 @@ for i=1:num_ite
     
     % Plot the rendered image of the best heat map on each iteration
     plothm = @(options,state,flag)gaplotbestgen(options, state, flag, ...
-        paths_str.ite_img, paths_str.output_folder);
+        paths_str.ite_img, paths_str.output_folder, num_goal);
     
     % Matlab is using cputime to measure time limits in GA and Simulated
     % Annealing solvers, which just doesn't work with multiple cores and
@@ -245,7 +245,7 @@ for i=1:num_ite
             cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
             maya_send{1}(cmd, 0);
             
-            % Set the folder and name of the render image            
+            % Set the folder and name of the render image
             cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
             cmd = [cmd paths_str.imprefixpath best_im_name jstr '\"'];
             maya_send{1}(cmd, 0);
@@ -261,12 +261,16 @@ for i=1:num_ite
     end
     
     %% Move the best per iteration images to a folder
-    best_img_iter_path = [paths_str.output_folder 'best-*.tif'];
+    best_img_iter_path = [paths_str.output_folder 'best-iter*'];
     if ~isempty(dir(best_img_iter_path)) % Check if any image was generated
-        best_img_iter_folder = [paths_str.output_folder 'best-iter-' size_str];
-        
-        mkdir(best_img_iter_folder);
-        movefile(best_img_iter_path, best_img_iter_folder);
+        for j=1:num_goal
+            jstr = num2str(j);
+            best_img_iter_folder = [paths_str.output_folder 'best-size' ...
+                size_str '-Cam' jstr];
+            
+            mkdir(best_img_iter_folder);
+            movefile([best_img_iter_path 'Cam' jstr '.tif'], best_img_iter_folder);
+        end
     end
     
     %% Clear the cache variables in the fitness function

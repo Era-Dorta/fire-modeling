@@ -89,7 +89,7 @@ try
     error_figure = [output_img_folder 'error_function'];
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
         'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
-        'current-1.tif']);
+        'current1-Cam']);
     maya_log = [scene_img_folder output_img_folder_name 'maya.log'];
     
     %% Read goal and mask image/s
@@ -357,12 +357,15 @@ try
     end
     
     %% Move the best per iteration images to a folder
-    best_img_iter_path = [output_img_folder 'best-*.tif'];
+    best_img_iter_path = [output_img_folder 'best-iter*'];
     if ~isempty(dir(best_img_iter_path)) % Check if any image was generated
-        best_img_iter_folder = [output_img_folder 'best-iter'];
-        
-        mkdir(best_img_iter_folder);
-        movefile(best_img_iter_path, best_img_iter_folder);
+        for i=1:num_goal
+            istr = num2str(i);
+            best_img_iter_folder = [output_img_folder 'best-iter-Cam' istr];
+            
+            mkdir(best_img_iter_folder);
+            movefile([best_img_iter_path '-Cam' istr '.tif'], best_img_iter_folder);
+        end
     end
     
     %% Resource clean up after execution

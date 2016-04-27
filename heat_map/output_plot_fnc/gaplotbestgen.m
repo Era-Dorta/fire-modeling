@@ -1,5 +1,5 @@
 function [state, options, optchanged] = gaplotbestgen(options, state, flag, ...
-    input_image, output_img_folder)
+    input_image_path, output_img_folder, num_goal)
 %GAPLOTBESTGEN Plotting for GA
 %   GAPLOTBESTGEN Plot the rendered image of the best heat map on each
 %   iteration
@@ -12,51 +12,63 @@ if state.Generation == 0
     end
     
     IMGS = {};
-    C_IMG = 0;
+    C_IMG = zeros(num_goal, 1);
+    FIG_H = cell(num_goal, 1);
+    N_H = cell(num_goal, 1);
     
-    % Create a new figure
-    FIG_H = figure('Position', [806 514 560 420]);
-    set(FIG_H, 'Name', 'Best HeatMap');
-    
-    % Add iamge forward and backward buttons to the figure
-    uicontrol(FIG_H, 'Style', 'pushbutton', 'String', '<<',...
-        'Position', [130 20 50 20],...
-        'Callback',  @bw_10_update);
-    
-    uicontrol(FIG_H, 'Style', 'pushbutton', 'String', '<',...
-        'Position', [190 20 50 20],...
-        'Callback',  @bw_update);
-    
-    uicontrol(FIG_H, 'Style', 'pushbutton', 'String', '>',...
-        'Position', [300 20 50 20],...
-        'Callback',  @fw_update);
-    
-    uicontrol(FIG_H, 'Style', 'pushbutton', 'String', '>>',...
-        'Position', [360 20 50 20],...
-        'Callback',  @fw_10_update);
-    
-    N_H = uicontrol(FIG_H, 'Style','text',...
-        'Position',[245 20 50 20],...
-        'String', 'None');
+    for i=1:num_goal
+        
+        % Create a new figure
+        FIG_H{i} = figure('Position', [806 + (i - 1) * 570, 514 560 420]);
+        set(FIG_H{i}, 'Name', ['Best HeatMap Cam' num2str(i)]);
+        
+        % Add iamge forward and backward buttons to the figure
+        uicontrol(FIG_H{i}, 'Style', 'pushbutton', 'String', '<<',...
+            'Position', [130 20 50 20],...
+            'Callback',  @(x,y) bw_10_update(x,y,i));
+        
+        uicontrol(FIG_H{i}, 'Style', 'pushbutton', 'String', '<',...
+            'Position', [190 20 50 20],...
+            'Callback',  @(x,y) bw_update(x,y,i));
+        
+        uicontrol(FIG_H{i}, 'Style', 'pushbutton', 'String', '>',...
+            'Position', [300 20 50 20],...
+            'Callback',  @(x,y) fw_update(x,y,i));
+        
+        uicontrol(FIG_H{i}, 'Style', 'pushbutton', 'String', '>>',...
+            'Position', [360 20 50 20],...
+            'Callback',  @(x,y) fw_10_update(x,y,i));
+        
+        N_H{i} = uicontrol(FIG_H{i}, 'Style','text',...
+            'Position',[245 20 50 20],...
+            'String', 'None');
+    end
 end
 
 % File might not exits because it might be a cached value, in that case
 % it is normally safe to assume that the previous image is still the
 % best one
-if(exist(input_image, 'file') == 2)
+if(exist([input_image_path '1.tif'], 'file') == 2)
     
     % Rename the best image using the generation number
-    first_g_path = [output_img_folder  'best-' num2str(state.Generation) '.tif'];
+    first_g_path = [output_img_folder  'best-iter' num2str(state.Generation) ...
+        '-Cam'];
     
-    movefile(input_image, first_g_path);
+    for i=1:num_goal
+        istr = num2str(i);
+        movefile([input_image_path istr '.tif'], [first_g_path istr '.tif']);
+    end
     
     if isBatchMode()
         return;
     end
     
-    % Read and show the image
-    img = imread(first_g_path);
-    IMGS{end + 1} = img(:,:,1:3);
+    next_idx = size(IMGS, 2) + 1;
+    for i=1:num_goal
+        % Read and show the image
+        img = imread([first_g_path num2str(i) '.tif']);
+        IMGS{i, next_idx} = img(:,:,1:3);
+    end
     
 else
     if isBatchMode()
@@ -64,74 +76,79 @@ else
     end
     
     % If the image does not exits copy the previous one
-    if(numel(IMGS) >= 1)
-        IMGS{end + 1} = IMGS{end};
+    current_idx = size(IMGS, 2);
+    for i=1:num_goal
+        if(numel(IMGS{i}) >= 1)
+            IMGS{i, current_idx + 1} = IMGS{i, current_idx};
+        end
     end
 end
 
 % If current image index points to the last image then update for the
 % current one, i.e. do not update if the user is looking at a different
 % image
-if(C_IMG + 1 == numel(IMGS))
-    C_IMG = numel(IMGS);
-    common_update();
-else
-    % Update the current image counter in the GUI
-    N_H.String = [num2str(C_IMG) '/' num2str(numel(IMGS))];
-    drawnow;
+for i=1:num_goal
+    if(C_IMG(i) + 1 == numel(IMGS(i,:)))
+        C_IMG(i) = numel(IMGS(i,:));
+        common_update(i);
+    else
+        % Update the current image counter in the GUI
+        N_H{i}.String = [num2str(C_IMG(i)) '/' num2str(numel(IMGS(i,:)))];
+        drawnow;
+    end
 end
 
 %% Update button callbacks
-    function common_update()
-        N_H.String = [num2str(C_IMG) '/' num2str(numel(IMGS))];
+    function common_update(i)
+        N_H{i}.String = [num2str(C_IMG(i)) '/' num2str(numel(IMGS(i,:)))];
         
         % Make our figure the current figure
-        set(groot, 'CurrentFigure', FIG_H);
-        imshow(IMGS{C_IMG});
+        set(groot, 'CurrentFigure', FIG_H{i});
+        imshow(IMGS{i, C_IMG(i)});
         
         drawnow; % Force a graphics update in the figure
     end
 
-    function bw_update(~,~)
+    function bw_update(~,~, i)
         
-        if C_IMG > 1 && numel(IMGS) >= 1
-            C_IMG = C_IMG - 1;
+        if C_IMG(i) > 1 && numel(IMGS(i,:)) >= 1
+            C_IMG(i) = C_IMG(i) - 1;
             
-            common_update();
+            common_update(i);
         end
     end
 
-    function bw_10_update(~,~)
+    function bw_10_update(~,~,i)
         
-        if C_IMG > 1 && numel(IMGS) >= 1
-            C_IMG = C_IMG - 10;
-            if C_IMG < 1
-                C_IMG = 1;
+        if C_IMG(i) > 1 && numel(IMGS(i,:)) >= 1
+            C_IMG(i) = C_IMG(i) - 10;
+            if C_IMG(i) < 1
+                C_IMG(i) = 1;
             end
             
-            common_update();
+            common_update(i);
         end
     end
 
-    function fw_update(~,~)
+    function fw_update(~,~,i)
         
-        if C_IMG < numel(IMGS) && numel(IMGS) > 1
-            C_IMG = C_IMG + 1;
+        if C_IMG(i) < numel(IMGS(i,:)) && numel(IMGS(i,:)) > 1
+            C_IMG(i) = C_IMG(i) + 1;
             
-            common_update();
+            common_update(i);
         end
     end
 
-    function fw_10_update(~,~)
+    function fw_10_update(~,~,i)
         
-        if C_IMG < numel(IMGS) && numel(IMGS) > 1
+        if C_IMG(i) < numel(IMGS(i,:)) && numel(IMGS(i,:)) > 1
             
-            C_IMG = C_IMG + 10;
-            if C_IMG > numel(IMGS)
-                C_IMG = numel(IMGS);
+            C_IMG(i) = C_IMG(i) + 10;
+            if C_IMG(i) > numel(IMGS(i,:))
+                C_IMG(i) = numel(IMGS(i,:));
             end
             
-            common_update();
+            common_update(i);
         end
     end
 
