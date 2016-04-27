@@ -36,6 +36,8 @@ end
 % 0 to 1
 Mean_Square_Error = Mean_Square_Error ./ (numel(Reference_Image) * 255^2);
 
+assert_valid_range_in_0_1(Mean_Square_Error);
+
 end
 
 

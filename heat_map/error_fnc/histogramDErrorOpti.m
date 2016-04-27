@@ -122,4 +122,6 @@ end
 % the error function is still in the range of 0..1
 cerror = cerror ./ (numel(goal_imgs) * n_bins_dist);
 
+assert_valid_range_in_0_1(cerror);
+
 end

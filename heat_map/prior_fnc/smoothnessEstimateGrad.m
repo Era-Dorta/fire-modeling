@@ -37,5 +37,7 @@ for i=1:num_vol
     end
 end
 
+assert_valid_range_in_0_1(smoothness);
+
 end
 

@@ -58,4 +58,6 @@ end
 % range of 0..1
 cerror = cerror ./ numel(goal_imgs);
 
+assert_valid_range_in_0_1(cerror);
+
 end

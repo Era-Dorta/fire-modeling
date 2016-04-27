@@ -69,4 +69,6 @@ end
 
 histoE = histoE ./ NumGoal;
 
+assert_valid_range_in_0_1(histoE);
+
 end
