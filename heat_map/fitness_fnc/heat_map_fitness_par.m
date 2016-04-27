@@ -42,27 +42,27 @@ else
             maya_send{c_maya}, c_maya, num_goal, lb, ub);
     end
     
-    best_error = realmax;
     output_img_folder = [scene_img_folder output_img_folder_name];
     
     % Wait for the results
     for c_maya=1:num_maya
         error_thread{c_maya} = fetchOutputs(f(c_maya));
-        c_error_b = min(error_thread{c_maya});
-        file_path = [output_img_folder  'current-' num2str(c_maya) '.tif'];
-        
-        if(c_error_b < best_error)
-            best_error = c_error_b;
-            best_save_path = file_path;
-        else
-            % Keep only the best image
-            if(exist(file_path, 'file') == 2)
+    end
+    
+    % Delete the suboptimal images
+    img_name = 'current-';
+    [~, best_error_idx] = min(error_thread{c_maya});
+    for c_maya=1:num_maya
+        if c_maya ~= best_error_idx
+            file_path = [output_img_folder img_name num2str(c_maya) '.tif'];
+            if exist(file_path, 'file') == 2
                 delete(file_path);
             end
         end
     end
     
-    first_path = [output_img_folder  'current-1.tif'];
+    first_path = [output_img_folder  img_name '1.tif'];
+    best_save_path = [output_img_folder  img_name num2str(best_error_idx) '.tif'];
     
     % Make the best image have the first id
     if(~isequal(best_save_path, first_path) && ...
