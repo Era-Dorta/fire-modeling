@@ -4,7 +4,7 @@ Automatic heat map reconstruction
 #### Dependencies
 * [Matlab](http://mathworks.com/products/matlab) 2015
 * [Ruby](http://www.ruby-lang.org/) 1.9.3
-* Fire shader [dependencies](README.md)
+* Fire shader [dependencies](/README.md)
 
 #### Compile and install
 * Compile the files in [mex_fnc](heat_map/mex_fnc/) folder, it can be done with the provided [CmakeLists.txt](heat_map/mex_fnc/CmakeLists.txt) file or running the Matlab script [compileAll.m](heat_map/mex_fnc/compileAll.m).
