@@ -55,7 +55,7 @@ else
             best_error = c_error_b;
             best_save_path = file_path;
         else
-            % Keep only the best image            
+            % Keep only the best image
             if(exist(file_path, 'file') == 2)
                 delete(file_path);
             end

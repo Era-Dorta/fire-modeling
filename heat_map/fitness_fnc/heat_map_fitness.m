@@ -101,7 +101,7 @@ for pop=1:size(heat_map_v, 1)
         for i=1:num_error_foos
             if(any(cellfun(@(x)sum(x(:)), c_img) == 0))
                 % If any of the rendered image is completely black set the error manually
-                error(i, pop) = realmax;
+                error(i, pop) = 1;
             else
                 error(i, pop) = sum(error_foo{i}(c_img));
             end
