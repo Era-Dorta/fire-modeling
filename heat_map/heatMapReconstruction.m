@@ -75,10 +75,6 @@ try
         error('Logfile name is required when running in batch mode');
     end
     
-    if(use_approx_fitness && isequal(error_foo{1}, @MSE))
-        error('Approx fitness function can only be used with histogram error function');
-    end
-    
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'hm_search_' num2str(dir_num)], 'dir') == 7)
