@@ -71,11 +71,15 @@ num_goal = numel(goal_img_path);
 % the folder error_fnc/distance_fnc
 % Common ones: histogram_sum_abs, histogram_intersection,
 % chi_square_statistics_fast
-dist_foo = @chi_square_statistics_fast;
+dist_foo = @histogram_sum_abs;
 
 % Error function used in the fitness function
 % One of: histogramErrorOpti, histogramDErrorOpti, MSE
 error_foo = {@histogramErrorOpti};
+
+% If use_approx_fitness is true, this function will be used in the
+% optimization, while the above one will used afterwards
+approx_error_foo = @histogramErrorApprox;
 
 % Clear all the functions
 clearCloseObj = onCleanup(@clear_cache);
@@ -172,27 +176,32 @@ try
     goal_img_summay = strjoin(goal_img_path, ', ');
     
     summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
-        [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
+        [project_path 'scenes/' scene_name '.ma'], 'ErrorFnc', ...
         func2str(error_foo{:}), 'DistFnc', func2str(dist_foo), ...
         'NumMaya', numMayas);
     
     %% Fitness function definition
     
     % Encapsulate the distance function in the error function
-    error_foo{1} = @(g_i, t_i, g_m, t_m) error_foo{1}(g_i, t_i, g_m, t_m, ...
+    error_foo{1} = @(x) error_foo{1}(goal_img, x, goal_mask, img_mask, ...
         dist_foo);
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     if(use_approx_fitness)
-        summary_data.ErrorFc = '@histogramErrorApprox';
+        summary_data.FinalErrorFnc = summary_data.ErrorFnc;
+        summary_data.ErrorFnc = func2str(approx_error_foo);
+        
+        approx_error_foo = @(x) approx_error_foo(x, goal_img, goal_mask, ...
+            dist_foo);
+        
         fitness_foo = @(x)heat_map_fitness_approx(x, init_heat_map.xyz, ...
-            init_heat_map.size, dist_foo, goal_img, goal_mask, LB, UB);
+            init_heat_map.size, approx_error_foo, LB, UB);
     else
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
             init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
             output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-            goal_img, goal_mask, img_mask, LB, UB);
+            num_goal, LB, UB);
     end
     
     %% Solver call
@@ -212,12 +221,12 @@ try
             % Let the solver use a different cache for each fitness foo
             if(use_approx_fitness)
                 fitness_foo = @(v, xyz, whd)heat_map_fitness_approx(v, xyz, ...
-                    whd, dist_foo, goal_img, goal_mask, LB, UB);
+                    whd, approx_error_foo, LB, UB);
             else
                 fitness_foo = @(v, xyz, whd)heat_map_fitness_par(v, xyz, ...
                     whd, error_foo, scene_name, scene_img_folder,  ...
                     output_img_folder_name, sendMayaScript, ports, ...
-                    mrLogPath, goal_img, goal_mask, img_mask, LB, UB);
+                    mrLogPath, num_goal, LB, UB);
             end
             
             % Extra paths needed in the solver
@@ -236,13 +245,13 @@ try
             % to work
             if(use_approx_fitness)
                 fitness_foo = @(x)heat_map_fitness_approx(x',  ...
-                    init_heat_map.xyz, init_heat_map.size, dist_foo, ...
-                    goal_img, goal_mask, LB, UB);
+                    init_heat_map.xyz, init_heat_map.size,  ...
+                    approx_error_foo, LB, UB);
             else
                 fitness_foo = @(x)heat_map_fitness_par(x', init_heat_map.xyz,  ...
                     init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
                     output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                    goal_img, goal_mask, img_mask, LB, UB);
+                    num_goal, LB, UB);
             end
             
             heat_map_v = do_cmaes_solve( max_ite, ...
@@ -303,13 +312,15 @@ try
     if(use_approx_fitness)
         L = load([paths_str.summary '.mat']);
         
-        c_img = imread([output_img_folder '/optimized1.tif']);
-        c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
+        c_img = cell(num_goal, 1);
+        for i=1:num_goal
+            c_img{i} = imread([output_img_folder '/optimized' num2str(i) '.tif']);
+            c_img{i} = c_img{i}(:,:,1:3); % Transparency is not used, so ignore it
+        end
         
         clear_cache; % Clear the fnc cache as we are evaluating again
         
-        L.summary_data.RealError = sum(feval(error_foo{1},  ...
-            goal_img(1), {c_img}, goal_mask(1), img_mask(1)));
+        L.summary_data.RealError = sum(error_foo{1}(c_img));
         
         disp(['Real error ' num2str(L.summary_data.RealError)]);
         summary_data = L.summary_data;
@@ -328,8 +339,7 @@ try
         
         clear_cache; % Clear the fnc cache as we are evaluating again
         
-        L.summary_data.ImageErrorSingleView = sum(feval(error_foo{1},  ...
-            goal_img(1), {c_img}, goal_mask(1), img_mask(1)));
+        L.summary_data.ImageErrorSingleView = sum(error_foo{1}({c_img}));
         
         summary_data = L.summary_data;
         save([paths_str.summary '.mat'], 'summary_data', '-append');

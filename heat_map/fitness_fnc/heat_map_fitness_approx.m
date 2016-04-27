@@ -1,10 +1,10 @@
 function [ fitness ] = heat_map_fitness_approx( heat_map_v, xyz,  whd, ...
-    dist_foo, goal_img, goal_mask, lb, ub)
+    error_foo, lb, ub)
 %HEAT_MAP_FITNESS_APPROX Heat map fitness function
 %   ERROR = HEAT_MAP_FITNESS_APPROX( HEAT_MAP_V, GOAL_IMG, GOAL_MASK)
 %   Fitness function for optimization algorithms
 
-hist_err =  histogramErrorApprox(heat_map_v, goal_img, goal_mask, dist_foo);
+hist_err =  error_foo(heat_map_v);
 
 % The lower the value the smoother the volume is
 smooth_err = smoothnessEstimateGrad(xyz, heat_map_v, whd, lb, ub);

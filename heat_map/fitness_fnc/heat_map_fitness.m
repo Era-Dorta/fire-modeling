@@ -1,6 +1,6 @@
 function [ error ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    port, mrLogPath, goal_img, goal_mask, img_mask, lb, ub)
+    port, mrLogPath, num_goal, lb, ub)
 %HEAT_MAP_FITNESS Heat map fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
@@ -51,7 +51,6 @@ for pop=1:size(heat_map_v, 1)
         cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
         sendToMaya(sendMayaScript, port, cmd);
         
-        num_goal = numel(goal_img);
         c_img = cell(num_goal, 1);
         
         for i=1:num_goal
@@ -103,8 +102,7 @@ for pop=1:size(heat_map_v, 1)
                 % If any of the rendered image is completely black set the error manually
                 error(i, pop) = realmax;
             else
-                error(i, pop) = sum(feval(error_foo{i}, goal_img, c_img, ...
-                    goal_mask, img_mask));
+                error(i, pop) = sum(error_foo{i}(c_img));
             end
         end
         
@@ -114,7 +112,7 @@ for pop=1:size(heat_map_v, 1)
         
         % Up heat val
         upheat_val = upHeatEstimate(xyz, heat_map_v(pop, :), whd);
-                
+        
         % Relative weights for histogram, smoothness and upheat estimates.
         % If we want the fitness function to be [0,1] the weights must sum
         % up to one
