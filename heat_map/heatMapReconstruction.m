@@ -89,8 +89,8 @@ try
     error_figure = [output_img_folder 'error_function'];
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
         'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
-        'best-' num2str(ports(1)) '.tif']);
-    mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
+        'current-1.tif']);
+    maya_log = [scene_img_folder output_img_folder_name 'maya.log'];
     
     %% Read goal and mask image/s
     % For MSE resize the goal image to match the synthetic image
@@ -107,34 +107,41 @@ try
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
     sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
     
+    % Each maya instance usually renders using 4 cores
+    numMayas = numel(ports);
+    maya_send = cell(numMayas, 1);
+    
+    for i=1:numMayas
+        maya_send{i} = @(cmd, isRender) sendToMaya( sendMayaScript, ...
+            ports(i), cmd, maya_log, isRender);
+    end
+    
     %% Volumetric data initialization
     init_heat_map = read_raw_file([project_path raw_file_path]);
     
     %% Maya initialization
-    % Each maya instance usually renders using 4 cores
-    numMayas = numel(ports);
     
     for i=1:numMayas
         disp(['Loading scene in Maya:' num2str(ports(i))]);
         % Set project to fire project directory
         cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-        sendToMaya(sendMayaScript, ports(i), cmd);
+        maya_send{i}(cmd, 0);
         
         % Open our test scene
         cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
-        sendToMaya(sendMayaScript, ports(i), cmd);
+        maya_send{i}(cmd, 0);
         
         % Force a frame update, as batch rendering later does not do it, this
         % will fix any file name errors due to using the same scene on
         % different computers
         cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-        sendToMaya(sendMayaScript, ports(i), cmd);
+        maya_send{i}(cmd, 0);
         
         % Deactive all but the first camera if there is more than one goal
         % image
         for j=2:num_goal
             cmd = ['setAttr \"camera' num2str(j) 'Shape.renderable\" 0'];
-            sendToMaya(sendMayaScript, ports(i), cmd);
+            maya_send{i}(cmd, 0);
         end
     end
     
@@ -173,8 +180,7 @@ try
     else
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
             init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-            output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-            num_goal, LB, UB);
+            output_img_folder_name, maya_send, num_goal, LB, UB);
     end
     
     %% Solver call
@@ -198,17 +204,15 @@ try
             else
                 fitness_foo = @(v, xyz, whd)heat_map_fitness_par(v, xyz, ...
                     whd, error_foo, scene_name, scene_img_folder,  ...
-                    output_img_folder_name, sendMayaScript, ports, ...
-                    mrLogPath, num_goal, LB, UB);
+                    output_img_folder_name, maya_send, num_goal, LB, UB);
             end
             
             % Extra paths needed in the solver
             paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
-            paths_str.mrLogPath = mrLogPath;
             
             [heat_map_v, ~, ~] = do_genetic_solve_resample( max_ite, ...
                 time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, sendMayaScript, ports, summary_data);
+                paths_str, maya_send, num_goal, summary_data);
         case 'grad'
             [heat_map_v, ~, ~] = do_gradient_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
@@ -223,8 +227,7 @@ try
             else
                 fitness_foo = @(x)heat_map_fitness_par(x', init_heat_map.xyz,  ...
                     init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
-                    output_img_folder_name, sendMayaScript, ports, mrLogPath, ...
-                    num_goal, LB, UB);
+                    output_img_folder_name, maya_send, num_goal, LB, UB);
             end
             
             heat_map_v = do_cmaes_solve( max_ite, ...
@@ -254,7 +257,7 @@ try
     % temperature_file_first and force frame update to run
     cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
-    sendToMaya(sendMayaScript, ports(1), cmd);
+    maya_send{1}(cmd, 0);
     
     disp(['Rendering final images in ' output_img_folder 'optimized<d>.tif' ]);
     
@@ -263,22 +266,22 @@ try
         
         % Active current camera
         cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-        sendToMaya(sendMayaScript, ports(1), cmd);
+        maya_send{1}(cmd, 0);
         
         % Set the folder and name of the render image
         cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
         cmd = [cmd scene_name '/' output_img_folder_name 'optimized' ...
             istr '\"'];
-        sendToMaya(sendMayaScript, ports(1), cmd);
+        maya_send{1}(cmd, 0);
         
         % Render the image
         tic;
         cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
-        sendToMaya(sendMayaScript, ports(1), cmd, 1, mrLogPath);
+        maya_send{1}(cmd, 1);
         
         % Deactivate the current camera
         cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-        sendToMaya(sendMayaScript, ports(1), cmd);
+        maya_send{1}(cmd, 0);
     end
     
     %% Append the real error if using the approx fitness
@@ -341,16 +344,15 @@ try
             
             % Active current camera
             cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-            sendToMaya(sendMayaScript, ports(1), cmd);
+            maya_send{1}(cmd, 0);
             
             render_heat_maps( L.InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
                 scene_name, scene_img_folder, output_img_folder_name, ...
-                ['InitialPopulationCam' istr], sendMayaScript, ports(1), ...
-                mrLogPath);
+                ['InitialPopulationCam' istr], maya_send);
             
             % Deactive current camera
             cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-            sendToMaya(sendMayaScript, ports(1), cmd);
+            maya_send{1}(cmd, 0);
         end
     end
     

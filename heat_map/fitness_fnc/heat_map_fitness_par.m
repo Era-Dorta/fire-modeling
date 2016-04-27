@@ -1,6 +1,6 @@
 function [ error ] = heat_map_fitness_par( heat_map_v, xyz, whd, error_foo, ...
-    scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    ports, mrLogPath, num_goal, lb, ub)
+    scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
+    num_goal, lb, ub)
 %HEAT_MAP_FITNESS_PAR Heat map fitness parallel function
 %   Heat map fitness function for optimization algorithms, the parallelism
 %   works best if the Vectorized option of the optimizer is activated. It
@@ -8,14 +8,14 @@ function [ error ] = heat_map_fitness_par( heat_map_v, xyz, whd, error_foo, ...
 %
 %   See also HEAT_MAP_FITNESS
 
-num_maya = size(ports, 2);
+num_maya = numel(maya_send);
 
 if(num_maya == 1 || size(heat_map_v, 1) <= num_maya)
     % When there are more Maya instances than data or if only one port was
     % given use a single instance to render al the data
     error = heat_map_fitness(heat_map_v, xyz, whd, error_foo, ...
-        scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-        ports(1), mrLogPath, num_goal, lb, ub);
+        scene_name, scene_img_folder, output_img_folder_name, maya_send{1}, ...
+        1, num_goal, lb, ub);
 else
     num_hm = size(heat_map_v, 1);
     num_hm_per_thread = round(num_hm / num_maya);
@@ -39,7 +39,7 @@ else
         f(c_maya) = parfeval(@heat_map_fitness, 1,   ...
             heat_map_v(start_pop:end_pop, :), xyz, whd, error_foo,   ...
             scene_name, scene_img_folder, output_img_folder_name, ...
-            sendMayaScript, ports(c_maya), mrLogPath, num_goal, lb, ub);
+            maya_send{c_maya}, c_maya, num_goal, lb, ub);
     end
     
     best_error = realmax;
@@ -49,21 +49,22 @@ else
     for c_maya=1:num_maya
         error_thread{c_maya} = fetchOutputs(f(c_maya));
         c_error_b = min(error_thread{c_maya});
+        file_path = [output_img_folder  'current-' num2str(c_maya) '.tif'];
+        
         if(c_error_b < best_error)
             best_error = c_error_b;
-            best_save_path = [output_img_folder  'best-' num2str(ports(c_maya)) '.tif'];
+            best_save_path = file_path;
         else
-            % Keep only the best image
-            file_path = [output_img_folder  'best-' num2str(ports(c_maya)) '.tif'];
+            % Keep only the best image            
             if(exist(file_path, 'file') == 2)
                 delete(file_path);
             end
         end
     end
     
-    first_path = [output_img_folder  'best-' num2str(ports(1)) '.tif'];
+    first_path = [output_img_folder  'current-1.tif'];
     
-    % Make the best image have the first port
+    % Make the best image have the first id
     if(~isequal(best_save_path, first_path) && ...
             exist(best_save_path, 'file') == 2)
         movefile(best_save_path, first_path);

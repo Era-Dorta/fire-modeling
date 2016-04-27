@@ -1,11 +1,11 @@
-function sendToMaya( sendScript, port, command, isRender, mrLogPath)
+function sendToMaya( sendScript, port, command, logPath, isRender)
 % Sends a command to an open Maya instance
-if nargin < 3 || nargin == 4
+if nargin < 4
     % It can be called with just the first three arguments or all of them
     error('Not enough input arguments.')
 end
 
-if nargin == 3
+if nargin == 4
     isRender = 0;
 end
 
@@ -13,16 +13,13 @@ end
     num2str(isRender) ' < /dev/null']);
 
 if(status ~= 0)
-    if(isRender)
-        % On error save the output in a MentaRay log file
-        fileId = fopen(mrLogPath, 'w');
-        fprintf(fileId, '%s', result);
-        fclose(fileId);
-        error(['Could not render image, port:' num2str(port) ...
-            ', check Mental Ray log in ' mrLogPath]);
-    else
-        error(['Could not execute command, is Maya:' num2str(port) ' open?']);
-    end
+    % On error save the output in log file
+    fileId = fopen(logPath, 'w');
+    fprintf(fileId, '%s', result);
+    fclose(fileId);
+    
+    error(['Could not execute command ' cmd ' in Maya:' num2str(port) ...
+        ' log file saved in ' logPath]);
 end
-end
+
 

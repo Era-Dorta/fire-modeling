@@ -1,12 +1,14 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve_resample( ...
     max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
-    sendMayaScript, port, summary_data)
+    maya_send, num_goal, summary_data)
 % Genetics Algorithm solver for heat map reconstruction with heat map
 % resampling scheme for faster convergence
 
 [summarydir, summaryname, summaryext] = fileparts(paths_str.summary);
 
 paths_str.summary = [summarydir '/' summaryname];
+
+numMayas = numel(maya_send);
 
 %% Options for the ga
 % Get an empty gaoptions structure
@@ -159,19 +161,22 @@ for i=1:num_ite
     
     %% Send Maya iteration specific parameters
     disp('Setting size parameters in Maya');
-    % In Maya the cube goes from -1 to 1 in each dimension, half a voxel size
-    % which is the optimal step size is computed as the inverse of the size
-    march_size = 1 / min(d_heat_map{i}.size) ;
     
-    % Set an appropriate march increment to reduced voxel data
-    cmd = ['setAttr fire_volume_shader.march_increment ' num2str(march_size)];
-    sendToMaya(sendMayaScript, port, cmd);
-    
-    % Set the density file to the reduced voxel data
-    % We need the full path to the file or the rendering will fail
-    cmd = 'setAttr -type \"string\" fire_volume_shader.density_file \"';
-    cmd = [cmd '$HOME/' d_heat_map{i}.filename(3:end) '\"'];
-    sendToMaya(sendMayaScript, port, cmd);
+    for j=1:numMayas
+        % In Maya the cube goes from -1 to 1 in each dimension, half a voxel size
+        % which is the optimal step size is computed as the inverse of the size
+        march_size = 1 / min(d_heat_map{i}.size) ;
+        
+        % Set an appropriate march increment to reduced voxel data
+        cmd = ['setAttr fire_volume_shader.march_increment ' num2str(march_size)];
+        maya_send{j}(cmd, 0);
+        
+        % Set the density file to the reduced voxel data
+        % We need the full path to the file or the rendering will fail
+        cmd = 'setAttr -type \"string\" fire_volume_shader.density_file \"';
+        cmd = [cmd '$HOME/' d_heat_map{i}.filename(3:end) '\"'];
+        maya_send{j}(cmd, 0);
+    end
     
     %% Call the genetic algorithm optimization for the first
     disp('Starting GA optimization');
@@ -221,28 +226,38 @@ for i=1:num_ite
         
         save_raw_file(heat_map_path, heat_map);
         
-        %%  Render the best image again
-        % Set the heat map file as temperature file
-        % It cannot have ~, and it has to be the full path, so use the HOME var
-        cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
-        cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
-        sendToMaya(sendMayaScript, port, cmd);
-        
-        % Set the folder and name of the render image
-        best_im_name = ['optimized' size_str];
-        cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-        cmd = [cmd paths_str.imprefixpath best_im_name '\"'];
-        sendToMaya(sendMayaScript, port, cmd);
-        
         % Give the user some progress information
-        best_im_path = [paths_str.output_folder best_im_name '.tif'];
-        disp(['Rendering current best image in ' best_im_path ]);
+        best_im_name = ['optimized-size' size_str '-Cam'];
+        best_im_path = [paths_str.output_folder best_im_name '<d>.tif'];
+        disp(['Rendering current best images in ' best_im_path ]);
         
-        % Render the image
-        tic;
-        cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
-        sendToMaya(sendMayaScript, port, cmd, 1, paths_str.mrLogPath);
-        disp(['Image rendered in ' num2str(toc) 's']);
+        %%  Render the best image again
+        for j=1:num_goal
+            jstr = num2str(j);
+            
+            % Active current camera
+            cmd = ['setAttr \"camera' jstr 'Shape.renderable\" 1'];
+            maya_send{1}(cmd, 0);
+            
+            % Set the heat map file as temperature file
+            % It cannot have ~, and it has to be the full path, so use the HOME var
+            cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
+            cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
+            maya_send{1}(cmd, 0);
+            
+            % Set the folder and name of the render image            
+            cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
+            cmd = [cmd paths_str.imprefixpath best_im_name jstr '\"'];
+            maya_send{1}(cmd, 0);
+            
+            % Render the image
+            cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
+            maya_send{1}(cmd, 1);
+            
+            % Deactive current camera
+            cmd = ['setAttr \"camera' jstr 'Shape.renderable\" 0'];
+            maya_send{1}(cmd, 0);
+        end
     end
     
     %% Move the best per iteration images to a folder

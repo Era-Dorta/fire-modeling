@@ -1,5 +1,5 @@
 function render_heat_maps( heat_map_v, xyz, whd, scene_name, scene_img_folder, ...
-    output_img_folder_name, output_folder, sendMayaScript, port, mrLogPath)
+    output_img_folder_name, output_folder, maya_send)
 %RENDER_HEAT_MAPS Renders heat maps in a folder
 %    RENDER_HEAT_MAPS( HEAT_MAP_V, XYZ, WHD, SCENE_NAME, SCENE_IMG_FOLDER, ...
 %     OUTPUT_IMG_FOLDER_NAME, SENDMAYASCRIPT, PORT, MRLOGPATH)
@@ -29,13 +29,13 @@ for pop=1:size(heat_map_v, 1)
     % temperature_file_first and force frame update to run
     cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
     cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
-    sendToMaya(sendMayaScript, port, cmd);
+    maya_send{1}(cmd, 0);
     
     %% Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
     cmd = [cmd scene_name '/' output_img_folder_name output_folder '/fireimage' ...
         popstr '\"'];
-    sendToMaya(sendMayaScript, port, cmd);
+    maya_send{1}(cmd, 0);
     
     %% Render the image
     % This command only works on Maya running in batch mode, if running with
@@ -43,7 +43,7 @@ for pop=1:size(heat_map_v, 1)
     % $filename = "Path to save";
     % renderWindowSaveImageCallback "renderView" $filename "image";
     cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
-    sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
+    maya_send{1}(cmd, 1);
     
     c_img = imread([scene_img_folder output_img_folder_name output_folder ...
         '/fireimage' popstr '.tif']);

@@ -1,6 +1,6 @@
 function [ error ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
-    scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-    port, mrLogPath, num_goal, lb, ub)
+    scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
+    id, num_goal, lb, ub)
 %HEAT_MAP_FITNESS Heat map fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
@@ -21,7 +21,8 @@ error = zeros(num_error_foos, size(heat_map_v, 1));
 best_error = realmax;
 best_in_cache = false;
 best_file_exists = false;
-port_str = num2str(port);
+id_str = num2str(id);
+best_save_path = [output_img_folder  'current-' id_str '.tif'];
 
 for pop=1:size(heat_map_v, 1)
     key = num2str(heat_map_v(pop, :));
@@ -34,7 +35,7 @@ for pop=1:size(heat_map_v, 1)
         end
     else
         %% Make temp dir for the render image
-        tmpdirName = ['dir' num2str(pop) '-' port_str];
+        tmpdirName = ['dir' num2str(pop) '-m' id_str];
         tmpdir = [output_img_folder tmpdirName];
         mkdir(output_img_folder, tmpdirName);
         
@@ -49,7 +50,7 @@ for pop=1:size(heat_map_v, 1)
         % temperature_file_first and force frame update to run
         cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
         cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
-        sendToMaya(sendMayaScript, port, cmd);
+        maya_send(cmd, 0);
         
         c_img = cell(num_goal, 1);
         
@@ -62,24 +63,24 @@ for pop=1:size(heat_map_v, 1)
             % in multiple goal case
             if(num_goal > 1)
                 cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-                sendToMaya(sendMayaScript, port, cmd);
+                maya_send(cmd, 0);
             end
             
             %% Set the folder and name of the render image
             cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
             cmd = [cmd scene_name '/' output_img_folder_name tmpdirName '/fireimage' ...
                 istr '\"'];
-            sendToMaya(sendMayaScript, port, cmd);
+            maya_send(cmd, 0);
             
             %% Render the image
             cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
-            sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
+            maya_send(cmd, 1);
             %fprintf('Image rendered with');
             
             %% Deactivate the current camera
             if(num_goal > 1)
                 cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-                sendToMaya(sendMayaScript, port, cmd);
+                maya_send(cmd, 0);
             end
             
             %% Compute the error with respect to the goal image
@@ -122,8 +123,6 @@ for pop=1:size(heat_map_v, 1)
         
         if(error(1, pop) < best_error)
             best_error = error(1, pop);
-            % Save the best image
-            best_save_path = [output_img_folder  'best-' port_str '.tif'];
             movefile(img_path, best_save_path);
             
             best_in_cache = false;
@@ -138,7 +137,7 @@ for pop=1:size(heat_map_v, 1)
 end
 
 if(best_in_cache && best_file_exists)
-    delete([output_img_folder  'best-' port_str '.tif']);
+    delete(best_save_path);
 end
 
 end
