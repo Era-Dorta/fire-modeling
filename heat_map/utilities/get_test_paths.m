@@ -32,7 +32,7 @@ if symmetric
     goal_img_path{1} = [scene_img_folder 'goalimage1.tif'];
     
     if multi_goal
-        goal_img_path{2} = {[scene_img_folder 'goalimage2.tif']};
+        goal_img_path{2} = [scene_img_folder 'goalimage2.tif'];
     end
 else
     raw_file_path = 'data/heat_maps/asymmetric4x4x4new.raw';
@@ -40,7 +40,7 @@ else
     goal_img_path{1} = [scene_img_folder 'goalimage1-asym.tif'];
     
     if multi_goal
-        goal_img_path{2} = {[scene_img_folder 'goalimage2-asym.tif']};
+        goal_img_path{2} = [scene_img_folder 'goalimage2-asym.tif'];
     end
 end
 
