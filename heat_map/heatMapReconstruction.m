@@ -77,19 +77,11 @@ dist_foo = @chi_square_statistics_fast;
 % One of: histogramErrorOpti, histogramDErrorOpti, MSE
 error_foo = {@histogramErrorOpti};
 
-% List of function with persistent variables that need to be clean up after
-% execution
-clear_foo_str = {'histogramErrorOpti', 'histogramDErrorOpti',...
-    'heat_map_fitness', 'heat_map_fitness_interp',  ...
-    'render_attr_fitness', 'histogramEstimate', 'histogramErrorApprox', ...
-    'gaxoverpriorhisto', 'gacrossovercombine'};
-
 % Clear all the functions
-clearCloseObj = onCleanup(@() clear(clear_foo_str{:}));
+clearCloseObj = onCleanup(@clear_cache);
 if(numel(ports) > 1)
     % If running of parallel, clear the functions in the workers as well
-    clearParCloseObj = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
-        clear_foo_str{:}));
+    clearParCloseObj = onCleanup(@() parfevalOnAll(gcp, @clear_cache, 0));
 end
 
 %% Avoid data overwrites by always creating a new folder
@@ -314,6 +306,8 @@ try
         c_img = imread([output_img_folder '/optimized1.tif']);
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
         
+        clear_cache; % Clear the fnc cache as we are evaluating again
+        
         L.summary_data.RealError = sum(feval(error_foo{1},  ...
             goal_img(1), {c_img}, goal_mask(1), img_mask(1)));
         
@@ -331,6 +325,8 @@ try
         
         c_img = imread([output_img_folder '/optimized1.tif']);
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
+        
+        clear_cache; % Clear the fnc cache as we are evaluating again
         
         L.summary_data.ImageErrorSingleView = sum(feval(error_foo{1},  ...
             goal_img(1), {c_img}, goal_mask(1), img_mask(1)));

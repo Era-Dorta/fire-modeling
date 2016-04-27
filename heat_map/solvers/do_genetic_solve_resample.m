@@ -255,7 +255,7 @@ for i=1:num_ite
     end
     
     %% Clear the cache variables in the fitness function
-    clear 'heat_map_fitness';
+    clear_cache;
 end
 
 disp(['Total optimization time was ' num2str(toc(mainStartTime))]);

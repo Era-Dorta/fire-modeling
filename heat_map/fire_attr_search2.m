@@ -55,19 +55,11 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 % Error function used in the fitness function
 error_foo = {@histogramErrorOpti};
 
-% List of function with persistent variables that need to be clean up after
-% execution
-clear_foo_str = {'histogramErrorOpti', ...
-    'heat_map_fitness', 'heat_map_fitness_interp',  ...
-    'render_attr_fitness', 'histogramEstimate', 'histogramErrorApprox', ...
-    'gaxoverpriorhisto', 'gacrossovercombine'};
-
 % Clear all the functions
-clearCloseObj = onCleanup(@() clear(clear_foo_str{:}));
+clearCloseObj = onCleanup(@clear_cache);
 if(numel(ports) > 1)
     % If running of parallel, clear the functions in the workers as well
-    clearParCloseObj = onCleanup(@() parfevalOnAll(gcp, @clear, 0, ...
-        clear_foo_str{:}));
+    clearParCloseObj = onCleanup(@() parfevalOnAll(gcp, @clear_cache, 0));
 end
 
 %% Avoid data overwrites by always creating a new folder
@@ -85,7 +77,7 @@ try
     end
     
     num_goal = numel(goal_img_path);
-        
+    
     % Find the last folder
     dir_num = 0;
     while(exist([scene_img_folder 'attr_search_' num2str(dir_num)], 'dir') == 7)
