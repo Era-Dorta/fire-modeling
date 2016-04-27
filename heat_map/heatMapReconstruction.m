@@ -25,47 +25,18 @@ addpath(genpath(fileparts(mfilename('fullpath'))));
 rand_seed = 'default';
 rng(rand_seed);
 
+% To modify parameters specific to each solver go to the relevant
+% do_<solver>_solve() function
+
 max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 LB = 300; % Lower bounds, no less than 300K -> 27C
 UB = 2000; % Upper bounds, no more than 2000K -> 1727C
 time_limit = 24 * 60 * 60; % In seconds
-use_approx_fitness = false;
+use_approx_fitness = false; % Using the approximate fitness function?
 
-% To modigy parameters specific to each solver go to the
-% do_<solver>_solve() function
-
-project_path = '~/maya/projects/fire/';
-scene_name = 'test95_gaussian_new';
-raw_file_path = 'data/heat_maps/gaussian4x4x4new.raw';
-%raw_file_path = 'data/heat_maps/asymmetric4x4x4new.raw';
-scene_img_folder = [project_path 'images/' scene_name '/'];
-
-% For single goal image the Maya scene must have only one renderable
-% camera, for multiple goal images, it is assumed that there are as many
-% cameras in the scene as goal images. If there are more cameras they must
-% have the rendererable attribute set to false. Each camera must be named
-% as "cameraNShape". The first goal image belongs to camera1Shape, the
-% second to camera2Shape and so on.
-goal_img_path = {[scene_img_folder 'goalimage1.tif']};
-goal_mask_img_path = {[scene_img_folder 'maskcam1.png']};
-mask_img_path = {[scene_img_folder 'maskcam1.png']};
-
-% goal_img_path = {[scene_img_folder 'goalimage1-asym.tif'], ...
-%     [scene_img_folder 'goalimage2-asym.tif']};
-% goal_mask_img_path = {[scene_img_folder 'maskcam1.png'], ...
-%     [scene_img_folder 'maskcam2.png']};
-% mask_img_path = {[scene_img_folder 'maskcam1.png'], ...
-%     [scene_img_folder 'maskcam2.png']};
-
-% goal_img_path = {[scene_img_folder 'goalimage1.tif'], ...
-%     [scene_img_folder 'goalimage2.tif']};
-% goal_mask_img_path = {[scene_img_folder 'maskcam1.png'], ...
-%     [scene_img_folder 'maskcam2.png']};
-% mask_img_path = {[scene_img_folder 'maskcam1.png'], ...
-%     [scene_img_folder 'maskcam2.png']};
-
-num_goal = numel(goal_img_path);
+multi_goal = false; % Select a test to run, to be removed
+symmetric = true; % Select a test to run, to be removed
 
 % Distance function for the histogram error functions, any of the ones in
 % the folder error_fnc/distance_fnc
@@ -77,9 +48,15 @@ dist_foo = @histogram_sum_abs;
 % One of: histogramErrorOpti, histogramDErrorOpti, MSE
 error_foo = {@histogramErrorOpti};
 
-% If use_approx_fitness is true, this function will be used in the
-% optimization, while the above one will used afterwards
+% If use_approx_fitness is true, this function will be used in the fitness
+% function, the one above one will used only to check the final result
 approx_error_foo = @histogramErrorApprox;
+
+%% Setting maing paths and clean up functions
+[project_path, scene_name, raw_file_path, scene_img_folder, goal_img_path, ...
+    goal_mask_img_path, mask_img_path] = get_test_paths(multi_goal, symmetric);
+
+num_goal = numel(goal_img_path);
 
 % Clear all the functions
 clearCloseObj = onCleanup(@clear_cache);
