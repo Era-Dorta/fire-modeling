@@ -259,7 +259,7 @@ try
     cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
     maya_send{1}(cmd, 0);
     
-    disp(['Rendering final images in ' output_img_folder 'optimized<d>.tif' ]);
+    disp(['Rendering final images in ' output_img_folder 'optimized-Cam<d>.tif' ]);
     
     for i=1:num_goal
         istr = num2str(i);
@@ -270,7 +270,7 @@ try
         
         % Set the folder and name of the render image
         cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-        cmd = [cmd scene_name '/' output_img_folder_name 'optimized' ...
+        cmd = [cmd scene_name '/' output_img_folder_name 'optimized-Cam' ...
             istr '\"'];
         maya_send{1}(cmd, 0);
         
@@ -290,7 +290,7 @@ try
         
         c_img = cell(num_goal, 1);
         for i=1:num_goal
-            c_img{i} = imread([output_img_folder '/optimized' num2str(i) '.tif']);
+            c_img{i} = imread([output_img_folder 'optimized-Cam' num2str(i) '.tif']);
             c_img{i} = c_img{i}(:,:,1:3); % Transparency is not used, so ignore it
         end
         
@@ -310,7 +310,7 @@ try
     if(num_goal > 1)
         L = load([paths_str.summary '.mat']);
         
-        c_img = imread([output_img_folder '/optimized1.tif']);
+        c_img = imread([output_img_folder 'optimized-Cam1.tif']);
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
         
         clear_cache; % Clear the fnc cache as we are evaluating again
@@ -376,7 +376,7 @@ try
         for i=1:num_goal
             istr = num2str(i);
             figure('Name', ['Optimized Camera' istr] );
-            optimized_img = imread([output_img_folder 'optimized' istr ...
+            optimized_img = imread([output_img_folder 'optimized-Cam' istr ...
                 '.tif']);
             imshow(optimized_img(:,:,1:3));
         end
