@@ -8,6 +8,8 @@ function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
 %   GOAL_IMGS and TEST_IMGS are same sized cells with the images to
 %   compare, GOAL_MASK and IMG_MASK are same sized cells with logical
 %   two dimensional matrices to mask GOAL_IMGS and TEST_IMGS respectively.
+%   If TEST_IMGS and IMG_MASK contain less images than GOAL_IMGS, the
+%   comparison will be performed with the first GOAL_IMGS.
 %
 %   See also HISTOGRAMERROR
 
@@ -37,7 +39,7 @@ end
 
 % Compute the error as in Dobashi et. al. 2012
 cerror = 0;
-for i=1:numel(goal_imgs)
+for i=1:numel(test_imgs)
     
     % Compute the histogram count for each color channel
     subImga = test_imgs{i}(:, :, 1);
@@ -56,7 +58,7 @@ end
 
 % Divide by the number of images so that the error function is still in the
 % range of 0..1
-cerror = cerror ./ numel(goal_imgs);
+cerror = cerror ./ numel(test_imgs);
 
 assert_valid_range_in_0_1(cerror);
 
