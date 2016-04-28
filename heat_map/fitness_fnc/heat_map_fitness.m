@@ -1,4 +1,4 @@
-function [ error ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
+function [ error_v ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
     id, num_goal, lb, ub)
 %HEAT_MAP_FITNESS Heat map fitness function
@@ -16,7 +16,7 @@ end
 output_img_folder = [scene_img_folder output_img_folder_name];
 
 num_error_foos = size(error_foo, 2);
-error = zeros(num_error_foos, size(heat_map_v, 1));
+error_v = zeros(num_error_foos, size(heat_map_v, 1));
 
 best_error = realmax;
 best_in_cache = false;
@@ -27,10 +27,10 @@ best_save_path = [output_img_folder  'current' id_str '-Cam'];
 for pop=1:size(heat_map_v, 1)
     key = num2str(heat_map_v(pop, :));
     if isKey(CACHE, key)
-        error(:, pop) = CACHE(key);
+        error_v(:, pop) = CACHE(key);
         
-        if(error(1, pop) < best_error)
-            best_error = error(1, pop);
+        if(error_v(1, pop) < best_error)
+            best_error = error_v(1, pop);
             best_in_cache = true;
         end
     else
@@ -101,9 +101,9 @@ for pop=1:size(heat_map_v, 1)
         for i=1:num_error_foos
             if(any(cellfun(@(x)sum(x(:)), c_img) == 0))
                 % If any of the rendered image is completely black set the error manually
-                error(i, pop) = 1;
+                error_v(i, pop) = 1;
             else
-                error(i, pop) = sum(error_foo{i}(c_img));
+                error_v(i, pop) = sum(error_foo{i}(c_img));
             end
         end
         
@@ -119,11 +119,11 @@ for pop=1:size(heat_map_v, 1)
         % up to one
         e_weights = [1/3, 1/3, 1/3];
         
-        error(1, pop) = dot(e_weights, [error(1, pop), smooth_val, upheat_val]);
+        error_v(1, pop) = dot(e_weights, [error_v(1, pop), smooth_val, upheat_val]);
         
         % Save the best images so far outside of the temp folder
-        if(error(1, pop) < best_error)
-            best_error = error(1, pop);
+        if(error_v(1, pop) < best_error)
+            best_error = error_v(1, pop);
             
             for j=1:num_goal
                 jstr = num2str(j);
@@ -137,7 +137,7 @@ for pop=1:size(heat_map_v, 1)
         % Delete the temporary files
         rmdir(tmpdir, 's')
         
-        CACHE(key) = error(:,pop);
+        CACHE(key) = error_v(:,pop);
     end
 end
 
