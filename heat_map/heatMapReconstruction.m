@@ -53,8 +53,11 @@ error_foo = {@histogramErrorOpti};
 approx_error_foo = @histogramErrorApprox;
 
 %% Setting maing paths and clean up functions
-[project_path, scene_name, raw_file_path, scene_img_folder, goal_img_path, ...
-    goal_mask_img_path, mask_img_path] = get_test_paths(multi_goal, symmetric);
+scene_name = 'test95_gaussian_new';
+
+[project_path, raw_file_path, scene_img_folder, goal_img_path, ...
+    goal_mask_img_path, mask_img_path] = get_test_paths(scene_name, ...
+    multi_goal, symmetric);
 
 num_goal = numel(goal_img_path);
 
