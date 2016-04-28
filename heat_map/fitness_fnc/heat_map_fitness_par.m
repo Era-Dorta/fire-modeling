@@ -41,16 +41,25 @@ else
             scene_name, scene_img_folder, output_img_folder_name, ...
             maya_send{c_maya}, c_maya, num_goal, lb, ub);
     end
+    
+    min_error = realmax;
+    best_error_idx = 1;
         
     % Wait for the results
     for c_maya=1:num_maya
         error_thread{c_maya} = fetchOutputs(f(c_maya));
+        
+        min_thread_error = min(error_thread{c_maya});
+        if min_thread_error < min_error
+            best_error_idx = c_maya;
+            min_error = min_thread_error;
+        end
     end
     
     % Delete the suboptimal images
     output_img_folder = [scene_img_folder output_img_folder_name];
     img_name = 'current';
-    [~, best_error_idx] = min(error_thread{c_maya});
+    
     for c_maya=1:num_maya
         if c_maya ~= best_error_idx
             file_path = [output_img_folder img_name num2str(c_maya) '-Cam*.tif'];

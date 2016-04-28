@@ -6,6 +6,11 @@ function [state, options, optchanged] = gaplotbestgen(options, state, flag, ...
 persistent FIG_H N_H C_IMG IMGS
 optchanged = false;
 
+% Already showing the last image when the GA is done, so do no nothing
+if strcmp(flag, 'done')
+    return;
+end
+
 if state.Generation == 0
     if isBatchMode()
         return;
