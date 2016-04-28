@@ -30,8 +30,9 @@ num_variables = 5;
 % the colour to zero directly
 LB = [0, 0, 0, -1, 0];
 
-% Upper bounds, empirically set given the equations and our data
-UB = [1000, 1000, 10, 1, 10];
+% Upper bounds, temperature scaled will be infered from the data, 2000K of
+% temperature offset, and default min max vlaues for the rest
+UB = [NaN, 2000, 10, 1, 10];
 
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function
@@ -39,6 +40,7 @@ UB = [1000, 1000, 10, 1, 10];
 project_path = '~/maya/projects/fire/';
 scene_name = 'test95_gaussian_new';
 scene_img_folder = [project_path 'images/' scene_name '/'];
+raw_file_path = 'data/heat_maps/gaussian4x4x4new.raw';
 
 % Single and multiple goal image path examples are in
 % [~, ~, ~, goal_img_path, goal_mask_img_path, mask_img_path] = ...
@@ -93,6 +95,22 @@ try
         'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
         'current1-Cam']);
     maya_log = [scene_img_folder output_img_folder_name 'maya.log'];
+    
+    %% Get upper bound estimate for temperature scale
+    init_heat_map = read_raw_file([project_path raw_file_path]);
+    
+    % The temperature should be roughfly in the 1500K range
+    UB(1) = 1500 / mean(init_heat_map.v);
+    
+    % If it fails try with the max temperature
+    if isinf(UB(1)) || isnan(UB(1))
+        % As this is a corner case, to be safe double the uppper bounds
+        UB(1) = (1500 / max(init_heat_map.v)) * 2;
+        
+        if isinf(UB(1)) || isnan(UB(1))
+            error('Temperatue values in init heat map must be positive');
+        end
+    end
     
     %% Read goal and mask image/s
     % For MSE resize the goal image to match the synthetic image
