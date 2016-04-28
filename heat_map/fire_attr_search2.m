@@ -23,11 +23,12 @@ max_ite = 1000; % Num of maximum iterations
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 time_limit = 24 * 60 * 60; % In seconds
 
+% temperature_scale, temperature_offset, intensity, transparency, linear_density
 num_variables = 5;
 
 % Lower bounds, mostly due to avoiding division by zero or setting
 % the colour to zero directly
-LB = [0, 0, 1, -1, 0];
+LB = [0, 0, 0, -1, 0];
 
 % Upper bounds, empirically set given the equations and our data
 UB = [1000, 1000, 10, 1, 10];
@@ -36,23 +37,21 @@ UB = [1000, 1000, 10, 1, 10];
 % do_<solver>_solve() function
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test94_gaussian_rotated_two_cams';
+scene_name = 'test95_gaussian_new';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
-% Single and multiple goal image path examples
+% Single and multiple goal image path examples are in
+% [~, ~, ~, goal_img_path, goal_mask_img_path, mask_img_path] = ...
+%     get_test_paths(scene_name, multi_goal, symmetric);
 
-% goal_img_path = {[scene_img_folder 'goalimage1-asym.tif']};
-% goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png']};
-% mask_img_path = {[scene_img_folder 'maskrenderimage1.png']};
-
-% goal_img_path = {[scene_img_folder 'goalimage1-asym.tif'], ...
-%     [scene_img_folder 'goalimage2-asym.tif']};
-% goal_mask_img_path = {[scene_img_folder 'maskgoalimage1.png'], ...
-%     [scene_img_folder 'maskgoalimage2.png']};
-% mask_img_path = {[scene_img_folder 'maskrenderimage1.png'], ...
-%     [scene_img_folder 'maskrenderimage2.png']};
+% Distance function for the histogram error functions, any of the ones in
+% the folder error_fnc/distance_fnc
+% Common ones: histogram_sum_abs, histogram_intersection,
+% chi_square_statistics_fast
+dist_foo = @histogram_sum_abs;
 
 % Error function used in the fitness function
+% One of: histogramErrorOpti, histogramDErrorOpti, MSE
 error_foo = {@histogramErrorOpti};
 
 % Clear all the functions
@@ -91,8 +90,9 @@ try
     % It will be saved as fig and tiff
     error_figure = [output_img_folder 'error_function'];
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
-        'output_folder',  output_img_folder);
-    mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
+        'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
+        'current1-Cam']);
+    maya_log = [scene_img_folder output_img_folder_name 'maya.log'];
     
     %% Read goal and mask image/s
     % For MSE resize the goal image to match the synthetic image
@@ -109,31 +109,37 @@ try
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
     sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
     
-    %% Maya initialization
     % Each maya instance usually renders using 4 cores
     numMayas = numel(ports);
+    maya_send = cell(numMayas, 1);
     
+    for i=1:numMayas
+        maya_send{i} = @(cmd, isRender) sendToMaya( sendMayaScript, ...
+            ports(i), cmd, maya_log, isRender);
+    end
+    
+    %% Maya initialization
     for i=1:numMayas
         disp(['Loading scene in Maya:' num2str(ports(i))]);
         % Set project to fire project directory
         cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-        sendToMaya(sendMayaScript, ports(i), cmd);
+        maya_send{i}(cmd, 0);
         
         % Open our test scene
         cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
-        sendToMaya(sendMayaScript, ports(i), cmd);
+        maya_send{i}(cmd, 0);
         
         % Force a frame update, as batch rendering later does not do it, this
         % will fix any file name errors due to using the same scene on
         % different computers
         cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-        sendToMaya(sendMayaScript, ports(i), cmd);
+        maya_send{i}(cmd, 0);
         
         % Deactive all but the first camera if there is more than one goal
         % image
         for j=2:num_goal
             cmd = ['setAttr \"camera' num2str(j) 'Shape.renderable\" 0'];
-            sendToMaya(sendMayaScript, ports(i), cmd);
+            maya_send{i}(cmd, 0);
         end
     end
     
@@ -141,20 +147,25 @@ try
     disp(['Creating new output folder ' output_img_folder]);
     mkdir(scene_img_folder, output_img_folder_name);
     
-    %% Fitness function definition
-    
-    % Wrap the fitness function into an anonymous function whose only
-    % parameter is the heat map
-    fitness_foo = @(x)render_attr_fitness_par(x, error_foo, ...
-        scene_name, scene_img_folder, output_img_folder_name, sendMayaScript, ...
-        ports, mrLogPath, goal_img, goal_mask, img_mask);
-    
     %% Summary extra data
     goal_img_summay = strjoin(goal_img_path, ', ');
     
     summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
         [project_path 'scenes/' scene_name '.ma'], 'ErrorFc', ...
-        func2str(error_foo{:}), 'NumMaya', numMayas);
+        func2str(error_foo{:}), 'DistFnc', func2str(dist_foo), 'NumMaya', ...
+        numMayas);
+    
+    %% Fitness function definition
+    
+    % Encapsulate the distance function in the error function
+    error_foo{1} = @(x) error_foo{1}(goal_img, x, goal_mask, img_mask, ...
+        dist_foo);
+    
+    % Wrap the fitness function into an anonymous function whose only
+    % parameter is the heat map
+    fitness_foo = @(x)render_attr_fitness_par(x, error_foo, ...
+        scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
+        num_goal);
     
     %% Solver call
     disp('Launching optimization algorithm');
@@ -179,6 +190,10 @@ try
             % saving too dificult
             plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.errorfig);
             
+            % Plot the rendered image of the best heat map on each iteration
+            plothm = @(options,state,flag)gaplotbestgen(options, state, flag, ...
+                paths_str.ite_img, paths_str.output_folder, num_goal);
+            
             % Matlab is using cputime to measure time limits in GA and Simulated
             % Annealing solvers, which just doesn't work with multiple cores and
             % multithreading even if the value is scaled with the number of cores.
@@ -186,7 +201,7 @@ try
             startTime = tic;
             timef = @(options, state, flag)ga_time_limit( options, state, flag, startTime);
             
-            options.OutputFcns = {plotf, timef};
+            options.OutputFcns = {plotf, plothm, timef};
             
             % Our only constrains are upper and lower bounds
             A = [];
@@ -237,45 +252,61 @@ try
         cmd = [cmd ', ' num2str(render_attr(i))];
     end
     cmd = [cmd ')'];
-    sendToMaya(sendMayaScript, ports(1), cmd);
+    maya_send{1}(cmd, 0);
     
-    disp(['Rendering final images in ' output_img_folder 'optimized<d>.tif' ]);
+    disp(['Rendering final images in ' output_img_folder 'optimized-Cam<d>.tif' ]);
     
     for i=1:num_goal
         istr = num2str(i);
         
         % Active current camera
         cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-        sendToMaya(sendMayaScript, ports(1), cmd);
+        maya_send{1}(cmd, 0);
         
         % Set the folder and name of the render image
         cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-        cmd = [cmd scene_name '/' output_img_folder_name 'optimized' ...
+        cmd = [cmd scene_name '/' output_img_folder_name 'optimized-Cam' ...
             istr '\"'];
-        sendToMaya(sendMayaScript, ports(1), cmd);
+        maya_send{1}(cmd, 0);
         
         % Render the image
         tic;
         cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
-        sendToMaya(sendMayaScript, ports(1), cmd, 1, mrLogPath);
+        maya_send{1}(cmd, 1);
         
         % Deactivate the current camera
         cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-        sendToMaya(sendMayaScript, ports(1), cmd);
+        maya_send{1}(cmd, 0);
     end
     
     %% Add single view fitness value for multigoal optimization
     if(num_goal > 1)
         L = load([paths_str.summary '.mat']);
         
-        c_img = imread([output_img_folder '/optimized1.tif']);
+        c_img = imread([output_img_folder 'optimized-Cam1.tif']);
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
         
-        L.summary_data.ImageErrorSingleView = sum(feval(error_foo{1},  ...
-            goal_img(1), {c_img}, goal_mask(1), img_mask(1)));
+        clear_cache; % Clear the fnc cache as we are evaluating again
+        
+        L.summary_data.ImageErrorSingleView = sum(error_foo{1}({c_img}));
         
         summary_data = L.summary_data;
         save([paths_str.summary '.mat'], 'summary_data', '-append');
+        
+        append_to_summary_file(paths_str.summary, ['ImageErrorSingleView is '...
+            num2str(L.summary_data.ImageErrorSingleView)]);
+    end
+    
+    %% Move the best per iteration images to a folder
+    best_img_iter_path = [output_img_folder 'best-iter*'];
+    if ~isempty(dir(best_img_iter_path)) % Check if any image was generated
+        for i=1:num_goal
+            istr = num2str(i);
+            best_img_iter_folder = [output_img_folder 'best-iter-Cam' istr];
+            
+            mkdir(best_img_iter_folder);
+            movefile([best_img_iter_path '-Cam' istr '.tif'], best_img_iter_folder);
+        end
     end
     
     %% Resource clean up after execution
@@ -289,7 +320,7 @@ try
         for i=1:num_goal
             istr = num2str(i);
             figure('Name', ['Optimized Camera' istr] );
-            optimized_img = imread([output_img_folder 'optimized' istr ...
+            optimized_img = imread([output_img_folder 'optimized-Cam' istr ...
                 '.tif']);
             imshow(optimized_img(:,:,1:3));
         end

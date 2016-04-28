@@ -41,15 +41,14 @@ else
             scene_name, scene_img_folder, output_img_folder_name, ...
             maya_send{c_maya}, c_maya, num_goal, lb, ub);
     end
-    
-    output_img_folder = [scene_img_folder output_img_folder_name];
-    
+        
     % Wait for the results
     for c_maya=1:num_maya
         error_thread{c_maya} = fetchOutputs(f(c_maya));
     end
     
     % Delete the suboptimal images
+    output_img_folder = [scene_img_folder output_img_folder_name];
     img_name = 'current';
     [~, best_error_idx] = min(error_thread{c_maya});
     for c_maya=1:num_maya
