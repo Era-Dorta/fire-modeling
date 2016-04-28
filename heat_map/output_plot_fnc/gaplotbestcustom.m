@@ -41,7 +41,7 @@ if state.Generation == 0
     if isBatchMode()
         FIG_H = figure('Visible', 'off');
     else
-        FIG_H = figure('Position', [151 494 560 420]);
+        FIG_H = figure('Position', [125 500 560 420]);
     end
     
     set(FIG_H, 'Name', 'Error function');

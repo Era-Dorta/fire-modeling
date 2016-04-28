@@ -19,7 +19,7 @@ if state.Generation == 0
     for i=1:num_goal
         
         % Create a new figure
-        FIG_H{i} = figure('Position', [806 + (i - 1) * 570, 514 560 420]);
+        FIG_H{i} = figure('Position', [725 + (i - 1) * 570, 500 560 420]);
         set(FIG_H{i}, 'Name', ['Best HeatMap Cam' num2str(i)]);
         
         % Add iamge forward and backward buttons to the figure
@@ -71,16 +71,15 @@ if(exist([input_image_path '1.tif'], 'file') == 2)
     end
     
 else
-    if isBatchMode()
+    if isempty(IMGS) || isBatchMode()
         return;
     end
     
-    % If the image does not exits copy the previous one
+    % If the image does not exits and there is a previous image, copy the
+    % previous one in the current one
     current_idx = size(IMGS, 2);
     for i=1:num_goal
-        if(numel(IMGS{i}) >= 1)
-            IMGS{i, current_idx + 1} = IMGS{i, current_idx};
-        end
+        IMGS{i, current_idx + 1} = IMGS{i, current_idx};
     end
 end
 
@@ -111,7 +110,7 @@ end
 
     function bw_update(~,~, i)
         
-        if C_IMG(i) > 1 && numel(IMGS(i,:)) >= 1
+        if C_IMG(i) > 1 && ~isempty(IMGS) && numel(IMGS(i,:)) >= 1
             C_IMG(i) = C_IMG(i) - 1;
             
             common_update(i);
@@ -120,7 +119,7 @@ end
 
     function bw_10_update(~,~,i)
         
-        if C_IMG(i) > 1 && numel(IMGS(i,:)) >= 1
+        if C_IMG(i) > 1 && ~isempty(IMGS) && numel(IMGS(i,:)) >= 1
             C_IMG(i) = C_IMG(i) - 10;
             if C_IMG(i) < 1
                 C_IMG(i) = 1;
@@ -132,7 +131,8 @@ end
 
     function fw_update(~,~,i)
         
-        if C_IMG(i) < numel(IMGS(i,:)) && numel(IMGS(i,:)) > 1
+        if ~isempty(IMGS) && C_IMG(i) < numel(IMGS(i,:)) && ...
+                numel(IMGS(i,:)) > 1
             C_IMG(i) = C_IMG(i) + 1;
             
             common_update(i);
@@ -141,7 +141,8 @@ end
 
     function fw_10_update(~,~,i)
         
-        if C_IMG(i) < numel(IMGS(i,:)) && numel(IMGS(i,:)) > 1
+        if ~isempty(IMGS) && C_IMG(i) < numel(IMGS(i,:)) && ...
+                numel(IMGS(i,:)) > 1
             
             C_IMG(i) = C_IMG(i) + 10;
             if C_IMG(i) > numel(IMGS(i,:))
