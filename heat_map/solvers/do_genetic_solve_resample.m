@@ -15,12 +15,12 @@ numMayas = numel(maya_send);
 options = gaoptimset;
 options.Display = 'iter'; % Give some output on each iteration
 options.TimeLimit = time_limit;
-options.StallGenLimit = 5;
+options.StallGenLimit = 1;
 options.Vectorized = 'on';
 
 % The volume size will be at least this small, as we are recursively
 % dividing by 2 the original size, it might be smaller if there is no
-% integer i such that init_heat_map.size / 2^i == 32
+% integer i such that init_heat_map.size / 2^i == minimumVolumeSize
 minimumVolumeSize = 32;
 
 % Population size for the maximum resolution
@@ -29,6 +29,9 @@ populationInitSize = 15;
 % Factor by which the population increases for a GA run with half of the
 % resolution, population of a state i will be initSize * (scale ^ i)
 populationScale = 2;
+
+% Upper limit for the population size of any resolution
+max_population = 200;
 
 A = [];
 b = [];
@@ -79,8 +82,8 @@ for i=1:num_ite
     %% Iteration dependant GA parameters
     
     % Start with large population and decrease it
-    options.PopulationSize = populationInitSize * (populationScale ^ ...
-        (num_ite - i));
+    options.PopulationSize = min(populationInitSize * ...
+        (populationScale ^(num_ite - i)), max_population);
     
     disp(['Population size ' num2str(options.PopulationSize) ', number of '...
         'variables ' num2str(d_heat_map{i}.count)]);

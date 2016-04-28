@@ -5,11 +5,11 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve( ...
 %% Options for the ga
 % Get an empty gaoptions structure
 options = gaoptimset;
-options.PopulationSize = 30;
-%options.Generations = max(fix(max_ite / options.PopulationSize), 1);
+options.PopulationSize = 200;
+options.Generations = 25;
 options.TimeLimit = time_limit;
 options.Display = 'iter'; % Give some output on each iteration
-options.StallGenLimit = 5;
+options.StallGenLimit = 1;
 options.Vectorized = 'on';
 
 % Path where the initial population will be saved
