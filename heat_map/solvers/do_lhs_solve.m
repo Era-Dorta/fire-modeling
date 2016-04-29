@@ -1,17 +1,12 @@
 function [ heat_map_v, best_error, exitflag] = do_lhs_solve( ...
-    max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
-    summary_data)
+    LB, UB, init_heat_map, fitness_foo, paths_str, summary_data, args_path)
 %DO_LHS_SOLVE LHS solver for heat map reconstruction
 % Simple Latin Hypercube Sampler solver, randomly samples the space and
 % takes the best individual
 
 %% Options for the LHS
-% Get default values
-options.MaxIter = max_ite;
-options.TolFun = 0.0001;
-options.LB = LB;
-options.UB = UB;
-options.BatchEval = 20;
+L = load(args_path);
+options = L.options;
 
 exitflag = 1;
 
@@ -46,7 +41,7 @@ while(c_batch_s_idx <= options.MaxIter && best_error > options.TolFun)
     c_batch_s_idx = c_batch_s_idx + options.BatchEval;
     c_batch_e_idx = min(c_batch_e_idx + options.BatchEval, options.MaxIter);
     
-    if(toc(startTime) > time_limit)
+    if(toc(startTime) > L.time_limit)
         exitflag = -1;
         break;
     end
@@ -68,7 +63,5 @@ summary_data.LowerBounds = LB(1);
 summary_data.UpperBounds = UB(1);
 
 save_summary_file(paths_str.summary, summary_data, options);
-
-
 end
 

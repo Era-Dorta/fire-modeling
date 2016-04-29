@@ -197,12 +197,11 @@ try
                     output_img_folder_name, maya_send, num_goal, LB, UB);
             end
             
-            heat_map_v = do_cmaes_solve( max_ite, ...
-                time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, summary_data, numMayas > 1);
+            heat_map_v = do_cmaes_solve( LB, UB, init_heat_map, fitness_foo, ...
+                paths_str, summary_data, numMayas > 1, solver_args_path);
         case 'lhs'
-            heat_map_v = do_lhs_solve( max_ite, time_limit, LB, UB, ...
-                init_heat_map, fitness_foo, paths_str, summary_data);
+            heat_map_v = do_lhs_solve( LB, UB, init_heat_map, fitness_foo, ...
+                paths_str, summary_data, solver_args_path);
         otherwise
             solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'']';
             error(['Invalid solver, choose one of ' solver_names ]);

@@ -106,8 +106,13 @@ switch solver
         % Default is -Inf but our error function is minimum value is 0
         options.StopFitness = eps;
     case 'lhs'
+        % Get default values
+        options.MaxIter = max_ite;
+        options.TolFun = 0.0001;
+        options.BatchEval = 20;
     otherwise
-        solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'']';
+        solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
+        ' ''lhs'']'];
         error(['Invalid solver, choose one of ' solver_names ]);
 end
 
