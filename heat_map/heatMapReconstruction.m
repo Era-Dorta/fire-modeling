@@ -203,7 +203,8 @@ try
             heat_map_v = do_lhs_solve( LB, UB, init_heat_map, fitness_foo, ...
                 paths_str, summary_data, solver_args_path);
         otherwise
-            solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'']';
+            solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ' ...
+                '''cmaes'', ''lhs'']'];
             error(['Invalid solver, choose one of ' solver_names ]);
     end
     
