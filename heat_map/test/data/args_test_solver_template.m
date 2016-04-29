@@ -41,6 +41,10 @@ switch solver
         % @mutationadaptfeasible
         options.MutationFcn = @mutationadaptfeasible;
         
+        % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen
+        options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...
+            @ga_time_limit};
+        
         if isequal(solver, 'ga-re') % Extra parameters for GA resampling
             % Functions for the first GA iteration
             CreationFcnFirst = options.CreationFcn;

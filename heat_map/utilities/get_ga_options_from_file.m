@@ -118,23 +118,35 @@ else
 end
 
 %% Output and plot functions
-% Function executed on each iteration, there is a PlotFcns too, but it
-% creates a figure outside of our control and it makes the plotting and
-% saving too dificult
-plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, paths_str.errorfig);
-
-% Plot the rendered image of the best heat map on each iteration
-plothm = @(options,state,flag)gaplotbestgen(options, state, flag, ...
-    paths_str.ite_img, paths_str.output_folder, num_goal);
-
-% Matlab is using cputime to measure time limits in GA and Simulated
-% Annealing solvers, which just doesn't work with multiple cores and
-% multithreading even if the value is scaled with the number of cores.
-% Add a custom function to do the time limit check
-startTime = tic;
-timef = @(options, state, flag)ga_time_limit( options, state, flag, startTime);
-
-L.options.OutputFcns = {plotf, plothm, timef};
+for i=1:numel(L.options.OutputFcns)
+    if isequal(L.options.OutputFcns{i}, @gaplotbestcustom)
+        
+        % Function executed on each iteration, there is a PlotFcns too, but it
+        % creates a figure outside of our control and it makes the plotting and
+        % saving too dificult
+        L.options.OutputFcns{i} = @(options,state,flag)gaplotbestcustom( ...
+            options, state, flag, paths_str.errorfig);
+        
+    elseif isequal(L.options.OutputFcns{i}, @gaplotbestgen)
+        
+        % Plot the rendered image of the best heat map on each iteration
+        L.options.OutputFcns{i} = @(options,state,flag)gaplotbestgen(options, ...
+            state, flag, paths_str.ite_img, paths_str.output_folder, num_goal);
+        
+    elseif isequal(L.options.OutputFcns{i}, @ga_time_limit)
+        
+        % Matlab is using cputime to measure time limits in GA and Simulated
+        % Annealing solvers, which just doesn't work with multiple cores and
+        % multithreading even if the value is scaled with the number of cores.
+        % Add a custom function to do the time limit check
+        startTime = tic;
+        L.options.OutputFcns{i} = @(options, state, flag)ga_time_limit( ...
+            options, state, flag, startTime);
+        
+    else
+        error(['Unkown GA OutputFcn in ' args_path]);
+    end
+end
 
 %% Return the full options struct
 options_out = L.options;
