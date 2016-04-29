@@ -1,22 +1,18 @@
 function [ heat_map_v, best_error, exitflag] = do_gradient_solve( ...
-    max_ite, time_limit, LB, UB,  init_heat_map, fitness_foo, paths_str, ...
-    summary_data)
+    LB, UB,  init_heat_map, fitness_foo, paths_str, ...
+    summary_data, args_path)
 % Gradient descent solver for heat map reconstruction
 %% Options for the gradient descent solver
-% Get default values
-options = optimoptions(@fmincon);
+L = load(args_path);
+options = L.options;
 
-% N.B. If the gradient function is not provided, the algorithm will
-% evaluate the function for every dimension, e.g. 32768 times for a small
-% 32x32x32 volume, before even starting the optimization, checking for max
-% iterations, max funEvals or calling OutputFnc
-options.MaxIter = max_ite;
-options.MaxFunEvals = max_ite;
-options.Display = 'iter-detailed'; % Give some output on each iteration
-
-startTime = tic;
-options.OutputFcn = @(x, optimValues, state) gradient_time_limit(x, ...
-    optimValues, state, time_limit, startTime);
+if isequal(options.OutputFcn, @gradient_time_limit)
+    startTime = tic;
+    options.OutputFcn = @(x, optimValues, state) gradient_time_limit(x, ...
+        optimValues, state, L.time_limit, startTime);
+else
+    error('Unkown outputFnc in do_gradient_solve');
+end
 
 LB = ones(init_heat_map.count, 1) * LB;
 UB = ones(init_heat_map.count, 1) * UB;

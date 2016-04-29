@@ -89,6 +89,14 @@ switch solver
         % Only sa_time_limit
         options.OutputFcns = @sa_time_limit;
     case 'grad'
+        % Get default values
+        options = optimoptions(@fmincon);
+        
+        options.MaxIter = max_ite;
+        options.MaxFunEvals = max_ite;
+        options.Display = 'iter-detailed'; % Give some output on each iteration
+        
+        options.OutputFcn = @gradient_time_limit;
     case 'cmaes'
     case 'lhs'
     otherwise
