@@ -77,15 +77,7 @@ else
     valid_foo = { @crossoverscattered ,@crossoversinglepoint, ...
         @crossovertwopoint ,@crossoverintermediate, @crossoverheuristic };
     
-    is_valid = false;
-    for i=1:numel(valid_foo)
-        if isequal(L.options.CrossoverFcn, valid_foo{i})
-            is_valid = true;
-            break;
-        end
-    end
-    
-    if ~is_valid
+    if ~isequalFncCell(L.options.CrossoverFcn, valid_foo)
         error(['Unkown GA CrossoverFcn in ' args_path]);
     end
 end
@@ -104,15 +96,7 @@ else
         @gamutationadaptscale, @gamutationmean, @crossoverheuristic, ...
         @mutationgaussian, @mutationuniform, @mutationadaptfeasible};
     
-    is_valid = false;
-    for i=1:numel(valid_foo)
-        if isequal(L.options.MutationFcn, valid_foo{i})
-            is_valid = true;
-            break;
-        end
-    end
-    
-    if ~is_valid
+    if ~isequalFncCell(L.options.MutationFcn, valid_foo)
         error(['Unkown GA MutationFcn in ' args_path]);
     end
 end
