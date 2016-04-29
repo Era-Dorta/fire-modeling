@@ -239,8 +239,10 @@ for i=1:num_ite
             jstr = num2str(j);
             
             % Active current camera
-            cmd = ['setAttr \"camera' jstr 'Shape.renderable\" 1'];
-            maya_send{1}(cmd, 0);
+            if(num_goal > 1)
+                cmd = ['setAttr \"camera' jstr 'Shape.renderable\" 1'];
+                maya_send{1}(cmd, 0);
+            end
             
             % Set the heat map file as temperature file
             % It cannot have ~, and it has to be the full path, so use the HOME var
@@ -258,8 +260,10 @@ for i=1:num_ite
             maya_send{1}(cmd, 1);
             
             % Deactive current camera
-            cmd = ['setAttr \"camera' jstr 'Shape.renderable\" 0'];
-            maya_send{1}(cmd, 0);
+            if(num_goal > 1)
+                cmd = ['setAttr \"camera' jstr 'Shape.renderable\" 0'];
+                maya_send{1}(cmd, 0);
+            end
         end
     end
     
