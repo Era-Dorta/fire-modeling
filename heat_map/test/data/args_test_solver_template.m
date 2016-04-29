@@ -78,6 +78,16 @@ switch solver
             save(args_path, '-regexp','^(?!(args_path|solver)$).');
         end
     case 'sa'
+        % Get default values
+        options = saoptimset('simulannealbnd');
+        options.MaxIter = max_ite;
+        options.MaxFunEvals = max_ite;
+        options.TimeLimit = time_limit;
+        options.InitialTemperature = 1/6; % Factor to multiply (UB - LB)
+        options.Display = 'iter'; % Give some output on each iteration
+        
+        % Only sa_time_limit
+        options.OutputFcns = @sa_time_limit;
     case 'grad'
     case 'cmaes'
     case 'lhs'
