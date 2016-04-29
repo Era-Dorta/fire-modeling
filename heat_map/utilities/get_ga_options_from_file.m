@@ -14,9 +14,9 @@ L = load(args_path);
 num_goal = numel(goal_img);
 
 if is_ga_re % GA resampling has custom options for the first iteration
-    L.options.CreationFcn = L.options.CreationFcnFirst;
-    L.options.CrossoverFcn = L.options.CrossoverFcnFirst;
-    L.options.MutationFcn = L.options.MutationFcnFirst;
+    L.options.CreationFcn = L.CreationFcnFirst;
+    L.options.CrossoverFcn = L.CrossoverFcnFirst;
+    L.options.MutationFcn = L.MutationFcnFirst;
 end
 
 %% Creation function

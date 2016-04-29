@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve_resample( ...
-    max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
-    maya_send, num_goal, summary_data)
+    LB, UB, init_heat_map, fitness_foo, paths_str, maya_send, num_goal, ...
+    summary_data, goal_img, goal_mask, args_path)
 % Genetics Algorithm solver for heat map reconstruction with heat map
 % resampling scheme for faster convergence
 
@@ -11,27 +11,7 @@ paths_str.summary = [summarydir '/' summaryname];
 numMayas = numel(maya_send);
 
 %% Options for the ga
-% Get an empty gaoptions structure
-options = gaoptimset;
-options.Display = 'iter'; % Give some output on each iteration
-options.TimeLimit = time_limit;
-options.StallGenLimit = 1;
-options.Vectorized = 'on';
-
-% The volume size will be at least this small, as we are recursively
-% dividing by 2 the original size, it might be smaller if there is no
-% integer i such that init_heat_map.size / 2^i == minimumVolumeSize
-minimumVolumeSize = 32;
-
-% Population size for the maximum resolution
-populationInitSize = 15;
-
-% Factor by which the population increases for a GA run with half of the
-% resolution, population of a state i will be initSize * (scale ^ i)
-populationScale = 2;
-
-% Upper limit for the population size of any resolution
-max_population = 200;
+L = load(args_path);
 
 A = [];
 b = [];
@@ -39,15 +19,16 @@ Aeq = [];
 beq = [];
 nonlcon = [];
 
-summary_data.minimumVolumeSize = minimumVolumeSize;
-summary_data.populationInitSize = populationInitSize;
-summary_data.populationScale = populationScale;
+summary_data.minimumVolumeSize = L.minimumVolumeSize;
+summary_data.populationInitSize = L.populationInitSize;
+summary_data.populationScale = L.populationScale;
+summary_data.maxPopulation = L.maxPopulation;
 
 %% Down sample the heat map
 disp('Down sampling the density volume');
 d_heat_map{1} = init_heat_map;
 num_ite = 1;
-while max(d_heat_map{end}.size) > minimumVolumeSize
+while max(d_heat_map{end}.size) > L.minimumVolumeSize
     d_heat_map{end + 1} = resampleHeatMap(d_heat_map{end}, 'down');
     
     % Save the downsampled in a file as we are going to use it as the
@@ -59,9 +40,6 @@ while max(d_heat_map{end}.size) > minimumVolumeSize
     
     num_ite = num_ite + 1;
 end
-
-% Divide the time equally between each GA loop
-options.TimeLimit = time_limit / num_ite;
 
 % Flip the elements so that they go in increasing size
 d_heat_map = flip(d_heat_map);
@@ -80,76 +58,36 @@ for i=1:num_ite
     size_str = num2str(d_heat_map{i}.size(1));
     
     %% Iteration dependant GA parameters
+    init_population_path = [paths_str.output_folder 'InitialPopulation' ...
+        size_str '.mat'];
+    
+    options = get_ga_options_from_file( args_path, d_heat_map{i}, goal_img, ...
+        goal_mask, init_population_path, paths_str, i == 1);
+    
+    % Divide the time equally between each GA loop
+    options.TimeLimit = L.time_limit / num_ite;
     
     % Start with large population and decrease it
-    options.PopulationSize = min(populationInitSize * ...
-        (populationScale ^(num_ite - i)), max_population);
+    options.PopulationSize = min(L.populationInitSize * ...
+        (L.populationScale ^(num_ite - i)), L.maxPopulation);
     
     disp(['Population size ' num2str(options.PopulationSize) ', number of '...
         'variables ' num2str(d_heat_map{i}.count)]);
     
-    options.Generations = max(fix(max_ite / options.PopulationSize), 1);
+    options.Generations = max(fix(L.max_ite / options.PopulationSize), 1);
     
     % Upper and lower bounds
     LB1 = ones(d_heat_map{i}.count, 1) * LB;
     UB1 = ones(d_heat_map{i}.count, 1) * UB;
-    
-    % Function executed on each iteration, there is a PlotFcns too, but it
-    % creates a figure outside of our control and it makes the plotting and
-    % saving figures too dificult
-    plotf = @(options,state,flag)gaplotbestcustom(options, state, flag, ...
-        [paths_str.errorfig size_str]);
-    
-    % Plot the rendered image of the best heat map on each iteration
-    plothm = @(options,state,flag)gaplotbestgen(options, state, flag, ...
-        paths_str.ite_img, paths_str.output_folder, num_goal);
-    
-    % Matlab is using cputime to measure time limits in GA and Simulated
-    % Annealing solvers, which just doesn't work with multiple cores and
-    % multithreading even if the value is scaled with the number of cores.
-    % Add a custom function to do the time limit check
-    
-    startTime = tic;
-    timef = @(options, state, flag)ga_time_limit( options, state, flag, startTime);
-    
-    options.OutputFcns = {plotf, plothm, timef};
-    
-    % Crossover function, update the coordinates and the bounding box size
-    options.CrossoverFcn = @(parents, options, GenomeLength, FitnessFcn, ...
-        unused, thisPopulation) gacrossovercombineprior (parents, options, ...
-        GenomeLength, FitnessFcn, unused, thisPopulation, d_heat_map{i}.xyz, ...
-        d_heat_map{i}.size, min(d_heat_map{i}.xyz), max(d_heat_map{i}.xyz));
-    
-    % Mutation function, update the coordinates and the volume size
-    options.MutationFcn = @(parents, options, GenomeLength, FitnessFcn,  ...
-        state, thisScore, thisPopulation) gamutationadaptprior (parents, ...
-        options, GenomeLength, FitnessFcn, state, thisScore, ...
-        thisPopulation, d_heat_map{i}.xyz, d_heat_map{i}.size);
-    
-    %% Set the initial population function generator
-    init_population_path = [paths_str.output_folder 'InitialPopulation' ...
-        size_str '.mat'];
-    if i == 1
-        % Random initial population
-        options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
         
-        % Linearly spaced population
-        % options.CreationFcn = @(x, y, z)gacreationlinspace(x , y, z, ...
-        %     init_population_path);
-    else
+    %% Set the initial population function generator
+    
+    if i ~= 1
         % Create from upsampling the result of the previous iteration
         temp_heat_map = d_heat_map{i - 1};
         temp_heat_map.v = heat_map_v';
         temp_heat_map = resampleHeatMap(temp_heat_map, 'up', d_heat_map{i}.xyz);
         options.InitialPopulation = temp_heat_map.v';
-        
-        % The rest of the population will be created by adding normal
-        % noise to the previous sample
-        c_fnc_mean = 0;
-        c_fnc_sigma = 250;
-        options.CreationFcn = @(GenomeLength, FitnessFcn, options) ...
-            gacreationfrominitguess( GenomeLength, FitnessFcn, options, ...
-            temp_heat_map, c_fnc_mean, c_fnc_sigma, init_population_path);
     end
     
     %% Fitness function
@@ -183,6 +121,7 @@ for i=1:num_ite
     
     %% Call the genetic algorithm optimization for the first
     disp('Starting GA optimization');
+    startTime = tic;
     
     [heat_map_v, best_error, exitflag, ~, out_population, scores] =  ...
         ga( new_fitness_foo, d_heat_map{i}.count, A, b, Aeq, beq, LB1, UB1, ...

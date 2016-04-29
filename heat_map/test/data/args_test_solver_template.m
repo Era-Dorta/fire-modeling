@@ -43,9 +43,9 @@ switch solver
         
         if isequal(solver, 'ga-re') % Extra parameters for GA resampling
             % Functions for the first GA iteration
-            options.CreationFcnFirst = options.CreationFcn;
-            options.CrossoverFcnFirst = options.CrossoverFcn;
-            options.MutationFcnFirst = options.MutationFcn;
+            CreationFcnFirst = options.CreationFcn;
+            CrossoverFcnFirst = options.CrossoverFcn;
+            MutationFcnFirst = options.MutationFcn;
             
             % Functions for the rest
             options.CreationFcn = @gacreationfrominitguess;
@@ -61,11 +61,11 @@ switch solver
             minimumVolumeSize = 32;
             
             % Population size for the maximum resolution
-            populationInitSize = 2;
+            populationInitSize = 100;
             
             % Factor by which the population increases for a GA run with half of the
             % resolution, population of a state i will be initSize * (scale ^ i)
-            populationScale = 1;
+            populationScale = 2;
             
             % Upper limit for the population size of any resolution
             maxPopulation = 200;
