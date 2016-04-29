@@ -11,18 +11,13 @@ if [ "$#" -lt 2 ]; then
 		echo ""
 		echo "Not enough input arguments"
 		echo ""
-		echo "Usage: runHeatMapReconstruction.sh <solver> <maya_threads>"
+		echo "Usage: runHeatMapReconstruction.sh <input_data> <maya_threads>"
 		echo ""
-		echo "	Where <solver> can be any of:"
-		echo "	\"ga\"    -> Genetic Algorithm"
-		echo "	\"sa\"    -> Simulated Annealing"
-		echo "	\"ga-re\" -> Genetic Algorithm with heat map resampling"
-		echo "	\"grad\"  -> Gradient Descent"
-		echo "	\"cmaes\" -> Covariance Matrix Adaptation Evolution Strategy"
-		echo "	\"lhs\"   -> Latin Hypercube Sampling"
+		echo "	Where <input_data> is a .mat file generated with any of the"
+		echo "  heat_map/test/data/arg_test*.m functions"
 		echo ""
-		echo "	<maya_threads> must be an positive integer which indicates how many"
-		echo "	Maya instances will launched for rendering"
+		echo "	<maya_threads> must be an positive integer which indicates how"
+		echo "	many Maya instances will launched for rendering"
 		echo "	Default value is: round(number of cores / 3)"
 		echo ""
 		exit 0 
@@ -30,6 +25,9 @@ if [ "$#" -lt 2 ]; then
 else
 	NUM_MAYA=$2
 fi
+
+# Get the full path of the .mat file, also add '' for matlab syntax
+DATA_FILE="'$(readlink -e "$1")'"
 
 # Each Maya will listen to this port + (current Maya number - 1)
 INIT_PORT="2222"
@@ -81,7 +79,7 @@ done
 PORTS="[${PORTS}]"
 
 # Runs matlab in batch mode with low priority
-nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction('$1', $PORTS, '$LOGFILE')" -logfile $LOGFILE
+nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction($DATA_FILE, $PORTS, '$LOGFILE')" -logfile $LOGFILE
 
 # Close all the Maya instances
 for i in `seq 1 $NUM_MAYA`;
