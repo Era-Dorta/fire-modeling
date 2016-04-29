@@ -1,17 +1,12 @@
-function [ heat_map_v, best_error, exitflag] = do_cmaes_solve( ...
-    max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, paths_str, ...
-    summary_data, parallel)
+function [ heat_map_v, best_error, exitflag] = do_cmaes_solve( LB, UB, ...
+    init_heat_map, fitness_foo, paths_str, summary_data, parallel, ...
+    args_path)
 %DO_CMAES_SOLVE CMAES solver for heat map reconstruction
 %% Options for the CMAES
-% Get default values
-options = cmaes('defaults');
-options.MaxIter = max_ite;
-options.MaxFunEvals = max_ite;
+L = load(args_path);
+options = L.options;
 options.LBounds = LB;
 options.UBounds = UB;
-
-% Default is -Inf but our error function is minimum value is 0
-options.StopFitness = eps;
 
 if(parallel)
     options.EvalParallel = 'yes';

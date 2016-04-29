@@ -98,6 +98,13 @@ switch solver
         
         options.OutputFcn = @gradient_time_limit;
     case 'cmaes'
+        % Get default values
+        options = cmaes('defaults');
+        options.MaxIter = max_ite;
+        options.MaxFunEvals = max_ite;
+
+        % Default is -Inf but our error function is minimum value is 0
+        options.StopFitness = eps;
     case 'lhs'
     otherwise
         solver_names = '[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'']';
