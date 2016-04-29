@@ -1,11 +1,8 @@
-function heatMapReconstruction(solver, ports, logfile)
+function heatMapReconstruction(args_path, ports, logfile)
 %HEATMAPRECONSTRUCTION Performs a heat map reconstruction from a goal image
-%   HEATMAPRECONSTRUCTION(SOLVER, PORTS, LOGFILE)
-%   SOLVER should be one of the following
-%   'ga' -> Genetic Algorithm
-%   'sa' -> Simulated Annealing
-%   'ga-re' -> Genetic Algorithm with heat map resampling
-%   'grad' -> Gradient Descent
+%   HEATMAPRECONSTRUCTION(ARGS_PATH, PORTS, LOGFILE)
+%   ARGS_PATH is the path of a .mat file with arguments for the
+%   optimization
 %   PORTS is a vector containing port numbers that Maya is listening to
 %   LOGFILE is only required when running in batch mode, is a string with
 %   the path of the current log file
@@ -22,45 +19,11 @@ function heatMapReconstruction(solver, ports, logfile)
 % Add the subfolders of heat map to the Matlab path
 addpath(genpath(fileparts(mfilename('fullpath'))));
 
-rand_seed = 'default';
+load(args_path);
+
 rng(rand_seed);
 
-% To modify parameters specific to each solver go to the relevant
-% do_<solver>_solve() function
-
-max_ite = 1000; % Num of maximum iterations
-% epsilon = 100; % Error tolerance, using Matlab default's at the moment
-LB = 300; % Lower bounds, no less than 300K -> 27C
-UB = 2000; % Upper bounds, no more than 2000K -> 1727C
-time_limit = 24 * 60 * 60; % In seconds
-use_approx_fitness = false; % Using the approximate fitness function?
-
-multi_goal = false; % Select a test to run, to be removed
-symmetric = true; % Select a test to run, to be removed
-
-% Distance function for the histogram error functions, any of the ones in
-% the folder error_fnc/distance_fnc
-% Common ones: histogram_sum_abs, histogram_intersection,
-% chi_square_statistics_fast
-dist_foo = @histogram_sum_abs;
-
-% Error function used in the fitness function
-% One of: histogramErrorOpti, histogramDErrorOpti, MSE
-error_foo = {@histogramErrorOpti};
-
-% If use_approx_fitness is true, this function will be used in the fitness
-% function, the one above one will used only to check the final result
-approx_error_foo = @histogramErrorApprox;
-
-%% Setting maing paths and clean up functions
-scene_name = 'test95_gaussian_new';
-
-[project_path, raw_file_path, scene_img_folder, goal_img_path, ...
-    goal_mask_img_path, mask_img_path] = get_test_paths(scene_name, ...
-    multi_goal, symmetric);
-
-num_goal = numel(goal_img_path);
-
+%% Setting clean up functions
 % Clear all the functions
 clearCloseObj = onCleanup(@clear_cache);
 if(numel(ports) > 1)
@@ -96,6 +59,8 @@ try
     maya_log = [scene_img_folder output_img_folder_name 'maya.log'];
     
     %% Read goal and mask image/s
+    num_goal = numel(goal_img_path);
+    
     % For MSE resize the goal image to match the synthetic image
     if(isequal(error_foo{1}, @MSE))
         resize_goal = true;
@@ -190,9 +155,9 @@ try
     disp('Launching optimization algorithm');
     switch solver
         case 'ga'
-            [heat_map_v, ~, ~] = do_genetic_solve( max_ite, ...
-                time_limit, LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, summary_data, goal_img, goal_mask);
+            [heat_map_v, ~, ~] = do_genetic_solve( LB, UB, init_heat_map, ...
+                fitness_foo, paths_str, summary_data, goal_img, goal_mask, ...
+                solver_args_path);
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( ...
                 max_ite, time_limit, LB, UB, init_heat_map, fitness_foo, ...
