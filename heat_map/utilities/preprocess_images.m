@@ -28,6 +28,8 @@ for i=1:numel(goal_imgs)
     mask(back(:,:,1))=-1;
     
     if do_plots
+        c_fig = 1;
+        
         figure('Name', ['Goal and mask images ' num2str(i)]);
         
         subtightplot(n_row,n_col,c_fig); c_fig = c_fig + 1; imshow(goal_imgs{i});
