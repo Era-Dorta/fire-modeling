@@ -46,6 +46,15 @@ assert(size(XI,1) == 1); % pdist requires XI to be a single sample
 d=zeros(m,1); % initialize output array
 
 sxi=sum(XI);
+
+if sxi == 0 % No pixels in first histogram, try with the second
+    sxi = sum(XJ);
+    if sxi == 0 % Both histograms empty means zero error
+        d(:,1) = 0;
+        return;
+    end
+end
+
 for i=1:m
     d(i,1) = 1 - (sum(min(XI, XJ(i,:))) / sxi);
 end
