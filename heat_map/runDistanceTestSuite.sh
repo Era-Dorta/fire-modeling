@@ -8,9 +8,7 @@ CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # chi_square_statistics_fast, respectively
 
 # Create the data files
-nice -n20 matlab -nodesktop -nosplash -r "args_test6()"
-nice -n20 matlab -nodesktop -nosplash -r "args_test7()"
-nice -n20 matlab -nodesktop -nosplash -r "args_test8()"
+nice -n20 matlab -nodesktop -nosplash -r "args_test6(); args_test7(); args_test8(); exit();"
 
 # Optimize using the parameters defined in the previous data files
 "$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test6.mat
