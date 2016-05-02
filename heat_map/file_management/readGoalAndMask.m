@@ -11,9 +11,9 @@ for i=1:numel(goal_img_path)
     goal_img{i} = imread(goal_img_path{i});
     goal_img{i} = goal_img{i}(:,:,1:3); % Transparency is not used, so ignore it
     
-    img_mask{i} = logical(imread(mask_img_path{i}));
+    img_mask{i} = imread(mask_img_path{i});
     
-    goal_mask{i} = logical(imread(goal_mask_img_path{i}));
+    goal_mask{i} = imread(goal_mask_img_path{i});
     
     if(resize_goal)
         % Resize the goal image to match the render image size

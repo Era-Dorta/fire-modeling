@@ -70,6 +70,9 @@ try
     [ goal_img, goal_mask, img_mask ] = readGoalAndMask( goal_img_path, ...
         mask_img_path, goal_mask_img_path, resize_goal);
     
+    [goal_img, goal_mask, img_mask] = preprocess_images(goal_img, ...
+        goal_mask, img_mask, true);
+    
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
