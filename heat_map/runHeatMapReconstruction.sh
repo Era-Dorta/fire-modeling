@@ -60,13 +60,5 @@ PORTS="[${PORTS}]"
 nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction($DATA_FILE, $PORTS, '$LOGFILE')" -logfile $LOGFILE
 
 # Close all the Maya instances
-for i in `seq 1 $NUM_MAYA`;
-do
-	"$CDIR/maya_comm/sendMaya.rb" $((${INIT_PORT} + $i - 1)) "quit -f"
-	if [ "$?" -ne 0 ]; then
-		echo "Could not close Maya:$((${INIT_PORT} + $i - 1))"
-	else
-		echo "Closed Maya:$((${INIT_PORT} + $i - 1))"
-	fi
-done
+"$CDIR/closeMayaBatch.sh" "$INIT_PORT" "$NUM_MAYA"
 
