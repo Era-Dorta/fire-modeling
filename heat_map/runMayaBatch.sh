@@ -1,5 +1,6 @@
 #!/bin/bash
 # Runs Maya in batch mode, Maya waits for command to be send on the given port
+# Optional one argument with port number, if not given port 2222 will be used
 function isPortOpen()
 {
 	lofret=$( lsof -i:"$1" )
@@ -20,10 +21,10 @@ isPortOpen "$PORT"
 isOpen=$?
 
 # If it fails, tell the user to use a different port
-while [ "$isOpen" -eq 0 ] ; do
+if [ "$isOpen" -eq 0 ] ; then
 	echo "Port $PORT already in use, try runMayaBath <newPort>"
 	exit 2
-done
+fi
 
 maya -batch -command "commandPort -n \":$PORT\";" &
 
