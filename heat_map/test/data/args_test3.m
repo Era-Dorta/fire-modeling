@@ -1,5 +1,5 @@
 function [args_path] = args_test3()
-%ARGS_TEST3 Arguments for heatMapReconstruction
+%ARGS_TEST3 Ga, single goal, 4 Population
 %   ARGS_PATH = ARGS_TEST3() Returns in ARGS_PATH the file path of a .mat
 %   file with arguments defined here. Main args are:
 %   solver = 'ga'
