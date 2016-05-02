@@ -1,36 +1,47 @@
 #!/bin/bash
-if [ "$#" -lt 5 ]; then
-	if [ "$#" -eq 4 ]; then
-		# If no arguments are given set number of Maya instances to number of 
-		# cores divided by three
-		NUM_MAYA=$(grep -c ^processor /proc/cpuinfo)
-		
-		# Add 1 to do rounding
-		NUM_MAYA=$(((${NUM_MAYA} + 1) / 3))
+if [ "$#" -lt 6 ]; then
+	# If maya_threads is not given set number of Maya instances to number of 
+	# cores divided by three
+	NUM_MAYA=$(grep -c ^processor /proc/cpuinfo)
+	
+	# Add 1 to do rounding
+	NUM_MAYA=$(((${NUM_MAYA} + 1) / 3))
+	
+	if [ "$#" -lt 5 ]; then
+		# Init port is not given 
+		INIT_PORT="2222"
+		if [ "$#" -lt 4 ]; then # Image paths are not optional
+			echo ""
+			echo "Not enough input arguments"
+			echo ""
+			echo "Usage: runFireAttrSearch2.sh <solver> <goal-image> <goal-mask> "
+			echo "            <synthetic-mask> <init_port> <maya_threads>"
+			echo ""
+			echo "	Where <solver> can be any of:"
+			echo "	\"ga\"    -> Genetic Algorithm"
+			echo "	\"sa\"    -> Simulated Annealing"
+			echo "	\"grad\"  -> Gradient Descent"
+			echo ""
+			echo "	<goal-image> path to goal image/s separated by ;"
+			echo "	<goal-mask> path to goal mask image/s separated by ;"
+			echo "	<synthetic-mask> path to synthetic mask image/s separated by ;"
+			echo ""
+			echo "	<init_port> is the port of the first maya instance, default is"
+			echo "	2222."
+			echo ""    
+			echo "	<maya_threads> must be an positive integer which indicates how many"
+			echo "	Maya instances will launched for rendering"
+			echo "	Default value is: round(number of cores / 3)"
+			echo ""
+			exit 0
+		fi
 	else
-		echo ""
-		echo "Not enough input arguments"
-		echo ""
-		echo "Usage: runFireAttrSearch2.sh <solver> <goal-image> <goal-mask> "
-		echo "            <synthetic-mask> <maya_threads>"
-		echo ""
-		echo "	Where <solver> can be any of:"
-		echo "	\"ga\"    -> Genetic Algorithm"
-		echo "	\"sa\"    -> Simulated Annealing"
-		echo "	\"grad\"  -> Gradient Descent"
-		echo ""
-		echo "	<goal-image> path to goal image/s separated by ;"
-		echo "	<goal-mask> path to goal mask image/s separated by ;"
-		echo "	<synthetic-mask> path to synthetic mask image/s separated by ;"
-		echo ""
-		echo "	<maya_threads> must be an positive integer which indicates how many"
-		echo "	Maya instances will launched for rendering"
-		echo "	Default value is: round(number of cores / 3)"
-		echo ""
-		exit 0 
+		INIT_PORT=$5
 	fi
 else
-	NUM_MAYA=$5
+	# Each Maya will listen to this port + (current Maya number - 1)
+	INIT_PORT=$5
+	NUM_MAYA=$6
 fi
 
 # Put the solver in a variable name and surround with ''
@@ -57,9 +68,6 @@ for i in "${AUX[@]}"; do
     SYNT_MASK="${SYNT_MASK},'$(readlink -e "${i}")'"
 done
 SYNT_MASK="{${SYNT_MASK:1}}"
-
-# Each Maya will listen to this port + (current Maya number - 1)
-INIT_PORT="2222"
 
 # Create random name for the log file to avoid clashes with other matlab logs
 LOGFILE=`mktemp matlabXXXXXXXXXXXXXXXXXXXXX.log`
