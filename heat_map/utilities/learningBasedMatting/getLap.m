@@ -31,5 +31,5 @@ function L=getLap(imdata,winsz,mask,lambda)
 % http://sites.google.com/site/zhengvision/
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
-disp('Computing Laplacian matrix ... ...')
+%  disp('Computing Laplacian matrix ... ...')
 L=getLap_iccv09_overlapping(imdata,winsz,mask,lambda);

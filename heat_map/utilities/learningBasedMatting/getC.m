@@ -24,7 +24,7 @@ function C=getC(mask,c)
 % http://sites.google.com/site/zhengvision/
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
-disp('Computing regularization matrix ... ...')
+% disp('Computing regularization matrix ... ...')
 scribble_mask=abs(mask)~=0;
 numPix=size(mask,1)*size(mask,2);
 C=c*spdiags(double(scribble_mask(:)),0,numPix,numPix);

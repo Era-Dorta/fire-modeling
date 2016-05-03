@@ -26,7 +26,7 @@ function alpha=solveQurdOpt(L,C,alpha_star)
 % http://sites.google.com/site/zhengvision/
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
-disp('Solving quadratic optimization problem ... ...')
+% disp('Solving quadratic optimization problem ... ...')
 lambda=1e-6;
 D=speye(size(L,1),size(L,2));
 alpha=(L+C+D*lambda)\(C*alpha_star(:));

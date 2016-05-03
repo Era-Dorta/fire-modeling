@@ -14,6 +14,8 @@ n_row = 2;
 n_col = 3;
 c_fig = 1;
 
+disp('Preprocessing input images and masks');
+
 for i=1:numel(goal_imgs)
     
     % In the method, background is usually around 1e-10
@@ -77,4 +79,6 @@ for i=1:numel(goal_imgs)
         drawnow;
     end
 end
+
+disp('Done preprocessing input images and masks');
 

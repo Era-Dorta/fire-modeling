@@ -25,7 +25,7 @@ function alpha_star=getAlpha_star(mask)
 % http://sites.google.com/site/zhengvision/
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
-disp('Computing preknown alpha values ... ...')
+% disp('Computing preknown alpha values ... ...')
 
 alpha_star=zeros(size(mask,1),size(mask,2));
 alpha_star(mask>0)=1;
