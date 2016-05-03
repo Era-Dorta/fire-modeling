@@ -28,7 +28,7 @@ symmetric = true; % Symmetric or asymmetric goal image
     multi_goal, symmetric);
 
 % Save all but L
-save(args_path, '-regexp','^(?!(L)$).', '-append');
+save(args_path, '-regexp','^(?!(L|multi_goal|symmetric)$).', '-append');
 
 solver_path = [mfilename('fullpath') 'solver.mat'];
 

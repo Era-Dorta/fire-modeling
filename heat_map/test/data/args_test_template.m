@@ -53,7 +53,7 @@ approx_error_foo = @histogramErrorApprox;
 [pathstr,name,ext] = fileparts(args_path);
 solver_args_path = fullfile(pathstr, [name 'solver' ext]);
 
-clearvars('pathstr', 'name', 'ext');
+clearvars('pathstr', 'name', 'ext', 'multi_goal', 'symmetric');
 
 % Save all the variables in a mat file
 save(args_path);
