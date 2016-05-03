@@ -8,7 +8,14 @@ assert(size(XI,1) == 1); % pdist requires XI to be a single sample
 
 d=zeros(m,1); % initialize output array
 
-% Max error is 2, so divide by 2 to have a 0..1 range
+sxij = sum(XI) + sum(XJ);
+
+if sxij == 0 % Both histograms empty means zero error
+    d(:,1) = 0;
+    return;
+end
+
+% Divide by the sum to have an error metric in the [0,1] range
 for i=1:m
-    d(i,1) = sum(abs(XI(i,:) - XJ(i,:))) / 2;
+    d(i,1) = sum(abs(XI(i,:) - XJ(i,:))) / sxij;
 end
