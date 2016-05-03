@@ -4,7 +4,7 @@ function args_test_template(args_path)
 %   .mat file with arguments defined here. Main args are:
 %   solver = 'ga'
 %   use_approx_fitness = false;
-%   dist_foo = @histogram_sum_abs;
+%   dist_foo = @histogram_l1_norm;
 %   error_foo = {@histogramDErrorOpti};
 %   PopulationSize = 200;
 %   CreationFcn = @gacreationheuristic1;
@@ -37,9 +37,9 @@ use_approx_fitness = false; % Using the approximate fitness function?
 
 % Distance function for the histogram error functions, any of the ones in
 % the folder error_fnc/distance_fnc
-% Common ones: histogram_sum_abs, histogram_intersection,
+% Common ones: histogram_l1_norm, histogram_intersection,
 % chi_square_statistics_fast
-dist_foo = @histogram_sum_abs;
+dist_foo = @histogram_l1_norm;
 
 % Error function used in the fitness function
 % One of: histogramErrorOpti, histogramDErrorOpti, MSE

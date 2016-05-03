@@ -4,7 +4,7 @@
 CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Tests 6,67,8 are GA, using heat_map_fitness, 200 in Population, 25 Generations
-# single goal image, and using histogram_sum_abs, histogram_intersection,
+# single goal image, and using histogram_l1_norm, histogram_intersection,
 # chi_square_statistics_fast, respectively
 
 # Create the data files

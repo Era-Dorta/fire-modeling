@@ -4,7 +4,7 @@ function [args_path] = args_test4()
 %   file with arguments defined here. Main args are:
 %   solver = 'ga-re'
 %   use_approx_fitness = false;
-%   dist_foo = @histogram_sum_abs;
+%   dist_foo = @histogram_l1_norm;
 %   error_foo = {@histogramDErrorOpti};
 %   PopulationSize = 4;
 %   CreationFcn = @gacreationheuristic1;

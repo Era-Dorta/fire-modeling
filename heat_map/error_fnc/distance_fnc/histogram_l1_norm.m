@@ -1,4 +1,5 @@
-function d=histogram_sum_abs(XI,XJ)
+function d=histogram_l1_norm(XI,XJ)
+% Implementation of the histogram l1 norm distance to use with pdist
 m=size(XJ,1); % number of samples of p
 p=size(XI,2); % dimension of samples
 
