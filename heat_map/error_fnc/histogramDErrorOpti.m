@@ -14,37 +14,25 @@ function [ cerror ] = histogramDErrorOpti( goal_imgs, test_imgs, goal_mask, ...
 %
 %   See also HISTOGRAMERROR, HISTOGRAMERROROPTI
 
-persistent HC_GOAL EDGESD
+persistent HC_GOAL
 
 % Create 255 bins, images are uint in the range of 0..255
 edges = linspace(0, 255, 256);
 
 % Number of bins for the distances
-n_bins_dist = 4;
+n_bins_dist = 15;
+
+% Edges for the distances, distances will be normalized to be able to cope
+% with goal and synthetic images being of different sizes.
+% The edges are of size N + 1, where each bin would contain X if
+% edges(j) <= X(i) < edges(j+1) for 1 <= j < N
+edgesd = linspace(0, 1, n_bins_dist + 1);
 
 if isempty(HC_GOAL)
-    % Edges for the distance histograms
-    EDGESD = cell(numel(goal_imgs), 1);
     
     HC_GOAL = cell(numel(goal_imgs), n_bins_dist);
     
     for i=1:numel(goal_imgs)
-        
-        % Idea0: max distance -> the distance between two diagonal corners
-        % max_dist = norm([size(goal_imgs{i}, 1), size(goal_imgs{i}, 2)]);
-        
-        % Idea1: max distance -> the distance between corners in the mask
-        % image
-        [x_idx, y_idx] = find(goal_mask{i} == 1);
-        max_dist = norm([max(x_idx) - min(x_idx), max(y_idx) - min(y_idx)]);
-        
-        % Idea1.1: max distance -> distance from the center to a corner
-        % image, assuming square mask.
-        max_dist = max_dist / 2;
-        
-        % The edges are of size N + 1, where each bin would contain X if
-        % edges(j) <= X(i) < edges(j+1) for 1 <= j < N
-        EDGESD{i} = linspace(0, max_dist, n_bins_dist + 1);
         
         for j=1:3 % For each color channel
             sub_img = goal_imgs{i}(:, :, j);
@@ -56,13 +44,17 @@ if isempty(HC_GOAL)
             % pixels, i.e. distance to the edge for each pixel
             dist_img = bwdist(dist_img);
             
+            % Normalize the distances, so that max distance is 1
+            max_dist = max(dist_img(:));
+            if max_dist > 0
+                dist_img = dist_img ./ max_dist;
+            end
+            
             % Get a new image where each value indicates the distance
             % bin that the pixel belongs to
-            d_bin = discretize(dist_img, EDGESD{i});
+            d_bin = discretize(dist_img, edgesd);
             
-            % For each distance bin compute a color histogram, the edges
-            % are of size N + 1, where each bin would contain X if
-            % edges(j) <= X(i) < edges(j+1) for 1 <= j < N
+            % For each distance bin compute a color histogram
             for k=1:n_bins_dist
                 % Get a new mask than only has the pixels within the
                 % current distance.
@@ -94,7 +86,15 @@ for i=1:numel(test_imgs)
         % Compute the distance of all the zero pixels to the closest 1
         % pixels, i.e. distance to the edge for each pixel
         dist_img = bwdist(dist_img);
-        d_bin = discretize(dist_img, EDGESD{i});
+        
+        % Normalize the distances, so that max distance is 1
+        max_dist = max(dist_img(:));
+        if max_dist > 0
+            dist_img = dist_img ./ max_dist;
+        end
+        
+        % Cluster them in n_bins_dist groups
+        d_bin = discretize(dist_img, edgesd);
         
         % For each distance bin compute a color histogram
         for k=1:n_bins_dist
