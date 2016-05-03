@@ -8,10 +8,6 @@ options = L.options;
 options.LBounds = LB;
 options.UBounds = UB;
 
-if(parallel)
-    options.EvalParallel = 'yes';
-end
-
 % Set guess point to be the mean of the bounds
 InitialPopulation = ones(init_heat_map.count, 1) * mean([LB, UB]);
 

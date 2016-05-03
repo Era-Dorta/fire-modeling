@@ -10,7 +10,7 @@ function args_test_solver_template(args_path, solver)
 %
 %   See also args_test_template
 
-max_ite = 1000; % Num of maximum iterations
+max_ite = 5000; % Num of maximum iterations
 time_limit = 2 * 60 * 60; % Two hours
 
 switch solver
@@ -102,6 +102,11 @@ switch solver
         options = cmaes('defaults');
         options.MaxIter = max_ite;
         options.MaxFunEvals = max_ite;
+        options.EvalParallel = 'yes';
+        
+        % For high dimensional problems optimize only the diagonal of the
+        % covariance matrix 
+        options.DiagonalOnly = 1;
 
         % Default is -Inf but our error function is minimum value is 0
         options.StopFitness = eps;
