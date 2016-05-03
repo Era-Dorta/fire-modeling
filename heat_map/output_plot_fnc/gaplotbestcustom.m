@@ -15,22 +15,21 @@ if strcmp(flag, 'done')
     
     legend('Best', 'Mean');
     
-    if isBatchMode()
-        print(FIG_H, figurePath, '-dtiff');
-        saveas(FIG_H, figurePath, 'fig');
-        
-        % Matlab older than 2015 does not support svg conversion, use a
-        % custom function to save the file, the custom function is slower
-        % and produces significantly larger files than the native one
-        matversion = version('-release');
-        custom_svg = str2double(matversion(1:4)) < 2015;
-        
-        if custom_svg
-            plot2svg([figurePath '.svg'], FIG_H);
-        else
-            saveas(FIG_H, figurePath, 'svg')
-        end
+    print(FIG_H, figurePath, '-dtiff');
+    saveas(FIG_H, figurePath, 'fig');
+    
+    % Matlab older than 2015 does not support svg conversion, use a
+    % custom function to save the file, the custom function is slower
+    % and produces significantly larger files than the native one
+    matversion = version('-release');
+    custom_svg = str2double(matversion(1:4)) < 2015;
+    
+    if custom_svg
+        plot2svg([figurePath '.svg'], FIG_H);
+    else
+        saveas(FIG_H, figurePath, 'svg')
     end
+    
     return;
 end
 
