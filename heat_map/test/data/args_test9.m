@@ -1,6 +1,6 @@
 function [args_path] = args_test9()
-%ARGS_TEST1 Ga, Pegoraro Image1, single goal, 200 Population
-%   ARGS_PATH = ARGS_TEST1() Returns in ARGS_PATH the file path of a .mat
+%ARGS_TEST9 Ga, Pegoraro Image1, single goal, 200 Population
+%   ARGS_PATH = ARGS_TEST9() Returns in ARGS_PATH the file path of a .mat
 %   file with arguments defined here. Main args are:
 %   solver = 'ga'
 %   use_approx_fitness = false;
@@ -24,8 +24,8 @@ symmetric = true; % Symmetric or asymmetric goal image
     goal_mask_img_path, mask_img_path] = get_test_paths(L.scene_name, ...
     multi_goal, symmetric);
 
-goal_img_path = {'/home/gdp24/maya/projects/fire/data/fire-test-pics/pegoraro1.png'};
-goal_mask_img_path = {'/home/gdp24/maya/projects/fire/data/fire-test-pics/trimask/pegoraro1-mask.png'};
+goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/pegoraro1.png'};
+goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/pegoraro1-mask.png'};
 
 clearvars('L', 'multi_goal', 'symmetric');
 
