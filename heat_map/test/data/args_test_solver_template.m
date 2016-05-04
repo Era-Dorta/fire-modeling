@@ -109,10 +109,14 @@ switch solver
         options.LogModulo = 0;
         options.LogTime = 0;
         
+        % If we want plots of the variance, re-enable the data saving and
+        % the LogPlot to 'on'.
+        % options.LogPlot = 'on';
+        
         % For high dimensional problems optimize only the diagonal of the
-        % covariance matrix 
+        % covariance matrix
         options.DiagonalOnly = 1;
-
+        
         % Default is -Inf but our error function is minimum value is 0
         options.StopFitness = eps;
     case 'lhs'
@@ -122,7 +126,7 @@ switch solver
         options.BatchEval = 20;
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
-        ' ''lhs'']'];
+            ' ''lhs'']'];
         error(['Invalid solver, choose one of ' solver_names ]);
 end
 
