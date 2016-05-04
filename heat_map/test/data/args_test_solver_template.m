@@ -32,7 +32,7 @@ switch solver
         
         % One of @crossoverscattered ,@crossoversinglepoint, @crossovertwopoint
         % @crossoverintermediate, @crossoverheuristic, @gacrossovercombine
-        % @gacrossovercombineprior, @gaxoverpriorhisto
+        % @gacrossovercombineprior
         options.CrossoverFcn = @gacrossovercombineprior;
         
         % If using gacrossovercombineprior the following have to be defined

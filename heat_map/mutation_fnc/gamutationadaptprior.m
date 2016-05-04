@@ -1,5 +1,6 @@
 function [ mutationChildren ] = gamutationadaptprior(parents, options, GenomeLength, ...
-    FitnessFcn, state, thisScore, thisPopulation, xyz, volumeSize)
+    FitnessFcn, state, thisScore, thisPopulation, prior_fncs, prior_weights, ...
+    maxCandidates)
 %GAMUTATIONADAPTPRIOR is a ga mutation function
 %   [ mutationChildren ] = GAMUTATIONADAPTPRIOR(parents, options, GenomeLength, ...
 %   FitnessFcn, state, thisScore, thisPopulation, xyz, volumeSize)
@@ -43,6 +44,9 @@ tol = max(sqrt(eps),options.TolCon);
 neqcstr = size(linCon.Aeq,1) ~= 0;
 % Initialize childrens
 mutationChildren = zeros(length(parents),GenomeLength);
+
+num_prior_fncs = numel(prior_fncs);
+prior_vals = zeros(num_prior_fncs, maxCandidates);
 
 % Create childrens for each parents
 for i=1:length(parents)
@@ -109,7 +113,7 @@ for i=1:length(parents)
             if feasible
                 numCandidates = numCandidates + 1;
                 mutantCandidates(numCandidates,:) = mutant';
-                if(numCandidates == 10)
+                if(numCandidates == maxCandidates)
                     break;
                 end
             end
@@ -120,26 +124,14 @@ for i=1:length(parents)
             if(numCandidates == 1)
                 mutationChildren(i,:) = mutantCandidates(1,:);
             else
-                % The lower the value the smoother the volume is
-                smooth_val = smoothnessEstimateGrad(xyz, mutantCandidates, ...
-                    volumeSize,  options.LinearConstr.lb(1), ...
-                    options.LinearConstr.ub(1));
                 
-                % Low values -> smoother -> higher weights
-                smooth_val = weights2prob(smooth_val, true);
+                prior_vals(:) = 0;
+                for j=1:num_prior_fncs
+                    prior_vals(j,:) = prior_fncs{j}(mutantCandidates);
+                    prior_vals(j,:) = weights2prob(prior_vals(j,:), true);
+                end
                 
-                % Up heat val
-                upheat_val = upHeatEstimate(xyz, mutantCandidates, volumeSize);
-                
-                % Low values -> more heat up -> higher weights
-                upheat_val = weights2prob(upheat_val, true);
-                
-                % Relative weights for smoothness and upheat estimates,
-                % must sum up to one
-                smooth_k = 0.5;
-                upheat_k = 0.5;
-                
-                total_prob = smooth_val * smooth_k + upheat_val * upheat_k;
+                total_prob = prior_weights * prior_vals;
                 
                 % Choose a mutant with a probability proportional to a
                 % combination of the prior estimates
