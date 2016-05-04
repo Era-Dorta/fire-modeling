@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve_resample( ...
     LB, UB, init_heat_map, fitness_foo, paths_str, maya_send, num_goal, ...
-    summary_data, goal_img, goal_mask, args_path)
+    summary_data, goal_img, goal_mask, args_path, prior_fncs)
 % Genetics Algorithm solver for heat map reconstruction with heat map
 % resampling scheme for faster convergence
 
@@ -62,7 +62,7 @@ for i=1:num_ite
         size_str '.mat'];
     
     options = get_ga_options_from_file( args_path, d_heat_map{i}, goal_img, ...
-        goal_mask, init_population_path, paths_str, i == 1);
+        goal_mask, init_population_path, paths_str, LB, UB, i == 1);
     
     % Divide the time equally between each GA loop
     options.TimeLimit = L.time_limit / num_ite;
@@ -91,13 +91,24 @@ for i=1:num_ite
     end
     
     %% Fitness function
-    if(nargin(fitness_foo) > 1)
+    % Also adjust the size and coordinates of all the prior functions that 
+    % use them
+    new_prior_fncs = prior_fncs;
+    for j=1:numel(prior_fncs)
+        if (nargin(prior_fncs{j}) > 1)
+            new_prior_fncs{j} = @(v) prior_fncs{j}(v, d_heat_map{i}.xyz, ...
+                d_heat_map{i}.size);
+        end
+    end
+    
+    if(nargin(fitness_foo) == 4)
         % Fitness function requires heat map size and coordinates
         new_fitness_foo = @(v)fitness_foo(v, d_heat_map{i}.xyz, ...
-            d_heat_map{i}.size);
+            d_heat_map{i}.size, new_prior_fncs);
+    elseif (nargin(fitness_foo) == 2)
+        new_fitness_foo = @(v) fitness_foo(v, new_prior_fncs);
     else
-        % Fitness function does not requires extra parameters
-        new_fitness_foo = fitness_foo;
+        error('Unkown fitness function in Ga-Re')
     end
     
     %% Send Maya iteration specific parameters

@@ -49,6 +49,15 @@ error_foo = {@histogramDErrorOpti};
 % function, the one above one will used only to check the final result
 approx_error_foo = @histogramErrorApprox;
 
+% Prior functions that are added to the error function in the fitness
+% function, any of smoothnessEstimate, smoothnessEstimateGrad, 
+% upHeatEstimate, histogramErrorApprox
+prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
+
+% Weights used to sum the error function and the prior functions, must be
+% of size prior_fncs + 1, first corresponds to error function
+prior_weights = [1/3, 1/3, 1/3];
+
 % Path were the solver especific variables will be saved
 [pathstr,name,ext] = fileparts(args_path);
 solver_args_path = fullfile(pathstr, [name 'solver' ext]);

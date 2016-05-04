@@ -1,6 +1,6 @@
 function [ error_v ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
-    id, num_goal, lb, ub)
+    id, num_goal, prior_fncs, prior_weights)
 %HEAT_MAP_FITNESS Heat map fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
@@ -17,6 +17,9 @@ output_img_folder = [scene_img_folder output_img_folder_name];
 
 num_error_foos = size(error_foo, 2);
 error_v = zeros(num_error_foos, size(heat_map_v, 1));
+
+num_prior_fncs = numel(prior_fncs);
+prior_vals = zeros(num_prior_fncs, 1);
 
 best_error = realmax;
 best_in_cache = false;
@@ -107,19 +110,12 @@ for pop=1:size(heat_map_v, 1)
             end
         end
         
-        % The lower the value the smoother the volume is
-        smooth_val = smoothnessEstimateGrad(xyz, heat_map_v(pop, :),  ...
-            whd, lb, ub);
+        prior_vals(:) = 0;
+        for i=1:num_prior_fncs
+            prior_vals(i,:) = prior_fncs{i}(heat_map_v(pop, :));
+        end
         
-        % Up heat val
-        upheat_val = upHeatEstimate(xyz, heat_map_v(pop, :), whd);
-        
-        % Relative weights for histogram, smoothness and upheat estimates.
-        % If we want the fitness function to be [0,1] the weights must sum
-        % up to one
-        e_weights = [1/3, 1/3, 1/3];
-        
-        error_v(1, pop) = dot(e_weights, [error_v(1, pop), smooth_val, upheat_val]);
+        error_v(1, pop) = prior_weights * [error_v(1, pop); prior_vals];
         
         % Save the best images so far outside of the temp folder
         if(error_v(1, pop) < best_error)

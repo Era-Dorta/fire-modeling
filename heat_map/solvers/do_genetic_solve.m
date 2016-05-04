@@ -8,7 +8,7 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve( LB, UB, ...
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
 
 options = get_ga_options_from_file( args_path, init_heat_map,  ...
-    goal_img, goal_mask, init_population_path, paths_str, false);
+    goal_img, goal_mask, init_population_path, paths_str, LB, UB, false);
 
 % Our only constrains are upper and lower bounds
 A = [];

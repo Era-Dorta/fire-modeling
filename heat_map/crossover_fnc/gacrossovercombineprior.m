@@ -1,5 +1,6 @@
-function [ xoverKids ] = gacrossovercombineprior(parents, options, GenomeLength, ~, ...
-    thisScore, thisPopulation, xyz, volumeSize, bboxmin, bboxmax)
+function [ xoverKids ] = gacrossovercombineprior(parents, ~, GenomeLength, ~, ...
+    thisScore, thisPopulation, xyz, bboxmin, bboxmax, prior_fncs, ...
+    prior_weights, nCandidates)
 %GACROSSOVERCOMBINEPRIOR ga crossover operator
 %   GACROSSOVERCOMBINEPRIOR uses the combineHeatMap8 function to generate
 %   xoverKids from parents, it uses upheat and smoothness priors to select
@@ -21,8 +22,10 @@ nKids = length(parents)/2;
 xoverKids = zeros(nKids,GenomeLength);
 
 % Allocate space for the kids candidates
-nCandidates = 10;
 xoverCandidates = zeros(nCandidates,GenomeLength);
+
+num_prior_fncs = numel(prior_fncs);
+prior_vals = zeros(num_prior_fncs, nCandidates);
 
 % To move through the parents twice as fast as thekids are
 % being produced, a separate index for the parents is needed
@@ -52,25 +55,13 @@ for i=1:nKids
             bboxmin, bboxmax, weight)';
     end
     
-    % The lower the value the smoother the volume is
-    smooth_val = smoothnessEstimateGrad(xyz, xoverCandidates, volumeSize, ...
-        options.LinearConstr.lb(1), options.LinearConstr.ub(1));
+    prior_vals(:) = 0;
+    for j=1:num_prior_fncs
+        prior_vals(j,:) = prior_fncs{j}(xoverCandidates);
+        prior_vals(j,:) = weights2prob(prior_vals(j,:), true);
+    end
     
-    % Low values -> smoother -> higher weights
-    smooth_val = weights2prob(smooth_val, true);
-    
-    % Up heat val
-    upheat_val = upHeatEstimate(xyz, xoverCandidates, volumeSize);
-    
-    % Low values -> more heat up -> higher weights
-    upheat_val = weights2prob(upheat_val, true);
-    
-    % Relative weights for smoothness and upheat estimates,
-    % must sum up to one
-    smooth_k = 0.5;
-    upheat_k = 0.5;
-    
-    total_prob = smooth_val * smooth_k + upheat_val * upheat_k;
+    total_prob = prior_weights * prior_vals;
     
     % Choose a kid randomly with a probability proportional to a
     % combination of the prior estimates

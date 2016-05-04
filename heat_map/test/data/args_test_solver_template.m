@@ -35,11 +35,27 @@ switch solver
         % @gacrossovercombineprior, @gaxoverpriorhisto
         options.CrossoverFcn = @gacrossovercombineprior;
         
-        % One of @gamutationadaptprior, @mutationadaptfeasible,
-        % @gamutationnone, @gamutationadaptscale, @gamutationmean,
-        % @crossoverheuristic, @mutationgaussian, @mutationuniform,
-        % @mutationadaptfeasible
+        % If using gacrossovercombineprior the following have to be defined
+        
+        % Number of candidates for prior functions evaluation
+        xover_nCandidates = 10;
+        
+        % Prior functions smoothnessEstimateGrad, upHeatEstimate,
+        % histogramErrorApprox
+        xover_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
+        
+        % Weights used to sum the error function and the prior functions
+        xover_prior_weights = [1/2, 1/2];
+        
+        % One of @gamutationadaptprior, @gamutationnone, 
+        % @gamutationadaptscale, @gamutationmean, @mutationgaussian, 
+        % @mutationuniform, @mutationadaptfeasible
         options.MutationFcn = @mutationadaptfeasible;
+        
+        % If using gamutationadaptprior the following have to be defined        
+        mut_nCandidates = 10;
+        mut_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
+        mut_prior_weights = [1/2, 1/2];
         
         % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen
         options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...

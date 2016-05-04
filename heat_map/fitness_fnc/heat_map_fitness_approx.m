@@ -1,24 +1,18 @@
-function [ fitness ] = heat_map_fitness_approx( heat_map_v, xyz,  whd, ...
-    error_foo, lb, ub)
+function [ fitness ] = heat_map_fitness_approx( heat_map_v, error_foo, ...
+    prior_fncs, prior_weights)
 %HEAT_MAP_FITNESS_APPROX Heat map fitness function
 %   ERROR = HEAT_MAP_FITNESS_APPROX( HEAT_MAP_V, GOAL_IMG, GOAL_MASK)
 %   Fitness function for optimization algorithms
 
-hist_err =  error_foo(heat_map_v);
+error_v = error_foo(heat_map_v);
 
-% The lower the value the smoother the volume is
-smooth_err = smoothnessEstimateGrad(xyz, heat_map_v, whd, lb, ub);
+num_prior_fncs = numel(prior_fncs);
+prior_vals = zeros(num_prior_fncs, size(heat_map_v, 1));
 
-% Up heat val
-upheat_err = upHeatEstimate(xyz, heat_map_v, whd);
+for j=1:num_prior_fncs
+    prior_vals(j,:) = prior_fncs{j}(heat_map_v);
+end
 
-% Relative weights for histogram, smoothness and upheat estimates.
-% If we want the fitness function to be [0,1] the weights must sum
-% up to one
-e_weights = [1/3, 1/3, 1/3];
-
-% Final fitness of each individual is the sum of each error weighted by
-% e_weights
-fitness = e_weights * [hist_err; smooth_err; upheat_err;];
+fitness = prior_weights * [error_v; prior_vals];
 
 end

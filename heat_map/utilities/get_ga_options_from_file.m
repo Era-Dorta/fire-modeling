@@ -1,5 +1,5 @@
 function [ options_out ] = get_ga_options_from_file( args_path, init_heat_map,  ...
-    goal_img, goal_mask, init_population_path, paths_str, is_ga_re)
+    goal_img, goal_mask, init_population_path, paths_str, lb, ub, use_first)
 %GET_GA_OPTIONS_FROM_FILE Sets GA options
 %   [ OPTIONS_OUT ] = GET_GA_OPTIONS_FROM_FILE( ARGS_PATH, INIT_HEAT_MAP,
 %      GOAL_IMG, GOAL_MASK, INIT_POPULATION_PATH, PATHS_STR) Given a mat
@@ -13,7 +13,7 @@ L = load(args_path);
 
 num_goal = numel(goal_img);
 
-if is_ga_re % GA resampling has custom options for the first iteration
+if use_first % GA resampling has custom options for the first iteration
     L.options.CreationFcn = L.CreationFcnFirst;
     L.options.CrossoverFcn = L.CrossoverFcnFirst;
     L.options.MutationFcn = L.MutationFcnFirst;
@@ -51,20 +51,17 @@ elseif ~isequal(L.options.CreationFcn, @gacreationuniform) && ...
 end
 
 %% Crossover function
-if isequal(L.options.CrossoverFcn, @gaxoverpriorhisto)
+if isequal(L.options.CrossoverFcn, @gacrossovercombineprior)
     
-    L.options.CrossoverFcn = @(parents, options, GenomeLength, FitnessFcn, ...
-        unused, thisPopulation) gaxoverpriorhisto (parents, options, ...
-        GenomeLength, FitnessFcn, unused, thisPopulation, init_heat_map.xyz, ...
-        init_heat_map.size, min(init_heat_map.xyz), max(init_heat_map.xyz), ...
-        goal_img, goal_mask);
-    
-elseif isequal(L.options.CrossoverFcn, @gacrossovercombineprior)
+    [ prior_fncs, prior_weights, nCandidates ] = ...
+        get_prior_fncs_from_file( L, init_heat_map, goal_img, ...
+        goal_mask, lb, ub, 'crossover', true);
     
     L.options.CrossoverFcn = @(parents, options, GenomeLength, FitnessFcn, ...
         unused, thisPopulation) gacrossovercombineprior (parents, options, ...
         GenomeLength, FitnessFcn, unused, thisPopulation, init_heat_map.xyz, ...
-        init_heat_map.size, min(init_heat_map.xyz), max(init_heat_map.xyz));
+        min(init_heat_map.xyz), max(init_heat_map.xyz), prior_fncs, ...
+        prior_weights, nCandidates);
     
 elseif isequal(L.options.CrossoverFcn, @gacrossovercombine)
     
