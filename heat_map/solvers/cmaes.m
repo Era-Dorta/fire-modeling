@@ -263,7 +263,6 @@ end
 defopts.Resume   = 'no   % resume former run from SaveFile'; 
 defopts.Science  = 'on  % off==do some additional (minor) problem capturing, NOT IN USE'; 
 defopts.ReadSignals = 'on  % from file signals.par for termination, yet a stumb';
-defopts.Seed = 'sum(100*clock)  % evaluated if it is a string';
 defopts.DispFinal  = 'on   % display messages like initial and final message';
 defopts.DispModulo = '100  % [0:Inf], disp messages after every i-th iteration';
 defopts.SaveVariables = 'on   % [on|final|off][-v6] save variables to .mat file';
@@ -653,18 +652,6 @@ else % flgresume
     fitness.histsel(1)=NaN; 
   end
     
-  % initialize random number generator
-  if ischar(opts.Seed)
-    randn('state', eval(opts.Seed));     % random number generator state
-  else
-    randn('state', opts.Seed);
-  end
-  %qqq
-%  load(opts.SaveFilename, 'startseed');
-%  randn('state', startseed);
-%  disp(['SEED RELOADED FROM ' opts.SaveFilename]);
-  startseed = randn('state');         % for retrieving in saved variables
-
   % Initialize further constants
   chiN=N^0.5*(1-1/(4*N)+1/(21*N^2));  % expectation of 
 				      %   ||N(0,I)|| == norm(randn(N,1))
@@ -689,8 +676,7 @@ else % flgresume
       filenames(end+1) = {'stddev'};
       filenames(end+1) = {'xmean'};
       filenames(end+1) = {'xrecentbest'};
-      str = [' (startseed=' num2str(startseed(2)) ...
-             ', ' num2str(clock, '%d/%02d/%d %d:%d:%2.2f') ')'];
+      str = [' (' num2str(clock, '%d/%02d/%d %d:%d:%2.2f') ')'];
       for namecell = filenames(:)'
         name = namecell{:};
 

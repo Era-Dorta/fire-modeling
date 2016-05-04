@@ -104,6 +104,11 @@ switch solver
         options.MaxFunEvals = max_ite;
         options.EvalParallel = 'yes';
         
+        % Disable saving any data files
+        options.SaveVariables = 'off';
+        options.LogModulo = 0;
+        options.LogTime = 0;
+        
         % For high dimensional problems optimize only the diagonal of the
         % covariance matrix 
         options.DiagonalOnly = 1;
