@@ -50,7 +50,7 @@ switch solver
         % One of @gamutationadaptprior, @gamutationnone, @gamutationscaleprior
         % @gamutationadaptscale, @gamutationscaleprior, @mutationgaussian,
         % @mutationuniform, @mutationadaptfeasible
-        options.MutationFcn = @mutationadaptfeasible;
+        options.MutationFcn = @gamutationadaptprior;
         
         % If using gamutationadaptprior the following have to be defined
         mut_nCandidates = 10;
