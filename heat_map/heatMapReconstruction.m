@@ -19,9 +19,9 @@ function heatMapReconstruction(args_path, ports, logfile)
 % Add the subfolders of heat map to the Matlab path
 addpath(genpath(fileparts(mfilename('fullpath'))));
 
-load(args_path);
+opts = load(args_path);
 
-rng(rand_seed);
+rng(opts.rand_seed);
 
 %% Setting clean up functions
 % Clear all the functions
@@ -43,12 +43,12 @@ try
     
     % Find the last folder
     dir_num = 0;
-    while(exist([scene_img_folder 'hm_search_' num2str(dir_num)], 'dir') == 7)
+    while(exist([opts.scene_img_folder 'hm_search_' num2str(dir_num)], 'dir') == 7)
         dir_num = dir_num + 1;
     end
     
     % Create a new folder to store the data
-    output_img_folder = [scene_img_folder 'hm_search_' num2str(dir_num) '/'];
+    output_img_folder = [opts.scene_img_folder 'hm_search_' num2str(dir_num) '/'];
     output_img_folder_name = ['hm_search_' num2str(dir_num) '/'];
     summary_file = [output_img_folder 'summary_file'];
     % It will be saved as fig and tiff
@@ -56,19 +56,19 @@ try
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
         'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
         'current1-Cam']);
-    maya_log = [scene_img_folder output_img_folder_name 'maya.log'];
+    maya_log = [opts.scene_img_folder output_img_folder_name 'maya.log'];
     
     %% Read goal and mask image/s
-    num_goal = numel(goal_img_path);
+    num_goal = numel(opts.goal_img_path);
     
     % For MSE resize the goal image to match the synthetic image
-    if(isequal(error_foo{1}, @MSE))
+    if(isequal(opts.error_foo{1}, @MSE))
         resize_goal = true;
     else
         resize_goal = false;
     end
-    [ goal_img, goal_mask, img_mask ] = readGoalAndMask( goal_img_path, ...
-        mask_img_path, goal_mask_img_path, resize_goal);
+    [ goal_img, goal_mask, img_mask ] = readGoalAndMask( opts.goal_img_path, ...
+        opts.mask_img_path, opts.goal_mask_img_path, resize_goal);
     
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
@@ -85,7 +85,7 @@ try
     end
     
     %% Volumetric data initialization
-    init_heat_map = read_raw_file([project_path raw_file_path]);
+    init_heat_map = read_raw_file([opts.project_path opts.raw_file_path]);
     
     %% Maya initialization
     
@@ -96,7 +96,7 @@ try
         maya_send{i}(cmd, 0);
         
         % Open our test scene
-        cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
+        cmd = ['file -open -force \"scenes/' opts.scene_name '.ma\"'];
         maya_send{i}(cmd, 0);
         
         % Force a frame update, as batch rendering later does not do it, this
@@ -115,7 +115,7 @@ try
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
-    mkdir(scene_img_folder, output_img_folder_name);
+    mkdir(opts.scene_img_folder, output_img_folder_name);
     
     %% Input data preprocessing
     
@@ -126,100 +126,100 @@ try
     
     % If there are several images, convert them into a string to put in
     % the summary data struct
-    goal_img_summay = strjoin(goal_img_path, ', ');
+    goal_img_summay = strjoin(opts.goal_img_path, ', ');
     
     summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
-        [project_path 'scenes/' scene_name '.ma'], 'ErrorFnc', ...
-        func2str(error_foo{:}), 'DistFnc', func2str(dist_foo), ...
+        [opts.project_path 'scenes/' opts.scene_name '.ma'], 'ErrorFnc', ...
+        func2str(opts.error_foo{:}), 'DistFnc', func2str(opts.dist_foo), ...
         'NumMaya', numMayas);
     
     %% Fitness function definition
     
     % Encapsulate the distance function in the error function
-    error_foo{1} = @(x) error_foo{1}(goal_img, x, goal_mask, img_mask, ...
-        dist_foo);
+    error_foo{1} = @(x) opts.error_foo{1}(goal_img, x, goal_mask, img_mask, ...
+        opts.dist_foo);
     
     [ prior_fncs, prior_weights ] = get_prior_fncs_from_file( ...
-        load(args_path), init_heat_map, goal_img, goal_mask, LB, UB, ...
-        'fitness', true);
+        opts, init_heat_map, goal_img, goal_mask, opts.LB, ...
+        opts.UB, 'fitness', true);
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
-    if(use_approx_fitness)
+    if(opts.use_approx_fitness)
         summary_data.FinalErrorFnc = summary_data.ErrorFnc;
-        summary_data.ErrorFnc = func2str(approx_error_foo);
+        summary_data.ErrorFnc = func2str(opts.approx_error_foo);
         
-        approx_error_foo = @(x) approx_error_foo(x, goal_img, goal_mask, ...
-            dist_foo);
+        approx_error_foo = @(x) opts.approx_error_foo(x, goal_img, goal_mask, ...
+            opts.dist_foo);
         
         fitness_foo = @(x)heat_map_fitness_approx(x, approx_error_foo, ...
             prior_fncs, prior_weights);
     else
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
-            init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
+            init_heat_map.size, error_foo, opts.scene_name, opts.scene_img_folder,  ...
             output_img_folder_name, maya_send, num_goal, prior_fncs, ...
             prior_weights);
     end
     
     %% Solver call
     disp('Launching optimization algorithm');
-    switch solver
+    switch opts.solver
         case 'ga'
-            [heat_map_v, ~, ~] = do_genetic_solve( LB, UB, init_heat_map, ...
+            [heat_map_v, ~, ~] = do_genetic_solve( opts.LB, opts.UB, init_heat_map, ...
                 fitness_foo, paths_str, summary_data, goal_img, goal_mask, ...
-                solver_args_path);
+                opts.solver_args_path);
         case 'sa'
-            [heat_map_v, ~, ~] = do_simulanneal_solve( LB, UB, ...
+            [heat_map_v, ~, ~] = do_simulanneal_solve( opts.LB, opts.UB, ...
                 init_heat_map, fitness_foo, paths_str, summary_data, ...
-                solver_args_path);
+                opts.solver_args_path);
         case 'ga-re'
             % For the solve with reconstruction the size changes so leave
             % those two parameters open, so the function can modify them.
             % The same applies to the prior functions.
-            prior_fncs = get_prior_fncs_from_file( load(args_path), ...
-                init_heat_map, goal_img, goal_mask, LB, UB, 'fitness', ...
-                false);
-    
-            if(use_approx_fitness)
+            prior_fncs = get_prior_fncs_from_file( opts, ...
+                init_heat_map, goal_img, goal_mask, opts.LB, opts.UB, ...
+                'fitness', false);
+            
+            if(opts.use_approx_fitness)
                 fitness_foo = @(v, prior_fncs) ...
                     heat_map_fitness_approx(v, approx_error_foo, ...
                     prior_fncs, prior_weights);
             else
                 fitness_foo = @(v, xyz, whd, prior_fncs) ...
                     heat_map_fitness_par(v, xyz, whd, error_foo, ...
-                    scene_name, scene_img_folder, output_img_folder_name, ...
+                    opts.scene_name, opts.scene_img_folder, output_img_folder_name, ...
                     maya_send, num_goal, prior_fncs, prior_weights);
             end
             
             % Extra paths needed in the solver
-            paths_str.imprefixpath = [scene_name '/' output_img_folder_name];
+            paths_str.imprefixpath = [opts.scene_name '/' output_img_folder_name];
             
-            [heat_map_v, ~, ~] = do_genetic_solve_resample(LB, UB, ...
+            [heat_map_v, ~, ~] = do_genetic_solve_resample(opts.LB, opts.UB, ...
                 init_heat_map, fitness_foo, paths_str, maya_send, num_goal, ...
-                summary_data, goal_img, goal_mask, solver_args_path, ...
+                summary_data, goal_img, goal_mask, opts.solver_args_path, ...
                 prior_fncs);
         case 'grad'
-            [heat_map_v, ~, ~] = do_gradient_solve( LB, UB, init_heat_map, ...
-                fitness_foo, paths_str, summary_data, solver_args_path);
+            [heat_map_v, ~, ~] = do_gradient_solve( opts.LB, opts.UB, init_heat_map, ...
+                fitness_foo, paths_str, summary_data, opts.solver_args_path);
         case 'cmaes'
             % CMAES gets the data in column order so transpose it for it
             % to work
-            if(use_approx_fitness)
+            if(opts.use_approx_fitness)
                 fitness_foo = @(x)heat_map_fitness_approx(x',  ...
                     init_heat_map.xyz, init_heat_map.size,  ...
                     approx_error_foo, prior_fncs, prior_weights);
             else
                 fitness_foo = @(x)heat_map_fitness_par(x', init_heat_map.xyz,  ...
-                    init_heat_map.size, error_foo, scene_name, scene_img_folder,  ...
+                    init_heat_map.size, error_foo, opts.scene_name, opts.scene_img_folder,  ...
                     output_img_folder_name, maya_send, num_goal, prior_fncs, ...
                     prior_weights);
             end
             
-            heat_map_v = do_cmaes_solve( LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, summary_data, numMayas > 1, solver_args_path);
+            heat_map_v = do_cmaes_solve( opts.LB, opts.UB, init_heat_map, fitness_foo, ...
+                paths_str, summary_data, numMayas > 1, opts.solver_args_path);
         case 'lhs'
-            heat_map_v = do_lhs_solve( LB, UB, init_heat_map, fitness_foo, ...
-                paths_str, summary_data, solver_args_path);
+            heat_map_v = do_lhs_solve( opts.LB, opts.UB, init_heat_map, fitness_foo, ...
+                paths_str, summary_data, opts.solver_args_path);
         otherwise
             solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ' ...
                 '''cmaes'', ''lhs'']'];
@@ -255,7 +255,7 @@ try
         
         % Set the folder and name of the render image
         cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-        cmd = [cmd scene_name '/' output_img_folder_name 'optimized-Cam' ...
+        cmd = [cmd opts.scene_name '/' output_img_folder_name 'optimized-Cam' ...
             istr '\"'];
         maya_send{1}(cmd, 0);
         
@@ -270,7 +270,7 @@ try
     end
     
     %% Append the real error if using the approx fitness
-    if(use_approx_fitness)
+    if(opts.use_approx_fitness)
         L = load([paths_str.summary '.mat']);
         
         c_img = cell(num_goal, 1);
@@ -312,13 +312,13 @@ try
     %% Render the initial population in a folder
     % With the ga-re solver there are several initial population files so
     % avoid the rendering in that case
-    if ~any(strcmp(solver, {'ga-re', 'lhs'}))
+    if ~any(strcmp(opts.solver, {'ga-re', 'lhs'})) && ~opts.use_approx_fitness
         L = load([paths_str.output_folder 'InitialPopulation.mat']);
         
-        disp(['Rendering the initial population in ' scene_img_folder ...
+        disp(['Rendering the initial population in ' opts.scene_img_folder ...
             output_img_folder_name 'InitialPopulationCam<d>' ]);
         
-        if( strcmp(solver,'cmaes'))
+        if( strcmp(opts.solver,'cmaes'))
             % Transpose to get row order as the cmaes initial population is
             % in column order
             L.InitialPopulation = L.InitialPopulation';
@@ -332,7 +332,7 @@ try
             maya_send{1}(cmd, 0);
             
             render_heat_maps( L.InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
-                scene_name, scene_img_folder, output_img_folder_name, ...
+                opts.scene_name, opts.scene_img_folder, output_img_folder_name, ...
                 ['InitialPopulationCam' istr], maya_send);
             
             % Deactive current camera
