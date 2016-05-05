@@ -8,7 +8,7 @@ n_col = 3;
 c_fig = 1;
 
 % In the method, background is usually around 1e-10
-mask_threshold = 1e-6;
+mask_threshold = 1e-1;
 
 disp('Preprocessing input images and masks');
 
