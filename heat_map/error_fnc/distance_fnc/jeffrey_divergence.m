@@ -49,7 +49,8 @@ for i=1:m
     for j=1:p
         m=(XJ(i,j) + XI(1,j)) / 2;
         if m ~= 0  % if m == 0, then xi == xj == 0
-            d(i,1) = d(i,1) + (XI(1,j) * log(XI(1,j) / m)) + (XJ(i,j) * log(XJ(i,j) / m));
+            d(i,1) = d(i,1) + (XI(1,j) * log2(XI(1,j) / m + eps)) + ...
+                (XJ(i,j) * log2(XJ(i,j) / m + eps));
         end
     end
 end
