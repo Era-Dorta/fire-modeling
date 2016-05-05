@@ -11,14 +11,17 @@ switch(fnc_type)
     case 'fitness'
         prior_fncs = L.prior_fncs;
         prior_weights = L.prior_weights;
+        temp_th = L.temp_th;
     case 'crossover'
         prior_fncs = L.xover_prior_fncs;
         prior_weights = L.xover_prior_weights;
         nCandidates = L.xover_nCandidates;
+        temp_th = L.xover_temp_th;
     case 'mutation'
         prior_fncs = L.mut_prior_fncs;
         prior_weights = L.mut_prior_weights;
         nCandidates = L.mut_nCandidates;
+        temp_th = L.mut_temp_th;
     otherwise
         error('Unkown load type');
 end
@@ -43,6 +46,16 @@ for i=1:num_prior_fncs
                 init_heat_map.size);
         else
             prior_fncs{i} = @(v, xyz, whd) upHeatEstimate(xyz, v, whd);
+        end
+        
+    elseif isequal(prior_fncs{i}, @upHeatEstimateLinear)
+        
+        if fixed_size
+            prior_fncs{i} = @(v) upHeatEstimateLinear(init_heat_map.xyz, v, ...
+                init_heat_map.size, temp_th, lb, ub);
+        else
+            prior_fncs{i} = @(v, xyz, whd) upHeatEstimateLinear(xyz, v, whd, ...
+                temp_th, lb, ub);
         end
         
     elseif isequal(prior_fncs{i}, @histogramErrorApprox)

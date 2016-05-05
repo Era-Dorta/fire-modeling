@@ -41,11 +41,14 @@ switch solver
         xover_nCandidates = 10;
         
         % Prior functions smoothnessEstimateGrad, upHeatEstimate,
-        % histogramErrorApprox
+        % histogramErrorApprox, upHeatEstimateLinear
         xover_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
         
         % Weights used to sum the error function and the prior functions
         xover_prior_weights = [1/2, 1/2];
+        
+        % Temperature threshold for the upHeatEstimateLinear
+        xover_temp_th = 50;
         
         % One of @gamutationadaptprior, @gamutationnone, @gamutationscaleprior
         % @gamutationadaptscale, @gamutationscaleprior, @mutationgaussian,
@@ -56,8 +59,9 @@ switch solver
         mut_nCandidates = 10;
         mut_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
         mut_prior_weights = [1/2, 1/2];
+        mut_temp_th = 50;
         
-        % Probability of for any gene to be mutated, used in 
+        % Probability of for any gene to be mutated, used in
         % gamutationscaleprior
         mut_rate = 0.03;
         

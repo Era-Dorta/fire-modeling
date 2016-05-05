@@ -51,8 +51,11 @@ approx_error_foo = @histogramErrorApprox;
 
 % Prior functions that are added to the error function in the fitness
 % function, any of smoothnessEstimate, smoothnessEstimateGrad, 
-% upHeatEstimate, histogramErrorApprox
-prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
+% upHeatEstimate, upHeatEstimateLinear, histogramErrorApprox
+prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimateLinear};
+
+% Temperature threshold for the upHeatEstimateLinear
+temp_th = 50; 
 
 % Weights used to sum the error function and the prior functions, must be
 % of size prior_fncs + 1, first corresponds to error function

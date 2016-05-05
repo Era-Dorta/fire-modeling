@@ -5,6 +5,8 @@ function upHeatV = upHeatEstimate( xyz, v, volumeSize )
 %   goes "down", and intermediate values otherwise. The heatmaps are
 %   defined by the common coordinates matrix 3xM  XYZ, the value matrix NxM
 %   V, where the coordinates are in a volume given by VOLUME_SIZE 1X3.
+%
+%   See also upHeatEstimateLinear
 
 num_vol = size(v, 1);
 
