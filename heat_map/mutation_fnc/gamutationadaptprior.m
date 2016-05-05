@@ -100,7 +100,7 @@ for i=1:length(parents)
     numberOfXtrials = length(OrderVec);
     % Check of empty trial points
     if (numberOfXtrials ~= 0)
-        mutantCandidates = zeros(10, GenomeLength);
+        mutantCandidates = zeros(maxCandidates, GenomeLength);
         numCandidates = 0;
         for k = 1:numberOfXtrials
             direction = dirSign(k).*DirVector(:,indexVec(OrderVec(k)));

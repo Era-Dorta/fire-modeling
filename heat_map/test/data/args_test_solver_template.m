@@ -47,15 +47,18 @@ switch solver
         % Weights used to sum the error function and the prior functions
         xover_prior_weights = [1/2, 1/2];
         
-        % One of @gamutationadaptprior, @gamutationnone, 
-        % @gamutationadaptscale, @gamutationmean, @mutationgaussian, 
+        % One of @gamutationadaptprior, @gamutationnone,
+        % @gamutationadaptscale, @gamutationmean, @mutationgaussian,
         % @mutationuniform, @mutationadaptfeasible
         options.MutationFcn = @mutationadaptfeasible;
         
-        % If using gamutationadaptprior the following have to be defined        
+        % If using gamutationadaptprior the following have to be defined
         mut_nCandidates = 10;
         mut_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
         mut_prior_weights = [1/2, 1/2];
+        
+        % Probability of for any gene to be mutated, used in gamutationmean
+        mut_rate = 0.03;
         
         % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen
         options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...
