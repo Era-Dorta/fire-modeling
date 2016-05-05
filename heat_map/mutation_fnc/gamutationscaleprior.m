@@ -17,8 +17,12 @@ if state.Generation <=2
     StepSize = 1; % Initialization
 else
     if state.Best(end) < state.Best(end-1)
+        % Fitness decreasing, optimizing is going well so increase the
+        % mutation rate to maintain genetic diversity
         StepSize = min(1,StepSize*4);
     else
+        % Fitness stale or increasing, decrease mutation rate to fine tune
+        % gene values
         StepSize = max(sqrt(eps),StepSize/4);
     end
 end

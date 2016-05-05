@@ -47,7 +47,7 @@ switch solver
         % Weights used to sum the error function and the prior functions
         xover_prior_weights = [1/2, 1/2];
         
-        % One of @gamutationadaptprior, @gamutationnone,
+        % One of @gamutationadaptprior, @gamutationnone, @gamutationscaleprior
         % @gamutationadaptscale, @gamutationscaleprior, @mutationgaussian,
         % @mutationuniform, @mutationadaptfeasible
         options.MutationFcn = @mutationadaptfeasible;
