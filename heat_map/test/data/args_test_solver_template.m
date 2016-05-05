@@ -48,7 +48,7 @@ switch solver
         xover_prior_weights = [1/2, 1/2];
         
         % One of @gamutationadaptprior, @gamutationnone,
-        % @gamutationadaptscale, @gamutationmean, @mutationgaussian,
+        % @gamutationadaptscale, @gamutationscaleprior, @mutationgaussian,
         % @mutationuniform, @mutationadaptfeasible
         options.MutationFcn = @mutationadaptfeasible;
         
@@ -57,7 +57,8 @@ switch solver
         mut_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
         mut_prior_weights = [1/2, 1/2];
         
-        % Probability of for any gene to be mutated, used in gamutationmean
+        % Probability of for any gene to be mutated, used in 
+        % gamutationscaleprior
         mut_rate = 0.03;
         
         % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen
