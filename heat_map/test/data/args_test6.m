@@ -2,7 +2,7 @@ function [args_path] = args_test6()
 %ARGS_TEST6 GA, single goal, sum_abs, 200 Pop
 %   ARGS_PATH = ARGS_TEST6() Returns in ARGS_PATH the file path of a .mat
 %   file with arguments defined here. Main args are:
-%   solver = 'sa'
+%   solver = 'ga'
 %
 %   See also heatMapReconstruction, args_test_template,
 %   args_test_solver_template
