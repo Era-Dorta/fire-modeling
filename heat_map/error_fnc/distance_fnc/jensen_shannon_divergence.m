@@ -38,4 +38,8 @@ function d=jensen_shannon_divergence(XI,XJ)
 % official policies, either expressed or implied, of B. Schauerte.
 
 d=jeffrey_divergence(XI,XJ);
-d=d / 2;
+
+% The Jensen distance max value is ln(2), approx 0.6931, for symmetry with
+% the other distance functions and without lost of generality, we scale it
+% to be in the [0,1] range
+d= d / (2 * log(2));

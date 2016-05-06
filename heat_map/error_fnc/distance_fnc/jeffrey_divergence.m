@@ -45,12 +45,15 @@ assert(size(XI,1) == 1); % pdist requires XI to be a single sample
 
 d=zeros(m,1); % initialize output array
 
+% According to "Inequalities between the Jenson-Shannon and Jeffreys
+% divergences" Crooks 2008, and other the Jeffrey divergence should be
+% without the m, but as we are using it for the Jensen one is okay
 for i=1:m
     for j=1:p
         m=(XJ(i,j) + XI(1,j)) / 2;
         if m ~= 0  % if m == 0, then xi == xj == 0
-            d(i,1) = d(i,1) + (XI(1,j) * log2(XI(1,j) / m + eps)) + ...
-                (XJ(i,j) * log2(XJ(i,j) / m + eps));
+            d(i,1) = d(i,1) + (XI(1,j) * log(XI(1,j) / m + eps)) + ...
+                (XJ(i,j) * log(XJ(i,j) / m + eps));
         end
     end
 end
