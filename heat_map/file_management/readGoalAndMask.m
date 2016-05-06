@@ -19,12 +19,12 @@ for i=1:numel(goal_img_path)
         % Resize the goal image to match the render image size
         mask_size = size(img_mask{i});
         goal_img{i} = imresize(goal_img{i}, mask_size(1:2));
-        goal_mask{i} = imresize(goal_mask{i}, mask_size(1:2));        
+        goal_mask{i} = imresize(goal_mask{i}, mask_size(1:2));
     end
     
     % Use a single channel mask
-    img_mask{i} = img_mask{i}(:,:,1);
-    goal_mask{i} = goal_mask{i}(:,:,1);
+    img_mask{i} = rgb2gray(img_mask{i});
+    goal_mask{i} = rgb2gray(goal_mask{i});
 end
 
 end
