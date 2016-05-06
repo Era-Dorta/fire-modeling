@@ -119,7 +119,7 @@ try
     
     %% Input data preprocessing
     
-    [goal_img, goal_mask, img_mask] = preprocess_images(goal_img, ...
+    [goal_img, goal_mask, img_mask, mask_threshold] = preprocess_images(goal_img, ...
         goal_mask, img_mask, [output_img_folder 'preprocessed_images-Cam']);
     
     %% Summary extra data
@@ -131,7 +131,7 @@ try
     summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
         [opts.project_path 'scenes/' opts.scene_name '.ma'], 'ErrorFnc', ...
         func2str(opts.error_foo{:}), 'DistFnc', func2str(opts.dist_foo), ...
-        'NumMaya', numMayas);
+        'NumMaya', numMayas, 'BinaryMaskThreshold', mask_threshold);
     
     %% Fitness function definition
     
