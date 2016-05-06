@@ -26,7 +26,12 @@ for i=1:numel(goal_imgs)
     
     % Plot the goal image and the trimap
     c_fig = 1;
-    fig_h = figure('Name', ['Goal and mask images ' istr]);
+    if isBatchMode()
+        fig_h = figure('Visible', 'off');
+    else
+        fig_h = figure();
+    end
+    fig_h.Name = ['Goal and mask images ' istr];
     
     subtightplot(n_row,n_col,c_fig); c_fig = c_fig + 1; imshow(goal_imgs{i});
     title('Original goal image');
