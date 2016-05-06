@@ -19,11 +19,6 @@ Aeq = [];
 beq = [];
 nonlcon = [];
 
-summary_data.minimumVolumeSize = L.minimumVolumeSize;
-summary_data.populationInitSize = L.populationInitSize;
-summary_data.populationScale = L.populationScale;
-summary_data.maxPopulation = L.maxPopulation;
-
 %% Down sample the heat map
 disp('Down sampling the density volume');
 d_heat_map{1} = init_heat_map;
@@ -79,7 +74,7 @@ for i=1:num_ite
     % Upper and lower bounds
     LB1 = ones(d_heat_map{i}.count, 1) * LB;
     UB1 = ones(d_heat_map{i}.count, 1) * UB;
-        
+    
     %% Set the initial population function generator
     
     if i ~= 1
@@ -91,7 +86,7 @@ for i=1:num_ite
     end
     
     %% Fitness function
-    % Also adjust the size and coordinates of all the prior functions that 
+    % Also adjust the size and coordinates of all the prior functions that
     % use them
     new_prior_fncs = prior_fncs;
     for j=1:numel(prior_fncs)
@@ -143,27 +138,26 @@ for i=1:num_ite
     
     %% Save summary file
     % In the summary file just say were the init population file was saved
-    init_population = options.InitialPopulation;
-    options.InitialPopulation = init_population_path;
+    extra_data = load(args_path);
+    extra_data.options.InitialPopulation = init_population_path;
+    extra_data.options.TimeLimit = options.TimeLimit;
+    extra_data.options.PopulationSize = options.PopulationSize;
+    extra_data.options.Generations = options.Generations;
     
     summary_data.OptimizationMethod = 'Genetic Algorithms Resample';
     summary_data.ImageError = best_error;
     summary_data.HeatMapSize = d_heat_map{i}.size;
     summary_data.HeatMapNumVariables = d_heat_map{i}.count;
     summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
-    summary_data.LowerBounds = LB(1);
-    summary_data.UpperBounds = UB(1);
     
     % Save the last one without the iteration number
     if i < num_ite
         save_summary_file([paths_str.summary size_str summaryext], summary_data, ...
-            options);
+            extra_data);
     else
         save_summary_file([paths_str.summary summaryext], summary_data, ...
-            options);
+            extra_data);
     end
-    
-    options.InitialPopulation = init_population;
     
     % Save information files for the intermediate optimizations, the
     % information for the last one will be saved outside of this function

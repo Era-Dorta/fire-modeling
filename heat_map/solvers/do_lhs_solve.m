@@ -67,9 +67,7 @@ summary_data.ImageError = best_error;
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
-summary_data.LowerBounds = LB(1);
-summary_data.UpperBounds = UB(1);
 
-save_summary_file(paths_str.summary, summary_data, options);
+save_summary_file(paths_str.summary, summary_data, L);
 end
 

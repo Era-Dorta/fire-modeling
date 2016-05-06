@@ -46,19 +46,18 @@ summary_data.ImageError = best_error;
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
-summary_data.LowerBounds = LB(1);
-summary_data.UpperBounds = UB(1);
 summary_data.InitGuessFile = init_heat_map.filename;
 
 % For gradient, options is a class, convert it to struct to use it in the
 % save summary function, the struct() function also copies the private data
 % so copy the public one manually
-fields = fieldnames(options);
+fields = fieldnames(L.options);
 for i=1:numel(fields)
-    opt_struct.(fields{i}) = options.(fields{i});
+    opt_struct.(fields{i}) = L.options.(fields{i});
 end
+L.options = opt_struct;
 
-save_summary_file(paths_str.summary, summary_data, opt_struct);
+save_summary_file(paths_str.summary, summary_data, L);
 
 end
 

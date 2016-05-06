@@ -123,15 +123,11 @@ try
         goal_mask, img_mask, [output_img_folder 'preprocessed_images-Cam']);
     
     %% Summary extra data
-    
-    % If there are several images, convert them into a string to put in
-    % the summary data struct
-    goal_img_summay = strjoin(opts.goal_img_path, ', ');
-    
-    summary_data = struct('GoalImage', goal_img_summay, 'MayaScene', ...
-        [opts.project_path 'scenes/' opts.scene_name '.ma'], 'ErrorFnc', ...
-        func2str(opts.error_foo{:}), 'DistFnc', func2str(opts.dist_foo), ...
-        'NumMaya', numMayas, 'BinaryMaskThreshold', mask_threshold);
+    summary_data = opts;
+    summary_data.NumMaya = numMayas;
+    summary_data.BinaryMaskThreshold = mask_threshold';
+    summary_data.Ports = ports;
+    summary_data.IsBatchMode = isBatchMode();
     
     %% Fitness function definition
     
@@ -146,8 +142,6 @@ try
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     if(opts.use_approx_fitness)
-        summary_data.FinalErrorFnc = summary_data.ErrorFnc;
-        summary_data.ErrorFnc = func2str(opts.approx_error_foo);
         
         approx_error_foo = @(x) opts.approx_error_foo(x, goal_img, goal_mask, ...
             opts.dist_foo);

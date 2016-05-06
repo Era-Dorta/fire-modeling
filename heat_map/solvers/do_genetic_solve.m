@@ -33,16 +33,15 @@ disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file
 % In the summary file just say were the init population file was saved
-options.InitialPopulation = init_population_path;
+extra_data = load(args_path);
+extra_data.options.InitialPopulation = init_population_path;
 
 summary_data.OptimizationMethod = 'Genetic Algorithms';
 summary_data.ImageError = best_error;
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
-summary_data.LowerBounds = LB(1);
-summary_data.UpperBounds = UB(1);
 
-save_summary_file(paths_str.summary, summary_data, options);
+save_summary_file(paths_str.summary, summary_data, extra_data);
 end
 
