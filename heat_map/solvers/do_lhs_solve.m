@@ -27,6 +27,8 @@ startTime = tic;
 c_batch_s_idx = 1;
 c_batch_e_idx = min(options.BatchEval, options.MaxIter);
 
+disp('Iter F-count           f(x)');
+i = 1;
 % Do the check in batches, if we find a solution then we can exit early
 while(c_batch_s_idx <= options.MaxIter && best_error > options.TolFun)
     
@@ -41,10 +43,16 @@ while(c_batch_s_idx <= options.MaxIter && best_error > options.TolFun)
     c_batch_s_idx = c_batch_s_idx + options.BatchEval;
     c_batch_e_idx = min(c_batch_e_idx + options.BatchEval, options.MaxIter);
     
+    fprintf('% 4d %7d    %.5e\n', i, c_batch_s_idx -1, best_error);
+    if mod(i, 25) == 0
+        disp('Iter F-count           f(x)');
+    end
+    
     if(toc(startTime) > L.time_limit)
         exitflag = -1;
         break;
     end
+    i = i + 1;
 end
 
 heat_map_v = lhs(best_idx, :);
