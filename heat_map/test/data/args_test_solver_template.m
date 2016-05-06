@@ -147,7 +147,7 @@ switch solver
         % Get default values
         options.MaxIter = max_ite;
         options.TolFun = 0.0001;
-        options.BatchEval = 20;
+        options.BatchEval = 200;
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'']'];

@@ -10,9 +10,10 @@ options = L.options;
 
 exitflag = 1;
 
-% Create the latin hypercube of heat map samples
+% Create the latin hypercube of heat map samples in the range [0,1]
 lhs = lhsdesign(options.MaxIter, init_heat_map.count);
 
+% Scale the lhs to span [LB, UB]
 for i=1:options.MaxIter
     lhs(i,:) = fitToRange(lhs(i,:), 0, 1, LB, UB);
 end
