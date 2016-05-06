@@ -105,6 +105,10 @@ try
         cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
         maya_send{i}(cmd, 0);
         
+        % Set the fuel type
+        cmd = ['setAttr \"fire_volume_shader.fuel_type\" ' num2str(opts.fuel_type)];
+        maya_send{i}(cmd, 0);
+        
         % Deactive all but the first camera if there is more than one goal
         % image
         for j=2:num_goal

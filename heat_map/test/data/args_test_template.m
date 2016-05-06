@@ -19,11 +19,15 @@ function args_test_template(args_path)
 %   'grad' -> Gradient Descent
 solver = 'ga';
 
+% BlackBody, Propane, Acetylene, BlueSyn, Cu, S, Li, Ba, Na, Co, Sc, C, H, C3H8
+%      0        1       2           3      4  5  6   7   8   9   10 11 12   13
+fuel_type = 0;
+
 scene_name = 'test95_gaussian_new';
 
 % Geat goal image path with convenience function
 multi_goal = false; % Single or two goal image optimization
-symmetric = false; % Symmetric or asymmetric goal image
+symmetric = true; % Symmetric or asymmetric goal image
 [project_path, raw_file_path, scene_img_folder, goal_img_path, ...
     goal_mask_img_path, mask_img_path] = get_test_paths(scene_name, ...
     multi_goal, symmetric);
