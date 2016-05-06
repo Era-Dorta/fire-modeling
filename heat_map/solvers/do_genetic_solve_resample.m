@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve_resample( ...
     LB, UB, init_heat_map, fitness_foo, paths_str, maya_send, num_goal, ...
-    summary_data, goal_img, goal_mask, args_path, prior_fncs)
+    summary_data, goal_img, goal_mask, fuel_type, args_path, prior_fncs)
 % Genetics Algorithm solver for heat map reconstruction with heat map
 % resampling scheme for faster convergence
 
@@ -57,7 +57,7 @@ for i=1:num_ite
         size_str '.mat'];
     
     options = get_ga_options_from_file( args_path, d_heat_map{i}, goal_img, ...
-        goal_mask, init_population_path, paths_str, LB, UB, i == 1);
+        goal_mask, init_population_path, paths_str, LB, UB, fuel_type, i == 1);
     
     % Divide the time equally between each GA loop
     options.TimeLimit = L.time_limit / num_ite;

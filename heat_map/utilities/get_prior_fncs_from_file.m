@@ -1,6 +1,6 @@
 function [ prior_fncs, prior_weights, nCandidates ] = ...
     get_prior_fncs_from_file( L, init_heat_map, goal_img, ...
-    goal_mask, lb, ub, fnc_type, fixed_size)
+    goal_mask, lb, ub, fuel_type, fnc_type, fixed_size)
 %GET_PRIOR_FNCS_FROM_FILE Sets GA operator options
 %   [ PRIOR_FNCS, PRIOR_WEIGHTS, NCANDIDATES ] = GET_PRIOR_FNCS_FROM_FILE(
 %   ARGS_PATH, INIT_HEAT_MAP, GOAL_IMG, GOAL_MASK, LB, UB, FNC_TYPE)
@@ -60,7 +60,8 @@ for i=1:num_prior_fncs
         
     elseif isequal(prior_fncs{i}, @histogramErrorApprox)
         
-        prior_fncs{i} = @(v) histogramErrorApprox(v, goal_img, goal_mask);
+        prior_fncs{i} = @(v) histogramErrorApprox(v, goal_img, goal_mask, ...
+            fuel_type);
         
     else
         error(['Unkown prior function ' args_path]);

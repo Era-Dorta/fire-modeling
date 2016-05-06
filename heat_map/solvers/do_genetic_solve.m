@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve( LB, UB, ...
     init_heat_map, fitness_foo, paths_str, summary_data, goal_img, ...
-    goal_mask, args_path)
+    goal_mask, fuel_type, args_path)
 % Genetics Algorithm solver for heat map reconstruction
 %% Options for the ga
 
@@ -8,7 +8,8 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve( LB, UB, ...
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
 
 options = get_ga_options_from_file( args_path, init_heat_map,  ...
-    goal_img, goal_mask, init_population_path, paths_str, LB, UB, false);
+    goal_img, goal_mask, init_population_path, paths_str, LB, UB, ...
+    fuel_type, false);
 
 % Our only constrains are upper and lower bounds
 A = [];

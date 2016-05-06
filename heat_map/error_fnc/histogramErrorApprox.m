@@ -1,4 +1,5 @@
-function histoE = histogramErrorApprox( v, goal_img, goal_mask, d_foo)
+function histoE = histogramErrorApprox( v, goal_img, goal_mask, d_foo, ...
+    fuel_type)
 %HISTOGRAMERRORAPPROX computes an error measure between v and goal image
 %   HISTOE = HISTOGRAMERRORAPPROX( V, GOAL_IMG, GOAL_MASK ) V is a value
 %   matrix NxM, with N heat maps with M values per heat map. GOAL_IMG is
@@ -12,7 +13,8 @@ edges = linspace(0, 255, 256);
 
 if(isempty(CTtable))
     code_dir = fileparts(fileparts(mfilename('fullpath')));
-    CTtable = load([code_dir '/data/CT-BlackBody.mat'], '-ascii');
+    CTtable = load([code_dir '/data/CT-' get_fuel_name(fuel_type) '.mat'], ...
+        '-ascii');
     
     NumGoal = numel(goal_img);
     GoalHisto = cell(NumGoal, 1);

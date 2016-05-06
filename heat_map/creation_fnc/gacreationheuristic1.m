@@ -1,9 +1,9 @@
 function [ InitialPopulation ] = gacreationheuristic1( GenomeLength, FitnessFcn, ...
-    options, c_heat_map, goal_img,  goal_mask, savePath )
+    options, c_heat_map, goal_img,  goal_mask, fuel_type, savePath )
 %GACREATIONHEURISTIC1 Create a population for ga
-
 code_dir = fileparts(fileparts(mfilename('fullpath')));
-bbdata = load([code_dir '/data/CT-BlackBody.mat'], '-ascii');
+bbdata = load([code_dir '/data/CT-' get_fuel_name(fuel_type) '.mat'], ...
+    '-ascii');
 
 mean_noise = 0;
 sigma_noise = 250;
@@ -34,7 +34,7 @@ end
 hc_goal = hc_goal ./ num_goal;
 
 
-%% Find the closer RGB value for the goal image in black body temperature data
+%% Find the closer RGB value for the goal image in fuel_type temperature data
 
 % Get the most common RGB value
 [~, max_rgb] = max(hc_goal, [], 2);

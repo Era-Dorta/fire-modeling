@@ -132,6 +132,7 @@ try
     summary_data.BinaryMaskThreshold = mask_threshold';
     summary_data.Ports = ports;
     summary_data.IsBatchMode = isBatchMode();
+    summary_data.FuelName = get_fuel_name(opts.fuel_type);
     
     %% Fitness function definition
     
@@ -141,14 +142,14 @@ try
     
     [ prior_fncs, prior_weights ] = get_prior_fncs_from_file( ...
         opts, init_heat_map, goal_img, goal_mask, opts.LB, ...
-        opts.UB, 'fitness', true);
+        opts.UB, opts.fuel_type, 'fitness', true);
     
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     if(opts.use_approx_fitness)
         
         approx_error_foo = @(x) opts.approx_error_foo(x, goal_img, goal_mask, ...
-            opts.dist_foo);
+            opts.dist_foo, opts.fuel_type);
         
         fitness_foo = @(x)heat_map_fitness_approx(x, approx_error_foo, ...
             prior_fncs, prior_weights);
@@ -165,7 +166,7 @@ try
         case 'ga'
             [heat_map_v, ~, ~] = do_genetic_solve( opts.LB, opts.UB, init_heat_map, ...
                 fitness_foo, paths_str, summary_data, goal_img, goal_mask, ...
-                opts.solver_args_path);
+                opts.fuel_type, opts.solver_args_path);
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( opts.LB, opts.UB, ...
                 init_heat_map, fitness_foo, paths_str, summary_data, ...
@@ -176,7 +177,7 @@ try
             % The same applies to the prior functions.
             prior_fncs = get_prior_fncs_from_file( opts, ...
                 init_heat_map, goal_img, goal_mask, opts.LB, opts.UB, ...
-                'fitness', false);
+                opts.fuel_type, 'fitness', false);
             
             if(opts.use_approx_fitness)
                 fitness_foo = @(v, prior_fncs) ...
@@ -194,8 +195,8 @@ try
             
             [heat_map_v, ~, ~] = do_genetic_solve_resample(opts.LB, opts.UB, ...
                 init_heat_map, fitness_foo, paths_str, maya_send, num_goal, ...
-                summary_data, goal_img, goal_mask, opts.solver_args_path, ...
-                prior_fncs);
+                summary_data, goal_img, goal_mask, opts.fuel_type, ...
+                opts.solver_args_path, prior_fncs);
         case 'grad'
             [heat_map_v, ~, ~] = do_gradient_solve( opts.LB, opts.UB, init_heat_map, ...
                 fitness_foo, paths_str, summary_data, opts.solver_args_path);
