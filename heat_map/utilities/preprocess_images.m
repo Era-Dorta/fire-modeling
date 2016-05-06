@@ -123,6 +123,11 @@ if ~isBatchMode()
     % Wait for the user to click accept, to avoid deadlocks, just wait for
     % one figure
     uiwait(fig_h(1));
+    
+    % Hide all the buttons before saving the figures and keep them
+    % hidden as they won't be used after this function
+    set(button_ui, 'Visible','off');
+    set(slider_ui, 'Visible','off');
 end
 
 save_figures_custom(fig_h, save_path);
@@ -152,11 +157,6 @@ disp('Done preprocessing input images and masks');
     end
 
     function save_figures_custom(fig_h, save_path)
-        % Hide all the buttons before saving the figures and keep them
-        % hidden as they won't be used after this function
-        set(button_ui, 'Visible','off');
-        set(slider_ui, 'Visible','off');
-        
         for j=1:numel(fig_h)
             % Save the image
             print(fig_h(j), save_path{j}, '-dtiff');
