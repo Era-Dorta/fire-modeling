@@ -124,7 +124,7 @@ try
     %% Input data preprocessing
     
     [goal_img, goal_mask, img_mask, mask_threshold] = preprocess_images(goal_img, ...
-        goal_mask, img_mask, [output_img_folder 'preprocessed_images-Cam']);
+        goal_mask, img_mask, true, [output_img_folder 'preprocessed_images-Cam']);
     
     %% Summary extra data
     summary_data = opts;
