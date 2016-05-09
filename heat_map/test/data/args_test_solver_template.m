@@ -22,7 +22,7 @@ switch solver
         options.Generations = 25;
         options.TimeLimit = time_limit;
         options.Display = 'iter'; % Give some output on each iteration
-        options.StallGenLimit = 1;
+        options.StallGenLimit = 3;
         options.Vectorized = 'on';
         
         % One of @gacreationheuristic1, @gacreationrandom, @gacreationfrominitguess
