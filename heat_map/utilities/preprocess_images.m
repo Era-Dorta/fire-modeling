@@ -103,9 +103,7 @@ for i=1:numel(goal_imgs)
     
     drawnow;
     
-    if isBatchMode()
-        print(fig_h(i), save_path{i}, '-dtiff');
-    else
+    if ~isBatchMode()
         % Activate callabacks for changing alpha in the current image
         text_ui(i).String = ['Binary Threshold ' num2str(mask_threshold(i))];
         slider_ui(i).Enable = 'on';
