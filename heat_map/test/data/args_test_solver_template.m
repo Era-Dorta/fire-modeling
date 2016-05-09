@@ -11,6 +11,7 @@ function args_test_solver_template(args_path, solver)
 %   See also args_test_template
 
 max_ite = 5000; % Num of maximum iterations
+maxFunEvals = max_ite; % Maximum number of allowed function evaluations
 time_limit = 2 * 60 * 60; % Two hours
 
 switch solver
@@ -65,9 +66,10 @@ switch solver
         % gamutationscaleprior
         mut_rate = 0.03;
         
-        % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen
+        % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen,
+        % @ga_max_fnc_eval_limit
         options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...
-            @ga_time_limit};
+            @ga_time_limit, @ga_max_fnc_eval_limit};
         
         if isequal(solver, 'ga-re') % Extra parameters for GA resampling
             % Functions for the first GA iteration
@@ -105,7 +107,7 @@ switch solver
         % Get default values
         options = saoptimset('simulannealbnd');
         options.MaxIter = max_ite;
-        options.MaxFunEvals = max_ite;
+        options.MaxFunEvals = maxFunEvals;
         options.TimeLimit = time_limit;
         options.InitialTemperature = 1/6; % Factor to multiply (UB - LB)
         options.Display = 'iter'; % Give some output on each iteration
@@ -117,7 +119,7 @@ switch solver
         options = optimoptions(@fmincon);
         
         options.MaxIter = max_ite;
-        options.MaxFunEvals = max_ite;
+        options.MaxFunEvals = maxFunEvals;
         options.Display = 'iter-detailed'; % Give some output on each iteration
         
         options.OutputFcn = @gradient_time_limit;
@@ -125,7 +127,7 @@ switch solver
         % Get default values
         options = cmaes('defaults');
         options.MaxIter = max_ite;
-        options.MaxFunEvals = max_ite;
+        options.MaxFunEvals = maxFunEvals;
         options.EvalParallel = 'yes';
         
         % Disable saving any data files

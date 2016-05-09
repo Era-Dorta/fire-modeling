@@ -140,6 +140,12 @@ for i=1:numel(L.options.OutputFcns)
         L.options.OutputFcns{i} = @(options, state, flag)ga_time_limit( ...
             options, state, flag, startTime);
         
+    elseif isequal(L.options.OutputFcns{i}, @ga_max_fnc_eval_limit)
+        
+        % Custom maxFunEval function, ga does not have one by default
+        L.options.OutputFcns{i} = @(options, state, flag)ga_max_fnc_eval_limit( ...
+            options, state, flag, L.maxFunEvals);
+        
     else
         error(['Unkown GA OutputFcn in ' args_path]);
     end
