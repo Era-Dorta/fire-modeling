@@ -24,6 +24,14 @@ button_ui = gobjects(numel(goal_imgs), 1);
 text_ui = gobjects(numel(goal_imgs), 1);
 fig_h = gobjects(numel(goal_imgs), 1);
 
+% If there are not enough threshold values, repeat the last one as many
+% times as necessary
+if numel(bin_mask_threshold) < numel(goal_imgs)
+    num_missing = numel(goal_imgs) - numel(bin_mask_threshold);
+    bin_mask_threshold = [bin_mask_threshold, ...
+        repmat(bin_mask_threshold(end), 1, num_missing)];
+end
+
 for i=1:numel(goal_imgs)
     
     %% Prepare the data for alpha matting
