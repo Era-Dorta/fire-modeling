@@ -121,14 +121,29 @@ try
     disp(['Creating new output folder ' output_img_folder]);
     mkdir(opts.scene_img_folder, output_img_folder_name);
     
-    %% Input data preprocessing
+    %% Summary data is mainly the options from the load file
+    summary_data = opts;
     
-    [goal_img, goal_mask, img_mask, bin_mask_threshold] = preprocess_images(goal_img, ...
-        goal_mask, img_mask, opts.bin_mask_threshold, true, ...
-        [output_img_folder 'preprocessed_images-Cam']);
+    %% Input data preprocessing
+    mkdir(output_img_folder, 'preprocessed_input_images');
+    preprocessed_path = fullfile(output_img_folder, 'preprocessed_input_images');
+    
+    [goal_img, goal_mask, img_mask, bin_mask_threshold] = preprocess_images(...
+        goal_img, goal_mask, img_mask, opts.bin_mask_threshold, true, ...
+        fullfile(preprocessed_path, 'grouped-images-Cam'));
+    
+    % Save the preprocessed images in the preprocessed_path folder using
+    % their original names and extensions
+    summary_data.p_goal_img_path = save_cell_images( goal_img, ...
+        opts.goal_img_path, preprocessed_path);
+    
+    summary_data.p_goal_mask_img_path = save_cell_images( goal_mask, ...
+        opts.goal_mask_img_path, preprocessed_path);
+    
+    summary_data.p_mask_img_path = save_cell_images( img_mask, ...
+        opts.mask_img_path, preprocessed_path);
     
     %% Summary extra data
-    summary_data = opts;
     summary_data.NumMaya = numMayas;
     summary_data.bin_mask_threshold = bin_mask_threshold';
     summary_data.Ports = ports;
