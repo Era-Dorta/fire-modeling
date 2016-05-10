@@ -1,20 +1,17 @@
-function [ goal_imgs, goal_mask_imgs, mask_imgs, mask_threshold ] = preprocess_images( ...
-    goal_imgs, goal_mask_imgs, mask_imgs, do_plots, figurePath)
-%[ GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, MASK_THRESHOLD ] = PREPROCESS_IMAGES(
-%   GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, FIGUREPATH) Background
-%   subtraction of GOAL_IMGS using GOAL_MASK_IMGS interpreted as a trimap.
-%   GOAL_MASK_IMGS and MASK_IMGS are converted from to gray mask to logical
-%   masks. Results are saved in FIGUREPATH.
+function [ goal_imgs, goal_mask_imgs, mask_imgs, bin_mask_threshold ] = preprocess_images( ...
+    goal_imgs, goal_mask_imgs, mask_imgs, bin_mask_threshold, do_plots, figurePath)
+%[ GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD ] = PREPROCESS_IMAGES(
+%   GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD, DO_PLOTS, FIGUREPATH)
+%   Background subtraction of GOAL_IMGS using GOAL_MASK_IMGS interpreted as
+%   a trimap. GOAL_MASK_IMGS and MASK_IMGS are converted from to gray mask
+%   to logical masks. Results are saved in FIGUREPATH.
 
-if do_plots && nargin < 5
+if do_plots && nargin < 6
     error('Not enough input arguments, save path in needed when plotting');
 end
 
 n_row = 2;
 n_col = 3;
-
-% By default ignore any pixel that is less than 10% foreground
-mask_threshold = zeros(numel(goal_imgs), 1) + 1e-1;
 
 mask_imgs_ori = mask_imgs;
 alpha = cell(numel(goal_imgs), 1);
@@ -54,7 +51,7 @@ for i=1:numel(goal_imgs)
             fig_h(i) = figure();
             text_ui(i) = uicontrol('Style','text', 'Position',[5 5 150 20],...
                 'String', 'Processing ...');
-            slider_ui(i) = uicontrol(fig_h(i), 'Style', 'slider', 'Value', mask_threshold(i), ...
+            slider_ui(i) = uicontrol(fig_h(i), 'Style', 'slider', 'Value', bin_mask_threshold(i), ...
                 'Position', [165 5 250 20], 'Enable', 'off');
             button_ui(i) = uicontrol(fig_h(i), 'Style', 'pushbutton', 'String', ...
                 'Continue', 'Position', [455 5 70 20], 'Enable', 'off');
@@ -84,12 +81,12 @@ for i=1:numel(goal_imgs)
     
     % The new mask image takes all the pixels that are bigger than a
     % threshold, this will be usefull for edge detection
-    goal_mask_imgs{i} = alpha{i} > mask_threshold(i);
+    goal_mask_imgs{i} = alpha{i} > bin_mask_threshold(i);
     
     % TODO The same should be done with the mask images, either initialize
     % the temperatures to all active, 2000K or 1500K render once to get
     % synthetic image or add the images as another argument
-    mask_imgs{i} = mask_imgs{i} > mask_threshold(i);
+    mask_imgs{i} = mask_imgs{i} > bin_mask_threshold(i);
     
     %% Show and save the results
     if do_plots
@@ -113,7 +110,7 @@ for i=1:numel(goal_imgs)
         
         if ~isBatchMode()
             % Activate callabacks for changing alpha in the current image
-            text_ui(i).String = ['Binary Threshold ' num2str(mask_threshold(i))];
+            text_ui(i).String = ['Binary Threshold ' num2str(bin_mask_threshold(i))];
             slider_ui(i).Enable = 'on';
             slider_ui(i).Callback = @(x,y) alphaCallback(x, y, i);
         end
@@ -127,7 +124,7 @@ if do_plots
         % Activate the callback
         set(button_ui, 'Callback', @continueButtonCallback);
         set(button_ui, 'Enable','on');
-                
+        
         % Wait for the user to click accept, to avoid deadlocks, just wait
         % for figure(1)
         uiwait(fig_h(1));
@@ -146,11 +143,11 @@ end
 % Callback functions that allow to change the binary threshold and save
 % the results if running in GUI mode
     function alphaCallback(hObject, ~, i)
-        mask_threshold(i) = hObject.Value;
-        text_ui(i).String = ['Binary Threshold ' num2str(mask_threshold(i))];
+        bin_mask_threshold(i) = hObject.Value;
+        text_ui(i).String = ['Binary Threshold ' num2str(bin_mask_threshold(i))];
         
-        goal_mask_imgs{i} = alpha{i} > mask_threshold(i);
-        mask_imgs{i} = mask_imgs_ori{i} > mask_threshold(i);
+        goal_mask_imgs{i} = alpha{i} > bin_mask_threshold(i);
+        mask_imgs{i} = mask_imgs_ori{i} > bin_mask_threshold(i);
         
         set(groot, 'CurrentFigure', hObject.Parent);
         subtightplot(n_row,n_col,5); imshow(goal_mask_imgs{i});

@@ -123,13 +123,14 @@ try
     
     %% Input data preprocessing
     
-    [goal_img, goal_mask, img_mask, mask_threshold] = preprocess_images(goal_img, ...
-        goal_mask, img_mask, true, [output_img_folder 'preprocessed_images-Cam']);
+    [goal_img, goal_mask, img_mask, bin_mask_threshold] = preprocess_images(goal_img, ...
+        goal_mask, img_mask, opts.bin_mask_threshold, true, ...
+        [output_img_folder 'preprocessed_images-Cam']);
     
     %% Summary extra data
     summary_data = opts;
     summary_data.NumMaya = numMayas;
-    summary_data.BinaryMaskThreshold = mask_threshold';
+    summary_data.bin_mask_threshold = bin_mask_threshold';
     summary_data.Ports = ports;
     summary_data.IsBatchMode = isBatchMode();
     summary_data.FuelName = get_fuel_name(opts.fuel_type);

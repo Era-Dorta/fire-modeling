@@ -32,6 +32,10 @@ symmetric = true; % Symmetric or asymmetric goal image
     goal_mask_img_path, mask_img_path] = get_test_paths(scene_name, ...
     multi_goal, symmetric);
 
+% Threshold for edge detection, by default ignore any pixel that is less 
+% than 10% foreground
+bin_mask_threshold = zeros(numel(goal_img_path), 1) + 1e-1;
+
 rand_seed = 'default';
 
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment

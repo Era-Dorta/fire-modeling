@@ -44,8 +44,8 @@ while(exist(hm_data_folder, 'dir') == 7)
         opts.mask_img_path, opts.goal_mask_img_path, false);
     
     % Get the goal without background
-    [goal_img, ~, ~] = preprocess_images(goal_img, ...
-        goal_mask, img_mask, false);
+    [goal_img, ~, ~] = preprocess_images(goal_img, goal_mask, img_mask, ...
+        opts.bin_mask_threshold, false);
     
     % As we are comparing with MSE and we assume this is synthetic data use
     % a all ones mask
