@@ -3,7 +3,7 @@
 # Get this script path
 CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Tests 6,67,8 are GA, using heat_map_fitness, 200 in Population, 25 Generations
+# Tests 6,7,8,9 are GA, using heat_map_fitness, 200 in Population, 25 Generations
 # single goal image, and using histogram_l1_norm, histogram_intersection,
 # chi_square_statistics_fast, jensen_shannon_divergence, respectively
 
@@ -11,7 +11,26 @@ CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 nice -n20 matlab -nodesktop -nosplash -r "args_test6(); args_test7(); args_test8(); args_test9(); exit();"
 
 # Optimize using the parameters defined in the previous data files
-"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test6.mat
-"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test7.mat
-"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test8.mat
-"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test9.mat
+"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test6.mat 2212
+"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test7.mat 2222
+"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test8.mat 2232
+"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test9.mat 2242
+
+# Set to true to rerun the tests with 400 and 800 population size
+if [ false ]; then
+	nice -n20 matlab -nodesktop -nosplash -r "solver_path = '~/bath-fire-shader/heat_map/test/data/args_test6solver.mat'; L = load(solver_path); options = L.options; options.PopulationSize = 400; save(solver_path, 'options', '-append'); solver_path = '~/bath-fire-shader/heat_map/test/data/args_test7solver.mat'; L = load(solver_path); options = L.options; options.PopulationSize = 400; save(solver_path, 'options', '-append'); solver_path = '~/bath-fire-shader/heat_map/test/data/args_test8solver.mat'; L = load(solver_path); options = L.options; options.PopulationSize = 400; save(solver_path, 'options', '-append'); solver_path = '~/bath-fire-shader/heat_map/test/data/args_test9solver.mat'; L = load(solver_path); options = L.options; options.PopulationSize = 400; save(solver_path, 'options', '-append'); exit();"
+
+	# Optimize using the parameters defined in the previous data files
+	"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test6.mat 2252
+	"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test7.mat 2262
+	"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test8.mat 2272
+	"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test9.mat 2282
+
+	nice -n20 matlab -nodesktop -nosplash -r "solver_path = '~/bath-fire-shader/heat_map/test/data/args_test6solver.mat'; L = load(solver_path); options = L.options; options.PopulationSize = 800; save(solver_path, 'options', '-append'); solver_path = '~/bath-fire-shader/heat_map/test/data/args_test7solver.mat'; L = load(solver_path); options = L.options; options.PopulationSize = 800; save(solver_path, 'options', '-append'); solver_path = '~/bath-fire-shader/heat_map/test/data/args_test8solver.mat'; L = load(solver_path); options = L.options; options.PopulationSize = 800; save(solver_path, 'options', '-append'); solver_path = '~/bath-fire-shader/heat_map/test/data/args_test9solver.mat'; L = load(solver_path); options = L.options; options.PopulationSize = 800; save(solver_path, 'options', '-append'); exit();"
+
+	# Optimize using the parameters defined in the previous data files
+	"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test6.mat 2292
+	"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test7.mat 2312
+	"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test8.mat 2322
+	"$CDIR/runHeatMapReconstruction.sh" ~/bath-fire-shader/heat_map/test/data/args_test9.mat 2332
+fi
