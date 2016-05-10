@@ -8,13 +8,28 @@ function compare_distance_tests( data_folder )
 %
 %   See also heatMapReconstruction
 
-dist_foo_str = {};
+% Get folder contents
+hm_data_folders = dir(data_folder);
+hm_data_folders = {hm_data_folders.name};
+
+% Remove anything that is not hm_search_[digit]
+to_del_idx = [];
+for i=1:numel(hm_data_folders)
+    if isempty(regexp(hm_data_folders{i},'hm_search_[0-9]+', 'ONCE'))
+        to_del_idx = [to_del_idx; i];
+    end
+end
+hm_data_folders(to_del_idx) = [];
+
+% Initialize variables
+num_hm = numel(hm_data_folders);
+dist_foo_str = cell(1, num_hm);
+mse_error = zeros(1, num_hm);
 
 % Read the optimized images for each solver run
-dir_num = 1;
-hm_data_folder = fullfile(data_folder, 'hm_search_1');
-mse_error = [];
-while(exist(hm_data_folder, 'dir') == 7)
+for i=1:num_hm
+    % Build path of current hm_search
+    hm_data_folder = fullfile(data_folder, hm_data_folders{i});
     
     % Load the data file
     opts = load(fullfile(hm_data_folder, 'summary_file.mat'));
@@ -22,7 +37,7 @@ while(exist(hm_data_folder, 'dir') == 7)
     num_goal = numel(opts.goal_img_path);
     
     % Get the distance function name
-    dist_foo_str{dir_num} = func2str(opts.dist_foo);
+    dist_foo_str{i} = func2str(opts.dist_foo);
     
     % Read all the optimized images
     cam_num = 1;
@@ -48,16 +63,15 @@ while(exist(hm_data_folder, 'dir') == 7)
         opts.bin_mask_threshold, false);
     
     % As we are comparing with MSE and we assume this is synthetic data use
-    % a all ones mask
+    % mask with all ones, to use the full image
+    goal_mask = cell(1, num_goal);
+    img_mask = cell(1, num_goal);
     for j=1:num_goal
-        goal_mask{j} = true(size(goal_mask{j}));
-        img_mask{j} = true(size(img_mask{j}));
+        goal_mask{j} = true(size(goal_img{j}, 1), size(goal_img{j}, 2));
+        img_mask{j} = true(size(img{j}, 1), size(img{j}, 2));
     end
     
-    mse_error = [mse_error, MSE(goal_img, img, goal_mask, img_mask)];
-    
-    dir_num = dir_num + 1;
-    hm_data_folder = fullfile(data_folder, ['hm_search_' num2str(dir_num)]);
+    mse_error(i) = MSE(goal_img, img, goal_mask, img_mask);
 end
 
 %% Plot the comparison
