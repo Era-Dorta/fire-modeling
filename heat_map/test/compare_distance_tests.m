@@ -54,13 +54,19 @@ for i=1:num_hm
         img{cam_num} = img{cam_num}(:,:,1:3);
     end
     
-    % Read the goal image, it should be the same for all of them
-    [ goal_img, goal_mask, img_mask] = readGoalAndMask( opts.goal_img_path, ...
-        opts.mask_img_path, opts.goal_mask_img_path, false);
-    
-    % Get the goal without background
-    [goal_img, ~, ~] = preprocess_images(goal_img, goal_mask, img_mask, ...
-        opts.bin_mask_threshold, false);
+    % Read the preprocessed goal image, it should be the same for all of
+    % them
+    goal_img = cell(1, num_goal);
+    preprocessed_path = fullfile(hm_data_folder, 'preprocessed_input_images');
+    for j=1:num_goal
+        img_path = fullfile(preprocessed_path,['Goal-Cam' num2str(j) '.tif']);
+        
+        if(exist(img_path, 'file') ~= 2)
+            error(['Missing file ' img_path]);
+        end
+        
+        goal_img{j} = imread(img_path);
+    end
     
     % As we are comparing with MSE and we assume this is synthetic data use
     % mask with all ones, to use the full image
