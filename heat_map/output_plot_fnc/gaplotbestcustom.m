@@ -13,8 +13,6 @@ if strcmp(flag, 'done')
     % Make our figure the current figure
     set(groot, 'CurrentFigure', FIG_H);
     
-    legend('Best', 'Mean');
-    
     print(FIG_H, figurePath, '-dtiff');
     saveas(FIG_H, figurePath, 'fig');
     
@@ -69,6 +67,12 @@ plot(0:state.Generation, GAPLOTBEST, '-rx');
 % Plot the mean error
 GAPLOTMEAN = [GAPLOTMEAN, mean(state.Score(~inf_error_idx))];
 plot(0:state.Generation, GAPLOTMEAN, '-go');
+
+% Legend is a costly plotting function, do it just once
+if state.Generation == 0
+    % It has to be called after at least one plot(...)
+    legend('Best', 'Mean');
+end
 
 hold off;
 
