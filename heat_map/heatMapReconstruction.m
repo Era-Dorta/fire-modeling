@@ -133,15 +133,18 @@ try
         fullfile(preprocessed_path, 'grouped-images-Cam'));
     
     % Save the preprocessed images in the preprocessed_path folder using
-    % their original names and extensions
+    % normalized names and extensions
+    norm_names = get_norm_names( 'Goal-Cam', '.tif', num_goal);
     summary_data.p_goal_img_path = save_cell_images( goal_img, ...
-        opts.goal_img_path, preprocessed_path);
+        norm_names, preprocessed_path);
     
+    norm_names = get_norm_names( 'Goal-Mask-Cam', '.tif', num_goal);
     summary_data.p_goal_mask_img_path = save_cell_images( goal_mask, ...
-        opts.goal_mask_img_path, preprocessed_path);
+        norm_names, preprocessed_path);
     
+    norm_names = get_norm_names( 'Synthetic-Mask-Cam', '.tif', num_goal);
     summary_data.p_mask_img_path = save_cell_images( img_mask, ...
-        opts.mask_img_path, preprocessed_path);
+        norm_names, preprocessed_path);
     
     %% Summary extra data
     summary_data.NumMaya = numMayas;
