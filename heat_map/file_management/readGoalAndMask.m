@@ -23,8 +23,12 @@ for i=1:numel(goal_img_path)
     end
     
     % Use a single channel mask
-    img_mask{i} = rgb2gray(img_mask{i});
-    goal_mask{i} = rgb2gray(goal_mask{i});
+    if size(img_mask{i}, 3) > 1 && ~islogical(img_mask{i})
+        img_mask{i} = rgb2gray(img_mask{i});
+    end
+    if size(goal_mask{i}, 3) > 1 && ~islogical(goal_mask{i})
+        goal_mask{i} = rgb2gray(goal_mask{i});
+    end
 end
 
 end
