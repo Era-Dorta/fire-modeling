@@ -22,7 +22,7 @@ rng(rand_seed);
 
 project_path = '~/maya/projects/fire/';
 % scene_name = 'test84';
-scene_name = 'test91_multiple_flames';
+scene_name = 'test97_gaussian_new_linchiski';
 % scene_name =  'test88_like_86_pretonemap';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
@@ -47,30 +47,27 @@ try
     output_img_folder_name = ['render_fuels_test' num2str(dir_num) '/'];
     mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
-    %% SendMaya script initialization
-    % Render script is located in the same maya_comm folder
-    [currentFolder,~,~] = fileparts(mfilename('fullpath'));
-    sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
-    
     %% Maya initialization
     % Render script is located in the same maya_comm folder
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
     sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
+    maya_send = @(cmd, isRender) sendToMaya( sendMayaScript, port, cmd, ...
+        mrLogPath, isRender);
     
     disp('Loading scene in Maya')
     % Set project to fire project directory
     cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-    sendToMaya(sendMayaScript, port, cmd);
+    maya_send(cmd, 0);
     
     % Open our test scene
     cmd = ['file -force -open \"scenes/' scene_name '.ma\"'];
-    sendToMaya(sendMayaScript, port, cmd);
+    maya_send(cmd, 0);
     
     % Force a frame update, as batch rendering later does not do it, this
     % will fix any file name errors due to using the same scene on
     % different computers
     cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-    sendToMaya(sendMayaScript, port, cmd);
+    maya_send(cmd, 0);
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
@@ -80,7 +77,7 @@ try
     total_time = 0;
     
     % Fuel names and fuel indices in Maya
-    fuel_name = {'BlackBody', 'Propane', 'Acetylene', 'Cu', 'S', 'Li', 'Ba', ...
+    fuel_name = {'BlackBody', 'Propane', 'Acetylene', 'BlueSyn', 'Cu', 'S', 'Li', 'Ba', ...
         'Na', 'Co', 'Sc', 'C', 'H', 'C3H8'};
     totalSize = numel(fuel_name);
     fuel_index =0:totalSize-1;
@@ -93,16 +90,16 @@ try
         
         % Set the fuel type
         cmd = ['setAttr fire_volume_shader.fuel_type ' istr];
-        sendToMaya(sendMayaScript, port, cmd);
+        maya_send(cmd, 0);
         
         % Set the folder and name of the render image
         cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
         cmd = [cmd scene_name '/' output_img_folder_name istr '-' fuel_name{i} '-' scene_name '\"'];
-        sendToMaya(sendMayaScript, port, cmd);
+        maya_send(cmd, 0);
         
         % Render the image
         cmd = 'Mayatomr -render -renderVerbosity 2';
-        sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
+        maya_send(cmd, 1);
         
         % Estimate the remaining time
         c_time = toc(starttic);
