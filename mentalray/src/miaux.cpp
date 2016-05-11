@@ -623,6 +623,15 @@ void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 	state->pri = original_state_pri;
 }
 
+void add_jiitering(miState *state, RayMarchCommonData& rm_data) {
+	// Jitter the start position along the ray direction in the range of
+	// [0 ... march_increment]
+	const float pertur = mi_par_random(state) * rm_data.march_increment;
+	rm_data.origin.x += pertur * rm_data.direction.x;
+	rm_data.origin.y += pertur * rm_data.direction.y;
+	rm_data.origin.z += pertur * rm_data.direction.z;
+}
+
 bool miaux_manage_shader_cach(miState* state, miTag shader,
 		Voxel_Return action) {
 	miColor res = { 1, 1, 1, 1 };

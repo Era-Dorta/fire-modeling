@@ -156,6 +156,8 @@ void miaux_ray_march_simple(VolumeShader_R *result, miState *state,
 void miaux_ray_march_with_sigma_a(VolumeShader_R *result, miState *state,
 		const RayMarchData& rm_data);
 
+void add_jiitering(miState *state, RayMarchCommonData& rm_data);
+
 void miaux_vector_info(const char* s, const miVector& v);
 
 void miaux_vector_info(const char* s, const miGeoVector& v);

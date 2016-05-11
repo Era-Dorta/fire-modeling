@@ -78,6 +78,8 @@ void init_ray_march_common_data(RayMarchCommonData& rm_data, miState *state,
 	rm_data.march_increment = *mi_eval_scalar(&params->march_increment);
 
 	rm_data.absorption_shader = *mi_eval_tag(&params->absorption_shader);
+
+	add_jiitering(state, rm_data);
 }
 
 // Initialise the data used for ray marching
