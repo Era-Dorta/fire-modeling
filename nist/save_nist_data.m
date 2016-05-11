@@ -36,6 +36,10 @@ for i=1:size(spec, 2)
         end
     end
     
+    if srint == 0
+        error(['No valid data found for ' spec{i}]);
+    end
+    
     % Save the normalized intensities, wavelengths, A21, E1, E2, g1, g2
     specline_data = zeros(num_valid, 7);
     valid_ind = 0;
