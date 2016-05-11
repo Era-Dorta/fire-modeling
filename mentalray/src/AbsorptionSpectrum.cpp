@@ -120,13 +120,13 @@ bool AbsorptionSpectrum::read_spectral_line_file(const std::string& filename) {
 			throw std::ios_base::failure("No data in file");
 		}
 
-		lambdas.resize(num_lines);
-		phi.resize(num_lines);
-		A21.resize(num_lines);
-		E1.resize(num_lines);
-		E2.resize(num_lines);
-		g1.resize(num_lines);
-		g2.resize(num_lines);
+		lambdas.resize(num_lines); // nanometres
+		phi.resize(num_lines); // dimensionless
+		A21.resize(num_lines); // 1/seconds
+		E1.resize(num_lines); // 1/centimetres, energy unit
+		E2.resize(num_lines); // 1/centimetres, energy unit
+		g1.resize(num_lines); // dimensionless
+		g2.resize(num_lines); // dimensionless
 
 		for (unsigned i = 0; i < num_lines; i++) {
 			safe_ascii_read(fp, lambdas[i]);

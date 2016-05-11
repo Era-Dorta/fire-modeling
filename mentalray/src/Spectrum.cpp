@@ -306,7 +306,7 @@ extern void ChemicalAbsorption(const float *wl, const float *intensity,
 	const double C2 = (BB::h * c) / (BB::k * temp);
 	const double inv_kt = 1.0 / (BB::k * temp);
 
-	// Convert density to 1 / num^3 or to 1/m^3
+	// Convert density to 1 / nm^3 or to 1/m^3
 	density /= BB::toMinv * BB::toMinv * BB::toMinv;
 
 	for (int i = 0; i < n; ++i) {
