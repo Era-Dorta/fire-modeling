@@ -106,12 +106,6 @@ DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y,
 template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::get_voxel_value(float x, float y, float z,
 		const Accessor& accessor) const {
-	assert(
-			(count == 0
-					|| ((int ) (z + .5)) * depth * height
-							+ ((int ) (y + .5)) * height + ((int ) (x + .5))
-							< count));
-
 	return interpolate_function(*this, x, y, z, accessor);
 }
 
@@ -125,13 +119,21 @@ template<typename DataT, typename TreeT>
 DataT VoxelDataset<DataT, TreeT>::get_fitted_voxel_value(const miVector *p,
 		const miVector *min_point, const miVector *max_point,
 		const Accessor& accessor) const {
-	float x, y, z;
-	x = (float) fit(p->x, min_point->x, max_point->x, 0, width - 1);
-	y = (float) fit(p->y, min_point->y, max_point->y, 0, height - 1);
-	z = (float) fit(p->z, min_point->z, max_point->z, 0, depth - 1);
-	assert(x >= 0 && (width == 0 || x < width));
-	assert(y >= 0 && (height == 0 || y < height));
-	assert(z >= 0 && (depth == 0 || z < depth));
+
+	assert(p->x >= min_point->x && p->x <= max_point->x);
+	assert(p->y >= min_point->y && p->y <= max_point->y);
+	assert(p->z >= min_point->z && p->z <= max_point->z);
+
+	/*
+	 * Convert from normalised [min_point] [max_point] space, to volume space
+	 * [0,0,0] [width - 1, height - 1, depth - 1]. Note that to get smooth edges
+	 * we need to increase the volume space by one on each side [-1, size]
+	 */
+
+	float x = (float) fit(p->x, min_point->x, max_point->x, -1, width);
+	float y = (float) fit(p->y, min_point->y, max_point->y, -1, height);
+	float z = (float) fit(p->z, min_point->z, max_point->z, -1, depth);
+
 	return get_voxel_value(x, y, z, accessor);
 }
 
