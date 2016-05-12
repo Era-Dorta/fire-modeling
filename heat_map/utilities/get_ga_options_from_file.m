@@ -1,5 +1,5 @@
 function [ options_out ] = get_ga_options_from_file( args_path, init_heat_map,  ...
-    goal_img, goal_mask, init_population_path, paths_str, lb, ub, ...
+    goal_img, goal_mask, output_data_path, paths_str, lb, ub, ...
     fuel_type, use_first)
 %GET_GA_OPTIONS_FROM_FILE Sets GA options
 %   [ OPTIONS_OUT ] = GET_GA_OPTIONS_FROM_FILE( ARGS_PATH, INIT_HEAT_MAP,
@@ -25,24 +25,24 @@ if isequal(L.options.CreationFcn, @gacreationheuristic1)
     
     L.options.CreationFcn = @( GenomeLength, FitnessFcn, options) gacreationheuristic1 ...
         (GenomeLength, FitnessFcn, options, init_heat_map, goal_img, ...
-        goal_mask, fuel_type, init_population_path);
+        goal_mask, fuel_type, output_data_path);
     
 elseif isequal(L.options.CreationFcn, @gacreationrandom)
     
-    L.options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, init_population_path);
+    L.options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, output_data_path);
     
 elseif isequal(L.options.CreationFcn, @gacreationfrominitguess)
     
     % Initial population from a user provide guess
     L.options.CreationFcn = @( GenomeLength, FitnessFcn, options) gacreationfrominitguess ...
         ( GenomeLength, FitnessFcn, options, init_heat_map, L.creation_fnc_mean, ...
-        L.creation_fnc_sigma, init_population_path );
+        L.creation_fnc_sigma, output_data_path );
     
 elseif isequal(L.options.CreationFcn, @gacreationlinspace)
     
     % Linearly spaced population
     L.options.CreationFcn = @(x, y, z)gacreationlinspace(x , y, z, ...
-        init_population_path);
+        output_data_path);
     
 elseif ~isequal(L.options.CreationFcn, @gacreationuniform) && ...
         ~isequal(L.options.CreationFcn, @gacreationlinearfeasible)

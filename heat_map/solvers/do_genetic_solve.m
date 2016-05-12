@@ -26,8 +26,9 @@ disp(['Population size ' num2str(options.PopulationSize) ', number of '...
 %% Call the genetic algorithm optimization
 startTime = tic;
 
-[heat_map_v, best_error, exitflag, output, FinalPopulation, Scores] = ga( ...
-    fitness_foo, init_heat_map.count, A, b, Aeq, beq, LB, UB, nonlcon, options);
+[heat_map_v, best_error, exitflag, output, FinalPopulation, FinalScores] = ...
+    ga(fitness_foo, init_heat_map.count, A, b, Aeq, beq, LB, UB, nonlcon, ...
+    options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
@@ -46,6 +47,6 @@ summary_data.OuputDataFile = output_data_path;
 
 save_summary_file(paths_str.summary, summary_data, extra_data);
 
-save(output_data_path, 'FinalPopulation', 'Scores', '-append');
+save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
 end
 

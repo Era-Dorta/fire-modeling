@@ -129,7 +129,7 @@ for i=1:num_ite
     disp('Starting GA optimization');
     startTime = tic;
     
-    [heat_map_v, best_error, exitflag, ~, FinalPopulation, Scores] =  ...
+    [heat_map_v, best_error, exitflag, ~, FinalPopulation, FinalScores] =  ...
         ga( new_fitness_foo, d_heat_map{i}.count, A, b, Aeq, beq, LB1, UB1, ...
         nonlcon, options);
     
@@ -160,7 +160,7 @@ for i=1:num_ite
             extra_data);
     end
     
-    save(output_data_path, 'FinalPopulation', 'Scores', '-append');
+    save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
     
     % Save information files for the intermediate optimizations, the
     % information for the last one will be saved outside of this function
