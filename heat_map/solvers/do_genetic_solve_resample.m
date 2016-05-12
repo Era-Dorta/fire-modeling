@@ -53,13 +53,11 @@ for i=1:num_ite
     size_str = num2str(d_heat_map{i}.size(1));
     
     %% Iteration dependant GA parameters
-    init_population_path = [paths_str.output_folder 'InitialPopulation' ...
-        size_str '.mat'];
-    final_population_path = [paths_str.output_folder 'FinalPopulation' ...
+    output_data_path = [paths_str.output_folder 'OutputData' ...
         size_str '.mat'];
     
     options = get_ga_options_from_file( args_path, d_heat_map{i}, goal_img, ...
-        goal_mask, init_population_path, paths_str, LB, UB, fuel_type, i == 1);
+        goal_mask, output_data_path, paths_str, LB, UB, fuel_type, i == 1);
     
     % Divide the time equally between each GA loop
     options.TimeLimit = L.time_limit / num_ite;
@@ -141,7 +139,7 @@ for i=1:num_ite
     %% Save summary file
     % In the summary file just say were the init population file was saved
     extra_data = load(args_path);
-    extra_data.options.InitialPopulation = init_population_path;
+    extra_data.options.InitialPopulation = output_data_path;
     extra_data.options.TimeLimit = options.TimeLimit;
     extra_data.options.PopulationSize = options.PopulationSize;
     extra_data.options.Generations = options.Generations;
@@ -151,7 +149,7 @@ for i=1:num_ite
     summary_data.HeatMapSize = d_heat_map{i}.size;
     summary_data.HeatMapNumVariables = d_heat_map{i}.count;
     summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
-    summary_data.FinalPopulation = final_population_path;
+    summary_data.OuputDataFile = output_data_path;
     
     % Save the last one without the iteration number
     if i < num_ite
@@ -162,7 +160,7 @@ for i=1:num_ite
             extra_data);
     end
     
-    save(final_population_path, 'FinalPopulation', 'Scores');
+    save(output_data_path, 'FinalPopulation', 'Scores', '-append');
     
     % Save information files for the intermediate optimizations, the
     % information for the last one will be saved outside of this function

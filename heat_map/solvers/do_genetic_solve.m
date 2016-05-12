@@ -5,11 +5,10 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve( LB, UB, ...
 %% Options for the ga
 
 % Path where the initial population will be saved
-init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
-final_population_path = [paths_str.output_folder 'FinalPopulation.mat'];
+output_data_path = [paths_str.output_folder 'OutputData.mat'];
 
 options = get_ga_options_from_file( args_path, init_heat_map,  ...
-    goal_img, goal_mask, init_population_path, paths_str, LB, UB, ...
+    goal_img, goal_mask, output_data_path, paths_str, LB, UB, ...
     fuel_type, false);
 
 % Our only constrains are upper and lower bounds
@@ -36,17 +35,17 @@ disp(['Optimization total time ' num2str(totalTime)]);
 %% Save summary file
 % In the summary file just say were the init population file was saved
 extra_data = load(args_path);
-extra_data.options.InitialPopulation = init_population_path;
+extra_data.options.InitialPopulation = output_data_path;
 
 summary_data.OptimizationMethod = 'Genetic Algorithms';
 summary_data.ImageError = best_error;
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
-summary_data.FinalPopulation = final_population_path;
+summary_data.OuputDataFile = output_data_path;
 
 save_summary_file(paths_str.summary, summary_data, extra_data);
 
-save(final_population_path, 'FinalPopulation', 'Scores');
+save(output_data_path, 'FinalPopulation', 'Scores', '-append');
 end
 

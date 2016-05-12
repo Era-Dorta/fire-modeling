@@ -330,7 +330,7 @@ try
     % With the ga-re solver there are several initial population files so
     % avoid the rendering in that case
     if ~any(strcmp(opts.solver, {'ga-re', 'lhs'})) && ~opts.use_approx_fitness
-        L = load([paths_str.output_folder 'InitialPopulation.mat']);
+        L = load([paths_str.output_folder 'OutputData.mat']);
         
         disp(['Rendering the initial population in ' opts.scene_img_folder ...
             output_img_folder_name 'InitialPopulationCam<d>' ]);
