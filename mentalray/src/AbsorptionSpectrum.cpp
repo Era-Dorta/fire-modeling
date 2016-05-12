@@ -58,6 +58,12 @@ const Spectrum& AbsorptionSpectrum::compute(float density, float temperature) {
 	coef_spec = Spectrum::FromSampledNoAverage(&lambdas[0], &spec_values[0],
 			lambdas.size());
 
+	/*
+	 * Spectrum class uses triangular kernels as a model for the spectrum,
+	 * however Pegoraro uses square ones, multiply by two have the same area
+	 */
+	coef_spec = coef_spec * 2.0;
+
 	return coef_spec;
 }
 
