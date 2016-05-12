@@ -146,6 +146,11 @@ for i=1:numel(L.options.OutputFcns)
         L.options.OutputFcns{i} = @(options, state, flag)ga_max_fnc_eval_limit( ...
             options, state, flag, L.maxFunEvals);
         
+    elseif isequal(L.options.OutputFcns{i}, @gasavescores)
+        
+        % Save scores and best per generation in a file
+        L.options.OutputFcns{i} = @(options, state, flag)gasavescores( ...
+            options, state, flag, output_data_path);
     else
         error(['Unkown GA OutputFcn in ' args_path]);
     end
