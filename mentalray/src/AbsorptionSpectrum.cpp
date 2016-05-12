@@ -35,13 +35,22 @@ AbsorptionSpectrum::AbsorptionSpectrum(FuelType fuel_type) {
 const Spectrum& AbsorptionSpectrum::compute(float density, float temperature) {
 	std::vector<float> spec_values(lambdas.size());
 
+	/* Our input data is in the range of [0..10], yet the physical densities are
+	 * several orders of magnitude higher, as they represent the number of
+	 * molecules per unit volume. We are effectively multiplying the densities
+	 * by this scale factor,
+	 * Optical constants of soot in hydrocarbon flames, Lee et. al. 1981
+	 * https://en.wikipedia.org/wiki/Number_density
+	 */
+	density = density * 1e26;
+
 	if (fuel_type <= FuelType::SootMax) {
 		for (unsigned j = 0; j < spec_values.size(); j++) {
 			spec_values.at(j) = density * soot_coef[j];
 		}
 	} else {
 		ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0], &E2[0],
-				&g1[0], &g2[0], lambdas.size(), temperature, 1, density * 1e26,
+				&g1[0], &g2[0], lambdas.size(), temperature, 1, density,
 				&spec_values[0]);
 	}
 	// Create a Spectrum representation with the computed values
@@ -94,16 +103,6 @@ void AbsorptionSpectrum::compute_soot_constant_coefficients() {
 		soot_coef[i] = (pi_r3_36 * n[i] * k[i] * fix_factor)
 				/ (std::pow(lambdas[i] * 1e-3, alpha_lambda)
 						* (n2_k2_2 + 4 * n[i] * n[i] * k[i] * k[i]));
-	}
-
-	/* Our input data is in the range of [0..10], yet the physical densities are
-	 * several orders of magnitude higher, as they represent the number of
-	 * molecules per unit volume. We are effectively multiplying the densities
-	 * by this scale factor.
-	 * https://en.wikipedia.org/wiki/Number_density
-	 */
-	for (auto iter = soot_coef.begin(); iter != soot_coef.end(); ++iter) {
-		*iter *= 1e26;
 	}
 }
 
