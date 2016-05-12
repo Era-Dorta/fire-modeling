@@ -19,8 +19,8 @@ function args_test_template(args_path)
 %   'grad' -> Gradient Descent
 solver = 'ga';
 
-% BlackBody, Propane, Acetylene, BlueSyn, Cu, S, Li, Ba, Na, Co, Sc, C, H, C3H8
-%      0        1       2           3      4  5  6   7   8   9   10 11 12   13
+% BlackBody, Propane, Acetylene, Methane, BlueSyn, Cu, S, Li, Ba, Na, Co, Sc, C, H, C3H8
+%      0        1       2           3      4        5  6   7   8   9   10 11 12  13 14
 fuel_type = 0;
 
 scene_name = 'test95_gaussian_new';
