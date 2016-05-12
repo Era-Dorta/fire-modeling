@@ -55,7 +55,8 @@ try
     error_figure = [output_img_folder 'error_function'];
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
         'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
-        'current1-Cam']);
+        'current1-Cam'], 'visualization_fig_path', [output_img_folder ...
+        'solver-visualization-2D']);
     maya_log = [opts.scene_img_folder output_img_folder_name 'maya.log'];
     
     %% Read goal and mask image/s

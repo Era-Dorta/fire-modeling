@@ -67,9 +67,9 @@ switch solver
         mut_rate = 0.03;
         
         % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen,
-        % @ga_max_fnc_eval_limit
+        % @ga_max_fnc_eval_limit, @gasavescores
         options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...
-            @ga_time_limit, @ga_max_fnc_eval_limit};
+            @ga_time_limit, @ga_max_fnc_eval_limit, @gasavescores};
         
         if isequal(solver, 'ga-re') % Extra parameters for GA resampling
             % Functions for the first GA iteration

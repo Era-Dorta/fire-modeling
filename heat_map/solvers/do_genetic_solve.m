@@ -33,6 +33,12 @@ startTime = tic;
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
+%% Save data to file
+save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
+
+%% Visualize distance space
+visualize_score_space(output_data_path, paths_str.visualization_fig_path);
+
 %% Save summary file
 % In the summary file just say were the init population file was saved
 extra_data = load(args_path);
@@ -46,7 +52,5 @@ summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 summary_data.OuputDataFile = output_data_path;
 
 save_summary_file(paths_str.summary, summary_data, extra_data);
-
-save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
 end
 
