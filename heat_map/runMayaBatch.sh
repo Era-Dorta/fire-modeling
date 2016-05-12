@@ -3,12 +3,7 @@
 # Optional one argument with port number, if not given port 2222 will be used
 function isPortOpen()
 {
-	lofret=$( lsof -i:"$1" )
-	if [ "$lofret" = "" ] ; then
-		return 1
-	else
-		return 0
-	fi
+	return $( nc -z localhost "$1" )
 }
 
 function runSingleMaya()

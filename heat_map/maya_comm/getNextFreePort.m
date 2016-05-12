@@ -1,10 +1,10 @@
-function [ port ] = getNextFreePort()
+function [ port ] = getNextFreePort(init_port)
 % Returns a port that is not in use
 port = 2222;
-% The -b option should avoid infinite waits under certain situations
-[~,result] = system(['lsof -b -i:' num2str(port)]);
-while(~isempty(result))
+if nargin == 1
+    port = init_port;
+end
+while(system(['nc -z localhost ' num2str(port)]) == 0)
     port = port + 1;
-    [~,result] = system(['lsof -b -i:' num2str(port)]);
 end
 end
