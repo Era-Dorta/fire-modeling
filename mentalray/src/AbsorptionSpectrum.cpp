@@ -48,15 +48,19 @@ const Spectrum& AbsorptionSpectrum::compute(float density, float temperature) {
 		for (unsigned j = 0; j < spec_values.size(); j++) {
 			spec_values.at(j) = density * soot_coef[j];
 		}
+
+		// Soot samples approximate continuous data
+		coef_spec = Spectrum::FromSampled(&lambdas[0], &spec_values[0],
+				lambdas.size());
 	} else {
 		ChemicalAbsorption(&lambdas[0], &phi[0], &A21[0], &E1[0], &E2[0],
 				&g1[0], &g2[0], lambdas.size(), temperature, 1, density,
 				&spec_values[0]);
+
+		// Chemical absorption represents "discrete" spectral lines
+		coef_spec = Spectrum::FromSampledNoAverage(&lambdas[0], &spec_values[0],
+				lambdas.size());
 	}
-	// Create a Spectrum representation with the computed values
-	// Spectrum expects the wavelengths to be in nanometres
-	coef_spec = Spectrum::FromSampledNoAverage(&lambdas[0], &spec_values[0],
-			lambdas.size());
 
 	return coef_spec;
 }
