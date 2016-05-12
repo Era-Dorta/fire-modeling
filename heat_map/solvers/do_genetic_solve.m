@@ -6,6 +6,7 @@ function [ heat_map_v, best_error, exitflag] = do_genetic_solve( LB, UB, ...
 
 % Path where the initial population will be saved
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
+final_population_path = [paths_str.output_folder 'FinalPopulation.mat'];
 
 options = get_ga_options_from_file( args_path, init_heat_map,  ...
     goal_img, goal_mask, init_population_path, paths_str, LB, UB, ...
@@ -26,8 +27,8 @@ disp(['Population size ' num2str(options.PopulationSize) ', number of '...
 %% Call the genetic algorithm optimization
 startTime = tic;
 
-[heat_map_v, best_error, exitflag] = ga(fitness_foo, init_heat_map.count, ...
-    A, b, Aeq, beq, LB, UB, nonlcon, options);
+[heat_map_v, best_error, exitflag, output, FinalPopulation, Scores] = ga( ...
+    fitness_foo, init_heat_map.count, A, b, Aeq, beq, LB, UB, nonlcon, options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
@@ -42,7 +43,10 @@ summary_data.ImageError = best_error;
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
+summary_data.FinalPopulation = final_population_path;
 
 save_summary_file(paths_str.summary, summary_data, extra_data);
+
+save(final_population_path, 'FinalPopulation', 'Scores');
 end
 

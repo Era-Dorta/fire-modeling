@@ -55,6 +55,8 @@ for i=1:num_ite
     %% Iteration dependant GA parameters
     init_population_path = [paths_str.output_folder 'InitialPopulation' ...
         size_str '.mat'];
+    final_population_path = [paths_str.output_folder 'FinalPopulation' ...
+        size_str '.mat'];
     
     options = get_ga_options_from_file( args_path, d_heat_map{i}, goal_img, ...
         goal_mask, init_population_path, paths_str, LB, UB, fuel_type, i == 1);
@@ -129,7 +131,7 @@ for i=1:num_ite
     disp('Starting GA optimization');
     startTime = tic;
     
-    [heat_map_v, best_error, exitflag, ~, out_population, scores] =  ...
+    [heat_map_v, best_error, exitflag, ~, FinalPopulation, Scores] =  ...
         ga( new_fitness_foo, d_heat_map{i}.count, A, b, Aeq, beq, LB1, UB1, ...
         nonlcon, options);
     
@@ -149,6 +151,7 @@ for i=1:num_ite
     summary_data.HeatMapSize = d_heat_map{i}.size;
     summary_data.HeatMapNumVariables = d_heat_map{i}.count;
     summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
+    summary_data.FinalPopulation = final_population_path;
     
     % Save the last one without the iteration number
     if i < num_ite
@@ -158,6 +161,8 @@ for i=1:num_ite
         save_summary_file([paths_str.summary summaryext], summary_data, ...
             extra_data);
     end
+    
+    save(final_population_path, 'FinalPopulation', 'Scores');
     
     % Save information files for the intermediate optimizations, the
     % information for the last one will be saved outside of this function
