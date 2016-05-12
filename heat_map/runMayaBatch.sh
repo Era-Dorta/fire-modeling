@@ -3,7 +3,8 @@
 # Optional one argument with port number, if not given port 2222 will be used
 function isPortOpen()
 {
-	return $( nc -z localhost "$1" )
+	nc -z localhost "$1"
+	return $?
 }
 
 function runSingleMaya()
@@ -48,19 +49,13 @@ do
     if [ "$?" -eq 1 ]; then
         echo "Launched Maya:${NEW_PORT}"
 	else
-	     # Close all the previous Maya instances
-		for j in `seq 1 $(($i - 1))`;
-		do
-		    CLOSE_PORT=$((${PORT} + $j - 1))
-			"$CDIR/maya_comm/sendMaya.rb" $CLOSE_PORT "quit -f"
-			if [ "$?" -ne 0 ]; then
-				echo "Could not close Maya:${CLOSE_PORT}"
-			else
-				echo "Closed Maya:${CLOSE_PORT}"
-			fi
-		done
-	
 		echo "Could not launch Maya:${NEW_PORT}"
+	
+		# Close all the previous Maya instances	
+		if [ "$i" -gt 1 ]; then
+			"$CDIR/closeMayaBatch.sh" "$PORT" "$(($i - 1))"
+		fi
+		
 		exit 2
     fi
 done
