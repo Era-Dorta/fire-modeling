@@ -1,13 +1,8 @@
 function render_heat_maps( heat_map_v, xyz, whd, scene_name, scene_img_folder, ...
-    output_img_folder_name, output_folder, maya_send)
+    output_folder, maya_send)
 %RENDER_HEAT_MAPS Renders heat maps in a folder
 %    RENDER_HEAT_MAPS( HEAT_MAP_V, XYZ, WHD, SCENE_NAME, SCENE_IMG_FOLDER, ...
-%     OUTPUT_IMG_FOLDER_NAME, SENDMAYASCRIPT, PORT, MRLOGPATH)
-
-output_img_folder = [scene_img_folder output_img_folder_name];
-
-% Create directory for the render images
-mkdir(output_img_folder, output_folder);
+%     OUTPUT_FOLDER, MAYA_SEND)
 
 all_population_img = [];
 c_row_img = [];
@@ -18,8 +13,8 @@ for pop=1:size(heat_map_v, 1)
     popstr = num2str(pop);
     
     %% Save the heat_map in a file
-    heat_map_path = [scene_img_folder output_img_folder_name output_folder ...
-        '/heat-map' popstr '.raw'];
+    heat_map_path = fullfile(scene_img_folder, output_folder, ...
+        ['heat-map' popstr '.raw']);
     volumetricData = struct('xyz', xyz, 'v', heat_map_v(pop, :)', 'size', whd, ...
         'count', size(xyz,1));
     save_raw_file(heat_map_path, volumetricData);
@@ -33,8 +28,7 @@ for pop=1:size(heat_map_v, 1)
     
     %% Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-    cmd = [cmd scene_name '/' output_img_folder_name output_folder '/fireimage' ...
-        popstr '\"'];
+    cmd = [cmd fullfile(scene_name, output_folder, ['fireimage' popstr]) '\"'];
     maya_send{1}(cmd, 0);
     
     %% Render the image
@@ -45,8 +39,8 @@ for pop=1:size(heat_map_v, 1)
     cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
     maya_send{1}(cmd, 1);
     
-    c_img = imread([scene_img_folder output_img_folder_name output_folder ...
-        '/fireimage' popstr '.tif']);
+    c_img = imread(fullfile(scene_img_folder, output_folder, ...
+        ['fireimage' popstr '.tif']));
     c_img = c_img(:,:,1:3);
     
     if ~exist('max_column','var')
@@ -75,6 +69,6 @@ if(~isempty(c_row_img))
     
     all_population_img = [all_population_img; c_row_img, padding];
 end
-imwrite(all_population_img, ...
-    [scene_img_folder output_img_folder_name output_folder '/AllPopulation.tif']);
+imwrite(all_population_img, fullfile(scene_img_folder, output_folder, ...
+    'AllPopulation.tif'));
 end
