@@ -327,36 +327,24 @@ try
             num2str(L.summary_data.ImageErrorSingleView)]);
     end
     
-    %% Render the initial population in a folder
+    %% Render the initial and final population in a folder
     % With the ga-re solver there are several initial population files so
     % avoid the rendering in that case
     if ~any(strcmp(opts.solver, {'ga-re', 'lhs'})) && ~opts.use_approx_fitness
         L = load([paths_str.output_folder 'OutputData.mat']);
         
-        disp(['Rendering the initial population in ' opts.scene_img_folder ...
-            output_img_folder_name 'InitialPopulationCam<d>' ]);
-        
         if( strcmp(opts.solver,'cmaes'))
-            % Transpose to get row order as the cmaes initial population is
-            % in column order
+            % Transpose to get row order as the cmaes population is in
+            % column order
             L.InitialPopulation = L.InitialPopulation';
+            L.FinalPopulation = L.FinalPopulation';
         end
         
-        for i=1:num_goal
-            istr = num2str(i);
-            
-            % Active current camera
-            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-            maya_send{1}(cmd, 0);
-            
-            render_heat_maps( L.InitialPopulation, init_heat_map.xyz, init_heat_map.size, ...
-                opts.scene_name, opts.scene_img_folder, output_img_folder_name, ...
-                ['InitialPopulationCam' istr], maya_send);
-            
-            % Deactive current camera
-            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-            maya_send{1}(cmd, 0);
-        end
+        render_ga_population( L.InitialPopulation, opts, maya_send, num_goal, ...
+            init_heat_map, output_img_folder_name, 'InitialPopulation' );
+        
+        render_ga_population( L.FinalPopulation, opts, maya_send, num_goal, ...
+            init_heat_map, output_img_folder_name, 'FinalPopulation' );
     end
     
     %% Move the best per iteration images to a folder
