@@ -47,7 +47,7 @@ use_approx_fitness = false; % Using the approximate fitness function?
 % the folder error_fnc/distance_fnc
 % Common ones: histogram_l1_norm, histogram_intersection,
 % chi_square_statistics_fast, jensen_shannon_divergence
-dist_foo = @histogram_l1_norm;
+dist_foo = @chi_square_statistics_fast;
 
 % Error function used in the fitness function
 % One of: histogramErrorOpti, histogramDErrorOpti, MSE
