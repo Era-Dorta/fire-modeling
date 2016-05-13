@@ -19,15 +19,19 @@ for i=1:num_goal
     output_folder = fullfile(output_img_folder_name, output_folder);
     
     % Active current camera
-    cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-    maya_send{1}(cmd, 0);
+    if(num_goal > 1)
+        cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
+        maya_send{1}(cmd, 0);
+    end
     
     render_heat_maps( population, init_heat_map.xyz, init_heat_map.size, ...
         opts.scene_name, opts.scene_img_folder, output_folder, maya_send);
     
     % Deactive current camera
-    cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-    maya_send{1}(cmd, 0);
+    if(num_goal > 1)
+        cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
+        maya_send{1}(cmd, 0);
+    end
 end
 
 end

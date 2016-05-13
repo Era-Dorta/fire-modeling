@@ -89,7 +89,8 @@ try
     init_heat_map = read_raw_file([opts.project_path opts.raw_file_path]);
     
     %% Maya initialization
-    
+    % TODO Render once and test if an image is created, if not -> activate
+    % first camera -> test again, if still fails -> exit gracefully
     for i=1:numMayas
         disp(['Loading scene in Maya:' num2str(ports(i))]);
         % Set project to fire project directory
@@ -268,8 +269,10 @@ try
         istr = num2str(i);
         
         % Active current camera
-        cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-        maya_send{1}(cmd, 0);
+        if(num_goal > 1)
+            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
+            maya_send{1}(cmd, 0);
+        end
         
         % Set the folder and name of the render image
         cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
@@ -283,8 +286,10 @@ try
         maya_send{1}(cmd, 1);
         
         % Deactivate the current camera
-        cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-        maya_send{1}(cmd, 0);
+        if(num_goal > 1)
+            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
+            maya_send{1}(cmd, 0);
+        end
     end
     
     %% Append the real error if using the approx fitness
