@@ -50,7 +50,7 @@ LOGFILE=`pwd`"/"$LOGFILE
 CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Launch the Maya instances
-"$CDIR/runMayaBatch.sh" "$INIT_PORT" "$NUM_MAYA"
+"$CDIR/runMayaBatch.sh" "$INIT_PORT" "$NUM_MAYA" "1"
 
 if [ "$?" -ne 0 ]; then
 	exit 2

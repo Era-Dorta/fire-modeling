@@ -19,7 +19,7 @@ LOGFILE=`pwd`"/"$LOGFILE
 CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Launch Maya
-nice -n20 "$CDIR/runMayaBatch.sh" "$PORT" > /dev/null
+nice -n20 "$CDIR/runMayaBatch.sh" "$PORT" "1" "1"
 
 if [ "$?" -ne 0 ]; then
 	echo "Could not launch Maya:${PORT}"

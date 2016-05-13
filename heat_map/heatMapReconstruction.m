@@ -57,7 +57,6 @@ try
         'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
         'current1-Cam'], 'visualization_fig_path', [output_img_folder ...
         'solver-visualization-2D']);
-    maya_log = [opts.scene_img_folder output_img_folder_name 'maya.log'];
     
     %% Read goal and mask image/s
     num_goal = numel(opts.goal_img_path);
@@ -82,15 +81,23 @@ try
     
     for i=1:numMayas
         maya_send{i} = @(cmd, isRender) sendToMaya( sendMayaScript, ...
-            ports(i), cmd, maya_log, isRender);
+            ports(i), cmd, isRender);
     end
     
     %% Volumetric data initialization
     init_heat_map = read_raw_file([opts.project_path opts.raw_file_path]);
     
+    %% Ouput folder
+    disp(['Creating new output folder ' output_img_folder]);
+    mkdir(opts.scene_img_folder, output_img_folder_name);
+    
     %% Maya initialization
     % TODO Render once and test if an image is created, if not -> activate
     % first camera -> test again, if still fails -> exit gracefully
+    if isBatchMode()
+        empty_maya_log_files(logfile, ports);
+    end
+    
     for i=1:numMayas
         disp(['Loading scene in Maya:' num2str(ports(i))]);
         % Set project to fire project directory
@@ -118,10 +125,6 @@ try
             maya_send{i}(cmd, 0);
         end
     end
-    
-    %% Ouput folder
-    disp(['Creating new output folder ' output_img_folder]);
-    mkdir(opts.scene_img_folder, output_img_folder_name);
     
     %% Summary data is mainly the options from the load file
     summary_data = opts;
@@ -369,6 +372,7 @@ try
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
+        copy_maya_log_files(logfile, output_img_folder, ports);
         exit;
     else
         % If GUI running, show the computed heat map
@@ -387,6 +391,9 @@ catch ME
         disp(getReport(ME));
         if(exist('logfile', 'var') && exist('output_img_folder', 'var'))
             move_file( logfile, [output_img_folder 'matlab.log'] );
+            if(exist('ports', 'var'))
+                copy_maya_log_files(logfile, output_img_folder, ports);
+            end
         end
         exit;
     else

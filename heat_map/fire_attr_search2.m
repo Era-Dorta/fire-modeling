@@ -94,7 +94,6 @@ try
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
         'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
         'current1-Cam']);
-    maya_log = [scene_img_folder output_img_folder_name 'maya.log'];
     
     %% Get upper bound estimate for temperature scale
     init_heat_map = read_raw_file([project_path raw_file_path]);
@@ -133,10 +132,14 @@ try
     
     for i=1:numMayas
         maya_send{i} = @(cmd, isRender) sendToMaya( sendMayaScript, ...
-            ports(i), cmd, maya_log, isRender);
+            ports(i), cmd, isRender);
     end
     
     %% Maya initialization
+    if isBatchMode()
+        empty_maya_log_files(logfile, ports);
+    end
+    
     for i=1:numMayas
         disp(['Loading scene in Maya:' num2str(ports(i))]);
         % Set project to fire project directory
@@ -332,6 +335,7 @@ try
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
+        copy_maya_log_files(logfile, output_img_folder, ports);
         exit;
     else
         % If GUI running, show the computed final image
@@ -349,6 +353,9 @@ catch ME
         disp(getReport(ME));
         if(exist('logfile', 'var') && exist('output_img_folder', 'var'))
             move_file( logfile, [output_img_folder 'matlab.log'] );
+            if(exist('ports', 'var'))
+                copy_maya_log_files(logfile, output_img_folder, ports);
+            end
         end
         exit;
     else

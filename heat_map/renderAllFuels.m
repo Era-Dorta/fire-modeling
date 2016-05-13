@@ -45,14 +45,17 @@ try
     % Create a new folder to store the data
     output_img_folder = [scene_img_folder 'render_fuels_test' num2str(dir_num) '/'];
     output_img_folder_name = ['render_fuels_test' num2str(dir_num) '/'];
-    mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     
     %% Maya initialization
     % Render script is located in the same maya_comm folder
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
     sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
     maya_send = @(cmd, isRender) sendToMaya( sendMayaScript, port, cmd, ...
-        mrLogPath, isRender);
+        isRender);
+    
+    if isBatchMode()
+        empty_maya_log_files(logfile, port);
+    end
     
     disp('Loading scene in Maya')
     % Set project to fire project directory
@@ -117,6 +120,7 @@ try
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
+        copy_maya_log_files(logfile, output_img_folder, ports);
         exit;
     else
         return;
@@ -124,7 +128,12 @@ try
 catch ME
     if(isBatchMode())
         disp(getReport(ME));
-        move_file( logfile, [output_img_folder 'matlab.log'] );
+        if(exist('logfile', 'var') && exist('output_img_folder', 'var'))
+            move_file( logfile, [output_img_folder 'matlab.log'] );
+            if(exist('port', 'var'))
+                copy_maya_log_files(logfile, output_img_folder, port);
+            end
+        end
         exit;
     else
         rethrow(ME);
