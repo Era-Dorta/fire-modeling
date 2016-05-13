@@ -1,5 +1,5 @@
 function [args_path] = args_test14()
-%ARGS_TEST14 Ga, cu-custom-inv, single goal, 200 Population
+%ARGS_TEST14 Ga, cu-custom-simple-inv, single goal, 200 Population
 %   ARGS_PATH = ARGS_TEST14() Returns in ARGS_PATH the file path of a .mat
 %   file with arguments defined here. Main args are:
 %   solver = 'ga'
