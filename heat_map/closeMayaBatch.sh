@@ -36,7 +36,7 @@ for i in `seq 1 $NUM_MAYA`;
 do
     CLOSE_PORT=$((${PORT} + $i - 1))
     
-    "$CDIR/maya_comm/sendMaya.rb" $CLOSE_PORT "quit -f"
+    "$CDIR/maya_comm/sendMaya.rb" $CLOSE_PORT "quit -f" &>/dev/null
     
     if [ "$?" -ne 0 ]; then
 	    echo "Could not close Maya:${CLOSE_PORT}"
