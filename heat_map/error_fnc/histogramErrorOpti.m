@@ -58,6 +58,8 @@ end
 
 % Divide by the number of images so that the error function is still in the
 % range of 0..1
+% N.B. Divide by test_imgs and not goal_imgs, so that if two goal images
+% are given but only one test_imgs, it still outputs the right result
 cerror = cerror ./ numel(test_imgs);
 
 assert_valid_range_in_0_1(cerror);
