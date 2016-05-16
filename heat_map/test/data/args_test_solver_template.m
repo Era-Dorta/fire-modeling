@@ -124,7 +124,8 @@ switch solver
         options.MaxFunEvals = maxFunEvals;
         options.Display = 'iter-detailed'; % Give some output on each iteration
         
-        options.OutputFcn = {@gradient_time_limit, @gradplotbestgen};
+        options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
+            @gradsavescores};
     case 'cmaes'
         % Get default values
         options = cmaes('defaults');
