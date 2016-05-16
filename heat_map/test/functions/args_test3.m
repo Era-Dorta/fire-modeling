@@ -13,7 +13,6 @@ args_test_template(args_path);
 
 solver_path = fullfile(data_dir, [mfilename('clas') 'solver.mat']);
 
-solver_path = [mfilename('fullpath') 'solver.mat'];
 L = load(solver_path);
 
 options = L.options;
