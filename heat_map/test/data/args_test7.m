@@ -1,8 +1,7 @@
 function [args_path] = args_test7()
-%ARGS_TEST7 GA, single goal, intersect, 200 Pop
+%ARGS_TEST7 Histogram intersection
 %   ARGS_PATH = ARGS_TEST6() Returns in ARGS_PATH the file path of a .mat
-%   file with arguments defined here. Main args are:
-%   solver = 'ga'
+%   file with arguments defined here.
 %
 %   See also heatMapReconstruction, args_test_template,
 %   args_test_solver_template

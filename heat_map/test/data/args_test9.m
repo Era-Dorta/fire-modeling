@@ -1,8 +1,7 @@
 function [args_path] = args_test9()
-%ARGS_TEST9  GA, single goal, Jensen, 200 Pop
+%ARGS_TEST9  Jensen Shannon
 %   ARGS_PATH = ARGS_TEST9() Returns in ARGS_PATH the file path of a .mat
-%   file with arguments defined here. Main args are:
-%   solver = 'ga'
+%   file with arguments defined here.
 %
 %   See also heatMapReconstruction, args_test_template,
 %   args_test_solver_template

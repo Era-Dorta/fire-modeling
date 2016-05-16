@@ -1,13 +1,7 @@
 function [args_path] = args_test3()
-%ARGS_TEST3 Ga, single goal, 4 Population
+%ARGS_TEST3 4 Population, 20 seconds, 2 genereation
 %   ARGS_PATH = ARGS_TEST3() Returns in ARGS_PATH the file path of a .mat
-%   file with arguments defined here. Main args are:
-%   solver = 'ga'
-%   use_approx_fitness = false;
-%   dist_foo = @histogram_l1_norm;
-%   error_foo = {@histogramDErrorOpti};
-%   PopulationSize = 4;
-%   CreationFcn = @gacreationheuristic1;
+%   file with arguments defined here.
 %
 %   See also heatMapReconstruction, args_test_template,
 %   args_test_solver_template
