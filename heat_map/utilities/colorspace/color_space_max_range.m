@@ -23,9 +23,9 @@ min_color = cell(size(spaces));
 min_color(:) = {zeros(1,1,3) + Inf};
 
 for i=1:numel(spaces)
-    for j=0:1
-        for k=0:1
-            for l=0:1
+    for j=0:255
+        for k=0:255
+            for l=0:255
                 in_img(:,:,1) = j; in_img(:,:,2) = k; in_img(:,:,3) = l;
                 
                 out_color = colorspace([spaces{i},'<-RGB'], double(in_img));
