@@ -1,17 +1,25 @@
 function [ heat_map_v, best_error, exitflag] = do_gradient_solve( ...
     LB, UB,  init_heat_map, fitness_foo, paths_str, ...
-    summary_data, args_path)
+    summary_data, goal_img, args_path)
 % Gradient descent solver for heat map reconstruction
 %% Options for the gradient descent solver
+num_goal = numel(goal_img);
+
 L = load(args_path);
 options = L.options;
 
-if isequal(options.OutputFcn, @gradient_time_limit)
-    startTime = tic;
-    options.OutputFcn = @(x, optimValues, state) gradient_time_limit(x, ...
-        optimValues, state, L.time_limit, startTime);
-else
-    error('Unkown outputFnc in do_gradient_solve');
+for i=1:numel(options.OutputFcn)
+    if isequal(options.OutputFcn{i}, @gradient_time_limit)
+        startTime = tic;
+        options.OutputFcn{i} = @(x, optimValues, state) gradient_time_limit(x, ...
+            optimValues, state, L.time_limit, startTime);
+    elseif isequal(options.OutputFcn{i}, @gradplotbestgen)
+        options.OutputFcn{i} = @(x, optimValues, state) gradplotbestgen(x, ...
+            optimValues, state, paths_str.ite_img, paths_str.output_folder, ...
+            num_goal);
+    else
+        error('Unkown outputFnc in do_gradient_solve');
+    end
 end
 
 LB = ones(init_heat_map.count, 1) * LB;

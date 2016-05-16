@@ -222,7 +222,7 @@ try
                 opts.solver_args_path, prior_fncs);
         case 'grad'
             [heat_map_v, ~, ~] = do_gradient_solve( opts.LB, opts.UB, init_heat_map, ...
-                fitness_foo, paths_str, summary_data, opts.solver_args_path);
+                fitness_foo, paths_str, summary_data, goal_img, opts.solver_args_path);
         case 'cmaes'
             % CMAES gets the data in column order so transpose it for it
             % to work
