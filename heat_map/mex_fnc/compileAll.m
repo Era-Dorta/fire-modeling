@@ -37,4 +37,6 @@ cd(cdir);
 % TODO Move the code to this directory
 % Call extra mex file compiling
 build_dist_fnc;
+
+build_color_space;
 end
