@@ -31,6 +31,8 @@ switch solver
         % creation_fnc_sigma to be saved in the solver.mat file as well.
         options.CreationFcn = @gacreationheuristic1;
         
+        creation_fnc_n_bins = 255;
+        
         % One of @crossoverscattered ,@crossoversinglepoint, @crossovertwopoint
         % @crossoverintermediate, @crossoverheuristic, @gacrossovercombine
         % @gacrossovercombineprior

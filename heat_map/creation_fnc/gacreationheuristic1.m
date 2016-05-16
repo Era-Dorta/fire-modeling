@@ -1,5 +1,5 @@
 function [ InitialPopulation ] = gacreationheuristic1( GenomeLength, FitnessFcn, ...
-    options, c_heat_map, goal_img,  goal_mask, fuel_type, savePath )
+    options, c_heat_map, goal_img,  goal_mask, fuel_type, n_bins, savePath )
 %GACREATIONHEURISTIC1 Create a population for ga
 code_dir = fileparts(fileparts(mfilename('fullpath')));
 bbdata = load([code_dir '/data/CT-' get_fuel_name(fuel_type) '.mat'], ...
@@ -10,12 +10,12 @@ sigma_noise = 250;
 
 %% Compute histogram of the goal image
 
-% Create 256 bins, image can be 0..255
-edges = linspace(0, 255, 256);
+% Create n_bins bins for the histogram
+edges = linspace(0, n_bins, n_bins+1);
 
 % Multi goal optimization, compute the mean histogram of all the goal
 % images
-hc_goal = zeros(3, 255);
+hc_goal = zeros(3, n_bins);
 num_goal = numel(goal_img);
 for i=1:num_goal
     if(size(goal_mask{i}, 3) == 3)

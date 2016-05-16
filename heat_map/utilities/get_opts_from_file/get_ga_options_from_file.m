@@ -25,7 +25,7 @@ if isequal(L.options.CreationFcn, @gacreationheuristic1)
     
     L.options.CreationFcn = @( GenomeLength, FitnessFcn, options) gacreationheuristic1 ...
         (GenomeLength, FitnessFcn, options, init_heat_map, goal_img, ...
-        goal_mask, fuel_type, output_data_path);
+        goal_mask, fuel_type, L.creation_fnc_n_bins, output_data_path);
     
 elseif isequal(L.options.CreationFcn, @gacreationrandom)
     
