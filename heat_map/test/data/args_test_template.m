@@ -32,7 +32,7 @@ symmetric = true; % Symmetric or asymmetric goal image
     goal_mask_img_path, mask_img_path] = get_test_paths(scene_name, ...
     multi_goal, symmetric);
 
-% Threshold for edge detection, by default ignore any pixel that is less 
+% Threshold for edge detection, by default ignore any pixel that is less
 % than 10% foreground
 bin_mask_threshold = zeros(numel(goal_img_path), 1) + 1e-1;
 
@@ -53,17 +53,27 @@ dist_foo = @chi_square_statistics_fast;
 % One of: histogramErrorOpti, histogramDErrorOpti, MSE
 error_foo = {@histogramDErrorOpti};
 
+% Number of histogram bins, used by histogramErrorOpti, histogramDErrorOpti
+% Using 255, as we work with uint images of [0, 255]
+n_bins = 255;
+
+% Number of bins for edge distance, used by histogramDErrorOpti
+n_bins_dist = 15;
+
 % If use_approx_fitness is true, this function will be used in the fitness
 % function, the one above one will used only to check the final result
 approx_error_foo = @histogramErrorApprox;
 
+% Number of histogram bins for the approx_error_foo
+approx_n_bins = 255;
+
 % Prior functions that are added to the error function in the fitness
-% function, any of smoothnessEstimate, smoothnessEstimateGrad, 
+% function, any of smoothnessEstimate, smoothnessEstimateGrad,
 % upHeatEstimate, upHeatEstimateLinear, histogramErrorApprox
 prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimateLinear};
 
 % Temperature threshold for the upHeatEstimateLinear
-temp_th = 50; 
+temp_th = 50;
 
 % Weights used to sum the error function and the prior functions, must be
 % of size prior_fncs + 1, first corresponds to error function

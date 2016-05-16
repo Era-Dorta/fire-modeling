@@ -1,5 +1,5 @@
 function histoE = histogramErrorApprox( v, goal_img, goal_mask, d_foo, ...
-    fuel_type)
+    fuel_type, n_bins)
 %HISTOGRAMERRORAPPROX computes an error measure between v and goal image
 %   HISTOE = HISTOGRAMERRORAPPROX( V, GOAL_IMG, GOAL_MASK ) V is a value
 %   matrix NxM, with N heat maps with M values per heat map. GOAL_IMG is
@@ -8,8 +8,8 @@ function histoE = histogramErrorApprox( v, goal_img, goal_mask, d_foo, ...
 
 persistent CTtable GoalHisto NumGoal
 
-% Create 256 bins, image can be 0..255
-edges = linspace(0, 255, 256);
+% Create n_bins bins
+edges = linspace(0, n_bins, n_bins+1);
 
 if(isempty(CTtable))
     code_dir = fileparts(fileparts(mfilename('fullpath')));
@@ -20,7 +20,7 @@ if(isempty(CTtable))
     GoalHisto = cell(NumGoal, 1);
     
     for i=1:NumGoal
-        GoalHisto{i} = zeros(3, 255);
+        GoalHisto{i} = zeros(3, n_bins);
         
         sub_img = goal_img{i}(:, :, 1);
         GoalHisto{i}(1, :) = histcounts( sub_img(goal_mask{i}), edges);
@@ -43,7 +43,7 @@ num_vol = size(v, 1);
 histoE = zeros(1, num_vol);
 num_temp_inv = 1.0 / numel(v(1, :));
 
-histo_est = zeros(3, 255);
+histo_est = zeros(3, n_bins);
 
 for i=1:num_vol
     % Get the estimated color for each voxel using the table, as the

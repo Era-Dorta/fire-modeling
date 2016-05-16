@@ -1,5 +1,5 @@
 function [ cerror ] = histogramDErrorOpti( goal_imgs, test_imgs, goal_mask, ...
-    img_mask, d_foo)
+    img_mask, d_foo, n_bins, n_bins_dist)
 %HISTOGRAMDERROROPTI Compues an error measure between several images
 %   CERROR = HISTOGRAMDERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
 %   similar to HISTOGRAM_ERROR, assumes RGB images, for the catching
@@ -16,11 +16,8 @@ function [ cerror ] = histogramDErrorOpti( goal_imgs, test_imgs, goal_mask, ...
 
 persistent HC_GOAL
 
-% Create 255 bins, images are uint in the range of 0..255
-edges = linspace(0, 255, 256);
-
-% Number of bins for the distances
-n_bins_dist = 15;
+% Create n_bins bins
+edges = linspace(0, n_bins, n_bins + 1);
 
 % Edges for the distances, distances will be normalized to be able to cope
 % with goal and synthetic images being of different sizes.
@@ -73,7 +70,7 @@ end
 
 cerror = 0;
 hc_test = cell(n_bins_dist, 1);
-hc_test(:) = {zeros(3, 255)}; % Preallocate the memory for the histograms
+hc_test(:) = {zeros(3, n_bins)}; % Preallocate the memory for the histograms
 
 for i=1:numel(test_imgs)
     

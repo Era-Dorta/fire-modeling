@@ -161,8 +161,7 @@ try
     %% Fitness function definition
     
     % Encapsulate the distance function in the error function
-    error_foo{1} = @(x) opts.error_foo{1}(goal_img, x, goal_mask, img_mask, ...
-        opts.dist_foo);
+    error_foo = get_error_fnc_from_file( opts, goal_img, goal_mask, img_mask);
     
     [ prior_fncs, prior_weights ] = get_prior_fncs_from_file( ...
         opts, init_heat_map, goal_img, goal_mask, opts.LB, ...
@@ -173,7 +172,7 @@ try
     if(opts.use_approx_fitness)
         
         approx_error_foo = @(x) opts.approx_error_foo(x, goal_img, goal_mask, ...
-            opts.dist_foo, opts.fuel_type);
+            opts.dist_foo, opts.fuel_type, opts.approx_n_bins);
         
         fitness_foo = @(x)heat_map_fitness_approx(x, approx_error_foo, ...
             prior_fncs, prior_weights);

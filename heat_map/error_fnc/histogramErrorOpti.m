@@ -1,5 +1,5 @@
 function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
-    img_mask, d_foo)
+    img_mask, d_foo, n_bins)
 %HISTOGRAMERROROPTI Compues an error measure between several images
 %   CERROR = HISTOGRAMERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
 %   this is an optimized version of HISTOGRAMERROR, assumes RGB images,
@@ -15,8 +15,8 @@ function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
 
 persistent HC_GOAL TESTIM_FACTOR
 
-% Create 255 bins, images are uint in the range of 0..255
-edges = linspace(0, 255, 256);
+% Create n_bins bins
+edges = linspace(0, n_bins, n_bins+1);
 
 if isempty(HC_GOAL)
     HC_GOAL = cell(numel(goal_imgs), 1);
