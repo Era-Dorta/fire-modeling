@@ -7,16 +7,18 @@ function [args_path] = args_test2()
 %   args_test_solver_template
 
 %% Change common parameters
-args_path = [mfilename('fullpath') '.mat'];
+data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
+args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
+
 args_test_template(args_path);
 
 use_approx_fitness = true; % Using the approximate fitness
 
 % Update the variables that do not match the template
-save(args_path, '*', '-append');
+save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 
 %% Change solver parameters
-solver_path = [mfilename('fullpath') 'solver.mat'];
+solver_path = fullfile(data_dir, [mfilename('clas') 'solver.mat']);
 
 L = load(solver_path);
 

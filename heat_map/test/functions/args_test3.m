@@ -6,8 +6,12 @@ function [args_path] = args_test3()
 %   See also heatMapReconstruction, args_test_template,
 %   args_test_solver_template
 
-args_path = [mfilename('fullpath') '.mat'];
+data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
+args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
+
 args_test_template(args_path);
+
+solver_path = fullfile(data_dir, [mfilename('clas') 'solver.mat']);
 
 solver_path = [mfilename('fullpath') 'solver.mat'];
 L = load(solver_path);

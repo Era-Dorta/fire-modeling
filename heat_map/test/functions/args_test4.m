@@ -7,7 +7,8 @@ function [args_path] = args_test4()
 %   args_test_solver_template
 
 %% Change common parameters
-args_path = [mfilename('fullpath') '.mat'];
+data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
+args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
 args_test_template(args_path);
 
 L = load(args_path);
@@ -22,9 +23,9 @@ symmetric = true; % Symmetric or asymmetric goal image
     multi_goal, symmetric);
 
 % Save all but L
-save(args_path, '-regexp','^(?!(L|multi_goal|symmetric)$).', '-append');
+save(args_path, '-regexp','^(?!(L|multi_goal|symmetric|data_dir)$).', '-append');
 
-solver_path = [mfilename('fullpath') 'solver.mat'];
+solver_path = fullfile(data_dir, [mfilename('clas') 'solver.mat']);
 
 %% Change solver parameters
 clearvars -except solver_path solver args_path

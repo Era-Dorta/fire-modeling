@@ -7,7 +7,8 @@ function [args_path] = args_test15()
 %   args_test_solver_template
 
 %% Change common parameters
-args_path = [mfilename('fullpath') '.mat'];
+data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
+args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
 args_test_template(args_path);
 
 L = load(args_path);
@@ -16,10 +17,10 @@ solver = 'grad';
 use_approx_fitness = true;
 
 % Save all but L
-save(args_path, '-regexp','^(?!(L)$).', '-append');
+save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 
 %% Change solver parameters
-solver_path = [mfilename('fullpath') 'solver.mat'];
+solver_path = fullfile(data_dir, [mfilename('clas') 'solver.mat']);
 args_test_solver_template(solver_path, solver);
 
 end

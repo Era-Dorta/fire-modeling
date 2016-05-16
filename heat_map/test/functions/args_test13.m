@@ -6,7 +6,8 @@ function [args_path] = args_test13()
 %   See also heatMapReconstruction, args_test_template,
 %   args_test_solver_template
 
-args_path = [mfilename('fullpath') '.mat'];
+data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
+args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
 args_test_template(args_path);
 
 L = load(args_path);
@@ -25,6 +26,6 @@ goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/copper-ld
 fuel_type = 4;
 
 % Save all but L
-save(args_path, '-regexp','^(?!(L|multi_goal|symmetric)$).', '-append');
+save(args_path, '-regexp','^(?!(L|multi_goal|symmetric|data_dir)$).', '-append');
 
 end

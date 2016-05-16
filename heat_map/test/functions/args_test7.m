@@ -7,12 +7,13 @@ function [args_path] = args_test7()
 %   args_test_solver_template
 
 %% Change common parameters
-args_path = [mfilename('fullpath') '.mat'];
+data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
+args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
 args_test_template(args_path);
 
 dist_foo = @histogram_intersection;
 
 % Save all but L
-save(args_path, '-regexp','^(?!(L)$).', '-append');
+save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 
 end

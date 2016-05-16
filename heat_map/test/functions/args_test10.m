@@ -6,7 +6,8 @@ function [args_path] = args_test10()
 %   See also heatMapReconstruction, args_test_template,
 %   args_test_solver_template
 
-args_path = [mfilename('fullpath') '.mat'];
+data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
+args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
 args_test_template(args_path);
 
 L = load(args_path);
@@ -21,7 +22,7 @@ symmetric = true; % Symmetric or asymmetric goal image
 goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/pegoraro1.png'};
 goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/pegoraro1-mask.png'};
 
-clearvars('L', 'multi_goal', 'symmetric');
+clearvars('L', 'multi_goal', 'symmetric', 'data_dir');
 
 % Update the variables that do not match the template
 save(args_path, '*', '-append');
