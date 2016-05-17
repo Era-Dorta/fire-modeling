@@ -103,7 +103,7 @@ switch solver
             maxPopulation = 200;
             
             % Save all but args_path and solver
-            save(args_path, '-regexp','^(?!(args_path|solver)$).');
+            save(args_path, '-regexp','^(?!(args_path|solver)$).', '-append');
         end
     case 'sa'
         % Get default values
@@ -160,6 +160,6 @@ switch solver
 end
 
 % Save all but args_path and solver
-save(args_path, '-regexp','^(?!(args_path|solver)$).');
+save(args_path, '-regexp','^(?!(args_path|solver)$).', '-append');
 
 end

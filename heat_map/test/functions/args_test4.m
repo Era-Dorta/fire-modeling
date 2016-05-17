@@ -9,7 +9,7 @@ function [args_path] = args_test4()
 %% Change common parameters
 data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
 args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
-args_test_template(args_path);
+args_test_template(args_path, false);
 
 L = load(args_path);
 
@@ -25,14 +25,12 @@ symmetric = true; % Symmetric or asymmetric goal image
 % Save all but L
 save(args_path, '-regexp','^(?!(L|multi_goal|symmetric|data_dir)$).', '-append');
 
-solver_path = fullfile(data_dir, [mfilename('clas') 'solver.mat']);
-
 %% Change solver parameters
-clearvars -except solver_path solver args_path
+clearvars -except solver args_path
 
-args_test_solver_template(solver_path, solver);
+args_test_solver_template(args_path, solver);
 
-L = load(solver_path);
+L = load(args_path);
 
 options = L.options;
 
@@ -42,7 +40,7 @@ populationScale = 1;
 time_limit = 30; % In seconds
 options.TimeLimit = time_limit;
 
-% Save all but L, solver and solver_path
-save(solver_path, '-regexp','^(?!(L|solver|solver_path|args_path)$).', '-append');
+% Save all but L, solver and 
+save(args_path, '-regexp','^(?!(L|solver|args_path)$).', '-append');
 
 end

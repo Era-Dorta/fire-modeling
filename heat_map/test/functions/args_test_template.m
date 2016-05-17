@@ -1,10 +1,13 @@
-function args_test_template(args_path)
+function args_test_template(args_path, do_solver)
 %ARGS_TEST_TEMPLATE Arguments for heatMapReconstruction
-%   ARGS_TEST_TEMPLATE(ARGS_PATH) Saves in ARGS_PATH the file path of a
-%   .mat file with arguments defined here. Main args are:
+%   ARGS_TEST_TEMPLATE(ARGS_PATH, DO_SOLVER) Saves in ARGS_PATH the file 
+%   path of a .mat file with arguments defined here. DO_SOLVER is an 
+%   optional argument that must be set to false if the solver is going to 
+%   be changed from the default one.
+%   Main args are:
 %   solver = 'ga'
 %   use_approx_fitness = false;
-%   dist_foo = @histogram_l1_norm;
+%   dist_foo = @chi_square_statistics_fast;
 %   error_foo = {@histogramDErrorOpti};
 %   PopulationSize = 200;
 %   CreationFcn = @gacreationheuristic1;
@@ -79,16 +82,14 @@ temp_th = 50;
 % of size prior_fncs + 1, first corresponds to error function
 prior_weights = [1/3, 1/3, 1/3];
 
-% Path were the solver especific variables will be saved
-[pathstr,name,ext] = fileparts(args_path);
-solver_args_path = fullfile(pathstr, [name 'solver' ext]);
+clearvars('multi_goal', 'symmetric');
 
-clearvars('pathstr', 'name', 'ext', 'multi_goal', 'symmetric');
-
-% Save all the variables in a mat file
-save(args_path);
+% Save all the variables in a mat file but the listed below
+save(args_path, '-regexp','^(?!(do_solver)$).');
 
 %% Solver specific arguments
-args_test_solver_template(solver_args_path, solver);
+if nargin == 1 || do_solver
+    args_test_solver_template(args_path, solver);
+end
 
 end
