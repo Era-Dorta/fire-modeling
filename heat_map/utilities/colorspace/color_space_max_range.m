@@ -21,9 +21,9 @@ max_color(:) = {zeros(1,3)};
 min_color = cell(size(spaces));
 min_color(:) = {zeros(1,3) + Inf};
 
-% All combinations of RGB values from 0 to 255.
+% All combinations of RGB values from 0 to 255 normalized to [0,1]
 num_combinations = 256^3;
-in_img = permn(0:255, 3);
+in_img = permn(0:255, 3) ./ 255;
 %Reshape to image format
 in_img = double(reshape(in_img, num_combinations, 1, 3));
 
