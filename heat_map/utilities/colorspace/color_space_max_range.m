@@ -12,14 +12,14 @@ if(exist(out_file_path, 'file'))
     error(['File ' out_file_path ' exits, overwrite not allowed']);
 end
 
-spaces = {'YPbPr', 'YCbCr', 'JPEG-YCbCr', 'YDbDr', 'YIQ','YUV', ...
-    'HSV', 'HSL', 'HSI', 'XYZ', 'Lab', 'Luv', 'LCH', 'CAT02 LMS'};
+spaces = get_color_space_names();
 
 max_color = cell(size(spaces));
-max_color(:) = {zeros(1,3)};
-
 min_color = cell(size(spaces));
-min_color(:) = {zeros(1,3) + Inf};
+
+% Manually add min and max for RGB, we know is normalized [0,1]
+max_color{1} = ones(1,3);
+min_color{1} = zeros(1,3);
 
 % All combinations of RGB values from 0 to 255 normalized to [0,1]
 num_combinations = 256^3;
@@ -27,18 +27,14 @@ in_img = permn(0:255, 3) ./ 255;
 %Reshape to image format
 in_img = double(reshape(in_img, num_combinations, 1, 3));
 
-for i=1:numel(spaces)
+% Compute min and max for the rst of color spaces
+for i=2:numel(spaces)
     out_color = colorspace([spaces{i},'<-RGB'], in_img);
     out_color = reshape(out_color, num_combinations, 3);
     
     max_color{i} = max(out_color);
     min_color{i} = min(out_color);
 end
-
-% Manually add min and max for RGB, we know is normalized [0,1]
-spaces{end + 1} = 'RGB';
-max_color{end + 1} = ones(1,3);
-min_color{end + 1} = zeros(1,3);
 
 save(out_file_path, 'max_color', 'min_color', 'spaces');
 
