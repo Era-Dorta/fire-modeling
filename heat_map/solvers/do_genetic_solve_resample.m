@@ -1,6 +1,6 @@
 function [ heat_map_v, best_error, exitflag] = do_genetic_solve_resample( ...
-    LB, UB, init_heat_map, fitness_foo, paths_str, maya_send, num_goal, ...
-    summary_data, goal_img, goal_mask, fuel_type, args_path, prior_fncs)
+    init_heat_map, fitness_foo, paths_str, maya_send, num_goal, ...
+    summary_data, goal_img, goal_mask, L)
 % Genetics Algorithm solver for heat map reconstruction with heat map
 % resampling scheme for faster convergence
 
@@ -10,9 +10,11 @@ paths_str.summary = [summarydir '/' summaryname];
 
 numMayas = numel(maya_send);
 
-%% Options for the ga
-L = load(args_path);
+% Get prior functions with adjustable size
+prior_fncs = get_prior_fncs_from_file( L, init_heat_map, goal_img, ...
+    goal_mask, 'fitness', false);
 
+%% Options for the ga
 A = [];
 b = [];
 Aeq = [];
@@ -56,8 +58,8 @@ for i=1:num_ite
     output_data_path = [paths_str.output_folder 'OutputData' ...
         size_str '.mat'];
     
-    options = get_ga_options_from_file( args_path, d_heat_map{i}, goal_img, ...
-        goal_mask, output_data_path, paths_str, LB, UB, fuel_type, i == 1);
+    options = get_ga_options_from_file( L, d_heat_map{i}, goal_img, ...
+        goal_mask, output_data_path, paths_str, i == 1);
     
     % Divide the time equally between each GA loop
     options.TimeLimit = L.time_limit / num_ite;
@@ -72,8 +74,8 @@ for i=1:num_ite
     options.Generations = max(fix(L.max_ite / options.PopulationSize), 1);
     
     % Upper and lower bounds
-    LB1 = ones(d_heat_map{i}.count, 1) * LB;
-    UB1 = ones(d_heat_map{i}.count, 1) * UB;
+    LB1 = ones(d_heat_map{i}.count, 1) * L.LB;
+    UB1 = ones(d_heat_map{i}.count, 1) * L.UB;
     
     %% Set the initial population function generator
     
@@ -138,26 +140,23 @@ for i=1:num_ite
     
     %% Save summary file
     % In the summary file just say were the init population file was saved
-    extra_data = load(args_path);
-    extra_data.options.InitialPopulation = output_data_path;
-    extra_data.options.TimeLimit = options.TimeLimit;
-    extra_data.options.PopulationSize = options.PopulationSize;
-    extra_data.options.Generations = options.Generations;
-    
     summary_data.OptimizationMethod = 'Genetic Algorithms Resample';
     summary_data.ImageError = best_error;
     summary_data.HeatMapSize = d_heat_map{i}.size;
     summary_data.HeatMapNumVariables = d_heat_map{i}.count;
     summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
     summary_data.OuputDataFile = output_data_path;
+    summary_data.options.InitialPopulation = output_data_path;
+    summary_data.options.TimeLimit = options.TimeLimit;
+    summary_data.options.PopulationSize = options.PopulationSize;
+    summary_data.options.Generations = options.Generations;
     
     % Save the last one without the iteration number
     if i < num_ite
-        save_summary_file([paths_str.summary size_str summaryext], summary_data, ...
-            extra_data);
+        save_summary_file([paths_str.summary size_str summaryext], ...
+            summary_data, []);
     else
-        save_summary_file([paths_str.summary summaryext], summary_data, ...
-            extra_data);
+        save_summary_file([paths_str.summary summaryext], summary_data, []);
     end
     
     save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');

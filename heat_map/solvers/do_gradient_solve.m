@@ -1,6 +1,5 @@
 function [ heat_map_v, best_error, exitflag] = do_gradient_solve( ...
-    LB, UB,  init_heat_map, fitness_foo, paths_str, ...
-    summary_data, goal_img, args_path)
+    init_heat_map, fitness_foo, paths_str, summary_data, goal_img, L)
 % Gradient descent solver for heat map reconstruction
 %% Options for the gradient descent solver
 num_goal = numel(goal_img);
@@ -8,7 +7,6 @@ num_goal = numel(goal_img);
 % Path where the initial population will be saved
 output_data_path = [paths_str.output_folder 'OutputData.mat'];
 
-L = load(args_path);
 options = L.options;
 
 for i=1:numel(options.OutputFcn)
@@ -29,8 +27,8 @@ for i=1:numel(options.OutputFcn)
     end
 end
 
-LB = ones(init_heat_map.count, 1) * LB;
-UB = ones(init_heat_map.count, 1) * UB;
+LB = ones(init_heat_map.count, 1) * L.LB;
+UB = ones(init_heat_map.count, 1) * L.UB;
 
 A = [];
 b = [];
@@ -74,13 +72,13 @@ summary_data.OuputDataFile = output_data_path;
 % For gradient, options is a class, convert it to struct to use it in the
 % save summary function, the struct() function also copies the private data
 % so copy the public one manually
-fields = fieldnames(L.options);
+fields = fieldnames(summary_data.options);
 for i=1:numel(fields)
-    opt_struct.(fields{i}) = L.options.(fields{i});
+    opt_struct.(fields{i}) = summary_data.options.(fields{i});
 end
-L.options = opt_struct;
+summary_data.options = opt_struct;
 
-save_summary_file(paths_str.summary, summary_data, L);
+save_summary_file(paths_str.summary, summary_data, []);
 
 end
 

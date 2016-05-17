@@ -1,19 +1,18 @@
-function [ heat_map_v, best_error, exitflag] = do_cmaes_solve( LB, UB, ...
-    init_heat_map, fitness_foo, paths_str, summary_data, parallel, ...
-    args_path)
+function [ heat_map_v, best_error, exitflag] = do_cmaes_solve( ...
+    init_heat_map, fitness_foo, paths_str, summary_data, ...
+    L)
 %DO_CMAES_SOLVE CMAES solver for heat map reconstruction
 %% Options for the CMAES
-L = load(args_path);
 options = L.options;
-options.LBounds = LB;
-options.UBounds = UB;
+options.LBounds = L.LB;
+options.UBounds = L.UB;
 
 % Set guess point to be the mean of the bounds
-InitialPopulation = ones(init_heat_map.count, 1) * mean([LB, UB]);
+InitialPopulation = ones(init_heat_map.count, 1) * mean([L.LB, L.UB]);
 
 % The solution should be in the range of x0 +- 2 * sigma_0
 % according to the cmaes documentation
-sigma_0 = mean([LB, UB]) / 2;
+sigma_0 = mean([L.LB, L.UB]) / 2;
 
 % Path where the initial population will be saved
 init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
@@ -45,7 +44,7 @@ summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 summary_data.InitGuessFile = init_population_path;
 summary_data.sigma_0 = sigma_0;
 
-save_summary_file(paths_str.summary, summary_data, L);
+save_summary_file(paths_str.summary, summary_data, []);
 
 
 end

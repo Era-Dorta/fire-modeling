@@ -1,12 +1,11 @@
 function [ heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
-    LB, UB,  init_heat_map, fitness_foo, paths_str, summary_data, args_path)
+    init_heat_map, fitness_foo, paths_str, summary_data, L)
 % Simulated Annealing solver for heat map reconstruction
 %% Options for the SA
 
-L = load(args_path);
 options = L.options;
 
-options.InitialTemperature = options.InitialTemperature * (UB - LB);
+options.InitialTemperature = options.InitialTemperature * (L.UB - L.LB);
 
 % Matlab is using cputime to measure time limits in GA and Simulated
 % Annealing solvers, which just doesn't work with multiple cores and
@@ -20,8 +19,8 @@ else
     error('Unkown outputFnc in do_simulanneal_solve');
 end
 
-LB = ones(init_heat_map.count, 1) * LB;
-UB = ones(init_heat_map.count, 1) * UB;
+LB = ones(init_heat_map.count, 1) * L.LB;
+UB = ones(init_heat_map.count, 1) * L.UB;
 
 % Initial guess for SA, is a row vector
 % init_guess = init_heat_map.v';
@@ -41,14 +40,14 @@ totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
 %% Save summary file
-
 summary_data.OptimizationMethod = 'Simulated Annealing';
 summary_data.ImageError = best_error;
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 summary_data.InitGuessFile = init_heat_map.filename;
+summary_data.InitialTemperature = options.InitialTemperature;
 
-save_summary_file(paths_str.summary, summary_data, L);
+save_summary_file(paths_str.summary, summary_data, []);
 end
 

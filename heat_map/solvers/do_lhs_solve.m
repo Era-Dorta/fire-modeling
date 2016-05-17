@@ -1,11 +1,10 @@
 function [ heat_map_v, best_error, exitflag] = do_lhs_solve( ...
-    LB, UB, init_heat_map, fitness_foo, paths_str, summary_data, args_path)
+    init_heat_map, fitness_foo, paths_str, summary_data, L)
 %DO_LHS_SOLVE LHS solver for heat map reconstruction
 % Simple Latin Hypercube Sampler solver, randomly samples the space and
 % takes the best individual
 
 %% Options for the LHS
-L = load(args_path);
 options = L.options;
 
 exitflag = 1;
@@ -15,7 +14,7 @@ lhs = lhsdesign(options.MaxIter, init_heat_map.count);
 
 % Scale the lhs to span [LB, UB]
 for i=1:options.MaxIter
-    lhs(i,:) = fitToRange(lhs(i,:), 0, 1, LB, UB);
+    lhs(i,:) = fitToRange(lhs(i,:), 0, 1, L.LB, L.UB);
 end
 
 best_error = Inf;
@@ -69,6 +68,6 @@ summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 
-save_summary_file(paths_str.summary, summary_data, L);
+save_summary_file(paths_str.summary, summary_data, []);
 end
 

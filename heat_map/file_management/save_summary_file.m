@@ -2,7 +2,11 @@ function save_summary_file( summary_file, summary_data, options )
 % Save a summary file for the optimization method
 
 % Save the data in a mat file
-save([summary_file '.mat'], 'summary_data', 'options');
+if isempty(options)
+    save([summary_file '.mat'], 'summary_data');
+else
+    save([summary_file '.mat'], 'summary_data', 'options');
+end
 
 % Also save it in a text file
 summary_file = [summary_file '.txt'];
@@ -32,10 +36,12 @@ fprintf(fileId, '%s is %s\n', C{:});
 
 %% Save the other options for the algorithm
 
-% Convert options struct to cellstr
-C = struct2cellstr(options);
-
-fprintf(fileId, '%s is %s\n', C{:});
+if ~isempty(options)
+    % Convert options struct to cellstr
+    C = struct2cellstr(options);
+    
+    fprintf(fileId, '%s is %s\n', C{:});
+end
 
 %% Close the file and give the user some info
 

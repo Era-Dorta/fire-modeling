@@ -1,9 +1,9 @@
 function [ prior_fncs, prior_weights, nCandidates ] = ...
     get_prior_fncs_from_file( L, init_heat_map, goal_img, ...
-    goal_mask, lb, ub, fuel_type, fnc_type, fixed_size)
+    goal_mask, fnc_type, fixed_size)
 %GET_PRIOR_FNCS_FROM_FILE Sets GA operator options
 %   [ PRIOR_FNCS, PRIOR_WEIGHTS, NCANDIDATES ] = GET_PRIOR_FNCS_FROM_FILE(
-%   ARGS_PATH, INIT_HEAT_MAP, GOAL_IMG, GOAL_MASK, LB, UB, FNC_TYPE)
+%   L, INIT_HEAT_MAP, GOAL_IMG, GOAL_MASK, FNC_TYPE)
 %
 %   See also get_ga_options_from_file
 
@@ -33,10 +33,10 @@ for i=1:num_prior_fncs
         
         if fixed_size
             prior_fncs{i} = @(v) smoothnessEstimateGrad(init_heat_map.xyz, v,  ...
-                init_heat_map.size, lb, ub);
+                init_heat_map.size, L.LB, L.UB);
         else
             prior_fncs{i} = @(v, xyz, whd) smoothnessEstimateGrad(xyz, v,  ...
-                whd, lb, ub);
+                whd, L.LB, L.UB);
         end
         
     elseif isequal(prior_fncs{i}, @upHeatEstimate)
@@ -52,16 +52,16 @@ for i=1:num_prior_fncs
         
         if fixed_size
             prior_fncs{i} = @(v) upHeatEstimateLinear(init_heat_map.xyz, v, ...
-                init_heat_map.size, temp_th, lb, ub);
+                init_heat_map.size, temp_th, L.LB, L.UB);
         else
             prior_fncs{i} = @(v, xyz, whd) upHeatEstimateLinear(xyz, v, whd, ...
-                temp_th, lb, ub);
+                temp_th, L.LB, L.UB);
         end
         
     elseif isequal(prior_fncs{i}, @histogramErrorApprox)
         
         prior_fncs{i} = @(v) histogramErrorApprox(v, goal_img, goal_mask, ...
-            fuel_type);
+            L.fuel_type);
         
     else
         error(['Unkown prior function ' args_path]);
