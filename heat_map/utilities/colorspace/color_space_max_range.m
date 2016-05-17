@@ -9,7 +9,7 @@ function [out_file_path] = color_space_max_range()
 out_file_path = fullfile(fileparts(mfilename('fullpath')), 'colors_range.mat');
 
 if(exist(out_file_path, 'file'))
-    % error(['File ' out_file_path ' exits, overwrite not allowed']);
+    error(['File ' out_file_path ' exits, overwrite not allowed']);
 end
 
 spaces = {'YPbPr', 'YCbCr', 'JPEG-YCbCr', 'YDbDr', 'YIQ','YUV', ...
