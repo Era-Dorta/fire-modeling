@@ -1,8 +1,8 @@
 function args_test_template(args_path, do_solver)
 %ARGS_TEST_TEMPLATE Arguments for heatMapReconstruction
-%   ARGS_TEST_TEMPLATE(ARGS_PATH, DO_SOLVER) Saves in ARGS_PATH the file 
-%   path of a .mat file with arguments defined here. DO_SOLVER is an 
-%   optional argument that must be set to false if the solver is going to 
+%   ARGS_TEST_TEMPLATE(ARGS_PATH, DO_SOLVER) Saves in ARGS_PATH the file
+%   path of a .mat file with arguments defined here. DO_SOLVER is an
+%   optional argument that must be set to false if the solver is going to
 %   be changed from the default one.
 %   Main args are:
 %   solver = 'ga'
@@ -38,6 +38,10 @@ symmetric = true; % Symmetric or asymmetric goal image
 % Threshold for edge detection, by default ignore any pixel that is less
 % than 10% foreground
 bin_mask_threshold = zeros(numel(goal_img_path), 1) + 1e-1;
+
+% Any of {'RGB', 'YPbPr', 'YCbCr', 'JPEG-YCbCr', 'YDbDr', 'YIQ','YUV', ...
+% 'HSV', 'HSL', 'HSI', 'XYZ', 'Lab', 'Luv', 'LCH', 'CAT02 LMS'};
+color_space = 'RGB';
 
 rand_seed = 'default';
 

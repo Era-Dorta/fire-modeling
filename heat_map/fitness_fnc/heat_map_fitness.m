@@ -1,6 +1,6 @@
 function [ error_v ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
-    id, num_goal, prior_fncs, prior_weights)
+    id, num_goal, prior_fncs, prior_weights, color_space)
 %HEAT_MAP_FITNESS Heat map fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
@@ -100,13 +100,16 @@ for pop=1:size(heat_map_v, 1)
             c_img{i} = c_img{i}(:,:,1:3); % Transparency is not used, so ignore it
         end
         
+        % Transform the image to a new color space
+        c_img_converted = colorspace_transform_imgs(c_img, 'RGB', color_space);
+        
         % Evaluate all the error functions, usually only one will be given
         for i=1:num_error_foos
             if(any(cellfun(@(x)sum(x(:)), c_img) == 0))
                 % If any of the rendered image is completely black set the error manually
                 error_v(i, pop) = 1;
             else
-                error_v(i, pop) = sum(error_foo{i}(c_img));
+                error_v(i, pop) = sum(error_foo{i}(c_img_converted));
             end
         end
         

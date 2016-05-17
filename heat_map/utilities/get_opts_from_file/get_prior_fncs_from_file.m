@@ -61,7 +61,7 @@ for i=1:num_prior_fncs
     elseif isequal(prior_fncs{i}, @histogramErrorApprox)
         
         prior_fncs{i} = @(v) histogramErrorApprox(v, goal_img, goal_mask, ...
-            L.fuel_type);
+            L.fuel_type, L.color_space);
         
     else
         error(['Unkown prior function ' args_path]);

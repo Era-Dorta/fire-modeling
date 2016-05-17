@@ -1,5 +1,5 @@
 function histoE = histogramErrorApprox( v, goal_img, goal_mask, d_foo, ...
-    fuel_type, n_bins)
+    fuel_type, n_bins, color_space)
 %HISTOGRAMERRORAPPROX computes an error measure between v and goal image
 %   HISTOE = HISTOGRAMERRORAPPROX( V, GOAL_IMG, GOAL_MASK ) V is a value
 %   matrix NxM, with N heat maps with M values per heat map. GOAL_IMG is
@@ -12,10 +12,18 @@ persistent CTtable GoalHisto NumGoal
 edges = linspace(0, n_bins, n_bins+1);
 
 if(isempty(CTtable))
+    % Get Color-Temperature table
     code_dir = fileparts(fileparts(mfilename('fullpath')));
     CTtable = load([code_dir '/data/CT-' get_fuel_name(fuel_type) '.mat'], ...
         '-ascii');
     
+    % Conver the RGB values in the Color-Temperature table to a new color
+    % space
+    colorsCT = reshape(CTtable(:,2:4), size(CTtable, 1), 1, 3);
+    colorsCT = colorspace_transform_imgs({colorsCT}, 'RGB', color_space);
+    CTtable(:,2:4) = reshape(colorsCT{1}, size(CTtable, 1), 3);
+    
+    % Precompute histograms for the goal image/s
     NumGoal = numel(goal_img);
     GoalHisto = cell(NumGoal, 1);
     

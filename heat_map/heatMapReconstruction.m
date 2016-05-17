@@ -151,6 +151,9 @@ try
     summary_data.p_mask_img_path = save_cell_images( img_mask, ...
         norm_names, preprocessed_path);
     
+    % Do colour conversion if needed
+    goal_img = colorspace_transform_imgs(goal_img, 'RGB', opts.color_space);
+    
     %% Summary extra data
     summary_data.NumMaya = numMayas;
     summary_data.bin_mask_threshold = bin_mask_threshold';
@@ -171,7 +174,7 @@ try
     if(opts.use_approx_fitness)
         
         approx_error_foo = @(x) opts.approx_error_foo(x, goal_img, goal_mask, ...
-            opts.dist_foo, opts.fuel_type, opts.approx_n_bins);
+            opts.dist_foo, opts.fuel_type, opts.approx_n_bins, opts.color_space);
         
         fitness_foo = @(x)heat_map_fitness_approx(x, approx_error_foo, ...
             prior_fncs, prior_weights);
@@ -179,7 +182,7 @@ try
         fitness_foo = @(x)heat_map_fitness_par(x, init_heat_map.xyz,  ...
             init_heat_map.size, error_foo, opts.scene_name, opts.scene_img_folder,  ...
             output_img_folder_name, maya_send, num_goal, prior_fncs, ...
-            prior_weights);
+            prior_weights, opts.color_space);
     end
     
     %% Solver call
@@ -203,7 +206,7 @@ try
                 fitness_foo = @(v, xyz, whd, prior_fncs) ...
                     heat_map_fitness_par(v, xyz, whd, error_foo, ...
                     opts.scene_name, opts.scene_img_folder, output_img_folder_name, ...
-                    maya_send, num_goal, prior_fncs, prior_weights);
+                    maya_send, num_goal, prior_fncs, prior_weights, opts.color_space);
             end
             
             % Extra paths needed in the solver
@@ -225,7 +228,7 @@ try
                 fitness_foo = @(x)heat_map_fitness_par(x', init_heat_map.xyz,  ...
                     init_heat_map.size, error_foo, opts.scene_name, opts.scene_img_folder,  ...
                     output_img_folder_name, maya_send, num_goal, prior_fncs, ...
-                    prior_weights);
+                    prior_weights, opts.color_space);
             end
             
             heat_map_v = do_cmaes_solve( init_heat_map, fitness_foo, ...
@@ -296,6 +299,8 @@ try
             c_img{i} = c_img{i}(:,:,1:3); % Transparency is not used, so ignore it
         end
         
+        c_img = colorspace_transform_imgs(c_img, 'RGB', opts.color_space);
+        
         clear_cache; % Clear the fnc cache as we are evaluating again
         
         L.summary_data.RealError = sum(error_foo{1}(c_img));
@@ -314,6 +319,7 @@ try
         
         c_img = imread([output_img_folder 'optimized-Cam1.tif']);
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
+        c_img = colorspace_transform_imgs(c_img, 'RGB', opts.color_space);
         
         clear_cache; % Clear the fnc cache as we are evaluating again
         

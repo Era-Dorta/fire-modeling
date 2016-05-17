@@ -1,5 +1,6 @@
 function [ InitialPopulation ] = gacreationheuristic1( GenomeLength, FitnessFcn, ...
-    options, c_heat_map, goal_img,  goal_mask, fuel_type, n_bins, savePath )
+    options, c_heat_map, goal_img,  goal_mask, fuel_type, n_bins, ...
+    color_space, savePath )
 %GACREATIONHEURISTIC1 Create a population for ga
 code_dir = fileparts(fileparts(mfilename('fullpath')));
 bbdata = load([code_dir '/data/CT-' get_fuel_name(fuel_type) '.mat'], ...
@@ -7,6 +8,13 @@ bbdata = load([code_dir '/data/CT-' get_fuel_name(fuel_type) '.mat'], ...
 
 mean_noise = 0;
 sigma_noise = 250;
+
+% Conver the RGB values in the Color-Temperature table to a new color
+% space
+colorsCT = reshape(bbdata(:,2:4), size(bbdata, 1), 1, 3);
+colorsCT = colorspace_transform_imgs({colorsCT}, 'RGB', color_space);
+bbdata(:,2:4) = reshape(colorsCT{1}, size(bbdata, 1), 3);
+
 
 %% Compute histogram of the goal image
 
