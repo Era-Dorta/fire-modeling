@@ -35,6 +35,11 @@ for i=1:numel(spaces)
     min_color{i} = min(out_color);
 end
 
+% Manually add min and max for RGB, we know is normalized [0,1]
+spaces{end + 1} = 'RGB';
+max_color{end + 1} = ones(1,3);
+min_color{end + 1} = zeros(1,3);
+
 save(out_file_path, 'max_color', 'min_color', 'spaces');
 
 end
