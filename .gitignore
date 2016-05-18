@@ -1,3 +1,7 @@
+# Log files
+mayaLog-*.log
+matlab*.log
+
 # Gedit backup files
 *~
 
