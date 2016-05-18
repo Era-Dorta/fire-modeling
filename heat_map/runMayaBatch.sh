@@ -39,7 +39,7 @@ function runSingleMayaLog()
 	    return 0
     fi
     
-    local LOGNAME="mayaLog-${PORT}.txt"
+    local LOGNAME="mayaLog-${PORT}.log"
     > "${LOGNAME}" # Create/Truncate the file
 
 	# Redirect with >> so the file can be truncated by each Matlab run

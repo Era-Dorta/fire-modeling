@@ -5,7 +5,7 @@ function empty_maya_log_files( logfile, ports)
 % Empty maya log files, one for each Maya instance
 logs_ori_folder = fileparts(logfile);
 for i=1:numel(ports)
-    log_name = ['mayaLog-' num2str(ports(i)) '.txt'];
+    log_name = ['mayaLog-' num2str(ports(i)) '.log'];
     log_ori_path = fullfile(logs_ori_folder, log_name);
     
     fileId = fopen(log_ori_path, 'w');
