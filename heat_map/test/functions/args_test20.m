@@ -11,15 +11,10 @@ data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
 args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
 args_test_template(args_path);
 
-L = load(args_path);
-
 % 80% Color matching, 15% smoothness, 5% heat up
 prior_weights = [0.8, 0.15, 0.05];
 
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
-
-% Update solver parameters
-args_test_solver_template(args_path, solver);
 
 end
