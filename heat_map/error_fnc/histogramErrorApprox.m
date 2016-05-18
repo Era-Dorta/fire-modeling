@@ -9,7 +9,7 @@ function histoE = histogramErrorApprox( v, goal_img, goal_mask, d_foo, ...
 persistent CTtable GoalHisto NumGoal
 
 % Create n_bins bins
-edges = linspace(0, n_bins, n_bins+1);
+edges = linspace(0, 255, n_bins+1);
 
 if(isempty(CTtable))
     % Get Color-Temperature table

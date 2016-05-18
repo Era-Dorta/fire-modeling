@@ -17,7 +17,7 @@ function [ cerror ] = histogramDErrorOpti( goal_imgs, test_imgs, goal_mask, ...
 persistent HC_GOAL
 
 % Create n_bins bins
-edges = linspace(0, n_bins, n_bins + 1);
+edges = linspace(0, 255, n_bins + 1);
 
 % Edges for the distances, distances will be normalized to be able to cope
 % with goal and synthetic images being of different sizes.

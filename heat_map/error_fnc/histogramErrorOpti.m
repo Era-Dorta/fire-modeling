@@ -16,7 +16,7 @@ function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
 persistent HC_GOAL TESTIM_FACTOR
 
 % Create n_bins bins
-edges = linspace(0, n_bins, n_bins+1);
+edges = linspace(0, 255, n_bins+1);
 
 if isempty(HC_GOAL)
     HC_GOAL = cell(numel(goal_imgs), 1);

@@ -19,7 +19,7 @@ bbdata(:,2:4) = reshape(colorsCT{1}, size(bbdata, 1), 3);
 %% Compute histogram of the goal image
 
 % Create n_bins bins for the histogram
-edges = linspace(0, n_bins, n_bins+1);
+edges = linspace(0, 255, n_bins+1);
 
 % Multi goal optimization, compute the mean histogram of all the goal
 % images
