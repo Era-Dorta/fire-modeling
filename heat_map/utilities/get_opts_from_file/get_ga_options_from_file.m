@@ -25,6 +25,13 @@ if isequal(L.options.CreationFcn, @gacreationheuristic1)
         goal_mask, L.fuel_type, L.creation_fnc_n_bins, L.color_space, ...
         output_data_path);
     
+elseif isequal(L.options.CreationFcn, @gacreationheuristic2)
+    
+    L.options.CreationFcn = @( GenomeLength, FitnessFcn, options) ...
+        gacreationheuristic2 (GenomeLength, FitnessFcn, options,  ...
+        init_heat_map, goal_img, goal_mask, L.fuel_type, L.color_space, ...
+        output_data_path);
+    
 elseif isequal(L.options.CreationFcn, @gacreationrandom)
     
     L.options.CreationFcn = @(x, y, z)gacreationrandom(x , y, z, output_data_path);

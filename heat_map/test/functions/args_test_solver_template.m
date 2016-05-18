@@ -25,10 +25,12 @@ switch solver
         options.StallGenLimit = 3;
         options.Vectorized = 'on';
         
-        % One of @gacreationheuristic1, @gacreationrandom, @gacreationfrominitguess
-        % @gacreationlinspace, @gacreationuniform, @gacreationlinearfeasible
-        % @gacreationfrominitguess needs the variables creation_fnc_mean and
-        % creation_fnc_sigma to be saved in the solver.mat file as well.
+        % One of the following:
+        % @gacreationrandom, @gacreationfrominitguess, @gacreationlinspace, 
+        % @gacreationuniform, @gacreationlinearfeasible, 
+        % @gacreationheuristic1, @gacreationheuristic2, 
+        % @gacreationfrominitguess needs the variables creation_fnc_mean,
+        % and creation_fnc_sigma to be saved in the solver.mat file as well.
         options.CreationFcn = @gacreationheuristic1;
         
         creation_fnc_n_bins = 255;
