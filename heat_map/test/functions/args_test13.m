@@ -23,7 +23,7 @@ goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/copper-ld.png'};
 goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/copper-ld-mask.png'};
 
 % Cu
-fuel_type = 4;
+fuel_type = 5;
 
 % Save all but L
 save(args_path, '-regexp','^(?!(L|multi_goal|symmetric|data_dir)$).', '-append');
