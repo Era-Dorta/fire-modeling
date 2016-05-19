@@ -51,6 +51,18 @@ save(output_data_path, 'InitialPopulation');
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
+%% If grad_time_limit made it stop, @gradsavescores was not called, so we
+% do it manually here
+if exitflag == -1 % Fail by output function
+    for i=1:numel(L.options.OutputFcn) % Check for gradsavescores
+        if isequal(L.options.OutputFcn{i}, @gradsavescores)
+            % Call the anonymous version which already includes the save path
+            options.OutputFcn{i}([], [], 'done');
+            break;
+        end
+    end
+end
+
 %% Save data to file
 FinalScores = best_error;
 FinalPopulation = heat_map_v;
