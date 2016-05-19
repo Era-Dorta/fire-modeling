@@ -55,8 +55,8 @@ try
     error_figure = [output_img_folder 'error_function'];
     paths_str = struct('summary',  summary_file, 'errorfig', error_figure, ...
         'output_folder',  output_img_folder, 'ite_img', [output_img_folder  ...
-        'current1-Cam'], 'visualization_fig_path', [output_img_folder ...
-        'solver-visualization-2D']);
+        'current1-Cam'], 'visualization_fig_path', fullfile(output_img_folder, ...
+        'visualization', 'solver-2D-ite'));
     
     %% Read goal and mask image/s
     num_goal = numel(opts.goal_img_path);
@@ -90,6 +90,7 @@ try
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
     mkdir(opts.scene_img_folder, output_img_folder_name);
+    mkdir(output_img_folder, 'visualization');
     
     %% Maya initialization
     % TODO Render once and test if an image is created, if not -> activate

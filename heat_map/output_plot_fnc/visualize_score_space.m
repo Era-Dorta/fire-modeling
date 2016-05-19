@@ -1,11 +1,13 @@
 function visualize_score_space( data_file, fig_save_path )
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+%VISUALIZE_SCORE_SPACE Create plots of GA population in 2D space
+%   VISUALIZE_SCORE_SPACE( DATA_FILE, FIG_SAVE_PATH )
+
 
 %% Load data and compute multidimensional scaling
 L = load(data_file);
 
-in_data = [L.InitialPopulation; L.FinalPopulation; L.BestPopGen];
+in_data = [L.AllPopulation];
+scores = L.AllScores;
 
 pairDists = pdist(in_data, 'euclidean');
 
@@ -19,44 +21,101 @@ else
     fig_h = figure('Position', [1316 28 570 422]);
 end
 
-% First scatter text in legend appears as blue do to bug in Matlab 2015b,
-% do a fake plot with the same color, save the handle and hide the plot
-hl(1) = plot(1, 1, 'gx');
-hl(1).Visible = 'off';
+popSize = L.PopulationSize;
+num_iterations = size(in_data, 1) / popSize;
+min_idx = [0, 0];
 
-hold on;
-
-% Plot initial population
 offset = 0;
-current_size = size(L.InitialPopulation, 1);
-scatter(Y(1: current_size + offset, 1), Y(1: current_size + offset,2), 'gx');
 
-% Plot final population
-offset = offset + current_size;
-current_size = size(L.FinalPopulation, 1);
-hl(2) = scatter(Y(offset+1: current_size+offset, 1), Y(offset+1:current_size+offset,2), 'bx');
+%% Plot once to get axis limits
+scatter(Y(:, 1), Y(:,2));
+x_axis_lim = xlim();
+y_axis_lim = ylim();
 
-% Plot the best per generation
-offset = offset + current_size;
-current_size = size(L.BestPopGen, 1);
+%% Simple case with one iteration only
+if num_iterations == 1
+    i = 1;
+    
+    clf(fig_h);
+    
+    hold on;
+    xlim(x_axis_lim);
+    ylim(y_axis_lim);
+    
+    % Scatter has a legend color bug, do some hidden plots to get the
+    % colors right in the legend
+    hl1 = plot(1, 1, 'gx');
+    hl1.Visible = 'off';
+    
+    scatter(Y(offset+1: popSize+offset, 1), Y(offset+1:popSize+offset,2), 'gx');
+    
+    [~, min_idx(1)] = min(scores(i,:));
+    min_idx(1) = min_idx(1) + offset;
+    
+    % Start with a star
+    hl2 = plot(Y(min_idx(1), 1), Y(min_idx(1),2), '*r');
+    
+    % Legend using only the handlers that we are interested in
+    h_legend = legend([hl1, hl2], 'Initial Population',  ...
+        'Optimization Path Start Point' , 'Location', 'northoutside', ...
+        'Orientation','horizontal');
+    h_legend.FontSize = 6;
+    hold off;
+    
+    istr = sprintf('%03d', i - 1);
+    saveas(fig_h, [fig_save_path istr], 'svg');
+    return;
+end
 
-% Start with a star
-hl(3) = plot(Y(offset+1, 1), Y(offset+1,2), '*r');
+%% Do a plot for each iteration
+for i=1:num_iterations-1
+    clf(fig_h);
+    
+    hold on;
+    
+    % Set common limits so that visualization becomes easier
+    xlim(x_axis_lim);
+    ylim(y_axis_lim);
+    
+    % Scatter has a legend color bug, do some hidden plots to get the
+    % colors right in the legend
+    hl1 = plot(1, 1, 'gx');
+    hl1.Visible = 'off';
+    hl2 = plot(1, 1, 'bx');
+    hl2.Visible = 'off';
+    
+    scatter(Y(offset+1: popSize+offset, 1), Y(offset+1:popSize+offset,2), 'gx');
+    
+    [~, min_idx(1)] = min(scores(i,:));
+    min_idx(1) = min_idx(1) + offset;
+    
+    offset = offset + popSize;
+    
+    scatter(Y(offset+1: popSize+offset, 1), Y(offset+1:popSize+offset,2), 'bx');
+    
+    [~, min_idx(2)] = min(scores(i+1,:));
+    min_idx(2) = min_idx(2) + offset;
+    
+    % Start with a star
+    hl3 = plot(Y(min_idx(1), 1), Y(min_idx(1),2), '*r');
+    
+    % Line from start to second
+    plot(Y(min_idx(1:2), 1), Y(min_idx(1:2),2), '--r');
+    
+    % End with a o
+    hl4 = plot(Y(min_idx(2), 1), Y(min_idx(2), 2), '--or');
+    
+    % Legend using only the handlers that we are interested in
+    h_legend = legend([hl1, hl2, hl3, hl4], 'Initial Population', 'Final Population', ...
+        'Start Point', 'Optimization Path', 'Location', ...
+        'northoutside', 'Orientation', 'horizontal');
+    h_legend.FontSize = 6;
+    hold off;
+    
+    istr = sprintf('%03d', i - 1);
+    % print(fig_h, [fig_save_path istr], '-dtiff');
+    saveas(fig_h, [fig_save_path istr], 'svg');
+end
 
-% Line from start to second
-plot(Y(offset+1:offset+2, 1), Y(offset+1:offset+2,2), '--r');
-
-% Line with markers from second to final
-hl(4) = plot(Y(offset+2:current_size+offset, 1), Y(offset+2:current_size+offset,2), '--or');
-
-% Legend using only the handlers that we are interested in
-legend(hl, 'Initial Population', 'Final Population', ...
-    'Optimization Path Start Point', 'Optimization Path');
-
-hold off;
-
-%% Save the figures
-print(fig_h, fig_save_path, '-dtiff');
-saveas(fig_h, fig_save_path, 'svg');
 end
 

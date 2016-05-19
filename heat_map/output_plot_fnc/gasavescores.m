@@ -9,26 +9,26 @@ function [state, options, optchanged] = gasavescores(options, state, ...
 %
 %   See also ga
 
-persistent BestPopGen InitBest
+persistent AllPopulation AllScores
 
 optchanged = false;
 
 if strcmp(flag, 'done')
-    % Save the best individual per generation and its score in a file
-    BestScores = [InitBest, state.Best];
-    save(save_path, 'BestPopGen', 'BestScores', '-append');
+    % Save the data
+    save(save_path, 'AllPopulation', 'AllScores', '-append');
 elseif strcmp(flag, 'init')
     % Save the scores for whole initial population
-    InitialScores = state.Score;
-    save(save_path, 'InitialScores', '-append');
+    InitialScores = state.Score';
+    PopulationSize = options.PopulationSize;
+    save(save_path, 'InitialScores', 'PopulationSize', '-append');
     
-    [InitBest, best_idx] = min(InitialScores);
-    BestPopGen = state.Population(best_idx, :);
+    AllScores = InitialScores;
+    AllPopulation = state.Population;
 else
-    % Assume we have RAM to spare and we rather save the the best
-    % individual per generation in a vector
-    best_idx = find(state.Score == state.Best(end), 1);
-    BestPopGen(state.Generation + 1, :) = state.Population(best_idx, :);
+    % Assume we have RAM to spare and we rather save all the population and
+    % all the scores
+    AllPopulation = [AllPopulation; state.Population];
+    AllScores = [AllScores; state.Score'];
 end
 
 end
