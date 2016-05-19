@@ -2,6 +2,9 @@ function visualize_score_space( data_file, fig_save_path )
 %VISUALIZE_SCORE_SPACE Create plots of GA population in 2D space
 %   VISUALIZE_SCORE_SPACE( DATA_FILE, FIG_SAVE_PATH )
 
+% Create folder for the data
+out_folder = fileparts(fig_save_path);
+mkdir(out_folder);
 
 %% Load data and compute multidimensional scaling
 L = load(data_file);
@@ -63,11 +66,18 @@ if num_iterations == 1
     hold off;
     
     istr = sprintf('%03d', i - 1);
+    saveas(fig_h, [fig_save_path istr], 'tiff');
     saveas(fig_h, [fig_save_path istr], 'svg');
     return;
 end
 
 %% Do a plot for each iteration
+
+% Create a video as well
+outputVideo = VideoWriter([fig_save_path '.avi']);
+outputVideo.FrameRate = 2;
+open(outputVideo);
+
 for i=1:num_iterations-1
     clf(fig_h);
     
@@ -113,9 +123,18 @@ for i=1:num_iterations-1
     hold off;
     
     istr = sprintf('%03d', i - 1);
-    % print(fig_h, [fig_save_path istr], '-dtiff');
+    saveas(fig_h, [fig_save_path istr], 'tiff');
     saveas(fig_h, [fig_save_path istr], 'svg');
+    
+    img = imread([fig_save_path istr '.tif']);
+    writeVideo(outputVideo, img);
 end
+
+close(outputVideo);
+
+% Move svg files to a separate folder
+mkdir(out_folder, 'svg');
+movefile([fig_save_path '*.svg'], fullfile(out_folder, 'svg'));
 
 end
 

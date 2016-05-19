@@ -90,7 +90,6 @@ try
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
     mkdir(opts.scene_img_folder, output_img_folder_name);
-    mkdir(output_img_folder, 'visualization');
     
     %% Maya initialization
     % TODO Render once and test if an image is created, if not -> activate

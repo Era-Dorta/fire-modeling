@@ -24,6 +24,8 @@ elseif strcmp(flag, 'init')
     
     AllScores = InitialScores;
     AllPopulation = state.Population;
+elseif strcmp(flag, 'interrupt')
+    return;
 else
     % Assume we have RAM to spare and we rather save all the population and
     % all the scores
