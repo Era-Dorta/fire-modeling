@@ -52,7 +52,8 @@ elseif isequal(L.options.CreationFcn, @gacreationlinspace)
 elseif ~isequal(L.options.CreationFcn, @gacreationuniform) && ...
         ~isequal(L.options.CreationFcn, @gacreationlinearfeasible)
     
-    error(['Unkown GA CreationFcn in ' args_path]);
+    error(['Unkown GA CreationFcn @' func2str(L.options.CreationFcn) ...
+        ' in ' L.args_path]);
     
 end
 
@@ -81,7 +82,8 @@ else
         @crossovertwopoint ,@crossoverintermediate, @crossoverheuristic };
     
     if ~isequalFncCell(L.options.CrossoverFcn, valid_foo)
-        error(['Unkown GA CrossoverFcn in ' args_path]);
+        error(['Unkown GA CrossoverFcn @' func2str(L.options.CrossoverFcn) ...
+            ' in ' L.args_path]);
     end
 end
 
@@ -115,7 +117,8 @@ else
         @mutationgaussian, @mutationuniform, @mutationadaptfeasible};
     
     if ~isequalFncCell(L.options.MutationFcn, valid_foo)
-        error(['Unkown GA MutationFcn in ' args_path]);
+        error(['Unkown GA MutationFcn @' func2str(L.options.MutationFcn) ...
+            ' in ' L.args_path]);
     end
 end
 
@@ -157,7 +160,8 @@ for i=1:numel(L.options.OutputFcns)
         L.options.OutputFcns{i} = @(options, state, flag)gasavescores( ...
             options, state, flag, output_data_path);
     else
-        error(['Unkown GA OutputFcn in ' args_path]);
+        error(['Unkown GA OutputFcn @' func2str(L.options.OutputFcns{i}) ...
+            ' in ' L.args_path]);
     end
 end
 
