@@ -21,12 +21,12 @@ rand_seed = 'default';
 rng(rand_seed);
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test89_bbr_table';
+scene_name = 'test98_CT-table';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
 temp_div = 25;
 min_temp = 1000;
-max_temp = 2000;
+max_temp = 2500;
 
 %% Avoid data overwrites by always creating a new folder
 try
@@ -47,43 +47,50 @@ try
     % Create a new folder to store the data
     output_img_folder = [scene_img_folder 'ct_table' num2str(dir_num) '/'];
     output_img_folder_name = ['ct_table' num2str(dir_num) '/'];
-    mrLogPath = [scene_img_folder output_img_folder_name 'mentalray.log'];
     output_ct_folder = [fileparts(mfilename('fullpath')) '/data/'];
-    
-    %% Maya initialization
-    % Render script is located in the same maya_comm folder
-    [currentFolder,~,~] = fileparts(mfilename('fullpath'));
-    sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
-    
-    disp('Loading scene in Maya')
-    % Set project to fire project directory
-    cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-    sendToMaya(sendMayaScript, port, cmd);
-    
-    % Open our test scene
-    cmd = ['file -force -open \"scenes/' scene_name '.ma\"'];
-    sendToMaya(sendMayaScript, port, cmd);
-    
-    % Force a frame update, as batch rendering later does not do it, this
-    % will fix any file name errors due to using the same scene on
-    % different computers
-    cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-    sendToMaya(sendMayaScript, port, cmd);
-    
-    % Set the scale to 0, so that we can control the temperature with the
-    % offset regardless of the initial values in the raw file
-    cmd = 'setAttr fire_volume_shader.temperature_scale 0';
-    sendToMaya(sendMayaScript, port, cmd);
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
     mkdir(scene_img_folder, output_img_folder_name);
     
+    %% Maya initialization
+    
+    if isBatchMode()
+        empty_maya_log_files(logfile, port);
+    end
+    
+    % Render script is located in the same maya_comm folder
+    [currentFolder,~,~] = fileparts(mfilename('fullpath'));
+    sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
+    
+    maya_send = @(cmd, isRender) sendToMaya( sendMayaScript, ...
+        port, cmd, isRender);
+    
+    disp('Loading scene in Maya')
+    % Set project to fire project directory
+    cmd = 'setProject \""$HOME"/maya/projects/fire\"';
+    maya_send(cmd, 0);
+    
+    % Open our test scene
+    cmd = ['file -force -open \"scenes/' scene_name '.ma\"'];
+    maya_send(cmd, 0);
+    
+    % Force a frame update, as batch rendering later does not do it, this
+    % will fix any file name errors due to using the same scene on
+    % different computers
+    cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
+    maya_send(cmd, 0);
+    
+    % Set the scale to 0, so that we can control the temperature with the
+    % offset regardless of the initial values in the raw file
+    cmd = 'setAttr fire_volume_shader.temperature_scale 0';
+    maya_send(cmd, 0);
+    
     %% Render each image
     total_time = 0;
     
     % Fuel names and fuel indices in Maya
-    fuel_name = {'BlackBody', 'Propane', 'Acetylene', 'Cu', 'S', 'Li', 'Ba', 'Na', 'Co', 'Sc' };
+    fuel_name = get_fuel_name();
     totalSize = numel(fuel_name);
     fuel_index =0:totalSize-1;
     
@@ -108,7 +115,7 @@ try
         
         % Set the fuel type
         cmd = ['setAttr fire_volume_shader.fuel_type ' istr];
-        sendToMaya(sendMayaScript, port, cmd);
+        maya_send(cmd, 0);
         
         color_temp_table = zeros(temp_div, 4);
         
@@ -121,17 +128,17 @@ try
             
             % Set the temperature
             cmd = ['setAttr fire_volume_shader.temperature_offset ' temperature_str];
-            sendToMaya(sendMayaScript, port, cmd);
+            maya_send(cmd, 0);
             
             % Set the folder and name of the render image
             cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
             out_img_name = [fuel_name{i} '-' temperature_str 'K-' scene_name];
             cmd = [cmd scene_name '/' output_img_folder_name out_img_name '\"'];
-            sendToMaya(sendMayaScript, port, cmd);
+            maya_send(cmd, 0);
             
             % Render the image
             cmd = 'Mayatomr -render -renderVerbosity 2';
-            sendToMaya(sendMayaScript, port, cmd, 1, mrLogPath);
+            maya_send(cmd, 1);
             
             % Read the image
             c_img = imread([output_img_folder out_img_name '.tif']);
@@ -153,7 +160,6 @@ try
             
             disp(['Image ' num2str(img_count) '/' num2str(totalSize * temp_div) ...
                 ' rendered, remaining time ' datestr(remaining_time, 'HH:MM:SS.FFF')]);
-            
         end
         ct_file_path = [output_ct_folder 'CT-' fuel_name{i} '.mat'];
         save(ct_file_path, 'color_temp_table', '-ascii', '-double');
@@ -164,6 +170,7 @@ try
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
+        copy_maya_log_files(logfile, output_img_folder, port);
         exit;
     else
         return;
@@ -171,7 +178,12 @@ try
 catch ME
     if(isBatchMode())
         disp(getReport(ME));
-        move_file( logfile, [output_img_folder 'matlab.log'] );
+        if(exist('logfile', 'var') && exist('output_img_folder', 'var'))
+            move_file( logfile, [output_img_folder 'matlab.log'] );
+            if(exist('port', 'var'))
+                copy_maya_log_files(logfile, output_img_folder, port);
+            end
+        end
         exit;
     else
         rethrow(ME);

@@ -80,8 +80,7 @@ try
     total_time = 0;
     
     % Fuel names and fuel indices in Maya
-    fuel_name = {'BlackBody', 'Propane', 'Acetylene', 'Methane', 'BlueSyn',  ...
-        'Cu', 'S', 'Li', 'Ba', 'Na', 'Co', 'Sc', 'C', 'H', 'C3H8'};
+    fuel_name = get_fuel_name();
     totalSize = numel(fuel_name);
     fuel_index =0:totalSize-1;
     startTotal = tic;
