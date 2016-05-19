@@ -32,7 +32,7 @@ LB = [0, 0, 0, -1, 0];
 
 % Upper bounds, temperature scaled will be infered from the data, 2000K of
 % temperature offset, and default min max vlaues for the rest
-UB = [NaN, 2000, 10, 1, 10];
+UB = [NaN, 2300, 10, 1, 10];
 
 % To modigy parameters specific to each solver go to the
 % do_<solver>_solve() function

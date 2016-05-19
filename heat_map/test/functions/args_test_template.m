@@ -47,7 +47,7 @@ rand_seed = 'default';
 
 % epsilon = 100; % Error tolerance, using Matlab default's at the moment
 LB = 300; % Lower bounds, no less than 300K -> 27C
-UB = 2000; % Upper bounds, no more than 2000K -> 1727C
+UB = 2300; % Upper bounds, no more than 2300K -> 2027C
 use_approx_fitness = false; % Using the approximate fitness function?
 
 % Distance function for the histogram error functions, any of the ones in
