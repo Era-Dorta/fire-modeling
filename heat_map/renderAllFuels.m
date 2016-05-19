@@ -22,7 +22,7 @@ rng(rand_seed);
 
 project_path = '~/maya/projects/fire/';
 % scene_name = 'test84';
-scene_name = 'test97_gaussian_new_linchiski';
+scene_name = 'test91_multiple_flames';
 % scene_name =  'test88_like_86_pretonemap';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 

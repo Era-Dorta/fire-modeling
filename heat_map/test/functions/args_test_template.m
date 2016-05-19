@@ -26,7 +26,7 @@ solver = 'ga';
 %      0        1       2           3      4        5  6   7   8   9   10 11 12  13 14
 fuel_type = 0;
 
-scene_name = 'test95_gaussian_new';
+scene_name = 'test97_gaussian_new_linchiski';
 
 % Geat goal image path with convenience function
 multi_goal = false; % Single or two goal image optimization
