@@ -4,6 +4,12 @@ function [ volumetricData ] = read_raw_file( filePath )
 
 fileID = fopen(filePath,'r');
 
+if(fileID ~= -1)
+    fileCloseObj = onCleanup(@() fclose(fileID));
+else
+    error('Cannot open file %s.', filePath);
+end
+
 whd = fread(fileID, 3, 'int32');
 numPoints = fread(fileID, 1, 'int32');
 
@@ -17,7 +23,6 @@ for i=1:numPoints
     % Divide by 256 to get 0 normalized values
     values(i) = max(rgba(1:3)) / 256;
 end
-fclose(fileID);
 
 % Flip y and z
 xyz = [xyz(:, 1), xyz(:, 3), xyz(:, 2)];

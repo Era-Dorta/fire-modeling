@@ -10,6 +10,12 @@ end
 
 fileID = fopen(filePath,'w');
 
+if(fileID ~= -1)
+    fileCloseObj = onCleanup(@() fclose(fileID));
+else
+    error('Cannot open file %s.', filePath);
+end
+
 fwrite(fileID, volumetricData.size, 'int32');
 fwrite(fileID, volumetricData.count, 'int32');
 
@@ -26,6 +32,5 @@ for i=1:volumetricData.count
     fwrite(fileID, rgba(i,:), 'double');
 end
 
-fclose(fileID);
 end
 
