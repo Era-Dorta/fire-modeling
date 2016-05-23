@@ -1,5 +1,6 @@
 function [ goal_imgs, goal_mask_imgs, mask_imgs, bin_mask_threshold ] = preprocess_images( ...
     goal_imgs, goal_mask_imgs, mask_imgs, bin_mask_threshold, do_plots, figurePath)
+% PREPROCESS_IMAGES Background substraction
 %[ GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD ] = PREPROCESS_IMAGES(
 %   GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD, DO_PLOTS, FIGUREPATH)
 %   Background subtraction of GOAL_IMGS using GOAL_MASK_IMGS interpreted as
