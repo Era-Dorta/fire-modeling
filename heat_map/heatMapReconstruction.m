@@ -98,33 +98,8 @@ try
         empty_maya_log_files(logfile, ports);
     end
     
-    for i=1:numMayas
-        disp(['Loading scene in Maya:' num2str(ports(i))]);
-        % Set project to fire project directory
-        cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-        maya_send{i}(cmd, 0);
-        
-        % Open our test scene
-        cmd = ['file -open -force \"scenes/' opts.scene_name '.ma\"'];
-        maya_send{i}(cmd, 0);
-        
-        % Force a frame update, as batch rendering later does not do it, this
-        % will fix any file name errors due to using the same scene on
-        % different computers
-        cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-        maya_send{i}(cmd, 0);
-        
-        % Set the fuel type
-        cmd = ['setAttr \"fire_volume_shader.fuel_type\" ' num2str(opts.fuel_type)];
-        maya_send{i}(cmd, 0);
-        
-        % Deactive all but the first camera if there is more than one goal
-        % image
-        for j=2:num_goal
-            cmd = ['setAttr \"camera' num2str(j) 'Shape.renderable\" 0'];
-            maya_send{i}(cmd, 0);
-        end
-    end
+    maya_common_initialization(maya_send, ports, opts.scene_name, ...
+        opts.fuel_type, num_goal);
     
     %% Summary data is mainly the options from the load file
     summary_data = opts;
