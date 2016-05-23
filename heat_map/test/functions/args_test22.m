@@ -15,7 +15,7 @@ L = load(args_path);
 
 goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/pegoraro1.png'};
 goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/pegoraro1-mask.png'};
-raw_file_path = '~/maya/projects/fire/data/from_dmitry/NewData/oneFlame/synthetic32x32x32.raw';
+raw_file_path = 'data/from_dmitry/NewData/oneFlame/synthetic32x32x32.raw';
 
 scene_name = 'test99_synthetic32x32x32';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
