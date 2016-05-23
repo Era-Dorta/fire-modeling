@@ -16,6 +16,7 @@ L = load(args_path);
 options = L.options;
 
 options.CreationFcn = @gacreationheuristic3;
+options.Generations = 1;
 
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
