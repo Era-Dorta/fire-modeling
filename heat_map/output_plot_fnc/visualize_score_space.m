@@ -126,8 +126,7 @@ for i=1:num_iterations-1
     saveas(fig_h, [fig_save_path istr], 'tiff');
     saveas(fig_h, [fig_save_path istr], 'svg');
     
-    img = imread([fig_save_path istr '.tif']);
-    writeVideo(outputVideo, img);
+    writeVideo(outputVideo, getframe(fig_h));
 end
 
 close(outputVideo);
