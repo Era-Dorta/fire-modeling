@@ -51,17 +51,21 @@ if(individualsToCreate > 0)
     colorsCT = colorspace_transform_imgs({colorsCT}, 'RGB', color_space);
     bbdata(:,2:4) = reshape(colorsCT{1}, size(bbdata, 1), 3);
     
-    %% Get the mean color and standard deviation from the goal image/s
-    [ hc_goal ] = getImgsCombinedHistogram( goal_img, goal_mask, n_bins);
-    
-    assert(numel(hc_goal) == n_bins^3, 'Invalid number of bins');
+    %% Get the mean histogram from the goal image/s
+    hc_goal = zeros(1, n_bins^3);
+    num_goal = numel(goal_img);
+    for i=1:num_goal
+        hc_goal = hc_goal + getImgCombinedHistogram( goal_img{i}, ...
+            goal_mask{i}, n_bins);
+    end
+    hc_goal = hc_goal / num_goal;
     
     %% Find the closer RGB value for the goal image in fuel_type temperature data
     bin_width = 255 / n_bins;
     
     % Create a population by sampling the distribution extracted from the
     % goal image/s "combined" histogram
-    InitPopHeuristic = randsample(0:numel(hc_goal)-1, ...
+    InitPopHeuristic = randsample(1:numel(hc_goal), ...
         individualsToCreate * GenomeLength, true, hc_goal);
     
     InitPopHeuristic = reshape(InitPopHeuristic, individualsToCreate, ...
@@ -69,28 +73,8 @@ if(individualsToCreate > 0)
     
     %% Transform from single histogram index to 3 separate ones, this is
     % just a numeric base conversion from base n_bins^3 - 1 to base n_bins
-    InitPopColors = zeros(size(InitPopHeuristic, 1), ...
-        size(InitPopHeuristic, 2), 3);
-    
-    int_n_bins = int64(n_bins);
-    
-    % Store as int for idivide, as we sampled 0:(n_bins^3 - 1) there are
-    % no rounding errors
-    remColor = int64(InitPopHeuristic);
-    
-    % Red, n_bins^0
-    InitPopColors(:,:,1) = mod(remColor, int_n_bins);
-    
-    remColor = idivide(remColor, int_n_bins, 'floor');
-    
-    % Green, n_bins^1
-    InitPopColors(:,:,2) = mod(remColor, int_n_bins);
-    
-    % Blue, n_bins^2
-    InitPopColors(:,:,3) = idivide(remColor, int_n_bins, 'floor');
-    
-    %% Tranform from bin_index to RGB color
-    InitPopColors = double(InitPopColors * bin_width + bin_width / 2);
+    InitPopColors = getColorFromHistoIndex( InitPopHeuristic, n_bins, ...
+        bin_width);
     
     %% Add some noise to the colors, the noise moves the color randomly
     % inside the bin width, assuming that normal noise models well the
