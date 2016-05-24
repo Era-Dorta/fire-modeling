@@ -1,6 +1,6 @@
-function [args_path] = args_test22()
-%ARGS_TEST22 Candle synthetic, Pegoraro1 Goal
-%   ARGS_PATH = ARGS_TEST22() Returns in ARGS_PATH the file path of a .mat
+function [args_path] = args_test23()
+%ARGS_TEST23 Candle synthetic, Pegoraro2 Goal
+%   ARGS_PATH = ARGS_TEST23() Returns in ARGS_PATH the file path of a .mat
 %   file with arguments defined here.
 %
 %   See also heatMapReconstruction, args_test_template,
@@ -13,8 +13,8 @@ args_test_template(args_path);
 
 L = load(args_path);
 
-goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/pegoraro1.png'};
-goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/pegoraro1-mask.png'};
+goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/pegoraro2.png'};
+goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/pegoraro2-mask.png'};
 raw_file_path = 'data/from_dmitry/NewData/oneFlame/synthetic32x32x32.raw';
 
 scene_name = 'test99_synthetic32x32x32';
