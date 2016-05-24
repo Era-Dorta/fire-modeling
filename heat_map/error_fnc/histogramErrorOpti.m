@@ -1,5 +1,5 @@
 function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
-    img_mask, d_foo, n_bins)
+    img_mask, d_foo, n_bins, is_histo_simple)
 %HISTOGRAMERROROPTI Compues an error measure between several images
 %   CERROR = HISTOGRAMERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
 %   this is an optimized version of HISTOGRAMERROR, assumes RGB images,
@@ -23,14 +23,13 @@ if isempty(HC_GOAL)
     TESTIM_FACTOR = zeros(1, numel(goal_imgs));
     
     for i=1:numel(goal_imgs)
-        sub_img = goal_imgs{i}(:, :, 1);
-        HC_GOAL{i}(1, :) = histcounts( sub_img(goal_mask{i}), edges);
-        sub_img = goal_imgs{i}(:, :, 2);
-        HC_GOAL{i}(2, :) = histcounts( sub_img(goal_mask{i}), edges);
-        sub_img = goal_imgs{i}(:, :, 3);
-        HC_GOAL{i}(3, :) = histcounts( sub_img(goal_mask{i}), edges);
-        
-        % Normalize by the number of pixels
+        if is_histo_simple
+            HC_GOAL{i} = getImgRGBHistogram( goal_imgs{i}, goal_mask{i}, ...
+                n_bins, edges);
+        else
+            HC_GOAL{i} = getImgCombinedHistogram( goal_imgs{i}, ...
+                goal_mask{i}, n_bins);
+        end
         HC_GOAL{i} = HC_GOAL{i} ./ sum(goal_mask{i}(:) == 1);
         
         TESTIM_FACTOR(i) = 1 / sum(img_mask{i}(:) == 1);
@@ -40,20 +39,24 @@ end
 % Compute the error as in Dobashi et. al. 2012
 cerror = 0;
 for i=1:numel(test_imgs)
+    if is_histo_simple
+        hc_test = getImgRGBHistogram( test_imgs{i}, goal_mask{i}, ...
+            n_bins, edges);
+        % Normalize
+        hc_test = hc_test * TESTIM_FACTOR(i);
+    else
+        hc_test = getImgCombinedHistogram( test_imgs{i}, ...
+            goal_mask{i}, n_bins);
+        % Normalize
+        hc_test = hc_test * TESTIM_FACTOR(i);
+        
+    end
     
-    % Compute the histogram count for each color channel
-    subImga = test_imgs{i}(:, :, 1);
-    hc_test(1, :) = histcounts(subImga(img_mask{i}), edges) * TESTIM_FACTOR(i);
-    
-    subImga = test_imgs{i}(:, :, 2);
-    hc_test(2, :) = histcounts(subImga(img_mask{i}), edges) * TESTIM_FACTOR(i);
-    
-    subImga = test_imgs{i}(:, :, 3);
-    hc_test(3, :) = histcounts(subImga(img_mask{i}), edges) * TESTIM_FACTOR(i);
-    
-    cerror = cerror + (d_foo(hc_test(1, :), HC_GOAL{i}(1, :)) + ...
-        d_foo(hc_test(2, :), HC_GOAL{i}(2, :)) + ...
-        d_foo(hc_test(3, :), HC_GOAL{i}(3, :))) / 3;
+    single_error = 0;
+    for j=1:size(HC_GOAL{i}, 3)
+        single_error = single_error + d_foo(hc_test(j, :), HC_GOAL{i}(j, :));
+    end
+    cerror = cerror + single_error / size(HC_GOAL{i}, 3);
 end
 
 % Divide by the number of images so that the error function is still in the

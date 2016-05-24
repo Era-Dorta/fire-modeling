@@ -1,4 +1,5 @@
-function [ hc_goal ] = getImgCombinedHistogram( img, img_mask, n_bins)
+function [ hc_goal ] = getImgCombinedHistogram( img, img_mask, n_bins, ...
+    do_normalize)
 %GETIMGCOMBINEDHISTOGRAM Get color estimate from image
 %   [ HC_GOAL ] = GETIMGCOMBINEDHISTOGRAM( IMG, IMG_MASK, N_BINS) Color is
 %   computed using the the combined RGB histogram of an image. IMG is a
@@ -8,6 +9,9 @@ function [ hc_goal ] = getImgCombinedHistogram( img, img_mask, n_bins)
 %   See also getColorFromHistoIndex, getImgMeanColor, getImgStdColor
 
 %% Compute histogram of the goal image
+if nargin == 3
+    do_normalize = false;
+end
 
 size_3 = size(img, 3);
 
@@ -50,9 +54,11 @@ hc_goal_idx_single = to_one_dim * (hc_goal_rgb - 1) + 1;
 assert(all(hc_goal_idx_single) >= 1, 'Invalid discretization');
 assert(all(hc_goal_idx_single) <= n_bins^size_3, 'Invalid discretization');
 
-% Do a histogram count using the combined bin indices and normalize by
-% the total number of pixels
-hc_goal = histcounts( hc_goal_idx_single, edges_all) ./ num_valid_pixels;
+% Do a histogram count using the combined bin indices
+hc_goal = histcounts( hc_goal_idx_single, edges_all);
 
+if do_normalize
+    hc_goal = hc_goal ./ num_valid_pixels;
+end
 end
 

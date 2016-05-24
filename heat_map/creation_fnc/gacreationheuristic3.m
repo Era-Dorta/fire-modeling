@@ -56,7 +56,7 @@ if(individualsToCreate > 0)
     num_goal = numel(goal_img);
     for i=1:num_goal
         hc_goal = hc_goal + getImgCombinedHistogram( goal_img{i}, ...
-            goal_mask{i}, n_bins);
+            goal_mask{i}, n_bins, true);
     end
     hc_goal = hc_goal / num_goal;
     
