@@ -58,6 +58,16 @@ for i=1:num_prior_fncs
                 temp_th, L.LB, L.UB);
         end
         
+    elseif isequal(prior_fncs{i}, @downHeatEstimate)
+        
+        if fixed_size
+            prior_fncs{i} = @(v) downHeatEstimate(init_heat_map.xyz, v, ...
+                init_heat_map.size, temp_th, L.LB, L.UB);
+        else
+            prior_fncs{i} = @(v, xyz, whd) downHeatEstimate(xyz, v, whd, ...
+                temp_th, L.LB, L.UB);
+        end
+        
     elseif isequal(prior_fncs{i}, @histogramErrorApprox)
         
         prior_fncs{i} = @(v) histogramErrorApprox(v, goal_img, goal_mask, ...

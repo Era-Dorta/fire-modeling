@@ -76,7 +76,8 @@ approx_n_bins = 255;
 
 % Prior functions that are added to the error function in the fitness
 % function, any of smoothnessEstimate, smoothnessEstimateGrad,
-% upHeatEstimate, upHeatEstimateLinear, histogramErrorApprox
+% upHeatEstimate, upHeatEstimateLinear, histogramErrorApprox,
+% downHeatEstimate
 prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimateLinear};
 
 % Temperature threshold for the upHeatEstimateLinear

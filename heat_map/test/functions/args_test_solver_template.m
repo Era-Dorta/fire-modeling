@@ -46,7 +46,7 @@ switch solver
         xover_nCandidates = 10;
         
         % Prior functions smoothnessEstimateGrad, upHeatEstimate,
-        % histogramErrorApprox, upHeatEstimateLinear
+        % histogramErrorApprox, upHeatEstimateLinear, downHeatEstimate
         xover_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
         
         % Weights used to sum the error function and the prior functions

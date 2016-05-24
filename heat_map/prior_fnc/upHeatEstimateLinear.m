@@ -6,7 +6,7 @@ function upHeatV = upHeatEstimateLinear( xyz, v, volumeSize, temp_th, lb, ub)
 %   defined by the common coordinates matrix 3xM  XYZ, the value matrix NxM
 %   V, where the coordinates are in a volume given by VOLUME_SIZE 1X3.
 %
-%   See also upHeatEstimate
+%   See also upHeatEstimate, bottomBrightEstimate
 
 num_vol = size(v, 1);
 
