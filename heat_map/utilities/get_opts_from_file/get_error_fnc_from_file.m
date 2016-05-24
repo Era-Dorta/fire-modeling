@@ -26,7 +26,8 @@ for i=1:numel(opts.error_foo)
             syn_img_mask);
         
     else
-        error(['Unkown GA error function in ' args_path]);
+        error(['Unkown GA error function @' func2str(error_fnc{i}) ' in ' ...
+            L.args_path]);
     end
     
 end

@@ -23,7 +23,7 @@ switch(fnc_type)
         nCandidates = L.mut_nCandidates;
         temp_th = L.mut_temp_th;
     otherwise
-        error('Unkown load type');
+        error(['Unkown load type ' fnc_type]);
 end
 
 num_prior_fncs = numel(prior_fncs);
@@ -64,7 +64,7 @@ for i=1:num_prior_fncs
             L.fuel_type, L.color_space);
         
     else
-        error(['Unkown prior function ' args_path]);
+        error(['Unkown prior @' func2str(prior_fncs{i}) ' function ' L.args_path]);
     end
     
 end
