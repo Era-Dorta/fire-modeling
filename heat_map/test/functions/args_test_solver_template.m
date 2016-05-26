@@ -47,7 +47,7 @@ switch solver
         
         % Prior functions smoothnessEstimateGrad, upHeatEstimate,
         % histogramErrorApprox, upHeatEstimateLinear, downHeatEstimate
-        xover_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
+        xover_prior_fncs = {@smoothnessEstimateGrad, @downHeatEstimate};
         
         % Weights used to sum the error function and the prior functions
         xover_prior_weights = [1/2, 1/2];
@@ -62,7 +62,7 @@ switch solver
         
         % If using gamutationadaptprior the following have to be defined
         mut_nCandidates = 10;
-        mut_prior_fncs = {@smoothnessEstimateGrad, @upHeatEstimate};
+        mut_prior_fncs = {@smoothnessEstimateGrad, @downHeatEstimate};
         mut_prior_weights = [1/2, 1/2];
         mut_temp_th = 50;
         
@@ -84,7 +84,7 @@ switch solver
             % Functions for the rest
             options.CreationFcn = @gacreationfrominitguess;
             options.CrossoverFcn = @gacrossovercombineprior;
-            options.MutationFcn = @mutationadaptfeasible;
+            options.MutationFcn = @gamutationadaptprior;
             
             creation_fnc_mean = 0;
             creation_fnc_sigma = 250;
