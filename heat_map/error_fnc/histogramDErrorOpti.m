@@ -1,5 +1,5 @@
 function [ cerror ] = histogramDErrorOpti( goal_imgs, test_imgs, goal_mask, ...
-    img_mask, d_foo, n_bins, n_bins_dist)
+    img_mask, d_foo, n_bins, n_bins_dist, is_histo_independent)
 %HISTOGRAMDERROROPTI Compues an error measure between several images
 %   CERROR = HISTOGRAMDERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
 %   similar to HISTOGRAM_ERROR, assumes RGB images, for the catching
@@ -48,21 +48,17 @@ if isempty(HC_GOAL)
         % bin that the pixel belongs to
         d_bin = discretize(dist_img, edgesd);
         
-        for j=1:3 % For each color channel
-            sub_img = goal_imgs{i}(:, :, j);
-            
-            % For each distance bin compute a color histogram
-            for k=1:n_bins_dist
-                % Get a new mask than only has the pixels within the
-                % current distance.
-                new_mask = goal_mask{i} & (d_bin == k);
-                HC_GOAL{i, k}(j, :) = histcounts( sub_img(new_mask), edges);
-                
-                % Normalize by the number of valid pixels
-                valid_p = sum(new_mask(:) == 1);
-                if valid_p > 0
-                    HC_GOAL{i, k}(j, :) = HC_GOAL{i, k}(j, :) ./ valid_p;
-                end
+        % For each distance bin compute a color histogram
+        for k=1:n_bins_dist
+            % Get a new mask than only has the pixels within the
+            % current distance.
+            new_mask = goal_mask{i} & (d_bin == k);
+            if is_histo_independent
+                HC_GOAL{i, k} = getImgRGBHistogram( goal_imgs{i}, new_mask, ...
+                    n_bins, edges, true);
+            else
+                HC_GOAL{i, k} = getImgCombinedHistogram( goal_imgs{i}, new_mask, ...
+                    n_bins, edges, true);
             end
         end
     end
@@ -70,7 +66,6 @@ end
 
 cerror = 0;
 hc_test = cell(n_bins_dist, 1);
-hc_test(:) = {zeros(3, n_bins)}; % Preallocate the memory for the histograms
 
 for i=1:numel(test_imgs)
     
@@ -90,31 +85,33 @@ for i=1:numel(test_imgs)
     % Cluster them in n_bins_dist groups
     d_bin = discretize(dist_img, edgesd);
     
-    for j=1:3 % For each color channel
-        sub_img = test_imgs{i}(:, :, j);
+    % For each distance bin compute a color histogram
+    for k=1:n_bins_dist
+        % Get a new mask than only has the pixels within the
+        % current distance.
+        new_mask = img_mask{i} & (d_bin == k);
         
-        % For each distance bin compute a color histogram
-        for k=1:n_bins_dist
-            
-            % Get a new mask than only has the pixels within the current
-            % distance.
-            new_mask = img_mask{i} & (d_bin == k);
-            hc_test{k}(j, :) = histcounts( sub_img(new_mask), edges);
-            
-            % Normalize by the number of valid pixels
-            valid_p = sum(new_mask(:) == 1);
-            if valid_p > 0
-                hc_test{k}(j, :) = hc_test{k}(j, :) ./ valid_p;
-            end
+        % Get a new mask than only has the pixels within the current
+        % distance.
+        if is_histo_independent
+            hc_test{k} = getImgRGBHistogram( test_imgs{i}, new_mask, ...
+                n_bins, edges, true);
+        else
+            hc_test{k} = getImgCombinedHistogram( test_imgs{i}, new_mask, ...
+                n_bins, edges, true);
         end
     end
     
     % For each distance bin compute the error
     for k=1:n_bins_dist
-        cerror = cerror + (d_foo(hc_test{k}(1, :), HC_GOAL{i, k}(1, :)) + ...
-            d_foo(hc_test{k}(2, :), HC_GOAL{i, k}(2, :)) + ...
-            d_foo(hc_test{k}(3, :), HC_GOAL{i, k}(3, :))) / 3;
+        single_error = 0;
+        for j=1:size(HC_GOAL{i, k}, 1)
+            single_error = single_error + d_foo(hc_test{k}(j, :), ...
+                HC_GOAL{i, k}(j, :));
+        end
+        cerror = cerror + single_error / size(HC_GOAL{i}, 1);
     end
+    
 end
 
 % Divide by the number of images and by the number of distance bins so that

@@ -18,7 +18,8 @@ for i=1:numel(opts.error_foo)
     elseif isequal(opts.error_foo{i}, @histogramDErrorOpti)
         
         error_fnc{i} = @(syn_img) histogramDErrorOpti(goal_img, syn_img, goal_mask,...
-            syn_img_mask, opts.dist_foo, opts.n_bins, opts.n_bins_dist);
+            syn_img_mask, opts.dist_foo, opts.n_bins, opts.n_bins_dist,...
+            opts.is_histo_independent);
         
     elseif isequal(opts.error_foo{i}, @MSE)
         
