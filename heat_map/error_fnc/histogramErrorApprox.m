@@ -1,5 +1,5 @@
 function histoE = histogramErrorApprox( v, goal_img, goal_mask, d_foo, ...
-    fuel_type, n_bins, color_space)
+    fuel_type, n_bins, is_histo_independent, color_space)
 %HISTOGRAMERRORAPPROX computes an error measure between v and goal image
 %   HISTOE = HISTOGRAMERRORAPPROX( V, GOAL_IMG, GOAL_MASK ) V is a value
 %   matrix NxM, with N heat maps with M values per heat map. GOAL_IMG is
@@ -28,17 +28,13 @@ if(isempty(CTtable))
     GoalHisto = cell(NumGoal, 1);
     
     for i=1:NumGoal
-        GoalHisto{i} = zeros(3, n_bins);
-        
-        sub_img = goal_img{i}(:, :, 1);
-        GoalHisto{i}(1, :) = histcounts( sub_img(goal_mask{i}), edges);
-        sub_img = goal_img{i}(:, :, 2);
-        GoalHisto{i}(2, :) = histcounts( sub_img(goal_mask{i}), edges);
-        sub_img = goal_img{i}(:, :, 3);
-        GoalHisto{i}(3, :) = histcounts( sub_img(goal_mask{i}), edges);
-        
-        % Normalize by the number of pixels
-        GoalHisto{i} = GoalHisto{i} ./ sum(goal_mask{i}(:) == 1);
+        if is_histo_independent
+            GoalHisto{i} = getImgRGBHistogram( goal_img{i}, goal_mask{i}, ...
+                n_bins, edges, true);
+        else
+            GoalHisto{i} = getImgCombinedHistogram( goal_img{i}, ...
+                goal_mask{i}, n_bins, edges, true);
+        end
     end
 end
 
@@ -49,9 +45,11 @@ interp_method = 'linear'; % C0
 
 num_vol = size(v, 1);
 histoE = zeros(1, num_vol);
-num_temp_inv = 1.0 / numel(v(1, :));
 
-histo_est = zeros(3, n_bins);
+num_temp = size(v, 2);
+num_temp_inv = 1.0 / num_temp;
+
+img_mask = true(num_temp, 1);
 
 for i=1:num_vol
     % Get the estimated color for each voxel using the table, as the
@@ -61,19 +59,28 @@ for i=1:num_vol
     colors_est = interp1(CTtable(:, 1), CTtable(:, 2:4), v(i,:), ...
         interp_method, 0);
     
-    % Compute the histograms of the color estimates
+    % Compute the histograms, treating the estimates as an image
+    colors_est = reshape(colors_est, num_temp, 1, 3);
+    if is_histo_independent
+        histo_est = getImgRGBHistogram( colors_est, img_mask, ...
+            n_bins, edges);
+    else
+        histo_est = getImgCombinedHistogram( colors_est, img_mask, ...
+            n_bins, edges);
+    end
+    
     % Normalize by the number of voxels, which should be equivalent to
     % normalize by the number of pixels, in the end just getting a normalized
     % histogram
-    histo_est(1, :) = histcounts( colors_est(:,1), edges) * num_temp_inv;
-    histo_est(2, :) = histcounts( colors_est(:,2), edges) * num_temp_inv;
-    histo_est(3, :) = histcounts( colors_est(:,3), edges) * num_temp_inv;
+    histo_est = histo_est * num_temp_inv;
     
     for j=1:NumGoal
-        histoE(i) = histoE(i) + ...
-            (d_foo(histo_est(1, :), GoalHisto{j}(1, :)) +  ...
-            d_foo(histo_est(2, :), GoalHisto{j}(2, :)) + ...
-            d_foo(histo_est(3, :), GoalHisto{j}(3, :))) / 3;
+        single_error = 0;
+        for k=1:size(GoalHisto{j}, 1)
+            single_error = single_error + d_foo(histo_est(k, :), ...
+                GoalHisto{j}(k, :));
+        end
+        histoE(i) = histoE(i) + single_error / size(GoalHisto{j}, 1);
     end
 end
 

@@ -149,7 +149,8 @@ try
     if(opts.use_approx_fitness)
         
         approx_error_foo = @(x) opts.approx_error_foo(x, goal_img, goal_mask, ...
-            opts.dist_foo, opts.fuel_type, opts.approx_n_bins, opts.color_space);
+            opts.dist_foo, opts.fuel_type, opts.approx_n_bins, ...
+            opts.is_histo_independent, opts.color_space);
         
         fitness_foo = @(x)heat_map_fitness_approx(x, approx_error_foo, ...
             prior_fncs, prior_weights);
