@@ -1,3 +1,5 @@
+/heat_map/test/data/*.mat
+
 # Log files
 mayaLog-*.log
 matlab*.log
