@@ -10,7 +10,7 @@ function args_test_solver_template(args_path, solver)
 %
 %   See also args_test_template
 
-max_ite = 5000; % Num of maximum iterations
+max_ite = 4800; % Num of maximum iterations
 maxFunEvals = max_ite; % Maximum number of allowed function evaluations
 time_limit = 2 * 60 * 60; % Two hours
 
@@ -18,8 +18,8 @@ switch solver
     case {'ga', 'ga-re'}
         % Get an empty gaoptions structure
         options = gaoptimset;
-        options.PopulationSize = 200;
-        options.Generations = 25;
+        options.PopulationSize = 400;
+        options.Generations = 20;
         options.TimeLimit = time_limit;
         options.Display = 'iter'; % Give some output on each iteration
         options.StallGenLimit = 3;
