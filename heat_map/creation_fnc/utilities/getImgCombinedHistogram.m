@@ -57,7 +57,8 @@ assert(all(hc_goal_idx_single) <= n_bins^size_3, 'Invalid discretization');
 % Do a histogram count using the combined bin indices
 hc_goal = histcounts( hc_goal_idx_single, edges_all);
 
-if do_normalize
+if do_normalize && num_valid_pixels > 0
+    %assert(all(num_valid_pixels == sum(hc_goal)));
     hc_goal = hc_goal ./ num_valid_pixels;
 end
 end
