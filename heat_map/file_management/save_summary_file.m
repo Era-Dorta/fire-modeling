@@ -1,10 +1,14 @@
 function save_summary_file( summary_file, summary_data, options )
 % Save a summary file for the optimization method
 
+%Put the fields in alphabetic order for easy comparisong
+summary_data = orderfields(summary_data);
+
 % Save the data in a mat file
 if isempty(options)
     save([summary_file '.mat'], 'summary_data');
 else
+    options = orderfields(options);
     save([summary_file '.mat'], 'summary_data', 'options');
 end
 
