@@ -28,7 +28,7 @@ if isempty(HC_GOAL)
                 n_bins, edges);
         else
             HC_GOAL{i} = getImgCombinedHistogram( goal_imgs{i}, ...
-                goal_mask{i}, n_bins);
+                goal_mask{i}, n_bins, edges);
         end
         HC_GOAL{i} = HC_GOAL{i} ./ sum(goal_mask{i}(:) == 1);
         
@@ -44,7 +44,7 @@ for i=1:numel(test_imgs)
             n_bins, edges);
     else
         hc_test = getImgCombinedHistogram( test_imgs{i}, img_mask{i}, ...
-            n_bins);
+            n_bins, edges);
     end
     
     % Normalize

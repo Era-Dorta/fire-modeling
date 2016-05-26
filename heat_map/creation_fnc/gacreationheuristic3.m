@@ -52,11 +52,13 @@ if(individualsToCreate > 0)
     bbdata(:,2:4) = reshape(colorsCT{1}, size(bbdata, 1), 3);
     
     %% Get the mean histogram from the goal image/s
+    % Create n_bins bins
+    edges = linspace(0, 255, n_bins+1);
     hc_goal = zeros(1, n_bins^3);
     num_goal = numel(goal_img);
     for i=1:num_goal
         hc_goal = hc_goal + getImgCombinedHistogram( goal_img{i}, ...
-            goal_mask{i}, n_bins, true);
+            goal_mask{i}, n_bins, edges, true);
     end
     hc_goal = hc_goal / num_goal;
     

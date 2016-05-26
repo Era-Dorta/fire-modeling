@@ -1,5 +1,5 @@
 function [ hc_goal ] = getImgCombinedHistogram( img, img_mask, n_bins, ...
-    do_normalize)
+    edges, do_normalize)
 %GETIMGCOMBINEDHISTOGRAM Get color estimate from image
 %   [ HC_GOAL ] = GETIMGCOMBINEDHISTOGRAM( IMG, IMG_MASK, N_BINS) Color is
 %   computed using the the combined RGB histogram of an image. IMG is a
@@ -14,9 +14,6 @@ if nargin == 3
 end
 
 size_3 = size(img, 3);
-
-% Create n_bins bins for the histogram
-edges = linspace(0, 255, n_bins+1);
 
 % Number of single bin combinations
 bin_combinations = n_bins^size_3;
@@ -58,7 +55,7 @@ assert(all(hc_goal_idx_single) <= n_bins^size_3, 'Invalid discretization');
 hc_goal = histcounts( hc_goal_idx_single, edges_all);
 
 if do_normalize && num_valid_pixels > 0
-    %assert(all(num_valid_pixels == sum(hc_goal)));
+    %assert(all(num_valid_pixels == sum(hc_goal')));
     hc_goal = hc_goal ./ num_valid_pixels;
 end
 end

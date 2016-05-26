@@ -24,7 +24,7 @@ end
 % Normalize by the number of pixels
 num_pixels = sum(img_mask(:));
 if do_normalize && num_pixels > 0
-    %assert(all(num_pixels == sum(hc_goal)));
+    %assert(all(num_pixels == sum(hc_goal')));
     hc_goal = hc_goal ./ num_pixels;
 end
 end
