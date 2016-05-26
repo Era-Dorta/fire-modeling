@@ -13,7 +13,7 @@ for i=1:numel(opts.error_foo)
     if isequal(opts.error_foo{i}, @histogramErrorOpti)
         
         error_fnc{i} = @(syn_img) histogramErrorOpti(goal_img, syn_img, goal_mask,...
-            syn_img_mask, opts.dist_foo, opts.n_bins);
+            syn_img_mask, opts.dist_foo, opts.n_bins, opts.is_histo_independent);
         
     elseif isequal(opts.error_foo{i}, @histogramDErrorOpti)
         

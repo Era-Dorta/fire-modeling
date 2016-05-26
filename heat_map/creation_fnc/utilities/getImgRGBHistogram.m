@@ -9,7 +9,7 @@ function [ hc_goal ] = getImgRGBHistogram( img, img_mask, n_bins, edges, ...
 %   See also getColorFromHistoIndex, getImgMeanColor, getImgStdColor
 
 %% Compute histogram of the goal image
-if nargin == 3
+if nargin == 4
     do_normalize = false;
 end
 

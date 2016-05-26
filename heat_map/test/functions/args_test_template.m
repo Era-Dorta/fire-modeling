@@ -67,6 +67,9 @@ n_bins = 255;
 % Number of bins for edge distance, used by histogramDErrorOpti
 n_bins_dist = 15;
 
+% Using independent RGB histogram or combined RGB histogram
+is_histo_independent = true;
+
 % If use_approx_fitness is true, this function will be used in the fitness
 % function, the one above one will used only to check the final result
 approx_error_foo = @histogramErrorApprox;

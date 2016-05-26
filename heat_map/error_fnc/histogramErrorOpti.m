@@ -1,5 +1,5 @@
 function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
-    img_mask, d_foo, n_bins, is_histo_simple)
+    img_mask, d_foo, n_bins, is_histo_independent)
 %HISTOGRAMERROROPTI Compues an error measure between several images
 %   CERROR = HISTOGRAMERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
 %   this is an optimized version of HISTOGRAMERROR, assumes RGB images,
@@ -23,7 +23,7 @@ if isempty(HC_GOAL)
     TESTIM_FACTOR = zeros(1, numel(goal_imgs));
     
     for i=1:numel(goal_imgs)
-        if is_histo_simple
+        if is_histo_independent
             HC_GOAL{i} = getImgRGBHistogram( goal_imgs{i}, goal_mask{i}, ...
                 n_bins, edges);
         else
@@ -39,24 +39,22 @@ end
 % Compute the error as in Dobashi et. al. 2012
 cerror = 0;
 for i=1:numel(test_imgs)
-    if is_histo_simple
-        hc_test = getImgRGBHistogram( test_imgs{i}, goal_mask{i}, ...
+    if is_histo_independent
+        hc_test = getImgRGBHistogram( test_imgs{i}, img_mask{i}, ...
             n_bins, edges);
-        % Normalize
-        hc_test = hc_test * TESTIM_FACTOR(i);
     else
-        hc_test = getImgCombinedHistogram( test_imgs{i}, ...
-            goal_mask{i}, n_bins);
-        % Normalize
-        hc_test = hc_test * TESTIM_FACTOR(i);
-        
+        hc_test = getImgCombinedHistogram( test_imgs{i}, img_mask{i}, ...
+            n_bins);
     end
     
+    % Normalize
+    hc_test = hc_test * TESTIM_FACTOR(i);
+    
     single_error = 0;
-    for j=1:size(HC_GOAL{i}, 3)
+    for j=1:size(HC_GOAL{i}, 1)
         single_error = single_error + d_foo(hc_test(j, :), HC_GOAL{i}(j, :));
     end
-    cerror = cerror + single_error / size(HC_GOAL{i}, 3);
+    cerror = cerror + single_error / size(HC_GOAL{i}, 1);
 end
 
 % Divide by the number of images so that the error function is still in the
