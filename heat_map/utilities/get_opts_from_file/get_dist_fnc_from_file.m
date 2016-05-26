@@ -11,6 +11,12 @@ if isequal(opts.dist_foo, @gaussian_weighted_intersection)
             'is_histo_independent == false']);
     end
     dist_fnc = @(x,y) gaussian_weighted_intersection(x, y, opts.n_bins);
+elseif isequal(opts.dist_foo, @gaussian_weighted_intersection_opti)
+    if opts.is_histo_independent
+        error(['@gaussian_weighted_intersection_opti can only be used when ' ...
+            'is_histo_independent == false']);
+    end
+    dist_fnc = @(x,y) gaussian_weighted_intersection_opti(x, y, opts.n_bins);
 else
     dist_fnc = opts.dist_foo;
 end
