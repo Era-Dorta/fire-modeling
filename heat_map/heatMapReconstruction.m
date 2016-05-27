@@ -147,7 +147,7 @@ try
     % Wrap the fitness function into an anonymous function whose only
     % parameter is the heat map
     if(opts.use_approx_fitness)
-        dist_fnc = get_dist_fnc_from_file(opts);
+        dist_fnc = get_dist_fnc_from_file(opts, true);
         
         approx_error_foo = @(x) opts.approx_error_foo(x, goal_img, goal_mask, ...
             dist_fnc, opts.fuel_type, opts.approx_n_bins, ...
