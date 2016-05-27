@@ -53,7 +53,7 @@ CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 "$CDIR/runMayaBatch.sh" "$INIT_PORT" "$NUM_MAYA" "1"
 
 if [ "$?" -ne 0 ]; then
-	exit 2
+	exit 1
 fi
 
 # Create a list of ports
@@ -69,6 +69,9 @@ PORTS="[${PORTS}]"
 # Runs matlab in batch mode with low priority
 nice -n20 matlab -nodesktop -nosplash -r "heatMapReconstruction($DATA_FILE, $PORTS, '$LOGFILE')" -logfile $LOGFILE
 
+MATLAB_RETURN=$?
+
 # Close all the Maya instances
 "$CDIR/closeMayaBatch.sh" "$INIT_PORT" "$NUM_MAYA"
 
+exit $MATLAB_RETURN

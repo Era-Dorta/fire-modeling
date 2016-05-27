@@ -19,10 +19,6 @@ function heatMapReconstruction(args_path, ports, logfile)
 % Add the subfolders of heat map to the Matlab path
 addpath(genpath(fileparts(mfilename('fullpath'))));
 
-opts = load(args_path);
-
-rng(opts.rand_seed);
-
 %% Setting clean up functions
 % Clear all the functions
 clearCloseObj = onCleanup(@clear_cache);
@@ -40,6 +36,10 @@ try
     if(isBatchMode() && nargin < 3)
         error('Logfile name is required when running in batch mode');
     end
+    
+    opts = load(args_path);
+    
+    rng(opts.rand_seed);
     
     % Find the last folder
     dir_num = 0;
@@ -369,7 +369,7 @@ catch ME
                 copy_maya_log_files(logfile, output_img_folder, ports);
             end
         end
-        exit;
+        exit(1);
     else
         rethrow(ME);
     end
