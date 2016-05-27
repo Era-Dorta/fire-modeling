@@ -71,7 +71,7 @@ for i=1:num_prior_fncs
     elseif isequal(prior_fncs{i}, @histogramErrorApprox)
         
         prior_fncs{i} = @(v) histogramErrorApprox(v, goal_img, goal_mask, ...
-            L.fuel_type, L.is_histo_independent, L.color_space);
+            L.fuel_type, L.n_bins, L.is_histo_independent, L.color_space);
         
     else
         error(['Unkown prior @' func2str(prior_fncs{i}) ' function ' L.args_path]);
