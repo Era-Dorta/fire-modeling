@@ -13,7 +13,7 @@ args_test_template(args_path);
 
 dist_foo = @gaussian_weighted_intersection_opti;
 is_histo_independent = false;
-n_bins = 20;
+n_bins = 10;
 
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
