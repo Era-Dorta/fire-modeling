@@ -15,6 +15,7 @@ L = load(args_path);
 
 goal_img_path = {'~/maya/projects/fire/images/test97_gaussian_new_linchiski/goalimage1.tif'};
 goal_mask_img_path = {'~/maya/projects/fire/images/test97_gaussian_new_linchiski/maskcam1.png'};
+mask_img_path = {'~/maya/projects/fire/images/test99_synthetic32x32x32/mask-synth1.png'};
 raw_file_path = 'data/from_dmitry/NewData/oneFlame/synthetic32x32x32.raw';
 
 scene_name = 'test99_synthetic32x32x32';
