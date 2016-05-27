@@ -1,4 +1,6 @@
-/heat_map/test/data/*.mat
+# Cache data files
+heat_map/test/data/*.mat
+heat_map/error_fnc/distance_fnc/data/*.mat
 
 # Log files
 mayaLog-*.log

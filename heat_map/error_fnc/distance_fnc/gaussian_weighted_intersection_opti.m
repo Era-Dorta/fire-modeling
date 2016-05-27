@@ -33,23 +33,31 @@ A = 1;
 
 % Precompute all the constant data
 if isempty(wc) || prev_p ~= p || n_bins ~= prev_n_bins
-    % Compute the color for each index in the combined histogram
-    Xrgb = getColorFromHistoIndex( (1:p)', n_bins, 255/n_bins);
-    
     prev_p = p;
     prev_n_bins = n_bins;
     
-    wc = zeros(p,p);
-    c_norm = zeros(p,p);
+    data_path = ['gwho-n_bins' num2str(n_bins) '-p' num2str(p) '.mat'];
+    data_path = fullfile(fileparts(mfilename('fullpath')),'data',data_path);
     
-    for k=1:p
-        for l=1:p
-            c_norm(k,l) = norm(Xrgb(k,:) - Xrgb(l,:));
-            if c_norm(k,l) <= bw
-                wc(k, l) = (A / (sigma * sqrt(2 * pi))) * ...
-                    exp(- (c_norm(k,l)^2) / (2 * sigma ^ 2));
+    if exist(data_path, 'file')
+        load(data_path);
+    else
+        % Compute the color for each index in the combined histogram
+        Xrgb = getColorFromHistoIndex( (1:p)', n_bins, 255/n_bins);
+        
+        wc = zeros(p,p);
+        c_norm = zeros(p,p);
+        
+        for k=1:p
+            for l=1:p
+                c_norm(k,l) = norm(Xrgb(k,:) - Xrgb(l,:));
+                if c_norm(k,l) <= bw
+                    wc(k, l) = (A / (sigma * sqrt(2 * pi))) * ...
+                        exp(- (c_norm(k,l)^2) / (2 * sigma ^ 2));
+                end
             end
         end
+        save(data_path, 'wc', 'c_norm');
     end
 end
 
