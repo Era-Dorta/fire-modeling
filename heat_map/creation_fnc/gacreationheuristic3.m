@@ -91,8 +91,9 @@ if(individualsToCreate > 0)
         'Invalid color range');
     
     %% Get the corresponding temperature for each color
-    for i=1:size(InitPopColors, 1)
-        for j=1:size(InitPopColors, 2)
+    size_pop_2 = size(InitPopColors, 2);
+    parfor i=1:size(InitPopColors, 1)
+        for j=1:size_pop_2
             colorDist = pdist2(reshape(InitPopColors(i,j,:), 1, 3), ...
                 bbdata(:, 2:4));
             [~, tempIdx] = min(colorDist);
