@@ -88,7 +88,7 @@ temp_th = 50;
 
 % Weights used to sum the error function and the prior functions, must be
 % of size prior_fncs + 1, first corresponds to error function
-prior_weights = [0.5, 0.25, 0.25];
+prior_weights = [0.4, 0.4, 0.2];
 
 clearvars('multi_goal', 'symmetric');
 
