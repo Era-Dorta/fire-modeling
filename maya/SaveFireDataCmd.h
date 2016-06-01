@@ -11,23 +11,23 @@
 class SaveFireDataCmd: public MPxCommand {
 
 public:
-	virtual MStatus doIt(const MArgList&);
-	virtual MStatus undoIt();
-	virtual MStatus redoIt();
-	virtual bool isUndoable() const;
+	virtual MStatus doIt(const MArgList&args) override;
+	virtual MStatus undoIt() override;
+	virtual MStatus redoIt() override;
+	virtual bool isUndoable() const override;
 	static void *creator();
-//	static MSyntax newSyntax();
 
 private:
 	MStatus save_fluid_data();
 	MStatus save_fluid_internal(const unsigned fluidRes[3], const float* data,
-			const std::string& filename, MFnFluid& fluidFn);
+			const MString& filename, MFnFluid& fluidFn);
 	void bin_write(std::ofstream& fp, const char *input,
 			long int byte_size) const;
-	bool is_file_exist(const std::string &filename) const;
+	bool is_file_exist(const MString &filename) const;
 
 private:
 	MDagPath fluidShapePath;
+	MString dirname;
 };
 
 #endif

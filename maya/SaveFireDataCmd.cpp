@@ -4,7 +4,13 @@
 #include <maya/MGlobal.h>
 #include <maya/MItSelectionList.h>
 
-MStatus SaveFireDataCmd::doIt(const MArgList &) {
+#ifdef _WIN32
+#define FILE_SEP "\\"
+#else
+#define FILE_SEP "/"
+#endif
+
+MStatus SaveFireDataCmd::doIt(const MArgList &args) {
 	MStatus stat;
 	MSelectionList selection;
 
@@ -24,6 +30,34 @@ MStatus SaveFireDataCmd::doIt(const MArgList &) {
 	if (!fluidShapePath.isValid()) {
 		MGlobal::displayInfo("Please, select a fluid shape");
 		return MStatus::kFailure;
+	}
+
+	// Check that only one argument is given
+	MGlobal::displayInfo(std::to_string(args.length()).c_str());
+	if (args.length() <= 0) {
+		MGlobal::displayInfo(
+				"Please, provide directory path to save the files");
+		return MStatus::kFailure;
+	}
+
+	if (args.length() >= 2) {
+		MGlobal::displayError("Too many input arguments");
+		return MStatus::kFailure;
+	}
+
+	// Get directory path
+	args.get(0, dirname);
+
+	if (dirname.numChars() < 1) {
+		MGlobal::displayError("Please enter a valid directory path");
+		return MStatus::kFailure;
+	}
+
+	// Add file separator at the end of the file name if the user did not add it
+	const int file_sep_pos = dirname.rindex(FILE_SEP[0]);
+	if (file_sep_pos == -1
+			|| unsigned(file_sep_pos) != dirname.numChars() - 1) {
+		dirname = dirname + FILE_SEP;
 	}
 
 	return save_fluid_data();
@@ -55,14 +89,12 @@ MStatus SaveFireDataCmd::save_fluid_data() {
 		return MStatus::kFailure;
 	}
 
-	const std::string dirname("/home/gdp24/");
-
 	// Get the volume grid dimensions
 	unsigned fluidRes[3];
 	fluidFn.getResolution(fluidRes[0], fluidRes[1], fluidRes[2]);
 
 	// Save the density
-	std::string filename = dirname + "density.raw";
+	MString filename = dirname + "density.raw";
 	stat = save_fluid_internal(fluidRes, fluidFn.density(), filename, fluidFn);
 	if (stat != MStatus::kSuccess) {
 		return stat;
@@ -82,10 +114,10 @@ MStatus SaveFireDataCmd::save_fluid_data() {
 }
 
 MStatus SaveFireDataCmd::save_fluid_internal(const unsigned fluidRes[3],
-		const float* data, const std::string& filename, MFnFluid& fluidFn) {
+		const float* data, const MString& filename, MFnFluid& fluidFn) {
 
 	if (is_file_exist(filename)) {
-		MGlobal::displayError(("File " + filename + " already exists").c_str());
+		MGlobal::displayError("File " + filename + " already exists");
 		return MStatus::kFailure;
 	}
 
@@ -102,9 +134,9 @@ MStatus SaveFireDataCmd::save_fluid_internal(const unsigned fluidRes[3],
 	}
 
 	// Saving data in filename with raw 2 format
-	std::ofstream fp(filename, std::ios::out | std::ios::binary);
+	std::ofstream fp(filename.asChar(), std::ios::out | std::ios::binary);
 	if (!fp.is_open()) {
-		MGlobal::displayError(("Could not open file " + filename).c_str());
+		MGlobal::displayError("Could not open file " + filename);
 		return MStatus::kFailure;
 	}
 	try {
@@ -162,7 +194,7 @@ void SaveFireDataCmd::bin_write(std::ofstream& fp, const char *input,
 	}
 }
 
-bool SaveFireDataCmd::is_file_exist(const std::string& filename) const {
-	std::ifstream infile(filename);
+bool SaveFireDataCmd::is_file_exist(const MString& filename) const {
+	std::ifstream infile(filename.asChar());
 	return infile.good();
 }
