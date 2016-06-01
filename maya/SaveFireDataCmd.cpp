@@ -157,10 +157,10 @@ MStatus SaveFireDataCmd::save_fluid_internal(const unsigned fluidRes[3],
 					double density_val = data[fluidFn.index(i, j, k)];
 					if (density_val != 0) {
 						// Save, x,y,z for each point, switch y, z for Matlab
-						// consistency
-						bin_write(fp, reinterpret_cast<const char*>(&i), 4);
-						bin_write(fp, reinterpret_cast<const char*>(&k), 4);
-						bin_write(fp, reinterpret_cast<const char*>(&j), 4);
+						// consistency, and move to 1..N
+						bin_write(fp, reinterpret_cast<const char*>(&i + 1), 4);
+						bin_write(fp, reinterpret_cast<const char*>(&k + 1), 4);
+						bin_write(fp, reinterpret_cast<const char*>(&j + 1), 4);
 
 						// Save as RGBA, read file will divide by 256
 						density_val *= 256;
