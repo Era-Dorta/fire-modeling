@@ -6,6 +6,7 @@
 #include <maya/MPxCommand.h>
 #include <maya/MArgList.h>
 #include <maya/MDagPath.h>
+#include <maya/MFnFluid.h>
 
 class SaveFireDataCmd: public MPxCommand {
 
@@ -19,8 +20,12 @@ public:
 
 private:
 	MStatus save_fluid_data();
+	MStatus save_fluid_internal(const unsigned fluidRes[3], const float* data,
+			const std::string& filename, MFnFluid& fluidFn);
 	void bin_write(std::ofstream& fp, const char *input,
 			long int byte_size) const;
+	bool is_file_exist(const std::string &filename) const;
+
 private:
 	MDagPath fluidShapePath;
 };

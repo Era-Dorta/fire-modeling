@@ -3,7 +3,6 @@
 #include <maya/MSelectionList.h>
 #include <maya/MGlobal.h>
 #include <maya/MItSelectionList.h>
-#include <maya/MFnFluid.h>
 
 MStatus SaveFireDataCmd::doIt(const MArgList &) {
 	MStatus stat;
@@ -56,18 +55,46 @@ MStatus SaveFireDataCmd::save_fluid_data() {
 		return MStatus::kFailure;
 	}
 
+	const std::string dirname("/home/gdp24/");
+
 	// Get the volume grid dimensions
 	unsigned fluidRes[3];
 	fluidFn.getResolution(fluidRes[0], fluidRes[1], fluidRes[2]);
 
-	const float *density = fluidFn.density();
+	// Save the density
+	std::string filename = dirname + "density.raw";
+	stat = save_fluid_internal(fluidRes, fluidFn.density(), filename, fluidFn);
+	if (stat != MStatus::kSuccess) {
+		return stat;
+	}
+
+	// Save the temperature
+	filename = dirname + "temperature.raw";
+	stat = save_fluid_internal(fluidRes, fluidFn.temperature(), filename,
+			fluidFn);
+	if (stat != MStatus::kSuccess) {
+		return stat;
+	}
+
+	MGlobal::displayInfo("Saved data for " + fluidFn.name());
+
+	return MStatus::kSuccess;
+}
+
+MStatus SaveFireDataCmd::save_fluid_internal(const unsigned fluidRes[3],
+		const float* data, const std::string& filename, MFnFluid& fluidFn) {
+
+	if (is_file_exist(filename)) {
+		MGlobal::displayError(("File " + filename + " already exists").c_str());
+		return MStatus::kFailure;
+	}
 
 	// Count active voxels, assume 0 is background
 	int count = 0;
 	for (unsigned i = 0; i < fluidRes[0]; i++) {
 		for (unsigned j = 0; j < fluidRes[1]; j++) {
 			for (unsigned k = 0; k < fluidRes[2]; k++) {
-				if (density[fluidFn.index(i, j, k)] != 0) {
+				if (data[fluidFn.index(i, j, k)] != 0) {
 					count++;
 				}
 			}
@@ -75,14 +102,12 @@ MStatus SaveFireDataCmd::save_fluid_data() {
 	}
 
 	// Saving data in filename with raw 2 format
-	std::string filename("/home/gdp24/outtest.raw");
 	std::ofstream fp(filename, std::ios::out | std::ios::binary);
 	if (!fp.is_open()) {
 		MGlobal::displayError(("Could not open file " + filename).c_str());
 		return MStatus::kFailure;
 	}
 	try {
-
 		// Save width, height, depth, integer 4 bytes
 		bin_write(fp, reinterpret_cast<const char*>(&fluidRes[0]), 4);
 		bin_write(fp, reinterpret_cast<const char*>(&fluidRes[1]), 4);
@@ -98,7 +123,7 @@ MStatus SaveFireDataCmd::save_fluid_data() {
 		for (unsigned i = 0; i < fluidRes[0]; i++) {
 			for (unsigned j = 0; j < fluidRes[1]; j++) {
 				for (unsigned k = 0; k < fluidRes[2]; k++) {
-					double density_val = density[fluidFn.index(i, j, k)];
+					double density_val = data[fluidFn.index(i, j, k)];
 					if (density_val != 0) {
 						// Save, x,y,z for each point, switch y, z for Matlab
 						// consistency
@@ -124,10 +149,8 @@ MStatus SaveFireDataCmd::save_fluid_data() {
 		fp.close();
 		MGlobal::displayError(e.what());
 		return MStatus::kFailure;
+
 	}
-
-	MGlobal::displayInfo("Saved data for " + fluidFn.name());
-
 	return MStatus::kSuccess;
 }
 
@@ -137,4 +160,9 @@ void SaveFireDataCmd::bin_write(std::ofstream& fp, const char *input,
 	if (!fp) {
 		fp.exceptions(fp.failbit);
 	}
+}
+
+bool SaveFireDataCmd::is_file_exist(const std::string& filename) const {
+	std::ifstream infile(filename);
+	return infile.good();
 }
