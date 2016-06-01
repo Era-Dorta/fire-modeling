@@ -42,6 +42,12 @@ prior_vals = zeros(num_prior_fncs, numCandidates);
 
 total_size = numCandidates * GenomeLength;
 num_m_genes = ceil(mut_rate * numCandidates * GenomeLength);
+if mod(num_m_genes, 2) ~=  0
+    % Make total number of genes to be mutated an even number,
+    % effectively makes the mutation rate higher, but for high dimensional
+    % data the bias is negligible
+    num_m_genes = num_m_genes + 1;
+end
 
 % Create childrens for each parents
 for i=1:length(parents)
