@@ -21,6 +21,11 @@ raw_file_path = 'data/from_dmitry/bigFlame2/synthetic00000.raw';
 scene_name = 'test100_bigflame2';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 
+% N.B. Do not use mutationadapt* functions, as they'll try to allocate
+% 53GB matrices causing Out of Memory errors.
+options = L.options;
+options.MutationFcn = @gamutationscaleprior;
+
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 
