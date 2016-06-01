@@ -28,14 +28,13 @@ MStatus SaveFireDataCmd::doIt(const MArgList &args) {
 	}
 
 	if (!fluidShapePath.isValid()) {
-		MGlobal::displayInfo("Please, select a fluid shape");
+		MGlobal::displayError("Please, select a fluid shape");
 		return MStatus::kFailure;
 	}
 
 	// Check that only one argument is given
-	MGlobal::displayInfo(std::to_string(args.length()).c_str());
 	if (args.length() <= 0) {
-		MGlobal::displayInfo(
+		MGlobal::displayError(
 				"Please, provide directory path to save the files");
 		return MStatus::kFailure;
 	}
@@ -85,7 +84,7 @@ MStatus SaveFireDataCmd::save_fluid_data() {
 	MFnFluid fluidFn(fluidShapePath, &stat);
 
 	if (!fluidShapePath.isValid() || !stat) {
-		MGlobal::displayInfo("Please, select a fluid shape");
+		MGlobal::displayError("Please, select a fluid shape");
 		return MStatus::kFailure;
 	}
 
@@ -108,7 +107,7 @@ MStatus SaveFireDataCmd::save_fluid_data() {
 		return stat;
 	}
 
-	MGlobal::displayInfo("Saved data for " + fluidFn.name());
+	MGlobal::displayInfo("Saved density and temperature for " + fluidFn.name());
 
 	return MStatus::kSuccess;
 }
