@@ -33,15 +33,21 @@ MStatus SaveFireDataCmd::doIt(const MArgList &args) {
 	}
 
 	// Check that only one argument is given
-	if (args.length() <= 0) {
+	if (args.length() == 0) {
 		MGlobal::displayError(
 				"Please, provide directory path to save the files");
 		return MStatus::kFailure;
 	}
 
-	if (args.length() >= 2) {
+	if (args.length() >= 3) {
 		MGlobal::displayError("Too many input arguments");
 		return MStatus::kFailure;
+	}
+
+	if (args.length() == 1) {
+		background_threshold = 1e-6;
+	} else {
+		args.get(1, background_threshold);
 	}
 
 	// Get directory path
@@ -125,7 +131,7 @@ MStatus SaveFireDataCmd::save_fluid_internal(const unsigned fluidRes[3],
 	for (unsigned i = 0; i < fluidRes[0]; i++) {
 		for (unsigned j = 0; j < fluidRes[1]; j++) {
 			for (unsigned k = 0; k < fluidRes[2]; k++) {
-				if (data[fluidFn.index(i, j, k)] != 0) {
+				if (data[fluidFn.index(i, j, k)] > background_threshold) {
 					count++;
 				}
 			}
@@ -155,7 +161,7 @@ MStatus SaveFireDataCmd::save_fluid_internal(const unsigned fluidRes[3],
 			for (unsigned j = 0; j < fluidRes[1]; j++) {
 				for (unsigned k = 0; k < fluidRes[2]; k++) {
 					double density_val = data[fluidFn.index(i, j, k)];
-					if (density_val != 0) {
+					if (density_val > background_threshold) {
 						// Save, x,y,z for each point, switch y, z for Matlab
 						// consistency, and move to 1..N
 						bin_write(fp, reinterpret_cast<const char*>(&i + 1), 4);

@@ -28,6 +28,7 @@ private:
 private:
 	MDagPath fluidShapePath;
 	MString dirname;
+	double background_threshold;
 };
 
 #endif
