@@ -44,6 +44,31 @@ struct piccante_tone_map {
 	miScalar f_stop; // For Exposure correction
 };
 
+void get_default_parameters(pic::Image *img_in, float &image_exposure,
+		float &white_point) {
+	if (image_exposure <= 0.0f || white_point <= 0.0f) {
+		// If the user is using automated estimation, compute the actual values
+		// so that they can be reused
+		pic::Image *lum = pic::FilterLuminance::Execute(img_in, nullptr,
+				pic::LT_CIE_LUMINANCE);
+
+		float l_max = lum->getMaxVal()[0];
+		float l_min = lum->getMinVal()[0];
+
+		if (white_point <= 0.0f) {
+			white_point = pic::EstimateWhitePoint(l_max, l_min);
+			mi_info("Tone mapping: White Point estimate %e", white_point);
+		}
+
+		if (image_exposure <= 0.0f) {
+			float log_average = lum->getLogMeanVal()[0];
+			image_exposure = pic::EstimateAlpha(l_max, l_min, log_average);
+			mi_info("Tone mapping: Image Exposure estimate %e", image_exposure);
+		}
+
+	}
+}
+
 extern "C" DLLEXPORT int piccante_tone_map_version(void) {
 	return 1;
 }
@@ -107,15 +132,17 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 
 		pic::ExposureFusion(stack, wC, wE, wS, &pic_img);
 
-		// Exposure fusion doesn't needa gamma correction, but we can apply
-		/// exposure correction
+		// Exposure fusion doesn't need gamma correction, but we can apply
+		// exposure correction
 		pic::FilterSimpleTMO::Execute(&pic_img, &pic_img, 1.0f, f_stop);
 		break;
 	}
 	case 2: { // Reinhard
-		const miScalar white_point = *mi_eval_scalar(&paras->white_point);
-		const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
+		miScalar white_point = *mi_eval_scalar(&paras->white_point);
+		miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
 		const miScalar sharpenning = *mi_eval_scalar(&paras->sharpenning);
+
+		get_default_parameters(&pic_img, image_exposure, white_point);
 
 		pic::ReinhardTMO(&pic_img, &pic_img, image_exposure, white_point,
 				sharpenning);
@@ -125,8 +152,10 @@ extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 		break;
 	}
 	case 3: { // Lischinski
-		const miScalar white_point = *mi_eval_scalar(&paras->white_point);
-		const miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
+		miScalar white_point = *mi_eval_scalar(&paras->white_point);
+		miScalar image_exposure = *mi_eval_scalar(&paras->image_exposure);
+
+		get_default_parameters(&pic_img, image_exposure, white_point);
 
 		pic::LischinskiTMO(&pic_img, &pic_img, image_exposure, white_point);
 
