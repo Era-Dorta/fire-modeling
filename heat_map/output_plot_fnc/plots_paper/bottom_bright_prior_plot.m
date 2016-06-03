@@ -26,13 +26,6 @@ format_ticks(gca,{'$-\infty$', '0', '$th_{bb}$', '$t_{md}$'});
 ylabel('$f_{bb}(v_{i,j,k})$','Interpreter','latex','fontsize',fontsize);
 xlabel('$\left( v_{i,j-1,k} - v_{i,j,k} \right)$','Interpreter','latex','fontsize',fontsize);
 
-% Move labels closer to the figure
-ylabel_h = get(gca, 'YLabel');
-ylabel_h.Position = ylabel_h.Position + [0.1, 0, 0];
-
-xlabel_h = get(gca, 'XLabel');
-xlabel_h.Position = xlabel_h.Position + [0, 0.05, 0];
-
 % Strecht the x axis and squash the y axis
 pbaspect([1.1 0.5 1]);
 
