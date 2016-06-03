@@ -95,6 +95,8 @@ else
 end
 
 %% Mutation function
+check_size_limitations(L, init_heat_map);
+
 if isequal(L.options.MutationFcn, @gamutationadaptprior)
     
     [ prior_fncs, prior_weights, nCandidates ] = ...
