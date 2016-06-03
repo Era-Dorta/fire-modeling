@@ -36,6 +36,7 @@ slider_ui = uicontrol(fig_h, 'Style', 'slider', 'Value', bin_mask_threshold, ...
         if in_img_path == 0
             return;
         end
+        default_dir = img_dir;
         in_img_path = fullfile(img_dir, in_img_path);
         img = imread(in_img_path);
         if(size(img, 3) > 3)
@@ -57,6 +58,7 @@ slider_ui = uicontrol(fig_h, 'Style', 'slider', 'Value', bin_mask_threshold, ...
         if trimap_path == 0
             return;
         end
+        default_dir = img_dir;
         trimap_path = fullfile(img_dir, trimap_path);
         trimap_ori = imread(trimap_path);
         if(size(trimap_ori, 3) > 3)
@@ -94,6 +96,7 @@ slider_ui = uicontrol(fig_h, 'Style', 'slider', 'Value', bin_mask_threshold, ...
             if out_img_path == 0
                 return;
             end
+            default_dir = img_dir;
             out_img_path = fullfile(img_dir, out_img_path);
             imwrite(img_mask, out_img_path);
         end
