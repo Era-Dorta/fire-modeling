@@ -155,6 +155,42 @@ switch solver
         options.MaxIter = max_ite;
         options.TolFun = 0.0001;
         options.BatchEval = 200;
+    case 'permute'
+        % Permute uses GA options struct
+        % Get an empty gaoptions structure
+        options = gaoptimset(@ga);
+        options.PopulationSize = 200;
+        options.Generations = 20;
+        options.TimeLimit = time_limit;
+        options.Display = 'iter'; % Give some output on each iteration
+        options.StallGenLimit = 3;
+        options.Vectorized = 'on';
+        
+        options.CreationFcn = @gacreationheuristic3;
+        
+        creation_fnc_n_bins = 255;
+
+        options.CrossoverFcn = @gacrossovercombineprior;
+        
+        xover_nCandidates = 10;
+        
+        % Prior functions smoothnessEstimateGrad, upHeatEstimate,
+        % histogramErrorApprox, upHeatEstimateLinear, downHeatEstimate
+        xover_prior_fncs = {@smoothnessEstimateGrad, @downHeatEstimate};
+        
+        % Weights used to sum the error function and the prior functions
+        xover_prior_weights = [1/2, 1/2];
+        
+        % Temperature threshold for the upHeatEstimateLinear
+        xover_temp_th = 50;
+        
+        % Only function allowed
+        options.MutationFcn = @gamutationnone;
+                        
+        % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen,
+        % @ga_max_fnc_eval_limit, @gasavescores
+        options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...
+            @ga_time_limit, @ga_max_fnc_eval_limit, @gasavescores};
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'']'];
