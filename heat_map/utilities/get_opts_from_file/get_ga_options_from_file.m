@@ -86,7 +86,8 @@ elseif isequal(L.options.CrossoverFcn, @gacrossovercombine)
     
 else
     valid_foo = { @crossoverscattered ,@crossoversinglepoint, ...
-        @crossovertwopoint ,@crossoverintermediate, @crossoverheuristic };
+        @crossovertwopoint ,@crossoverintermediate, @crossoverheuristic, ...
+        @gacrossoverpermute};
     
     if ~isequalFncCell(L.options.CrossoverFcn, valid_foo)
         error(['Unkown GA CrossoverFcn @' func2str(L.options.CrossoverFcn) ...

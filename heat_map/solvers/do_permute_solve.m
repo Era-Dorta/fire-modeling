@@ -50,7 +50,7 @@ check_exit_conditions();
 disp('Iter F-count           f(x)');
 
 % Output init data
-fprintf('Init %7d    %.5e\n', state.FunEval, state.Best(end));
+fprintf('init %7d    %.5e\n', state.FunEval, state.Best(end));
 
 %% Main optimization
 while(exitflag == 0)
@@ -124,12 +124,13 @@ save_summary_file(paths_str.summary, summary_data, []);
     function check_exit_conditions()
         if exitflag == 0
             if state.Generation >= options.Generations
-                out_msg = 'max Generations exceeded';
+                out_msg = 'max generations exceeded';
                 exitflag = 1;
             elseif best_error < options.FitnessLimit;
                 out_msg = 'fitness function reached FitnessLimit';
                 exitflag = 1;
-            elseif best_error > options.TolFun;
+            elseif numel(best_error) >= 2 && abs(best_error(end - 1) - ...
+                    best_error(end)) > options.TolFun;
                 exitflag = 1;
                 out_msg = 'change in fitness function smaller than TolFun';
             end
