@@ -17,7 +17,7 @@ time_limit = 2 * 60 * 60; % Two hours
 switch solver
     case {'ga', 'ga-re'}
         % Get an empty gaoptions structure
-        options = gaoptimset;
+        options = gaoptimset(@ga);
         options.PopulationSize = 400;
         options.Generations = 20;
         options.TimeLimit = time_limit;
