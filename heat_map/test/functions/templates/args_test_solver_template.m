@@ -169,23 +169,15 @@ switch solver
         options.CreationFcn = @gacreationheuristic3;
         
         creation_fnc_n_bins = 255;
-
-        options.CrossoverFcn = @gacrossovercombineprior;
-        
-        xover_nCandidates = 10;
-        
-        % Prior functions smoothnessEstimateGrad, upHeatEstimate,
-        % histogramErrorApprox, upHeatEstimateLinear, downHeatEstimate
-        xover_prior_fncs = {@smoothnessEstimateGrad, @downHeatEstimate};
-        
-        % Weights used to sum the error function and the prior functions
-        xover_prior_weights = [1/2, 1/2];
-        
-        % Temperature threshold for the upHeatEstimateLinear
-        xover_temp_th = 50;
-        
+                
         % Only function allowed
-        options.MutationFcn = @gamutationnone;
+        options.MutationFcn = @gamutationpermute;
+        
+        % If using gamutationadaptprior the following have to be defined
+        mut_nCandidates = 10;
+        mut_prior_fncs = {@smoothnessEstimateGrad, @downHeatEstimate};
+        mut_prior_weights = [1/2, 1/2];
+        mut_temp_th = 50;
                         
         % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen,
         % @ga_max_fnc_eval_limit, @gasavescores

@@ -20,10 +20,6 @@ options.LinearConstr.lb = ones(init_heat_map.count, 1) * opts.LB;
 options.LinearConstr.ub = ones(init_heat_map.count, 1) * opts.UB;
 options.PopInitRange = [options.LinearConstr.lb'; options.LinearConstr.ub'];
 
-if ~isequal(options.MutationFcn, @gamutationnone)
-    error('For permute solver options.MutationFcn must be @gamutationnone');
-end
-
 best_error = 1;
 GenomeLength = init_heat_map.count;
 
@@ -40,9 +36,7 @@ state.Score = fitnessFnc(state.Population)';
 state.FunEval = options.PopulationSize;
 
 % Parent for each individual is itself
-parents = zeros(options.PopulationSize * 2, 1);
-parents(1:2:options.PopulationSize * 2 - 1) = 1:options.PopulationSize;
-parents(2:2:options.PopulationSize * 2) = 1:options.PopulationSize;
+parents = 1:options.PopulationSize;
 
 call_output_fnc('init');
 check_exit_conditions();
@@ -56,7 +50,7 @@ fprintf('init %7d    %.5e\n', state.FunEval, state.Best(end));
 while(exitflag == 0)
     
     % Permute and eval population
-    new_population = options.CrossoverFcn(parents, options, ...
+    new_population = options.MutationFcn(parents, options, ...
         GenomeLength, fitnessFnc, state.Score, state.Population);
     new_scores = fitnessFnc(new_population)';
     
