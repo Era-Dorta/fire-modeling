@@ -29,14 +29,13 @@ state = struct('Generation', 0, 'StartTime', startTime, 'StopFlag', [], 'Best', 
     'FunEval', 0);
 
 %% Population initialization
-
 state.Population = options.CreationFcn( GenomeLength, [], options);
 state.Score = fitnessFnc(state.Population)';
 [state.Best, best_idx] = min(state.Score);
 state.FunEval = options.PopulationSize;
 
 % Parent for each individual is itself
-parents = 1:options.PopulationSize;
+parents = zeros(1,options.PopulationSize) + best_idx;
 
 call_output_fnc('init');
 check_exit_conditions();
@@ -49,18 +48,31 @@ fprintf('init %7d    %.5e\n', state.FunEval, state.Best(end));
 %% Main optimization
 while(exitflag == 0)
     
-    % Permute and eval population
+    % Permute the best individual and eval the new population
     new_population = options.MutationFcn(parents, options, ...
         GenomeLength, fitnessFnc, state, state.Score, state.Population);
     new_scores = fitnessFnc(new_population)';
     
-    % Update the state
-    subs_idx = new_scores < state.Score;
-    state.Population(subs_idx, :) = new_population(subs_idx, :);
-    state.Score(subs_idx) = new_scores(subs_idx);
+    % Update the state, remove the worst population and and the best of the
+    % new, using this sorting to avoid concatenating new population in big
+    % matrix
+    [~, sorted_idx] = sort([state.Score; new_scores;]);
+    top_idx = sorted_idx(1:options.PopulationSize);
+    low_idx  = sorted_idx(options.PopulationSize+1:end);
+    to_del_idx = low_idx(low_idx <= options.PopulationSize);
+    to_add_idx = top_idx(top_idx > options.PopulationSize)-options.PopulationSize;
     
-    [best_score, best_idx] = min(state.Score);
-    state.Best = [state.Best, best_score];
+    state.Population(to_del_idx,:) = new_population(to_add_idx,:);
+    state.Score(to_del_idx) = new_scores(to_add_idx);
+    
+    best_idx = top_idx(1);
+    if top_idx(1) > options.PopulationSize
+        best_idx =  to_del_idx(1);
+    end
+    
+    parents(:) = best_idx;
+    
+    state.Best = [state.Best, state.Score(best_idx)];
     state.Generation = state.Generation + 1;
     state.FunEval = state.FunEval + options.PopulationSize;
     
