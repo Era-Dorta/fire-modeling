@@ -73,10 +73,10 @@ while(exitflag == 0)
     check_exit_conditions();
 end
 
-call_output_fnc('done');
-
 totalTime = toc(startTime);
-disp(['Optimization finished, ' out_msg ' ' state.StopFlag 'total time ' num2str(totalTime)]);
+disp(['Optimization finished, ' out_msg ', total time ' num2str(totalTime)]);
+
+call_output_fnc('done');
 
 FinalPopulation = state.Population;
 FinalScores = state.Score;
@@ -108,9 +108,9 @@ save_summary_file(paths_str.summary, summary_data, []);
             if optchanged
                 options = options_new;
             end
-            if ~isempty(state.StopFlag)
+            if exitflag == 0 && ~isempty(state.StopFlag)
+                out_msg = state.StopFlag;
                 exitflag = -1;
-                break;
             end
         end
     end
