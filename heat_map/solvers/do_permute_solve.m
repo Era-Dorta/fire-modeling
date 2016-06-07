@@ -92,7 +92,7 @@ visualize_score_space(output_data_path, paths_str.visualization_fig_path);
 
 %% Save summary file
 % In the summary file just say were the init population file was saved
-summary_data.OptimizationMethod = 'Genetic Algorithms';
+summary_data.OptimizationMethod = 'Permutations';
 summary_data.ImageError = state.Best(end);
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
