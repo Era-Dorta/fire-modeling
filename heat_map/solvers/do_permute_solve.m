@@ -51,7 +51,7 @@ while(exitflag == 0)
     
     % Permute and eval population
     new_population = options.MutationFcn(parents, options, ...
-        GenomeLength, fitnessFnc, state.Score, state.Population);
+        GenomeLength, fitnessFnc, state, state.Score, state.Population);
     new_scores = fitnessFnc(new_population)';
     
     % Update the state
