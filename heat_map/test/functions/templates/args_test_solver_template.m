@@ -155,7 +155,7 @@ switch solver
         options.MaxIter = max_ite;
         options.TolFun = 0.0001;
         options.BatchEval = 200;
-    case 'permute'
+    case {'permute', 'permute_ga'}
         % Permute uses GA options struct
         % Get an empty gaoptions structure
         options = gaoptimset(@ga);

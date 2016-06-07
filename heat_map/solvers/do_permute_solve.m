@@ -1,7 +1,7 @@
 function [ heat_map_v, best_error, exitflag] = do_permute_solve( ...
     init_heat_map, fitnessFnc, paths_str, summary_data, goal_img, ...
     goal_mask, opts)
-%DO_PERMUTE_SOLVE PERMUTE solver for heat map reconstruction
+%DO_PERMUTE_SOLVE solver for heat map reconstruction
 % Simple permutation based solver, use a gacreation function to create an
 % initial population, on each iteratio permute the voxels of the current
 % individual and keep the permutation if it is better than the previous one
