@@ -178,6 +178,7 @@ switch solver
         mut_prior_fncs = {@smoothnessEstimateGrad, @downHeatEstimate};
         mut_prior_weights = [1/2, 1/2];
         mut_temp_th = 50;
+        mut_rate = 0.03;
                         
         % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen,
         % @ga_max_fnc_eval_limit, @gasavescores
