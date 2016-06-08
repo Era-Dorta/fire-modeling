@@ -192,6 +192,7 @@ switch solver
         options.Display = 'iter'; % Give some output on each iteration
         options.StallGenLimit = 3;
         options.Vectorized = 'on';
+        options.CreationFcn = @gacreationrandom;
         
         options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...
             @ga_time_limit, @ga_max_fnc_eval_limit, @gasavescores};

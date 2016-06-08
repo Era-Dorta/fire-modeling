@@ -28,10 +28,6 @@ GenomeLength = init_heat_map.count;
 initHeatMap = options.CreationFcn( GenomeLength, [], options);
 fitnessFnc = @(x) fitnessFnc(x, initHeatMap);
 
-% The heatmap was saved as InitialPopulation, but it will be overwritten, 
-% save it with a different name
-save(output_data_path, 'initHeatMap');
-
 opts.options.CreationFcn = prev_creation;
 
 options = get_ga_options_from_file( opts, init_heat_map,  ...
@@ -60,11 +56,16 @@ totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
 % Decode the GA data into a heatmap
-[~, heat_map_idx] = sort(heat_map_idx);
-heat_map_v = initHeatMap(heat_map_idx);
+heat_map_v = decode_permute_ga_solve( heat_map_idx, initHeatMap );
 
 %% Save data to file
-save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
+FinalPopulation = decode_permute_ga_solve( FinalPopulation, initHeatMap );
+out_data = load(output_data_path);
+AllPopulation = decode_permute_ga_solve( out_data.AllPopulation, initHeatMap );
+InitialPopulation = decode_permute_ga_solve( out_data.InitialPopulation, initHeatMap );
+
+save(output_data_path, 'FinalPopulation', 'AllPopulation', ...
+    'InitialPopulation', 'FinalScores', 'initHeatMap', '-append');
 
 %% Visualize distance space
 visualize_score_space(output_data_path, paths_str.visualization_fig_path);
