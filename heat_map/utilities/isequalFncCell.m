@@ -9,6 +9,10 @@ if ~iscell(inFncCell)
     error('inFncCell must be a cell');
 end
 
+if iscell(inFnc)
+    inFnc = inFnc{1};
+end
+
 if ~isa(inFnc,'function_handle')
     error('inFnc must be a function handle');
 end

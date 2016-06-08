@@ -169,7 +169,7 @@ switch solver
         options.CreationFcn = @gacreationheuristic3;
         
         creation_fnc_n_bins = 255;
-                
+        
         % Only function allowed
         options.MutationFcn = @gamutationpermute;
         
@@ -179,11 +179,25 @@ switch solver
         mut_prior_weights = [1/2, 1/2];
         mut_temp_th = 50;
         mut_rate = 0.03;
-                        
+        
         % Any of @gaplotbestcustom, @ga_time_limit, @gaplotbestgen,
         % @ga_max_fnc_eval_limit, @gasavescores
         options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...
             @ga_time_limit, @ga_max_fnc_eval_limit, @gasavescores};
+    case 'permute_ga_float'
+        options = gaoptimset(@ga);
+        options.PopulationSize = 200;
+        options.Generations = 20;
+        options.TimeLimit = time_limit;
+        options.Display = 'iter'; % Give some output on each iteration
+        options.StallGenLimit = 3;
+        options.Vectorized = 'on';
+        
+        options.OutputFcns = {@gaplotbestcustom, @gaplotbestgen, ...
+            @ga_time_limit, @ga_max_fnc_eval_limit, @gasavescores};
+        
+        initCreationFnc = @gacreationheuristic3;
+        creation_fnc_n_bins = 255;
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'']'];
