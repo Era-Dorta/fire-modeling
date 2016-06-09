@@ -8,7 +8,7 @@ function [ mutationChildren ] = gamutationpermute(parents, ~, GenomeLength, ...
 nKids = length(parents);
 
 % Allocate space for the kids
-mutationChildren = thisPopulation;
+mutationChildren = zeros(length(parents),GenomeLength);
 
 numMgenes = ceil(mutRate * GenomeLength);
 
