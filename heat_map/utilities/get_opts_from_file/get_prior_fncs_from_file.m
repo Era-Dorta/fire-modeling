@@ -73,6 +73,10 @@ for i=1:num_prior_fncs
         prior_fncs{i} = @(v) histogramErrorApprox(v, goal_img, goal_mask, ...
             L.fuel_type, L.n_bins, L.is_histo_independent, L.color_space);
         
+    elseif isequal(prior_fncs{i}, @diffToHeatMap)
+        
+        prior_fncs{i} = @(v) diffToHeatMap(v, init_heat_map.v', L.LB, L.UB);
+        
     else
         error(['Unkown prior @' func2str(prior_fncs{i}) ' function ' L.args_path]);
     end
