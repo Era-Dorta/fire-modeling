@@ -35,6 +35,10 @@ symmetric = true; % Symmetric or asymmetric goal image
     goal_mask_img_path, mask_img_path] = get_test_paths(scene_name, ...
     multi_goal, symmetric);
 
+% Scale and offset used for the raw file
+raw_temp_scale = 1;
+raw_temp_offset = 0;
+
 % Threshold for edge detection, by default ignore any pixel that is less
 % than 10% foreground
 bin_mask_threshold = zeros(numel(goal_img_path), 1) + 1e-1;

@@ -21,6 +21,9 @@ raw_file_path = 'data/heat_maps/maya-flame-preset/temperature30-reduced.raw';
 scene_name = 'test102_maya_data';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 
+raw_temp_scale = 600;
+raw_temp_offset = 1200;
+
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 

@@ -86,6 +86,8 @@ try
     
     %% Volumetric data initialization
     init_heat_map = read_raw_file([opts.project_path opts.raw_file_path]);
+    init_heat_map.v = init_heat_map.v * opts.raw_temp_scale + ...
+        opts.raw_temp_offset;
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
