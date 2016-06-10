@@ -21,6 +21,6 @@ time_limit = 20; % In seconds
 options.TimeLimit = time_limit;
 
 % Update the variables that do not match the template
-save(args_path, 'time_limit', 'options', '-append');
+save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 
 end
