@@ -28,6 +28,11 @@ for i=1:numel(opts.error_foo)
         error_fnc{i} = @(syn_img) MSE(goal_img, syn_img, goal_mask, ...
             syn_img_mask);
         
+    elseif isequal(opts.error_foo{i}, @imageSideDistribution)
+        
+        error_fnc{i} = @(syn_img) imageSideDistribution(goal_img, syn_img, goal_mask,...
+            syn_img_mask, dist_fnc, opts.is_histo_independent);
+        
     else
         error(['Unkown GA error function @' func2str(error_fnc{i}) ' in ' ...
             L.args_path]);
