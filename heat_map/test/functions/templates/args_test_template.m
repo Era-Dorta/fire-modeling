@@ -80,15 +80,15 @@ approx_n_bins = 255;
 % Prior functions that are added to the error function in the fitness
 % function, any of smoothnessEstimate, smoothnessEstimateGrad,
 % upHeatEstimate, upHeatEstimateLinear, histogramErrorApprox,
-% downHeatEstimate
-prior_fncs = {@smoothnessEstimateGrad, @downHeatEstimate};
+% downHeatEstimate, diffToHeatMap
+prior_fncs = {@smoothnessEstimateGrad, @diffToHeatMap};
 
 % Temperature threshold for the upHeatEstimateLinear
 temp_th = 50;
 
 % Weights used to sum the error function and the prior functions, must be
 % of size prior_fncs + 1, first corresponds to error function
-prior_weights = [0.4, 0.4, 0.2];
+prior_weights = [0.4, 0.2, 0.4];
 
 clearvars('multi_goal', 'symmetric');
 
