@@ -12,8 +12,10 @@ if isempty(HC_GOAL)
     HC_GOAL = cell(numel(goal_imgs), 2);
     
     for i=1:numel(goal_imgs)
-        goal_imgs{i} = imresize(goal_imgs{i}, size(test_imgs{i}));
-        goal_mask{i} = imresize(goal_mask{i}, size(img_mask{i}));
+        size_temp = size(test_imgs{i});
+        goal_imgs{i} = imresize(goal_imgs{i}, size_temp(1:2));
+        size_temp = size(img_mask{i});
+        goal_mask{i} = imresize(goal_mask{i}, size_temp(1:2));
         
         if is_histo_independent
             [HC_GOAL{i, 1}, HC_GOAL{i, 2}]  = getImghvRGBHistogram( ...
