@@ -11,7 +11,8 @@ function fnc_names = clear_cache( fnc_names )
 if nargin == 0
     fnc_names = {'histogramErrorApprox', 'histogramErrorOpti', ...
         'histogramDErrorOpti', 'render_attr_fitness', ...
-        'heat_map_fitness_interp', 'heat_map_fitness'};
+        'heat_map_fitness_interp', 'heat_map_fitness', ...
+        'imageSideDistribution'};
 end
 
 clear(fnc_names{:});
