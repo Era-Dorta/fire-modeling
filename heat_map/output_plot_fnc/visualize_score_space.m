@@ -24,9 +24,13 @@ else
     fig_h = figure('Position', [1316 28 570 422]);
 end
 
+% Increase figure resolution
+fig_h.Position = fig_h.Position * 2;
+
 popSize = L.PopulationSize;
 num_iterations = size(in_data, 1) / popSize;
 min_idx = [0, 0];
+min_scores = [0, 0];
 
 offset = 0;
 
@@ -34,6 +38,10 @@ offset = 0;
 scatter(Y(:, 1), Y(:,2));
 x_axis_lim = xlim();
 y_axis_lim = ylim();
+
+% Circle radius scale is proportional to the axis size
+rscale = mean(diff(x_axis_lim) + diff(y_axis_lim))/100;
+line_width = 1;
 
 %% Simple case with one iteration only
 if num_iterations == 1
@@ -45,24 +53,24 @@ if num_iterations == 1
     xlim(x_axis_lim);
     ylim(y_axis_lim);
     
-    % Scatter has a legend color bug, do some hidden plots to get the
-    % colors right in the legend
-    hl1 = plot(1, 1, 'gx');
-    hl1.Visible = 'off';
+    % Do hidden plots to get the colors right in the legend
+    hl1 = plot(inf, inf, 'go');
+    hl2 = plot(inf, inf, 'bo');
     
-    scatter(Y(offset+1: popSize+offset, 1), Y(offset+1:popSize+offset,2), 'gx');
+    % 1st iteration population
+    viscircles(Y(offset+1: popSize+offset, :), scores(i,:)*rscale, ...
+        'Color','g', 'LineWidth', line_width);
     
-    [~, min_idx(1)] = min(scores(i,:));
+    [min_scores(1), min_idx(1)] = min(scores(i,:));
     min_idx(1) = min_idx(1) + offset;
     
-    % Start with a star
-    hl2 = plot(Y(min_idx(1), 1), Y(min_idx(1),2), '*r');
+    % Best in 1st iteration
+    viscircles(Y(min_idx(1),:), min_scores(1)*rscale, 'Color','r', ...
+        'LineWidth', line_width);
     
     % Legend using only the handlers that we are interested in
-    h_legend = legend([hl1, hl2], 'Initial Population',  ...
-        'Optimization Path Start Point' , 'Location', 'northoutside', ...
-        'Orientation','horizontal');
-    h_legend.FontSize = 6;
+    legend([hl1, hl2], 'Initial Population',  'Best Initial' , 'Location', ...
+        'northoutside', 'Orientation','horizontal');
     hold off;
     
     istr = sprintf('%03d', i - 1);
@@ -87,39 +95,44 @@ for i=1:num_iterations-1
     xlim(x_axis_lim);
     ylim(y_axis_lim);
     
-    % Scatter has a legend color bug, do some hidden plots to get the
-    % colors right in the legend
-    hl1 = plot(1, 1, 'gx');
-    hl1.Visible = 'off';
-    hl2 = plot(1, 1, 'bx');
-    hl2.Visible = 'off';
+    % Do hidden plots to get the colors right in the legend
+    hl1 = plot(inf, inf, 'go');
+    hl2 = plot(inf, inf, 'bo');
+    hl3 = plot(inf, inf, 'ro');
+    hl4 = plot(inf, inf, 'ko');
     
-    scatter(Y(offset+1: popSize+offset, 1), Y(offset+1:popSize+offset,2), 'gx');
+    % ith iteration population
+    viscircles(Y(offset+1: popSize+offset, :), scores(i,:)*rscale, ...
+        'Color','g', 'LineWidth', line_width);
     
-    [~, min_idx(1)] = min(scores(i,:));
+    [min_scores(1), min_idx(1)] = min(scores(i,:));
     min_idx(1) = min_idx(1) + offset;
     
     offset = offset + popSize;
     
-    scatter(Y(offset+1: popSize+offset, 1), Y(offset+1:popSize+offset,2), 'bx');
+    % ith + 1 iteration population
+    viscircles(Y(offset+1: popSize+offset, :), scores(i+1,:)*rscale, ...
+        'Color','b', 'LineWidth', line_width);
     
-    [~, min_idx(2)] = min(scores(i+1,:));
+    
+    [min_scores(2), min_idx(2)] = min(scores(i+1,:));
     min_idx(2) = min_idx(2) + offset;
     
-    % Start with a star
-    hl3 = plot(Y(min_idx(1), 1), Y(min_idx(1),2), '*r');
+    % Best of ith iteration
+    viscircles(Y(min_idx(1),:), min_scores(1)*rscale, 'Color','r', ...
+        'LineWidth', line_width);
     
-    % Line from start to second
+    % Line from best in ith iteration to best in ith + 1 iteration
     plot(Y(min_idx(1:2), 1), Y(min_idx(1:2),2), '--r');
     
-    % End with a o
-    hl4 = plot(Y(min_idx(2), 1), Y(min_idx(2), 2), '--or');
+    % Best in ith + 1 iteration
+    viscircles(Y(min_idx(2),:), min_scores(2)*rscale, 'Color','k', ...
+        'LineWidth', line_width);
     
     % Legend using only the handlers that we are interested in
-    h_legend = legend([hl1, hl2, hl3, hl4], 'Initial Population', 'Final Population', ...
-        'Start Point', 'Optimization Path', 'Location', ...
-        'northoutside', 'Orientation', 'horizontal');
-    h_legend.FontSize = 6;
+    legend([hl1, hl2, hl3, hl4], 'Initial Population', 'Final Population', ...
+        'Best Initial', 'Best Final', 'Location', 'northoutside', ...
+        'Orientation', 'horizontal');
     hold off;
     
     istr = sprintf('%03d', i - 1);
