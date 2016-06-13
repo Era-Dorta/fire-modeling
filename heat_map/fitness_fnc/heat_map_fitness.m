@@ -16,7 +16,8 @@ end
 output_img_folder = [scene_img_folder output_img_folder_name];
 
 num_error_foos = size(error_foo, 2);
-error_v = zeros(num_error_foos, size(heat_map_v, 1));
+error_v = zeros(1, size(heat_map_v, 1));
+error_vals = zeros(num_error_foos, 1);
 
 num_prior_fncs = numel(prior_fncs);
 prior_vals = zeros(num_prior_fncs, 1);
@@ -32,8 +33,8 @@ for pop=1:size(heat_map_v, 1)
     if isKey(CACHE, key)
         error_v(:, pop) = CACHE(key);
         
-        if(error_v(1, pop) < best_error)
-            best_error = error_v(1, pop);
+        if(error_v(pop) < best_error)
+            best_error = error_v(pop);
             best_in_cache = true;
         end
     else
@@ -104,12 +105,13 @@ for pop=1:size(heat_map_v, 1)
         c_img_converted = colorspace_transform_imgs(c_img, 'RGB', color_space);
         
         % Evaluate all the error functions, usually only one will be given
+        error_vals(:) = 0;
         for i=1:num_error_foos
             if(any(cellfun(@(x)sum(x(:)), c_img) == 0))
                 % If any of the rendered image is completely black set the error manually
-                error_v(i, pop) = 1;
+                error_vals(i,:) = 1;
             else
-                error_v(i, pop) = sum(error_foo{i}(c_img_converted));
+                error_vals(i,:) = sum(error_foo{i}(c_img_converted));
             end
         end
         
@@ -118,7 +120,7 @@ for pop=1:size(heat_map_v, 1)
             prior_vals(i,:) = prior_fncs{i}(heat_map_v(pop, :));
         end
         
-        error_v(1, pop) = prior_weights * [error_v(1, pop); prior_vals];
+        error_v(1, pop) = prior_weights * [error_vals; prior_vals];
         
         % Save the best images so far outside of the temp folder
         if(error_v(1, pop) < best_error)

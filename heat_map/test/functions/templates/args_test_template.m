@@ -61,7 +61,8 @@ use_approx_fitness = false; % Using the approximate fitness function?
 dist_foo = @chi_square_statistics_fast;
 
 % Error function used in the fitness function
-% One of: histogramErrorOpti, histogramDErrorOpti, MSE
+% Any combination of: histogramErrorOpti, histogramDErrorOpti, MSE,
+% imageSideDistribution
 error_foo = {@histogramDErrorOpti};
 
 % Number of histogram bins, used by histogramErrorOpti, histogramDErrorOpti
@@ -91,8 +92,10 @@ prior_fncs = {@smoothnessEstimateGrad, @diffToHeatMap};
 temp_th = 50;
 
 % Weights used to sum the error function and the prior functions, must be
-% of size prior_fncs + 1, first corresponds to error function
+% of size error_foo + prior_fncs, first values corresponds to error function
 prior_weights = [0.4, 0.2, 0.4];
+
+approx_fitness_weights = [0.4, 0.2, 0.4];
 
 clearvars('multi_goal', 'symmetric');
 

@@ -155,6 +155,8 @@ try
             dist_fnc, opts.fuel_type, opts.approx_n_bins, ...
             opts.is_histo_independent, opts.color_space);
         
+        prior_weights = opts.approx_fitness_weights;
+        
         fitness_foo = @(x)heat_map_fitness_approx(x, approx_error_foo, ...
             prior_fncs, prior_weights);
     else
@@ -304,7 +306,14 @@ try
         
         clear_cache; % Clear the fnc cache as we are evaluating again
         
-        L.summary_data.RealError = sum(error_foo{1}(c_img));
+        real_error = 0;
+        for i=1:numel(error_foo)
+            real_error = real_error + sum(error_foo{i}(c_img)) * ...
+                opts.prior_weights(i);
+        end
+        
+        L.summary_data.RealError = real_error / ...
+            sum(opts.prior_weights(1:numel(error_foo)));
         
         disp(['Real error ' num2str(L.summary_data.RealError)]);
         summary_data = L.summary_data;
@@ -324,7 +333,14 @@ try
         
         clear_cache; % Clear the fnc cache as we are evaluating again
         
-        L.summary_data.ImageErrorSingleView = sum(error_foo{1}({c_img}));
+        single_error = 0;
+        for i=1:numel(error_foo)
+            single_error = single_error + sum(error_foo{i}({c_img})) * ...
+                opts.prior_weights(i);
+        end
+        
+        L.summary_data.ImageErrorSingleView = single_error / ...
+            sum(opts.prior_weights(1:numel(error_foo)));
         
         summary_data = L.summary_data;
         save([paths_str.summary '.mat'], 'summary_data', '-append');
