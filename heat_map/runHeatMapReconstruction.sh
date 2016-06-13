@@ -1,4 +1,20 @@
 #!/bin/bash
+
+# trap ctrl-c to make sure all the Maya instances are closed
+trap ctrl_c INT
+function ctrl_c() {
+	# Execute only once 
+	if [ "$FIRST_CTRLC" = true ] ; then
+		FIRST_CTRLC=false
+
+		# Close all the Maya instances, launch with setsid to make sure it 
+		# cannot be interrupted
+		setsid "$CDIR/closeMayaBatch.sh" "$INIT_PORT" "$NUM_MAYA"
+
+		exit 1
+	fi
+}
+
 if [ "$#" -lt 3 ]; then
         
     # If no arguments are given set number of Maya instances to number of 
@@ -38,6 +54,8 @@ else
 	INIT_PORT=$2
 	NUM_MAYA=$3
 fi
+
+FIRST_CTRLC=true
 
 # Get the full path of the .mat file, also add '' for matlab syntax
 DATA_FILE="'$(readlink -e "$1")'"

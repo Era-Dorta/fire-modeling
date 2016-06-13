@@ -18,7 +18,9 @@ function runSingleMaya()
 	    return 0
     fi
 
-    nice -n20 maya -batch -command "commandPort -n \":$PORT\";" &> /dev/null &
+	# Run with setsid to protect Maya from the parent ctrl-c, allows Maya to be 
+	# closed gracefully
+    setsid nice -n20 oriMaya -batch -command "commandPort -n \":$PORT\";" &> /dev/null &
     
     # sendToMaya command will wait for Maya to open and be ready, but weird
     # errors sometime happen, so give Maya some extra time before even
@@ -43,7 +45,7 @@ function runSingleMayaLog()
     > "${LOGNAME}" # Create/Truncate the file
 
 	# Redirect with >> so the file can be truncated by each Matlab run
-    nice -n20 maya -batch -command "commandPort -n \":$PORT\";" &>> "${LOGNAME}" &
+    setsid nice -n20 oriMaya -batch -command "commandPort -n \":$PORT\";" &>> "${LOGNAME}" &
     
     # sendToMaya command will wait for Maya to open and be ready, but weird
     # errors sometime happen, so give Maya some extra time before even
