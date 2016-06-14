@@ -101,6 +101,11 @@ if(individualsToCreate > 0)
         end
     end
     
+    % Move each temperature randomly inside its bin range
+    randTscale = (bbdata(2,1) - bbdata(1,1))/2;
+    randTnoise = (rand(size(InitPopHeuristic)) - 0.5) * randTscale;
+    InitPopHeuristic = InitPopHeuristic + randTnoise;
+    
     InitialPopulation(initPopProvided + 1:end, :) = InitPopHeuristic;
 end
 
