@@ -18,11 +18,11 @@ project_path = '~/maya/projects/fire/';
 scene_img_folder = [project_path 'images/' scene_name '/'];
 
 goal_mask_img_path{1} = [scene_img_folder 'maskcam1.png'];
-mask_img_path{1} = [scene_img_folder 'maskcam1.png'];
+mask_img_path{1} = [scene_img_folder 'mask-synthetic1.png'];
 
 if multi_goal
     goal_mask_img_path{2} = [scene_img_folder 'maskcam2.png'];
-    mask_img_path{2} = [scene_img_folder 'maskcam2.png'];
+    mask_img_path{2} = [scene_img_folder 'mask-synthetic2.png'];
 end
 
 if symmetric
