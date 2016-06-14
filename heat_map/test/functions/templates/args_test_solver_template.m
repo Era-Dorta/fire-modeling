@@ -28,7 +28,8 @@ switch solver
         % One of the following:
         % @gacreationrandom, @gacreationfrominitguess, @gacreationlinspace,
         % @gacreationuniform, @gacreationlinearfeasible,
-        % @gacreationheuristic1, @gacreationheuristic2, @gacreationheuristic3,
+        % @gacreationheuristic1, @gacreationheuristic2,
+        % @gacreationheuristic3, @gacreationheuristic4,
         % @gacreationfrominitguess needs the variables creation_fnc_mean,
         % and creation_fnc_sigma to be saved in the solver.mat file as well.
         options.CreationFcn = @gacreationheuristic3;
