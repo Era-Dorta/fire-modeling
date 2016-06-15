@@ -53,7 +53,7 @@ MStatus LoadFireDataCmd::doIt(const MArgList& args) {
 }
 
 MStatus LoadFireDataCmd::undoIt() {
-	// One option would be to delete the file, but it is safer to do nothing
+	//TODO Save previous fluid temperature and restore it here
 	return MStatus::kSuccess;
 }
 
@@ -119,7 +119,7 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 			return MStatus::kFailure;
 		}
 
-		// Clear all temperatures
+		// Clear all the temperatures
 		for (unsigned i = 0; i < fluidFn.gridSize(); i++) {
 			fluidFn.temperature()[i] = 0;
 		}
