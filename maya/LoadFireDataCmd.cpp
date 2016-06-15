@@ -133,7 +133,8 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 
 			if (x == 0 || y == 0 || z == 0) {
 				MGlobal::displayError(
-						MString("Invalid index ") + x + y + z + " " + filename);
+						MString("Invalid index ") + x + "," + y + "," + z + " "
+								+ filename);
 				return MStatus::kFailure;
 			}
 
@@ -144,7 +145,8 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 
 			if ((int) x >= width || (int) y >= height || (int) z >= depth) {
 				MGlobal::displayError(
-						MString("Invalid index ") + x + y + z + " " + filename);
+						MString("Invalid index ") + x + "," + y + "," + z + " "
+								+ filename);
 				return MStatus::kFailure;
 			}
 
