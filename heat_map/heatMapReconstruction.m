@@ -20,12 +20,8 @@ function heatMapReconstruction(args_path, ports, logfile)
 addpath(genpath(fileparts(mfilename('fullpath'))));
 
 %% Setting clean up functions
-% Clear all the functions
+% Clear all the functions, includes gcp clear
 clearCloseObj = onCleanup(@clear_cache);
-if(numel(ports) > 1)
-    % If running of parallel, clear the functions in the workers as well
-    clearParCloseObj = onCleanup(@() parfevalOnAll(gcp, @clear_cache, 0));
-end
 
 %% Avoid data overwrites by always creating a new folder
 try

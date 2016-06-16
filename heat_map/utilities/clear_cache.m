@@ -15,6 +15,11 @@ if nargin == 0
         'imageSideDistribution'};
 end
 
-clear(fnc_names{:});
+p = gcp('nocreate');
+if isempty(p)
+    clear(fnc_names{:});
+else
+    parfevalOnAll(p, @clear, 0, fnc_names{:});
+end
 end
 
