@@ -101,7 +101,7 @@ try
     end
     
     maya_common_initialization(maya_send, ports, opts.scene_name, ...
-        opts.fuel_type, num_goal);
+        opts.fuel_type, num_goal, opts.is_mr);
     
     %% Summary data is mainly the options from the load file
     summary_data = opts;
@@ -259,9 +259,7 @@ try
     % Set the heat map file as temperature file
     % Either set the full path or set the file relative maya path for
     % temperature_file_first and force frame update to run
-    cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
-    cmd = [cmd '$HOME/' output_img_folder(3:end) 'heat-map.raw\"'];
-    maya_send{1}(cmd, 0);
+    load_hm_in_maya([output_img_folder 'heat-map.raw'], maya_send{1});
     
     disp(['Rendering final images in ' output_img_folder 'optimized-Cam<d>.tif' ]);
     
@@ -281,9 +279,7 @@ try
         maya_send{1}(cmd, 0);
         
         % Render the image
-        tic;
-        cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
-        maya_send{1}(cmd, 1);
+        send_render_cmd(maya_send{1}, istr);
         
         % Deactivate the current camera
         if(num_goal > 1)

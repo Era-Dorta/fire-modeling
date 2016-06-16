@@ -52,9 +52,7 @@ for pop=1:size(heat_map_v, 1)
         %% Set the heat map file as temperature file
         % Either set the full path or set the file relative maya path for
         % temperature_file_first and force frame update to run
-        cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
-        cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
-        maya_send(cmd, 0);
+        load_hm_in_maya(heat_map_path, maya_send);
         
         c_img = cell(num_goal, 1);
         
@@ -77,9 +75,7 @@ for pop=1:size(heat_map_v, 1)
             maya_send(cmd, 0);
             
             %% Render the image
-            cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
-            maya_send(cmd, 1);
-            %fprintf('Image rendered with');
+            send_render_cmd(maya_send, istr);
             
             %% Deactivate the current camera
             if(num_goal > 1)

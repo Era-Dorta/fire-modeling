@@ -27,6 +27,7 @@ solver = 'ga';
 fuel_type = 0;
 
 scene_name = 'test97_gaussian_new_linchiski';
+is_mr = true; % True if using Mental Ray, false if using Maya Software
 
 % Geat goal image path with convenience function
 multi_goal = false; % Single or two goal image optimization

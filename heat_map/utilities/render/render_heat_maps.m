@@ -1,5 +1,5 @@
 function render_heat_maps( heat_map_v, xyz, whd, scene_name, scene_img_folder, ...
-    output_folder, maya_send, name_offset)
+    output_folder, maya_send, name_offset, cam_num)
 %RENDER_HEAT_MAPS Renders heat maps in a folder
 %    RENDER_HEAT_MAPS( HEAT_MAP_V, XYZ, WHD, SCENE_NAME, SCENE_IMG_FOLDER, ...
 %     OUTPUT_FOLDER, MAYA_SEND)
@@ -18,9 +18,7 @@ for pop=1:size(heat_map_v, 1)
     %% Set the heat map file as temperature file
     % Either set the full path or set the file relative maya path for
     % temperature_file_first and force frame update to run
-    cmd = 'setAttr -type \"string\" fire_volume_shader.temperature_file \"';
-    cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
-    maya_send(cmd, 0);
+    load_hm_in_maya(heat_map_path, maya_send);
     
     %% Set the folder and name of the render image
     cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
@@ -32,8 +30,7 @@ for pop=1:size(heat_map_v, 1)
     % the GUI, use Mayatomr -preview. and then save the image with
     % $filename = "Path to save";
     % renderWindowSaveImageCallback "renderView" $filename "image";
-    cmd = 'Mayatomr -verbosity 2 -render -renderVerbosity 2';
-    maya_send(cmd, 1);
+    send_render_cmd(maya_send, cam_num);
 end
 
 end

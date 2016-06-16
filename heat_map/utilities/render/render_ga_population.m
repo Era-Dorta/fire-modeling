@@ -25,7 +25,7 @@ for i=1:num_goal
     
     render_heat_maps( population, init_heat_map.xyz, init_heat_map.size, ...
         opts.scene_name, opts.scene_img_folder, output_folder_rel, ...
-        maya_send, par_offset);
+        maya_send, par_offset, istr);
     
     % Deactive current camera
     if(num_goal > 1)
