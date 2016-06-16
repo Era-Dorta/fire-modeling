@@ -82,6 +82,8 @@ IF( MAYA_LOCATION )
 	SET( MAYA_DEFINITIONS 
 	  "-DREQUIRE_IOSTREAM -DBits64_ -DPG_MAYA_PLUGIN -D_BOOL"
 	)
+	
+	SET( MAYA_LIB_NAMES Foundation OpenMaya OpenMayaUI OpenMayaAnim OpenMayaFX OpenMayaRender Image )
 		
 	IF( WIN32 )
 		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -nologo -D_WIN32 -DWIN32 -DNT_PLUGIN -D_WINDOWS -D_WINDLL -DVC80_UPGRADE=0x0710" )
@@ -93,6 +95,10 @@ IF( MAYA_LOCATION )
 		SET( MAYA_LIBRARY_STYLE MODULE )
 		SET( MAYA_TBB_LIBRARIES ${MAYA_LIBRARY_DIR}/tbb.lib ${MAYA_LIBRARY_DIR}/tbbmalloc.lib )
 		SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_LIBRARY_DIR}/../bin/tbb.dll ${MAYA_LIBRARY_DIR}/../bin/tbbmalloc.dll )
+		
+		FOREACH(LIB_NAME ${MAYA_LIB_NAMES}) 
+				SET( MAYA_LIBRARIES  ${MAYA_LIBRARIES} ${MAYA_LIBRARY_DIR}/${LIB_NAME}.dll )
+		ENDFOREACH()
 	ELSE( WIN32 )
 		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -D_GNU_SOURCE -DCC_GNU_ -D_LANGUAGE_C_PLUS_PLUS -Wall -Wextra -Wno-unused-parameter -fno-strict-aliasing -funsigned-char" )
 		
@@ -110,18 +116,25 @@ IF( MAYA_LOCATION )
 			SET( MAYA_LIBRARY_STYLE MODULE )
 			SET( MAYA_TBB_LIBRARIES ${MAYA_LIBRARY_DIR}/libtbb.dylib ${MAYA_LIBRARY_DIR}/libtbbmalloc.dylib )
 			SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_TBB_LIBRARIES} )
+			FOREACH(LIB_NAME ${MAYA_LIB_NAMES}) 
+				SET( MAYA_LIBRARIES  ${MAYA_LIBRARIES} ${MAYA_LIBRARY_DIR}/lib${LIB_NAME}.dylib )
+			ENDFOREACH()
 		ELSE( APPLE )
 			SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -pthread -m64 -DUNIX -D_BOOL -DLINUX -DFUNCPROTO -D_GNU_SOURCE -DLINUX_64 -fPIC -fno-strict-aliasing -Wno-deprecated -Wall -Wno-multichar -Wno-comment -Wno-sign-compare -funsigned-char -Wno-reorder -fno-gnu-keywords -ftemplate-depth-25" )
 			SET( MAYA_LIBRARY_STYLE SHARED )
 			SET( MAYA_TBB_LIBRARIES ${MAYA_LIBRARY_DIR}/libtbb.so ${MAYA_LIBRARY_DIR}/libtbbmalloc.so )
 			SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_TBB_LIBRARIES} )
+			FOREACH(LIB_NAME ${MAYA_LIB_NAMES}) 
+				SET( MAYA_LIBRARIES  ${MAYA_LIBRARIES} ${MAYA_LIBRARY_DIR}/lib${LIB_NAME}.so )
+			ENDFOREACH()
 		ENDIF( APPLE )
 	ENDIF( WIN32 )
 		
 	SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -D_MAYA_VERSION_${MAYA_VERSION} -D_MAYA_VERSION=${MAYA_VERSION}" )
 	
-	# Do not link with libraries that will be linked by /usr/lib, prevents some warnings
 	IF(NOT UNIX)
+		# Maya on linux includes tbb, malloc and other libraries that are
+		# already included as system libraries
 		LINK_DIRECTORIES( ${MAYA_LIBRARY_DIR} )
 	ENDIF(NOT UNIX)
 	
