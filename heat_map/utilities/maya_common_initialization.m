@@ -4,7 +4,7 @@ function maya_common_initialization( maya_send, ports, scene_name, ...
 %   MAYA_COMMON_INITIALIZATION( MAYA_SEND, PORTS, SCENE_NAME, ...
 %   FUEL_TYPE, NUM_GOAL )
 
-% Initialization of load and send functions, set Maya software renderer or 
+% Initialization of load and send functions, set Maya software renderer or
 % Mental Ray renderer
 load_hm_in_maya([], [], is_mr);
 send_render_cmd([], [], is_mr);
@@ -17,6 +17,11 @@ for i=1:numel(ports)
     
     % Open our test scene
     cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
+    maya_send{i}(cmd, 0);
+    
+    % Set random seed for reproducibility, most noticeable when using Maya 
+    % Software renderer
+    cmd = 'seed(0)';
     maya_send{i}(cmd, 0);
     
     if is_mr
