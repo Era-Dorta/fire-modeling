@@ -101,7 +101,7 @@ for i=1:length(parents)
     % Check of empty trial points
     if (numberOfXtrials ~= 0)
         mutantCandidates = zeros(maxCandidates, GenomeLength);
-        numCandidates = 0;
+        numC = 0;
         for k = 1:numberOfXtrials
             direction = dirSign(k).*DirVector(:,indexVec(OrderVec(k)));
             mutant = x + StepSize*scale.*direction;
@@ -111,31 +111,31 @@ for i=1:length(parents)
                     linCon.beq,linCon.lb,linCon.ub,tol);
             end
             if feasible
-                numCandidates = numCandidates + 1;
-                mutantCandidates(numCandidates,:) = mutant';
-                if(numCandidates == maxCandidates)
+                numC = numC + 1;
+                mutantCandidates(numC,:) = mutant';
+                if(numC == maxCandidates)
                     break;
                 end
             end
         end
-        if(numCandidates > 0)
+        if(numC > 0)
             % If there is only one candidate do not bother computing the
             % prior estimates
-            if(numCandidates == 1)
+            if(numC == 1)
                 mutationChildren(i,:) = mutantCandidates(1,:);
             else
                 
                 prior_vals(:) = 0;
                 for j=1:num_prior_fncs
-                    prior_vals(j,:) = prior_fncs{j}(mutantCandidates);
-                    prior_vals(j,:) = weights2prob(prior_vals(j,:), true);
+                    prior_vals(j,1:numC) = prior_fncs{j}(mutantCandidates(1:numC, :));
+                    prior_vals(j,1:numC) = weights2prob(prior_vals(j,1:numC), true);
                 end
                 
-                total_prob = prior_weights * prior_vals;
+                total_prob = prior_weights * prior_vals(:,1:numC);
                 
                 % Choose a mutant with a probability proportional to a
                 % combination of the prior estimates
-                mutant_idx = randsample(1:numCandidates, 1, true, total_prob);
+                mutant_idx = randsample(1:numC, 1, true, total_prob);
                 
                 mutationChildren(i,:) = mutantCandidates(mutant_idx, :);
             end
