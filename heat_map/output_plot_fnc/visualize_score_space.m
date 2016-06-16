@@ -48,6 +48,7 @@ if num_iterations == 1
     i = 1;
     
     clf(fig_h);
+    set(groot, 'CurrentFigure', fig_h);
     
     hold on;
     xlim(x_axis_lim);
@@ -88,6 +89,7 @@ open(outputVideo);
 
 for i=1:num_iterations-1
     clf(fig_h);
+    set(groot, 'CurrentFigure', fig_h);
     
     hold on;
     
