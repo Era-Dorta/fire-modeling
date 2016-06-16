@@ -19,9 +19,13 @@ for i=1:numel(ports)
     cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
     maya_send{i}(cmd, 0);
     
-    % Set random seed for reproducibility, most noticeable when using Maya 
+    % Set random seed for reproducibility, most noticeable when using Maya
     % Software renderer
     cmd = 'seed(0)';
+    maya_send{i}(cmd, 0);
+    
+    % Load the Maya data plugin
+    cmd = 'loadPlugin \"SaveFireDataPlugin\"';
     maya_send{i}(cmd, 0);
     
     if is_mr
