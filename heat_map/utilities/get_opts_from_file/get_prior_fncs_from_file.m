@@ -77,6 +77,16 @@ for i=1:num_prior_fncs
         
         prior_fncs{i} = @(v) diffToHeatMap(v, init_heat_map.v', L.LB, L.UB);
         
+    elseif isequal(prior_fncs{i}, @diffToHeatMapWithNeigh)
+        
+        if fixed_size
+            prior_fncs{i} = @(v) diffToHeatMapWithNeigh(v, init_heat_map.v', ...
+                init_heat_map.size, init_heat_map.xyz, L.LB, L.UB);
+        else
+            prior_fncs{i} = @(v, xyz, whd) diffToHeatMapWithNeigh(v,  ...
+                init_heat_map.v', wdh, xyz, L.LB, L.UB);
+        end
+        
     else
         error(['Unkown prior @' func2str(prior_fncs{i}) ' function ' L.args_path]);
     end
