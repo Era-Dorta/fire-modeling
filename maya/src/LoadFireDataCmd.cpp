@@ -34,7 +34,8 @@ MStatus LoadFireDataCmd::doIt(const MArgList& args) {
 
 	// Check that only one argument is given
 	if (args.length() <= 3) {
-		MGlobal::displayError("Please, enter a shape name and a raw file path");
+		MGlobal::displayError("Syntax is loadFireData <shape name> "
+				"<raw file path> <scale> <offset>");
 		return MStatus::kFailure;
 	}
 
