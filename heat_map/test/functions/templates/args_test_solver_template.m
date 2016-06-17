@@ -48,7 +48,7 @@ switch solver
         
         % Prior functions smoothnessEstimateGrad, upHeatEstimate,
         % histogramErrorApprox, upHeatEstimateLinear, downHeatEstimate
-        xover_prior_fncs = {@smoothnessEstimateGrad, @diffToHeatMap};
+        xover_prior_fncs = {@smoothnessEstimateGrad, @diffToHeatMapWithNeigh};
         
         % Weights used to sum the error function and the prior functions
         xover_prior_weights = [0.4, 0.6];
@@ -63,7 +63,7 @@ switch solver
         
         % If using gamutationadaptprior the following have to be defined
         mut_nCandidates = 10;
-        mut_prior_fncs = {@smoothnessEstimateGrad, @diffToHeatMap};
+        mut_prior_fncs = {@smoothnessEstimateGrad, @diffToHeatMapWithNeigh};
         mut_prior_weights = [0.4, 0.6];
         mut_temp_th = 50;
         

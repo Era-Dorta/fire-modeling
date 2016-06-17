@@ -64,7 +64,7 @@ dist_foo = @chi_square_statistics_fast;
 % Error function used in the fitness function
 % Any combination of: histogramErrorOpti, histogramDErrorOpti, MSE,
 % imageSideDistribution
-error_foo = {@histogramDErrorOpti};
+error_foo = {@histogramErrorOpti, @imageSideDistribution};
 
 % Number of histogram bins, used by histogramErrorOpti, histogramDErrorOpti
 % Using 255, as we work with uint images of [0, 255]
@@ -86,15 +86,15 @@ approx_n_bins = 255;
 % Prior functions that are added to the error function in the fitness
 % function, any of smoothnessEstimate, smoothnessEstimateGrad,
 % upHeatEstimate, upHeatEstimateLinear, histogramErrorApprox,
-% downHeatEstimate, diffToHeatMap
-prior_fncs = {@smoothnessEstimateGrad, @diffToHeatMap};
+% downHeatEstimate, diffToHeatMap, diffToHeatMapWithNeigh
+prior_fncs = {@smoothnessEstimateGrad, @diffToHeatMapWithNeigh};
 
 % Temperature threshold for the upHeatEstimateLinear
 temp_th = 50;
 
 % Weights used to sum the error function and the prior functions, must be
 % of size error_foo + prior_fncs, first values corresponds to error function
-prior_weights = [0.4, 0.2, 0.4];
+prior_weights = [0.25, 0.25, 0.25, 0.25];
 
 approx_fitness_weights = [0.4, 0.2, 0.4];
 
