@@ -15,7 +15,7 @@ function heatMapReconstruction(args_path, ports, logfile)
 % setenv('MAYA_SCRIPT_PATH', 'scripts path');
 % setenv('MI_CUSTOM_SHADER_PATH', ' shaders include path');
 % setenv('MI_LIBRARY_PATH', 'shaders path');
-
+close all;
 % Add the subfolders of heat map to the Matlab path
 addpath(genpath(fileparts(mfilename('fullpath'))));
 
@@ -283,6 +283,10 @@ try
             maya_send{1}(cmd, 0);
         end
     end
+    
+    %% Add extra metrics for visualization
+    plot_histograms( opts, num_goal,  output_img_folder, goal_img, ...
+        goal_mask, img_mask);
     
     %% Append the real error if using the approx fitness
     if(opts.use_approx_fitness)
