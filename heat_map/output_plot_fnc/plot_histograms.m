@@ -1,8 +1,8 @@
-function plot_histograms( opts, num_goal,  output_folder, goal_imgs, ...
-    goal_mask, img_mask)
+function plot_histograms( n_bins, color_space, is_histo_independent, ...
+    output_folder, goal_imgs, goal_mask,  opti_img, opti_mask)
 %PLOT_HISTOGRAMS Plot and save histograms
-%   PLOT_HISTOGRAMS( OPTS, NUM_GOAL,  OUTPUT_FOLDER, GOAL_IMGS, ...
-%    GOAL_MASK, IMG_MASK)
+%   PLOT_HISTOGRAMS( N_BINS, COLOR_SPACE, IS_HISTO_INDEPENDENT, ...
+%   OUTPUT_FOLDER, GOAL_IMGS, GOAL_MASK,  OPTI_IMG, OPTI_MASK)
 
 if isBatchMode()
     fig_h = figure('Visible', 'off');
@@ -10,23 +10,15 @@ else
     fig_h = figure('Position', [125 500 560 420]);
 end
 
-%% Read optimized images
-c_img = cell(num_goal, 1);
-for k=1:num_goal
-    c_img{k} = imread(fullfile(output_folder, ...
-        [ 'optimized-Cam' num2str(k) '.tif']));
-    c_img{k} = c_img{k}(:,:,1:3); % Transparency is not used, so ignore it
-end
-
-c_img = colorspace_transform_imgs(c_img, 'RGB', opts.color_space);
-
 %% Save histograms for optmized images and goal images
 output_folder = fullfile(output_folder, 'histogram_compare');
 mkdir(output_folder);
 
-edges = linspace(0, 255, opts.n_bins+1);
+plot_c = 'rgb';
+edges = linspace(0, 255, n_bins+1);
+
 plot_and_save(goal_imgs, goal_mask, 'GoalHisto');
-plot_and_save(c_img, img_mask, 'OptiHisto');
+plot_and_save(opti_img, opti_mask, 'OptiHisto');
 
 %% Functions that do the actual work
 %  Having them here avoids large argument calls
@@ -35,36 +27,35 @@ plot_and_save(c_img, img_mask, 'OptiHisto');
             istr = num2str(i);
             
             % Compute histograms
-            if opts.is_histo_independent
+            if is_histo_independent
                 hc_img = getImgRGBHistogram( imgs{i}, masks{i}, ...
-                    opts.n_bins, edges);
+                    n_bins, edges);
             else
                 hc_img = getImgCombinedHistogram( imgs{i}, ...
-                    masks{i}, opts.n_bins, edges);
+                    masks{i}, n_bins, edges);
             end
             % Normalise
             hc_img = hc_img ./ sum(masks{i}(:) == 1);
             
             % Save and plot each color dimension independently
             for j=1:size(hc_img,1)
-                do_plot(hc_img(j,:));
-                save_img(img_name);
+                do_plot(hc_img(j,:), plot_c(j));
+                save_img([img_name istr '-' color_space(j)]);
             end
         end
         
-        function do_plot(hc)
+        function do_plot(hc, color)
             clf(fig_h);
             hold on;
             set(groot, 'CurrentFigure', fig_h);
             xlabel('Bin number');
             ylabel('Normalised bin count');
-            xlim([1,opts.n_bins]);
-            bar(hc);
+            xlim([1,n_bins]);
+            bar(hc, color);
             hold off;
         end
         
-        function save_img(img_name)
-            file_name = [img_name istr '-' opts.color_space(j)];
+        function save_img(file_name)
             %saveas(fig_h, fullfile(output_img_folder, file_name), 'tiff');
             saveas(fig_h, fullfile(output_folder, file_name), 'svg');
         end

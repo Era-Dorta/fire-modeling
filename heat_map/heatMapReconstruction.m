@@ -284,9 +284,9 @@ try
         end
     end
     
-    %% Add extra metrics for visualization
-    plot_histograms( opts, num_goal,  output_img_folder, goal_img, ...
-        goal_mask, img_mask);
+    %% Add extra metrics for visualization    
+    plot_energy_term_values( opts, num_goal,  output_img_folder, goal_img, ...
+        goal_mask, img_mask );
     
     %% Append the real error if using the approx fitness
     if(opts.use_approx_fitness)
