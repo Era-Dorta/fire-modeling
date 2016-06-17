@@ -34,7 +34,7 @@ if isempty(xyz_r)
     
     num_active = size(xyz_r, 1);
     mean_diff1 = zeros(size(xyz_r, 1), 1);
-    
+
     for j=1:num_active
         % Three dimensional neighbour indices
         neigh_idx = bsxfun(@plus, neigh_offset, xyz_r(j,:));
@@ -47,6 +47,7 @@ if isempty(xyz_r)
         mean_diff1(j) = mean(abs(V1(neigh_idx) - V1(xyz_r(j,1), ...
             xyz_r(j,2), xyz_r(j,3))));
     end
+
 end
 
 num_active = size(xyz_r, 1);
@@ -60,13 +61,12 @@ end
 correction = 1 / (num_active * (ub - lb));
 assert(~isnan(correction) && ~isinf(correction), 'Error in bounds');
 
-for i=1:num_vol
-    
+if num_vol == 1
     % Get a dense copy of V,
     V = zeros(volumeSize(1), volumeSize(2), volumeSize(3));
     vInd = sub2ind(volumeSize, xyz(:,1), xyz(:,2), xyz(:,3));
-    V(vInd) = v(i,:);
-    
+    V(vInd) = v;
+
     for j=1:num_active
         % Three dimensional neighbour indices
         neigh_idx = bsxfun(@plus, neigh_offset, xyz_r(j,:));
@@ -80,12 +80,34 @@ for i=1:num_vol
             xyz_r(j,3))));
         
         % Difference of the mean of the differences
-        abs_diff(i) = abs_diff(i) + abs(mean_diff0 - mean_diff1(j));
+        abs_diff = abs_diff + abs(mean_diff0 - mean_diff1(j));
     end
-    
-    abs_diff(i) = abs_diff(i) * correction;
-end
 
+    abs_diff = abs_diff * correction;
+else
+    parfor i=1:num_vol        
+        % Get a dense copy of V,
+        V = zeros(volumeSize(1), volumeSize(2), volumeSize(3));
+        vInd = sub2ind(volumeSize, xyz(:,1), xyz(:,2), xyz(:,3));
+        V(vInd) = v(i,:);
+        for j=1:num_active
+            % Three dimensional neighbour indices
+            neigh_idx = bsxfun(@plus, neigh_offset, xyz_r(j,:));
+            
+            % Linear neighbour indices
+            neigh_idx = sub2ind(volumeSize, neigh_idx(:,1), neigh_idx(:,2), ...
+                neigh_idx(:,3));
+            
+            % Mean of  the differences of current voxel with neighbours
+            mean_diff0 = mean(abs(V(neigh_idx) - V(xyz_r(j,1), xyz_r(j,2), ...
+                xyz_r(j,3))));
+            
+            % Difference of the mean of the differences
+            abs_diff(i) = abs_diff(i) + abs(mean_diff0 - mean_diff1(j));
+        end
+        abs_diff(i) = abs_diff(i) * correction;
+    end
+end
 assert_valid_range_in_0_1(abs_diff);
 
 end
