@@ -245,77 +245,25 @@ try
     heat_map_v = heat_map_v';
     
     %% Save the best heat map in a raw file
-    heat_map_path = [output_img_folder 'heat-map.raw'];
+    heat_map_path = fullfile(output_img_folder, 'heat-map.raw');
     disp(['Final heat map saved in ' heat_map_path]);
     heat_map = struct('xyz', init_heat_map.xyz, 'v', heat_map_v, 'size', ...
         init_heat_map.size, 'count', init_heat_map.count);
     save_raw_file(heat_map_path, heat_map);
     
     %%  Render the best image again
-    % Set the heat map file as temperature file
-    % Either set the full path or set the file relative maya path for
-    % temperature_file_first and force frame update to run
-    load_hm_in_maya([output_img_folder 'heat-map.raw'], maya_send{1});
-    
     disp(['Rendering final images in ' output_img_folder 'optimized-Cam<d>.tif' ]);
-    
-    for i=1:num_goal
-        istr = num2str(i);
-        
-        % Active current camera
-        if(num_goal > 1)
-            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-            maya_send{1}(cmd, 0);
-        end
-        
-        % Set the folder and name of the render image
-        cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-        cmd = [cmd opts.scene_name '/' output_img_folder_name 'optimized-Cam' ...
-            istr '\"'];
-        maya_send{1}(cmd, 0);
-        
-        % Render the image
-        send_render_cmd(maya_send{1}, istr);
-        
-        % Deactivate the current camera
-        if(num_goal > 1)
-            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-            maya_send{1}(cmd, 0);
-        end
-    end
+    render_single_hm( maya_send{1}, num_goal, heat_map_path, ...
+        fullfile(output_img_folder, 'optimized-Cam'));
     
     %%  Render image with gaussian blurred hm
     b_heat_map = apply_gaussian_blur(heat_map);
     b_heat_map_path = fullfile(output_img_folder, 'blurred-heat-map.raw');
     save_raw_file(b_heat_map_path, b_heat_map);
-    load_hm_in_maya([output_img_folder 'blurred-heat-map.raw'], maya_send{1});
     
     disp(['Rendering blurred images in ' output_img_folder 'optimized-blurred-Cam<d>.tif' ]);
-    
-    for i=1:num_goal
-        istr = num2str(i);
-        
-        % Active current camera
-        if(num_goal > 1)
-            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
-            maya_send{1}(cmd, 0);
-        end
-        
-        % Set the folder and name of the render image
-        cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
-        cmd = [cmd opts.scene_name '/' output_img_folder_name ...
-            'optimized-blurred-Cam' istr '\"'];
-        maya_send{1}(cmd, 0);
-        
-        % Render the image
-        send_render_cmd(maya_send{1}, istr);
-        
-        % Deactivate the current camera
-        if(num_goal > 1)
-            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
-            maya_send{1}(cmd, 0);
-        end
-    end
+    render_single_hm( maya_send{1}, num_goal, b_heat_map_path, ...
+        fullfile(output_img_folder, 'optimized-blurred-Cam'));
     
     %% Add extra metrics for visualization
     plot_energy_term_values( opts, num_goal,  output_img_folder, goal_img, ...
