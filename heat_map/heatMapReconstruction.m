@@ -284,7 +284,40 @@ try
         end
     end
     
-    %% Add extra metrics for visualization    
+    %%  Render image with gaussian blurred hm
+    b_heat_map = apply_gaussian_blur(heat_map);
+    b_heat_map_path = fullfile(output_img_folder, 'blurred-heat-map.raw');
+    save_raw_file(b_heat_map_path, b_heat_map);
+    load_hm_in_maya([output_img_folder 'blurred-heat-map.raw'], maya_send{1});
+    
+    disp(['Rendering blurred images in ' output_img_folder 'optimized-blurred-Cam<d>.tif' ]);
+    
+    for i=1:num_goal
+        istr = num2str(i);
+        
+        % Active current camera
+        if(num_goal > 1)
+            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 1'];
+            maya_send{1}(cmd, 0);
+        end
+        
+        % Set the folder and name of the render image
+        cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
+        cmd = [cmd opts.scene_name '/' output_img_folder_name ...
+            'optimized-blurred-Cam' istr '\"'];
+        maya_send{1}(cmd, 0);
+        
+        % Render the image
+        send_render_cmd(maya_send{1}, istr);
+        
+        % Deactivate the current camera
+        if(num_goal > 1)
+            cmd = ['setAttr \"camera' istr 'Shape.renderable\" 0'];
+            maya_send{1}(cmd, 0);
+        end
+    end
+    
+    %% Add extra metrics for visualization
     plot_energy_term_values( opts, num_goal,  output_img_folder, goal_img, ...
         goal_mask, img_mask );
     
