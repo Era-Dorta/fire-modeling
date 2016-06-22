@@ -9,8 +9,10 @@ function maya_common_initialization( maya_send, ports, scene_name, ...
 load_hm_in_maya([], [], is_mr);
 send_render_cmd([], [], is_mr);
 
-parfevalOnAll(gcp, @load_hm_in_maya, 0, [], [], is_mr);
-parfevalOnAll(gcp, @send_render_cmd, 0, [], [], is_mr);
+if numel(ports) > 1
+    parfevalOnAll(gcp, @load_hm_in_maya, 0, [], [], is_mr);
+    parfevalOnAll(gcp, @send_render_cmd, 0, [], [], is_mr);
+end
 
 for i=1:numel(ports)
     disp(['Loading scene in Maya:' num2str(ports(i))]);
