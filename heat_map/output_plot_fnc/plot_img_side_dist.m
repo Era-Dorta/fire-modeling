@@ -60,7 +60,7 @@ plot_and_save(opti_img, opti_mask, 'OptiHisto');
             xlabel(x_label_name);
             ylabel('Mean pixel value');
             xlim([1, numel(hc)]);
-            bar(hc, color);
+            bar(hc, color, 'EdgeColor', 'none');
             hold off;
         end
         

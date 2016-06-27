@@ -51,7 +51,7 @@ plot_and_save(opti_img, opti_mask, 'OptiHisto');
             xlabel('Bin number');
             ylabel('Normalised bin count');
             xlim([1,n_bins]);
-            bar(hc, color);
+            bar(hc, color, 'EdgeColor', 'none');
             hold off;
         end
         
