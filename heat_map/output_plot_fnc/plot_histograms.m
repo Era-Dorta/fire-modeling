@@ -17,12 +17,13 @@ mkdir(output_folder);
 plot_c = 'rgb';
 edges = linspace(0, 255, n_bins+1);
 
-plot_and_save(goal_imgs, goal_mask, 'GoalHisto');
-plot_and_save(opti_img, opti_mask, 'OptiHisto');
+g_ylmin = plot_and_save(goal_imgs, goal_mask, 'GoalHisto');
+plot_and_save(opti_img, opti_mask, 'OptiHisto', g_ylmin);
 
 %% Functions that do the actual work
 %  Having them here avoids large argument calls
-    function plot_and_save(imgs, masks, img_name)
+    function out_ylim = plot_and_save(imgs, masks, img_name, in_ylim)
+        out_ylim = cell(numel(imgs), 1);
         for i=1:numel(imgs)
             istr = num2str(i);
             
@@ -40,6 +41,13 @@ plot_and_save(opti_img, opti_mask, 'OptiHisto');
             % Save and plot each color dimension independently
             for j=1:size(hc_img,1)
                 do_plot(hc_img(j,:), plot_c(j));
+                
+                % Manually set axis
+                if nargin == 4
+                    hold on; ylim(in_ylim{i}(j,:)); hold off;
+                end
+                out_ylim{i}(j,:) = ylim();
+                
                 save_img([img_name istr '-' color_space(j)]);
             end
         end

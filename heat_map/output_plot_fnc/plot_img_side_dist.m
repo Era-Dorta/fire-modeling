@@ -24,12 +24,14 @@ mkdir(output_folder);
 
 plot_c = 'rgb';
 
-plot_and_save(goal_imgs, goal_mask, 'GoalHisto');
-plot_and_save(opti_img, opti_mask, 'OptiHisto');
+g_ylmin = plot_and_save(goal_imgs, goal_mask, 'GoalHisto');
+plot_and_save(opti_img, opti_mask, 'OptiHisto', g_ylmin);
 
 %% Functions that do the actual work
 %  Having them here avoids large argument calls
-    function plot_and_save(imgs, masks, img_name)
+    function out_ylim = plot_and_save(imgs, masks, img_name, in_ylim)
+        out_ylim = cell(numel(imgs), 2);
+        
         for i=1:numel(imgs)
             istr = num2str(i);
             
@@ -43,12 +45,26 @@ plot_and_save(opti_img, opti_mask, 'OptiHisto');
             % Save and plot each dimension independently
             for j=1:size(hc_img_h,1)
                 do_plot(hc_img_h(j,:), 'Image row', plot_c(j));
+                
+                % Manually set axis
+                if nargin == 4
+                    hold on; ylim(in_ylim{i, 1}(j,:)); hold off;
+                end
+                out_ylim{i, 1}(j,:) = ylim();
+                
                 % For the horizontal is easier to visualize if the bars
                 % are horizontal as well
                 hold on; camroll(90); hold off;
                 save_img([img_name istr '-horizontal-' color_space(j)]);
                 
                 do_plot(hc_img_v(j,:), 'Image column', plot_c(j));
+                
+                % Manually set axis
+                if nargin == 4
+                    hold on; ylim(in_ylim{i, 2}(j,:)); hold off;
+                end
+                out_ylim{i, 2}(j,:) = ylim();
+                
                 save_img([img_name istr '-vertical-' color_space(j)]);
             end
         end
