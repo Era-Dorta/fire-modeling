@@ -1,5 +1,5 @@
 function out_ylim = plot_histograms( n_bins, color_space, is_histo_independent, ...
-    output_folder, in_imgs, in_masks, out_name,  in_ylim)
+    output_folder, in_imgs, in_masks, out_name, in_ylim)
 %PLOT_HISTOGRAMS Plot and save histograms
 %   PLOT_HISTOGRAMS( N_BINS, COLOR_SPACE, IS_HISTO_INDEPENDENT, ...
 %   OUTPUT_FOLDER, GOAL_IMGS, GOAL_MASK,  OPTI_IMG, OPTI_MASK)

@@ -1,5 +1,5 @@
-function plot_img_side_dist( color_space, is_histo_independent, ...
-    output_folder, goal_imgs, goal_mask,  opti_img, opti_mask)
+function out_ylim = plot_img_side_dist( color_space, is_histo_independent, ...
+    output_folder, in_imgs, in_masks, out_name, in_ylim)
 %PLOT_IMG_SIDE_DIST Plot and save side distribution
 %   PLOT_IMG_SIDE_DIST( COLOR_SPACE, IS_HISTO_INDEPENDENT, ...
 %   OUTPUT_FOLDER, GOAL_IMGS, GOAL_MASK,  OPTI_IMG, OPTI_MASK)
@@ -10,22 +10,19 @@ else
     fig_h = figure('Position', [125 500 560 420]);
 end
 
-%% Make the images have the same size
-for k=1:numel(goal_imgs)
-    size_temp = size(opti_img{k});
-    goal_imgs{k} = imresize(goal_imgs{k}, size_temp(1:2));
-    size_temp = size(opti_mask{k});
-    goal_mask{k} = imresize(goal_mask{k}, size_temp(1:2));
-end
-
 %% Save histograms for optmized images and goal images
 output_folder = fullfile(output_folder, 'img_side_dist_compare');
-mkdir(output_folder);
+if (~exist(output_folder, 'dir'))
+    mkdir(output_folder);
+end
 
 plot_c = 'rgb';
 
-g_ylmin = plot_and_save(goal_imgs, goal_mask, 'GoalHisto');
-plot_and_save(opti_img, opti_mask, 'OptiHisto', g_ylmin);
+if nargin == 6
+    out_ylim = plot_and_save(in_imgs, in_masks, out_name);
+else
+    out_ylim = plot_and_save(in_imgs, in_masks, out_name, in_ylim);
+end
 
 %% Functions that do the actual work
 %  Having them here avoids large argument calls

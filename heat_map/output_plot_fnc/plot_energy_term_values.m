@@ -22,7 +22,7 @@ end
 
 opti_img = colorspace_transform_imgs(opti_img, 'RGB', opts.color_space);
 
-%% Plot the different energy terms for the goal and optimize images
+%% Plot the simple image histograms
 out_ylim = plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
     output_folder, goal_imgs, goal_mask, 'GoalHisto');
 
@@ -35,8 +35,27 @@ plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
 plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
     output_folder, blur_opti_img, opti_mask, 'BlurOptiHisto', out_ylim);
 
+%% Plot the side distribution histograms
+
+% Make the goal images have the same size as the optimised
+for k=1:numel(goal_imgs)
+    size_temp = size(opti_img{k});
+    goal_imgs{k} = imresize(goal_imgs{k}, size_temp(1:2));
+    size_temp = size(opti_mask{k});
+    goal_mask{k} = imresize(goal_mask{k}, size_temp(1:2));
+end
+
+out_ylim = plot_img_side_dist( opts.color_space, opts.is_histo_independent, ...
+    output_folder, goal_imgs, goal_mask, 'GoalHisto');
+
 plot_img_side_dist( opts.color_space, opts.is_histo_independent, ...
-    output_folder, goal_imgs, goal_mask,  opti_img, opti_mask);
+    output_folder, opti_img, opti_mask, 'OptiHisto', out_ylim);
+
+plot_img_side_dist( opts.color_space, opts.is_histo_independent, ...
+    output_folder, first_img, opti_mask, 'FirstIteHisto', out_ylim);
+
+plot_img_side_dist( opts.color_space, opts.is_histo_independent, ...
+    output_folder, blur_opti_img, opti_mask, 'BlurOptiHisto', out_ylim);
 
 end
 
