@@ -1,6 +1,6 @@
 function [project_path, raw_file_path, scene_img_folder, ...
-    goal_img_path, goal_mask_img_path, mask_img_path] = get_test_paths( ...
-    scene_name, multi_goal, symmetric )
+    goal_img_path, goal_mask_img_path, mask_img_path, in_img_path] =  ...
+    get_test_paths( scene_name, multi_goal, symmetric )
 %GET_TEST_PATHS Returns path for heatMapReconstruction
 %   [...] = GET_TEST_PATHS(MULTI_GOAL, SYMMETRIC) MULTI_GOAL and SYMMETRIC
 %   are two logical parameters indicating where the test includes multigoal
@@ -19,10 +19,12 @@ scene_img_folder = [project_path 'images/' scene_name '/'];
 
 goal_mask_img_path{1} = [scene_img_folder 'maskcam1.png'];
 mask_img_path{1} = [scene_img_folder 'mask-synthetic1.png'];
+in_img_path{1} = [scene_img_folder 'synthetic1.tif'];
 
 if multi_goal
     goal_mask_img_path{2} = [scene_img_folder 'maskcam2.png'];
     mask_img_path{2} = [scene_img_folder 'mask-synthetic2.png'];
+    in_img_path{2} = [scene_img_folder 'synthetic2.tif'];
 end
 
 if symmetric

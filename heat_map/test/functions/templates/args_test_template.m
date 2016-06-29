@@ -33,8 +33,10 @@ is_mr = true; % True if using Mental Ray, false if using Maya Software
 multi_goal = false; % Single or two goal image optimization
 symmetric = true; % Symmetric or asymmetric goal image
 [project_path, raw_file_path, scene_img_folder, goal_img_path, ...
-    goal_mask_img_path, mask_img_path] = get_test_paths(scene_name, ...
-    multi_goal, symmetric);
+    goal_mask_img_path, mask_img_path, in_img_path] = get_test_paths( ...
+    scene_name, multi_goal, symmetric);
+
+add_background = false;
 
 % Scale and offset used for the raw file
 raw_temp_scale = 1;

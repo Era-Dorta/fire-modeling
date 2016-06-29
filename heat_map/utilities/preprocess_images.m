@@ -1,5 +1,6 @@
-function [ goal_imgs, goal_mask_imgs, mask_imgs, bin_mask_threshold ] = preprocess_images( ...
-    goal_imgs, goal_mask_imgs, mask_imgs, bin_mask_threshold, do_plots, figurePath)
+function [ goal_imgs, goal_mask_imgs, in_imgs, mask_imgs, bin_mask_threshold ] ...
+    = preprocess_images( goal_imgs, goal_mask_imgs, in_imgs, mask_imgs, ...
+    bin_mask_threshold, add_background, do_plots, figurePath)
 % PREPROCESS_IMAGES Background substraction
 %[ GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD ] = PREPROCESS_IMAGES(
 %   GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD, DO_PLOTS, FIGUREPATH)
@@ -7,7 +8,7 @@ function [ goal_imgs, goal_mask_imgs, mask_imgs, bin_mask_threshold ] = preproce
 %   a trimap. GOAL_MASK_IMGS and MASK_IMGS are converted from to gray mask
 %   to logical masks. Results are saved in FIGUREPATH.
 
-if do_plots && nargin < 6
+if do_plots && nargin < 7
     error('Not enough input arguments, save path in needed when plotting');
 end
 
@@ -51,6 +52,11 @@ for i=1:numel(goal_imgs)
     mask(fore(:,:,1)) = 1;
     mask(back(:,:,1)) = -1;
     
+    goal_size = size(goal_imgs{i});
+    % TODO Do a real background substraction for in img too, with texture
+    % synthesis for the substracted part
+    in_img_bg = imresize(in_imgs{i}, goal_size(1:2));
+    
     if do_plots
         % Plot the goal image and the trimap
         c_fig = 1;
@@ -83,10 +89,12 @@ for i=1:numel(goal_imgs)
     %% Compute the alpha matte
     alpha{i} = learningBasedMatting(goal_imgs{i}, mask);
     
-    % Get the new goal image without the background
-    goal_imgs{i}(:,:,1) = uint8(double(goal_imgs{i}(:,:,1)) .* alpha{i});
-    goal_imgs{i}(:,:,2) = uint8(double(goal_imgs{i}(:,:,2)) .* alpha{i});
-    goal_imgs{i}(:,:,3) = uint8(double(goal_imgs{i}(:,:,3)) .* alpha{i});
+    % Get the new goal image without the background, optionally add the
+    % input the background to the goal
+    for  k=1:size(goal_imgs{i}, 3)
+        goal_imgs{i}(:,:,k) = uint8(double(goal_imgs{i}(:,:,k)) .* alpha{i} ...
+            + double(in_img_bg(:,:,k)) .* (1 - alpha{i}) * add_background);
+    end
     
     % The new mask image takes all the pixels that are bigger than a
     % threshold, this will be usefull for edge detection
