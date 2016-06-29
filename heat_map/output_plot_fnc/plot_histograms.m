@@ -1,5 +1,5 @@
-function plot_histograms( n_bins, color_space, is_histo_independent, ...
-    output_folder, goal_imgs, goal_mask,  opti_img, opti_mask)
+function out_ylim = plot_histograms( n_bins, color_space, is_histo_independent, ...
+    output_folder, in_imgs, in_masks, out_name,  in_ylim)
 %PLOT_HISTOGRAMS Plot and save histograms
 %   PLOT_HISTOGRAMS( N_BINS, COLOR_SPACE, IS_HISTO_INDEPENDENT, ...
 %   OUTPUT_FOLDER, GOAL_IMGS, GOAL_MASK,  OPTI_IMG, OPTI_MASK)
@@ -12,13 +12,18 @@ end
 
 %% Save histograms for optmized images and goal images
 output_folder = fullfile(output_folder, 'histogram_compare');
-mkdir(output_folder);
+if (~exist(output_folder, 'dir'))
+    mkdir(output_folder);
+end
 
 plot_c = 'rgb';
 edges = linspace(0, 255, n_bins+1);
 
-g_ylmin = plot_and_save(goal_imgs, goal_mask, 'GoalHisto');
-plot_and_save(opti_img, opti_mask, 'OptiHisto', g_ylmin);
+if nargin == 7
+    out_ylim = plot_and_save(in_imgs, in_masks, out_name);
+else
+    out_ylim = plot_and_save(in_imgs, in_masks, out_name, in_ylim);
+end
 
 %% Functions that do the actual work
 %  Having them here avoids large argument calls

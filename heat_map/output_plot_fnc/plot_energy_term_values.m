@@ -14,8 +14,11 @@ end
 opti_img = colorspace_transform_imgs(opti_img, 'RGB', opts.color_space);
 
 %% Plot the different energy terms for the goal and optimize images
+out_ylim = plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
+    output_folder, goal_imgs, goal_mask, 'GoalHisto');
+
 plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
-    output_folder, goal_imgs, goal_mask, opti_img, opti_mask);
+    output_folder, opti_img, opti_mask, 'OptiHisto', out_ylim);
 
 plot_img_side_dist( opts.color_space, opts.is_histo_independent, ...
     output_folder, goal_imgs, goal_mask,  opti_img, opti_mask)
