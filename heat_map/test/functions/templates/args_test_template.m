@@ -65,7 +65,7 @@ dist_foo = @chi_square_statistics_fast;
 
 % Error function used in the fitness function
 % Any combination of: histogramErrorOpti, histogramDErrorOpti, MSE,
-% imageSideDistribution
+% imageSideDistribution, imageSideDistributionInvariant
 error_foo = {@histogramErrorOpti, @imageSideDistribution};
 
 % Number of histogram bins, used by histogramErrorOpti, histogramDErrorOpti
