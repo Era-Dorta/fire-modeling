@@ -1,5 +1,5 @@
-function out_ylim = plot_img_side_dist( color_space, is_histo_independent, ...
-    output_folder, in_imgs, in_masks, out_name, in_ylim)
+function out_ylim = plot_img_side_dist_inv( color_space, is_histo_independent, ...
+    output_folder, in_imgs, in_masks, out_name, x_lim, y_lim, in_ylim)
 %PLOT_IMG_SIDE_DIST Plot and save side distribution
 %   PLOT_IMG_SIDE_DIST( COLOR_SPACE, IS_HISTO_INDEPENDENT, ...
 %   OUTPUT_FOLDER, GOAL_IMGS, GOAL_MASK,  OPTI_IMG, OPTI_MASK)
@@ -11,14 +11,14 @@ else
 end
 
 %% Save histograms for optmized images and goal images
-output_folder = fullfile(output_folder, 'img_side_dist_compare');
-if (~exist(output_folder, 'dir')) 
+output_folder = fullfile(output_folder, 'img_side_dist_inv_compare');
+if (~exist(output_folder, 'dir'))
     mkdir(output_folder);
 end
 
 plot_c = 'rgb';
 
-if nargin == 6
+if nargin == 8
     out_ylim = plot_and_save(in_imgs, in_masks, out_name);
 else
     out_ylim = plot_and_save(in_imgs, in_masks, out_name, in_ylim);
@@ -34,7 +34,8 @@ end
             
             % Compute histograms
             if is_histo_independent
-                [hc_img_h, hc_img_v] = getImghvRGBHistogram(imgs{i}, masks{i});
+                [hc_img_h, hc_img_v] = getCropImghvRGBHistogram(imgs{i}, ...
+                    masks{i}, x_lim, y_lim);
             else
                 error('Not supported');
             end
