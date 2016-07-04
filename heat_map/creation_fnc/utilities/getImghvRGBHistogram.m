@@ -18,6 +18,10 @@ for i=1:size_3
     
     hc_h(i,:) = nanmean(sub_img) / (255 * size(img, 1));
     hc_v(i,:) = nanmean(sub_img, 2)' / (255 * size(img, 2));
+    
+    % If any row or column is NaN, set the sum to zero
+    hc_h(i,isnan(hc_h(i,:))) = 0;
+    hc_v(i,isnan(hc_v(i,:))) = 0;
 end
 
 end
