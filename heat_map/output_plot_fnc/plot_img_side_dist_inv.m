@@ -1,8 +1,9 @@
 function out_ylim = plot_img_side_dist_inv( color_space, is_histo_independent, ...
     output_folder, in_imgs, in_masks, out_name, x_lim, y_lim, in_ylim)
-%PLOT_IMG_SIDE_DIST Plot and save side distribution
-%   PLOT_IMG_SIDE_DIST( COLOR_SPACE, IS_HISTO_INDEPENDENT, ...
-%   OUTPUT_FOLDER, GOAL_IMGS, GOAL_MASK,  OPTI_IMG, OPTI_MASK)
+%PLOT_IMG_SIDE_DIST_INV Plot and save side distribution
+%   PLOT_IMG_SIDE_DIST_INV( COLOR_SPACE, IS_HISTO_INDEPENDENT, ...
+%   OUTPUT_FOLDER, IN_IMGS, IN_MASKS, OUT_NAME, X_LIM, Y_LIM, IN_YLIM)
+%
 
 if isBatchMode()
     fig_h = figure('Visible', 'off');
