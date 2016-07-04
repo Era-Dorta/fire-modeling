@@ -11,11 +11,7 @@ if strcmp(flag, 'done')
     return;
 end
 
-if state.Generation == 0
-    if isBatchMode()
-        return;
-    end
-    
+if state.Generation == 0 && ~isBatchMode()
     IMGS = {};
     C_IMG = zeros(num_goal, 1);
     FIG_H = cell(num_goal, 1);
