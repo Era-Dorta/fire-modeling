@@ -61,6 +61,8 @@ plot_img_side_dist( opts.color_space, opts.is_histo_independent, ...
 
 %% Plot the side invariant distribution histograms
 
+goal_folder_path = fullfile(output_folder, 'preprocessed_input_images');
+
 % Make the goal images have the same size as the optimised
 goal_imgs2 = goal_imgs;
 goal_mask2 = goal_mask;
@@ -86,6 +88,14 @@ for k=1:numel(goal_imgs)
     
     goal_x_lim(k,:) = [1, new_size(1)];
     goal_y_lim(k,:) = [1, new_size(2)];
+    
+    kstr = num2str(k);
+    
+    goal_path = fullfile(goal_folder_path, ['Goal-SideDist-Cam' kstr '.tif']);
+    imwrite(goal_imgs2{k}, goal_path);
+    
+    goal_path = fullfile(goal_folder_path, ['Goal-Mask-SideDist-Cam' kstr '.tif']);
+    imwrite(goal_mask2{k}, goal_path);
 end
 
 out_ylim = plot_img_side_dist_inv( opts.color_space, opts.is_histo_independent, ...
