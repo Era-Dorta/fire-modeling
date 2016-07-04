@@ -74,8 +74,8 @@ for k=1:numel(goal_imgs)
     [goal_x_lim(k,:), goal_y_lim(k,:)] = bounding_box_limits(goal_mask{k});
     
     % Crop goal image and mask using the bounding box
-    goal_imgs2{k} = cropimg(goal_imgs{k}, goal_x_lim, goal_y_lim);
-    goal_mask2{k} = cropimg(goal_mask{k}, goal_x_lim, goal_y_lim);
+    goal_imgs2{k} = cropimg(goal_imgs{k}, goal_x_lim(k,:), goal_y_lim(k,:));
+    goal_mask2{k} = cropimg(goal_mask{k}, goal_x_lim(k,:), goal_y_lim(k,:));
     
     % Resize the goal so that it has the same number of pixels as the
     % synthetic image

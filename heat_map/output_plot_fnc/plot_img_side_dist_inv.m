@@ -35,7 +35,7 @@ end
             % Compute histograms
             if is_histo_independent
                 [hc_img_h, hc_img_v] = getCropImghvRGBHistogram(imgs{i}, ...
-                    masks{i}, x_lim, y_lim);
+                    masks{i}, x_lim(i,:), y_lim(i,:));
             else
                 error('Not supported');
             end
