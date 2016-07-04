@@ -23,6 +23,10 @@ for i=1:size_3
     hc_h(i,:) = nanmean(sub_img);
     hc_v(i,:) = nanmean(sub_img, 2)';
     
+    % If any row or column is NaN only set it to zero
+    hc_h(i,isnan(hc_h(i,:))) = 0;
+    hc_v(i,isnan(hc_v(i,:))) = 0;
+    
     % Normalise to the sum of histograms is one
     hc_h(i,:) = hc_h(i,:) / sum(hc_h(i,:));
     hc_v(i,:) = hc_v(i,:) / sum(hc_v(i,:));
