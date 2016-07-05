@@ -138,7 +138,7 @@ try
     ori_histo = ori_histo * norm_factor;
     
     histo_dim = size(ori_histo, 1);
-    mean_dist_rgb = zeros(1, histo_dim);
+    dist_rgb = zeros(opts.num_samples-1, histo_dim);
     
     for i=2:opts.num_samples
         istr = num2str(i);
@@ -152,20 +152,21 @@ try
         i_histo = i_histo * norm_factor;
         
         for j=1:histo_dim
-            mean_dist_rgb(j) = mean_dist_rgb(j) + ...
-                dist_fnc(i_histo(j, :), ori_histo(j, :));
+            dist_rgb(i-1, j) = dist_fnc(i_histo(j, :), ori_histo(j, :));
         end
         
         ori_histo = i_histo;
     end
     
-    mean_dist_rgb = mean_dist_rgb / opts.num_samples;
+    mean_dist_rgb = mean(dist_rgb);
+    std_dist_rgb = std(dist_rgb);
     
     totalTime = toc(totalTime);
     
     disp(['Mean RGB distance is ' num2str(mean_dist_rgb)]);
+    disp(['Std RGB distance is ' num2str(std_dist_rgb)]);
     
-    %% Save summary file
+    %% Save data
     summary_data = opts;
     summary_data.NumMaya = numMayas;
     summary_data.Ports = ports;
@@ -176,9 +177,12 @@ try
     summary_data.HeatMapNumVariables = init_heat_map.count;
     summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
     summary_data.MeanRGBDistance = mean_dist_rgb;
+    summary_data.StdRGBDistance = std_dist_rgb;
     
     save_summary_file(fullfile(output_img_folder, 'summary_file'), ...
         summary_data, []);
+    
+    save(fullfile(output_img_folder, 'OutData.mat'), 'dist_rgb');
     
     %% Resource clean up after execution
     
