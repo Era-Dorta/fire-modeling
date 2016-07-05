@@ -83,8 +83,6 @@ try
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
     mkdir(opts.scene_img_folder, output_img_folder_name);
-    mkdir(output_img_folder, 'data');
-    render_folder = fullfile(output_img_folder, 'data');
     
     %% Maya initialization
     % TODO Render once and test if an image is created, if not -> activate
@@ -96,52 +94,22 @@ try
     maya_common_initialization(maya_send, ports, opts.scene_name, ...
         opts.fuel_type, num_goal, opts.is_mr);
     
-    %% Fitness function definition
+    %% Distance function
     dist_fnc = get_dist_fnc_from_file(opts);
     
-    %% Solver call
-    disp('Start sampling');
+    %% Create the samples
+    heat_map_v = zeros(opts.num_samples, init_heat_map.count);
     
-    temp_path = fullfile(render_folder, 'tempimage');
-    
-    heat_map_v = init_heat_map.v;
-    heat_map_v(:) = mean([opts.UB, opts.LB]);
-    
-    heat_map_path = fullfile(render_folder, 'heat-map1.raw');
-    
-    heat_map = struct('xyz', init_heat_map.xyz, 'v', heat_map_v, 'size', ...
-        init_heat_map.size, 'count', init_heat_map.count);
-    
-    save_raw_file(heat_map_path, heat_map);
-    
-    render_single_hm( maya_send{1}, num_goal, heat_map_path, temp_path);
-    
-    img_path = fullfile(render_folder, 'fireimage1.tif');
-    movefile([temp_path '1.tif'], img_path);
-    
-    init_img = imread(img_path);
-    init_img = init_img(:,:,1:3);
+    heat_map_v(1,:) = mean([opts.UB, opts.LB]);
     
     max_norm = zeros(init_heat_map.count, 1) + opts.UB;
     max_norm = max_norm - opts.LB;
     max_norm = norm(max_norm);
     
-    edges = linspace(0, 255, opts.n_bins+1);
-    
-    norm_factor = 1 / sum(img_mask(:) == 1);
-    assert(~isinf(norm_factor));
-    
-    ori_histo = getImgRGBHistogram( init_img, img_mask, opts.n_bins, edges);
-    ori_histo = ori_histo * norm_factor;
-    
-    mean_dist_rgb = zeros(1, size(ori_histo, 1));
-    
     for i=2:opts.num_samples
         
-        istr = num2str(i);
-        
         % Generate a random perturbation of the solution
-        perturbation = rand(init_heat_map.count, 1) - 0.5;
+        perturbation = rand(1, init_heat_map.count) - 0.5;
         
         % Normalize each sample
         perturbation = perturbation / norm(perturbation);
@@ -149,22 +117,39 @@ try
         % Scale each sample to given norm
         perturbation = perturbation * (max_norm / opts.sample_divisions);
         
-        heat_map_v = heat_map_v + perturbation;
+        heat_map_v(i,:) = heat_map_v(i-1,:) + perturbation;
         
-        heat_map_v = max(heat_map_v, opts.LB);
-        heat_map_v = min(heat_map_v, opts.UB);
+        heat_map_v(i,:) = max(heat_map_v(i,:), opts.LB);
+        heat_map_v(i,:) = min(heat_map_v(i,:), opts.UB);
         
-        heat_map_path = fullfile(render_folder, ['heat-map' istr '.raw']);
-        
-        heat_map = struct('xyz', init_heat_map.xyz, 'v', heat_map_v, 'size', ...
-            init_heat_map.size, 'count', init_heat_map.count);
-        
-        save_raw_file(heat_map_path, heat_map);
-        
-        render_single_hm( maya_send{1}, num_goal, heat_map_path, temp_path);
+    end
+    
+    %% Render the samples
+    render_ga_population_par( heat_map_v, opts, maya_send, num_goal, ...
+        init_heat_map, output_img_folder_name, 'data', false );
+    
+    %% Compare the histogram changes for each of them
+    render_folder = fullfile(output_img_folder, 'dataCam1');
+    
+    edges = linspace(0, 255, opts.n_bins+1);
+    norm_factor = 1 / sum(img_mask(:) == 1);
+    assert(~isinf(norm_factor));
+    
+    img_path = fullfile(render_folder, 'fireimage1.tif');
+    
+    init_img = imread(img_path);
+    init_img = init_img(:,:,1:3);
+    
+    ori_histo = getImgRGBHistogram( init_img, img_mask, opts.n_bins, edges);
+    ori_histo = ori_histo * norm_factor;
+    
+    histo_dim = size(ori_histo, 1);
+    mean_dist_rgb = zeros(1, histo_dim);
+    
+    for i=2:opts.num_samples
+        istr = num2str(i);
         
         img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
-        movefile([temp_path '1.tif'], img_path);
         
         I = imread(img_path);
         I = I(:,:,1:3);
@@ -172,7 +157,7 @@ try
         i_histo = getImgRGBHistogram( I, img_mask, opts.n_bins, edges);
         i_histo = i_histo * norm_factor;
         
-        for j=1:size(i_histo, 1)
+        for j=1:histo_dim
             mean_dist_rgb(j) = mean_dist_rgb(j) + ...
                 dist_fnc(i_histo(j, :), ori_histo(j, :));
         end
