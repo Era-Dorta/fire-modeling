@@ -50,15 +50,9 @@ try
     %% Read goal and mask image/s
     num_goal = numel(opts.goal_img_path);
     
-    % For MSE resize the goal image to match the synthetic image
-    if(isequal(opts.error_foo{1}, @MSE))
-        resize_goal = true;
-    else
-        resize_goal = false;
-    end
     [ ~, ~, ~, img_mask ] = readGoalAndMask( ...
         opts.goal_img_path,  opts.in_img_path, opts.mask_img_path,  ...
-        opts.goal_mask_img_path, resize_goal);
+        opts.goal_mask_img_path, false);
     img_mask = img_mask{1};
     
     %% SendMaya script initialization
@@ -85,8 +79,6 @@ try
     mkdir(opts.scene_img_folder, output_img_folder_name);
     
     %% Maya initialization
-    % TODO Render once and test if an image is created, if not -> activate
-    % first camera -> test again, if still fails -> exit gracefully
     if isBatchMode()
         empty_maya_log_files(logfile, ports);
     end
