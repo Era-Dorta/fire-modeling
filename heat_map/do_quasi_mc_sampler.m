@@ -98,6 +98,8 @@ try
     dist_fnc = get_dist_fnc_from_file(opts);
     
     %% Create the samples
+    totalTime = tic;
+    
     heat_map_v = zeros(opts.num_samples, init_heat_map.count);
     
     heat_map_v(1,:) = mean([opts.UB, opts.LB]);
@@ -167,7 +169,24 @@ try
     
     mean_dist_rgb = mean_dist_rgb / opts.num_samples;
     
+    totalTime = toc(totalTime);
+    
     disp(['Mean RGB distance is ' num2str(mean_dist_rgb)]);
+    
+    %% Save summary file
+    summary_data = opts;
+    summary_data.NumMaya = numMayas;
+    summary_data.Ports = ports;
+    summary_data.IsBatchMode = isBatchMode();
+    summary_data.FuelName = get_fuel_name(opts.fuel_type);
+    summary_data.OptimizationMethod = 'Quasi Monte Carlo sampler';
+    summary_data.HeatMapSize = init_heat_map.size;
+    summary_data.HeatMapNumVariables = init_heat_map.count;
+    summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
+    summary_data.MeanRGBDistance = mean_dist_rgb;
+    
+    save_summary_file(fullfile(output_img_folder, 'summary_file'), ...
+        summary_data, []);
     
     %% Resource clean up after execution
     
