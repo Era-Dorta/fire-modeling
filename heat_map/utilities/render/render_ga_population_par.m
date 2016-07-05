@@ -1,5 +1,5 @@
 function render_ga_population_par( population, opts, maya_send, num_goal, ...
-    init_heat_map, output_img_folder_name, msg)
+    init_heat_map, output_img_folder_name, msg, do_collage)
 %RENDER_GA_POPULATION Renders GA inital and final population
 %   RENDER_GA_POPULATION( POPULATION, OPTS, MAYA_SEND, NUM_GOAL, ...
 %    INIT_HEAT_MAP, OUTPUT_IMG_FOLDER_NAME, MSG )
@@ -48,13 +48,15 @@ else
 end
 
 % Do a collage with all the images
-for i=1:num_goal
-    istr = num2str(i);
-    
-    output_folder = fullfile(opts.scene_img_folder, output_img_folder_name, ...
-        [msg 'Cam' istr]);
-    
-    image_collage(num_hm, output_folder);
+if do_collage
+    for i=1:num_goal
+        istr = num2str(i);
+        
+        output_folder = fullfile(opts.scene_img_folder, output_img_folder_name, ...
+            [msg 'Cam' istr]);
+        
+        image_collage(num_hm, output_folder);
+    end
 end
 
 end

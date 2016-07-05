@@ -342,10 +342,10 @@ try
         end
         
         render_ga_population_par( L.InitialPopulation, opts, maya_send, num_goal, ...
-            init_heat_map, output_img_folder_name, 'InitialPopulation' );
+            init_heat_map, output_img_folder_name, 'InitialPopulation', true );
         
         render_ga_population_par( L.FinalPopulation, opts, maya_send, num_goal, ...
-            init_heat_map, output_img_folder_name, 'FinalPopulation' );
+            init_heat_map, output_img_folder_name, 'FinalPopulation', true );
     end
     
     %% Move the best per iteration images to a folder
