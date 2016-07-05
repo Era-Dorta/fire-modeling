@@ -25,8 +25,10 @@ scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 raw_temp_scale = 600;
 raw_temp_offset = 1200;
 
+max_ite = 3000;
+maxFunEvals = max_ite;
 sample_divisions = 4;
-num_samples = L.max_ite;
+num_samples = max_ite;
 
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 
