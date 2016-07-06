@@ -195,6 +195,12 @@ try
     
     save(fullfile(output_img_folder, 'OutData.mat'), 'dist_rgb');
     
+    %% Compress the output data
+    % Cannot use full paths so create the tar.gz and then move it
+    tar('data.tar.gz', render_folder);
+    movefile('data.tar.gz', output_img_folder);
+    rmdir(render_folder,'s');
+    
     %% Resource clean up after execution
     
     % If running in batch mode, exit matlab
