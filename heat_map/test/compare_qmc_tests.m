@@ -25,7 +25,7 @@ num_hm = numel(hm_data_folders);
 
 mean_rgb = zeros(num_hm, 3);
 std_rgb = zeros(num_hm, 3);
-sample_divisions = zeros(num_hm, 1);
+step_size = zeros(num_hm, 1);
 
 % Read the mean, std and sample divisions for each run
 for i=1:num_hm
@@ -38,7 +38,7 @@ for i=1:num_hm
     
     mean_rgb(i,:) = opts.MeanRGBDistance;
     std_rgb(i,:) = opts.StdRGBDistance;
-    sample_divisions(i) = opts.sample_divisions;
+    step_size(i) = opts.StepSize;
     
 end
 
@@ -53,12 +53,12 @@ errorbar(1:num_hm, mean_rgb(:,1), std_rgb(:,1), '-rx');
 errorbar(1:num_hm, mean_rgb(:,2), std_rgb(:,2), '-gx');
 errorbar(1:num_hm, mean_rgb(:,3), std_rgb(:,3), '-bx');
 
-xlabel('Sample step size');
+xlabel('Step size');
 ylabel('Histogram Distance');
 
-% Change the regular intervals for the actual sample division size
+% Change the regular intervals for the actual step size
 set(gca,'XTick', 1:num_hm);
-set(gca,'xticklabel', num2str(sample_divisions));
+set(gca,'xticklabel', num2str(step_size));
 
 legend('Red Channel', 'Green Channel', 'Blue Channel');
 
