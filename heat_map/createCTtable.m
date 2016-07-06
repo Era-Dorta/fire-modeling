@@ -21,8 +21,8 @@ rand_seed = 'default';
 rng(rand_seed);
 
 project_path = '~/maya/projects/fire/';
-scene_name = 'test98_CT-table';
-scene_img_folder = [project_path 'images/' scene_name '/'];
+scene_name = 'test102_maya_data';
+scene_img_folder = fullfile(project_path, 'images', scene_name);
 
 temp_div = 25;
 min_temp = 1000;
@@ -40,14 +40,16 @@ try
     
     % Find the last folder
     dir_num = 0;
-    while(exist([scene_img_folder 'ct_table' num2str(dir_num)], 'dir') == 7)
+    while(exist(fullfile(scene_img_folder, ['ct_table' num2str(dir_num)]), ...
+            'dir') == 7)
         dir_num = dir_num + 1;
     end
     
     % Create a new folder to store the data
-    output_img_folder = [scene_img_folder 'ct_table' num2str(dir_num) '/'];
-    output_img_folder_name = ['ct_table' num2str(dir_num) '/'];
-    output_ct_folder = [fileparts(mfilename('fullpath')) '/data/'];
+    output_img_folder = fullfile(scene_img_folder, ['ct_table' num2str(dir_num) '/']);
+    output_img_folder_name = ['ct_table' num2str(dir_num)];
+    output_ct_folder = fullfile(fileparts(mfilename('fullpath')), 'data');
+    
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
@@ -61,25 +63,16 @@ try
     
     % Render script is located in the same maya_comm folder
     [currentFolder,~,~] = fileparts(mfilename('fullpath'));
-    sendMayaScript = [currentFolder '/maya_comm/sendMaya.rb'];
+    sendMayaScript = fullfile(currentFolder, 'maya_comm', 'sendMaya.rb');
     
     maya_send = @(cmd, isRender) sendToMaya( sendMayaScript, ...
         port, cmd, isRender);
     
-    disp('Loading scene in Maya')
-    % Set project to fire project directory
-    cmd = 'setProject \""$HOME"/maya/projects/fire\"';
-    maya_send(cmd, 0);
+    if isBatchMode()
+        empty_maya_log_files(logfile, port);
+    end
     
-    % Open our test scene
-    cmd = ['file -force -open \"scenes/' scene_name '.ma\"'];
-    maya_send(cmd, 0);
-    
-    % Force a frame update, as batch rendering later does not do it, this
-    % will fix any file name errors due to using the same scene on
-    % different computers
-    cmd = '\$ctime = \`currentTime -query\`; currentTime 1; currentTime \$ctime';
-    maya_send(cmd, 0);
+    maya_common_initialization({maya_send}, port, scene_name, 0, 1, true);
     
     % Set the scale to 0, so that we can control the temperature with the
     % offset regardless of the initial values in the raw file
@@ -101,7 +94,7 @@ try
     % Check that the output folder is empty before rendering, better tell
     % the user as soon as possible
     for i=1:totalSize
-        ct_file_path = [output_ct_folder 'CT-' fuel_name{i} '.mat'];
+        ct_file_path = fullfile(output_ct_folder, ['CT-' fuel_name{i} '.mat']);
         if(exist(ct_file_path, 'file'))
             error(['Data file ' ct_file_path '.mat exits output folder ' ...
                 'must be empty' ]);
@@ -133,7 +126,7 @@ try
             % Set the folder and name of the render image
             cmd = 'setAttr -type \"string\" defaultRenderGlobals.imageFilePrefix \"';
             out_img_name = [fuel_name{i} '-' temperature_str 'K-' scene_name];
-            cmd = [cmd scene_name '/' output_img_folder_name out_img_name '\"'];
+            cmd = [cmd fullfile(scene_name, output_img_folder_name, out_img_name ) '\"'];
             maya_send(cmd, 0);
             
             % Render the image
@@ -141,7 +134,7 @@ try
             maya_send(cmd, 1);
             
             % Read the image
-            c_img = imread([output_img_folder out_img_name '.tif']);
+            c_img = imread(fullfile(output_img_folder, [out_img_name '.tif']));
             
             [centre_x, centre_y, ~] = size(c_img);
             
@@ -161,7 +154,7 @@ try
             disp(['Image ' num2str(img_count) '/' num2str(totalSize * temp_div) ...
                 ' rendered, remaining time ' datestr(remaining_time, 'HH:MM:SS.FFF')]);
         end
-        ct_file_path = [output_ct_folder 'CT-' fuel_name{i} '.mat'];
+        ct_file_path = fullfile(output_ct_folder, ['CT-' fuel_name{i} '.mat']);
         save(ct_file_path, 'color_temp_table', '-ascii', '-double');
     end
     
@@ -169,7 +162,7 @@ try
     
     % If running in batch mode, exit matlab
     if(isBatchMode())
-        move_file( logfile, [output_img_folder 'matlab.log'] );
+        move_file( logfile, fullfile(output_img_folder, 'matlab.log') );
         copy_maya_log_files(logfile, output_img_folder, port);
         exit;
     else
@@ -179,7 +172,7 @@ catch ME
     if(isBatchMode())
         disp(getReport(ME));
         if(exist('logfile', 'var') && exist('output_img_folder', 'var'))
-            move_file( logfile, [output_img_folder 'matlab.log'] );
+            move_file( logfile, fullfile(output_img_folder, 'matlab.log') );
             if(exist('port', 'var'))
                 copy_maya_log_files(logfile, output_img_folder, port);
             end
