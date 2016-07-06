@@ -23,6 +23,7 @@ rng(rand_seed);
 project_path = '~/maya/projects/fire/';
 scene_name = 'test102_maya_data';
 scene_img_folder = fullfile(project_path, 'images', scene_name);
+mask_path = fullfile(scene_img_folder, 'flame-30-mask1.png');
 
 temp_div = 25;
 min_temp = 1000;
@@ -50,6 +51,9 @@ try
     output_img_folder_name = ['ct_table' num2str(dir_num)];
     output_ct_folder = fullfile(fileparts(mfilename('fullpath')), 'data');
     
+    %% Read mask data
+    mask = imread(mask_path);
+    mask = logical(mask);
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
@@ -136,12 +140,10 @@ try
             % Read the image
             c_img = imread(fullfile(output_img_folder, [out_img_name '.tif']));
             
-            [centre_x, centre_y, ~] = size(c_img);
-            
-            centre_x = round(centre_x / 2);
-            centre_y = round(centre_y / 2);
-            
-            color_temp_table(j, 2:4) = c_img(centre_x, centre_y, 1:3);
+            for k=1:3
+                img = c_img(:,:,k);
+                color_temp_table(j, k+1) = mean(img(mask));
+            end
             
             % Estimate the remaining time
             img_count = img_count + 1;
