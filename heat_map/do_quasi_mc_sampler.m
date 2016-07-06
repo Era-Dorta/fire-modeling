@@ -90,17 +90,21 @@ try
     dist_fnc = get_dist_fnc_from_file(opts);
     
     %% Create the samples
+    % For each sample we need two heat maps
+    opts.num_samples = opts.num_samples * 2;
+    
     totalTime = tic;
     
     heat_map_v = zeros(opts.num_samples, init_heat_map.count);
     
-    heat_map_v(1,:) = mean([opts.UB, opts.LB]);
+    heat_map_v(1:2:end,:) = rand(opts.num_samples/2, init_heat_map.count);
+    heat_map_v(1:2:end,:) = fitToRange(heat_map_v(1:2:end,:), 0, 1, opts.LB, opts.UB);
     
     max_norm = zeros(init_heat_map.count, 1) + opts.UB;
     max_norm = max_norm - opts.LB;
     max_norm = norm(max_norm);
     
-    for i=2:opts.num_samples
+    for i=2:2:opts.num_samples
         
         % Generate a random perturbation of the solution
         perturbation = rand(1, init_heat_map.count) - 0.5;
@@ -129,19 +133,22 @@ try
     norm_factor = 1 / sum(img_mask(:) == 1);
     assert(~isinf(norm_factor));
     
-    img_path = fullfile(render_folder, 'fireimage1.tif');
+    histo_dim = 3;
+    dist_rgb = zeros(opts.num_samples/2, histo_dim);
     
-    init_img = imread(img_path);
-    init_img = init_img(:,:,1:3);
-    
-    ori_histo = getImgRGBHistogram( init_img, img_mask, opts.n_bins, edges);
-    ori_histo = ori_histo * norm_factor;
-    
-    histo_dim = size(ori_histo, 1);
-    dist_rgb = zeros(opts.num_samples-1, histo_dim);
-    
-    for i=2:opts.num_samples
+    k = 1;
+    for i=1:2:opts.num_samples
         istr = num2str(i);
+        
+        img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
+        
+        I = imread(img_path);
+        I = I(:,:,1:3);
+        
+        ori_histo = getImgRGBHistogram( I, img_mask, opts.n_bins, edges);
+        ori_histo = ori_histo * norm_factor;
+        
+        istr = num2str(i+1);
         
         img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
         
@@ -152,10 +159,10 @@ try
         i_histo = i_histo * norm_factor;
         
         for j=1:histo_dim
-            dist_rgb(i-1, j) = dist_fnc(i_histo(j, :), ori_histo(j, :));
+            dist_rgb(k, j) = dist_fnc(i_histo(j, :), ori_histo(j, :));
         end
         
-        ori_histo = i_histo;
+        k = k + 1;
     end
     
     mean_dist_rgb = mean(dist_rgb);
@@ -165,6 +172,9 @@ try
     
     disp(['Mean RGB distance is ' num2str(mean_dist_rgb)]);
     disp(['Std RGB distance is ' num2str(std_dist_rgb)]);
+    
+    % Restore the previous value for the number of samples
+    opts.num_samples = opts.num_samples / 2;
     
     %% Save data
     summary_data = opts;
@@ -178,6 +188,7 @@ try
     summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
     summary_data.MeanRGBDistance = mean_dist_rgb;
     summary_data.StdRGBDistance = std_dist_rgb;
+    summary_data.StepSize = max_norm / opts.sample_divisions;
     
     save_summary_file(fullfile(output_img_folder, 'summary_file'), ...
         summary_data, []);
