@@ -23,7 +23,7 @@ rng(rand_seed);
 project_path = '~/maya/projects/fire/';
 scene_name = 'test102_maya_data';
 scene_img_folder = fullfile(project_path, 'images', scene_name);
-mask_path = fullfile(scene_img_folder, 'flame-30-mask1.png');
+mask_path = fullfile(scene_img_folder, 'flame-30-mask1-cttable.png');
 
 temp_div = 25;
 min_temp = 1000;
