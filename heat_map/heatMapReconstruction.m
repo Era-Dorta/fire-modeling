@@ -100,6 +100,8 @@ try
     maya_common_initialization(maya_send, ports, opts.scene_name, ...
         opts.fuel_type, num_goal, opts.is_mr);
     
+    maya_set_custom_parameters(maya_send, opts);
+    
     %% Summary data is mainly the options from the load file
     summary_data = opts;
     
