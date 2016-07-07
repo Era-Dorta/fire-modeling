@@ -28,6 +28,9 @@ fi
 # Runs matlab in batch mode with low priority
 nice -n20 matlab -nodesktop -nosplash -r "createCTtable($PORT, '$LOGFILE')" -logfile $LOGFILE
 
-# Close all the Maya instances
-"$CDIR/closeMayaBatch.sh" "$PORT" "$NUM_MAYA"
+MATLAB_RETURN=$?
 
+# Close all the Maya instances
+"$CDIR/closeMayaBatch.sh" "$PORT"
+
+exit $MATLAB_RETURN
