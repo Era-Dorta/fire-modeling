@@ -269,7 +269,7 @@ try
     
     %% Add extra metrics for visualization
     plot_energy_term_values( opts, num_goal,  output_img_folder, goal_img, ...
-        goal_mask, img_mask );
+        goal_mask, img_mask, ~opts.use_approx_fitness);
     
     %% Append the real error if using the approx fitness
     if(opts.use_approx_fitness)
@@ -331,7 +331,7 @@ try
     %% Render the initial and final population in a folder
     % With the ga-re solver there are several initial population files so
     % avoid the rendering in that case
-    if ~any(strcmp(opts.solver, {'ga-re', 'lhs'})) && ~opts.use_approx_fitness
+    if ~any(strcmp(opts.solver, {'ga-re', 'lhs'}))
         L = load([paths_str.output_folder 'OutputData.mat']);
         
         if( strcmp(opts.solver,'cmaes'))
