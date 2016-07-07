@@ -42,6 +42,13 @@ for i=1:num_hm
     
 end
 
+% Convert the step size to percentage of the maximum step size
+max_step_size = zeros(opts.HeatMapNumVariables, 1) + opts.UB;
+max_step_size = max_step_size - opts.LB;
+max_step_size = norm(max_step_size);
+
+step_size = (step_size / max_step_size) * 100;
+
 %% Plot the comparison
 
 fig_h = figure;
@@ -53,14 +60,14 @@ errorbar(1:num_hm, mean_rgb(:,1), std_rgb(:,1), '-rx');
 errorbar(1:num_hm, mean_rgb(:,2), std_rgb(:,2), '-gx');
 errorbar(1:num_hm, mean_rgb(:,3), std_rgb(:,3), '-bx');
 
-xlabel('Step size');
+xlabel('Step size (% of max step size)'); 
 ylabel('Histogram Distance');
 
 % Change the regular intervals for the actual step size
 set(gca,'XTick', 1:num_hm);
 set(gca,'xticklabel', num2str(step_size));
 
-legend('Red Channel', 'Green Channel', 'Blue Channel');
+legend('Red Channel', 'Green Channel', 'Blue Channel', 'Location', 'northwest');
 
 hold off;
 
@@ -69,5 +76,4 @@ figurePath = fullfile(data_folder, 'qmc-comparison');
 saveas(fig_h, figurePath, 'svg');
 print(fig_h, figurePath, '-dtiff');
 end
-
 
