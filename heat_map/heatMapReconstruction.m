@@ -360,6 +360,9 @@ try
         end
     end
     
+    %% Copy arguments file
+    copyfile(args_path, output_img_folder);
+    
     %% Resource clean up after execution
     
     % If running in batch mode, exit matlab
