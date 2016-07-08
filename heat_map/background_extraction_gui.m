@@ -110,10 +110,6 @@ slider_ui = uicontrol(fig_h, 'Style', 'slider', 'Value', bin_mask_threshold, ...
             default_dir = img_dir;
             out_img_path = fullfile(img_dir, out_img_path);
             imwrite(img_mask, out_img_path);
-            
-            imwrite(img_subs, out_img_path);
-            
-            imwrite(img_mask, out_img_path);
         end
     end
 
