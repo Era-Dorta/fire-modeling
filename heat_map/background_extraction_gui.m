@@ -14,11 +14,13 @@ end
 img = [];
 trimap = [];
 alpha = [];
+img_subs = [];
+bg_only = [];
 img_mask = [];
 bin_mask_threshold = 0.1;
 
 % Create a figure with controllers to load and save the images.
-fig_h = figure();
+fig_h = figure('Position', [680   554   860   420]);
 uicontrol(fig_h, 'Style', 'pushbutton', 'String', 'Load Img', ...
     'Position', [10 5 100 20], 'Callback', @imgLoadCallback);
 
@@ -28,8 +30,17 @@ uicontrol(fig_h, 'Style', 'pushbutton', 'String', 'Load TriMap',...
 uicontrol(fig_h, 'Style', 'pushbutton', 'String', 'Save Mask',...
     'Position', [210 5 100 20], 'Callback', @maskSaveCallback);
 
+uicontrol(fig_h, 'Style', 'pushbutton', 'String', 'Save Background',...
+    'Position', [310 5 100 20], 'Callback', @bgSaveCallback);
+
+uicontrol(fig_h, 'Style', 'pushbutton', 'String', 'Save Foreground',...
+    'Position', [410 5 100 20], 'Callback', @fgSaveCallback);
+
+uicontrol(fig_h, 'Style', 'pushbutton', 'String', 'Save Alpha',...
+    'Position', [510 5 100 20], 'Callback', @alphaSaveCallback);
+
 slider_ui = uicontrol(fig_h, 'Style', 'slider', 'Value', bin_mask_threshold, ...
-    'Position', [310 5 240 20], 'Callback', @thresholdCallback);
+    'Position', [610 5 240 20], 'Callback', @thresholdCallback);
 
     function imgLoadCallback(~,~)
         [in_img_path, img_dir] = uigetfile(fullfile(default_dir, '*.png;*.tif;*.jpg'));
@@ -99,6 +110,46 @@ slider_ui = uicontrol(fig_h, 'Style', 'slider', 'Value', bin_mask_threshold, ...
             default_dir = img_dir;
             out_img_path = fullfile(img_dir, out_img_path);
             imwrite(img_mask, out_img_path);
+            
+            imwrite(img_subs, out_img_path);
+            
+            imwrite(img_mask, out_img_path);
+        end
+    end
+
+    function bgSaveCallback(~,~)
+        if(~isempty(bg_only))
+            [out_img_path, img_dir] = uiputfile(fullfile(default_dir, '*.png;*.tif;*.jpg'));
+            if out_img_path == 0
+                return;
+            end
+            default_dir = img_dir;
+            out_img_path = fullfile(img_dir, out_img_path);
+            imwrite(bg_only, out_img_path);
+        end
+    end
+
+    function fgSaveCallback(~,~)
+        if(~isempty(img_subs))
+            [out_img_path, img_dir] = uiputfile(fullfile(default_dir, '*.png;*.tif;*.jpg'));
+            if out_img_path == 0
+                return;
+            end
+            default_dir = img_dir;
+            out_img_path = fullfile(img_dir, out_img_path);
+            imwrite(img_subs, out_img_path);
+        end
+    end
+
+    function alphaSaveCallback(~,~)
+        if(~isempty(alpha))
+            [out_img_path, img_dir] = uiputfile(fullfile(default_dir, '*.png;*.tif;*.jpg'));
+            if out_img_path == 0
+                return;
+            end
+            default_dir = img_dir;
+            out_img_path = fullfile(img_dir, out_img_path);
+            imwrite(alpha, out_img_path);
         end
     end
 
@@ -122,6 +173,9 @@ slider_ui = uicontrol(fig_h, 'Style', 'slider', 'Value', bin_mask_threshold, ...
             
             % Get the new image without the background
             img_subs = uint8(bsxfun(@times, double(img), alpha));
+            
+            % Get the background
+            bg_only = uint8(bsxfun(@times, double(img), 1 - alpha));
             
             set(groot, 'CurrentFigure', fig_h);
             subtightplot(2,2,4); imshow(img_subs);
