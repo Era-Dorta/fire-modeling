@@ -1,6 +1,6 @@
-function do_quasi_mc_sampler(args_path, ports, logfile)
-%DO_QUASI_MC_SAMPLER Sample histogram changes
-%   DO_QUASI_MC_SAMPLER(ARGS_PATH, PORTS, LOGFILE)
+function do_uniform_sampler(args_path, ports, logfile)
+%DO_UNIFORM_SAMPLER Sample histogram changes
+%   DO_UNIFORM_SAMPLER(ARGS_PATH, PORTS, LOGFILE)
 %   ARGS_PATH is the path of a .mat file with arguments for the
 %   optimization
 %   PORTS is a vector containing port numbers that Maya is listening to
@@ -39,13 +39,13 @@ try
     
     % Find the last folder
     dir_num = 0;
-    while(exist([opts.scene_img_folder 'qmc_sampler_' num2str(dir_num)], 'dir') == 7)
+    while(exist([opts.scene_img_folder 'uniform_sampler_' num2str(dir_num)], 'dir') == 7)
         dir_num = dir_num + 1;
     end
     
     % Create a new folder to store the data
-    output_img_folder = [opts.scene_img_folder 'qmc_sampler_' num2str(dir_num) '/'];
-    output_img_folder_name = ['qmc_sampler_' num2str(dir_num) '/'];
+    output_img_folder = [opts.scene_img_folder 'uniform_sampler_' num2str(dir_num) '/'];
+    output_img_folder_name = ['uniform_sampler_' num2str(dir_num) '/'];
     
     %% Read goal and mask image/s
     num_goal = numel(opts.goal_img_path);
@@ -182,7 +182,7 @@ try
     summary_data.Ports = ports;
     summary_data.IsBatchMode = isBatchMode();
     summary_data.FuelName = get_fuel_name(opts.fuel_type);
-    summary_data.OptimizationMethod = 'Quasi Monte Carlo sampler';
+    summary_data.OptimizationMethod = 'Uniform sampler';
     summary_data.HeatMapSize = init_heat_map.size;
     summary_data.HeatMapNumVariables = init_heat_map.count;
     summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];

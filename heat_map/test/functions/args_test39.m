@@ -1,5 +1,5 @@
 function [args_path] = args_test39()
-%ARGS_TEST39 QMC Histo RGB
+%ARGS_TEST39 Uniform Sampler Histo RGB
 %   ARGS_PATH = ARGS_TEST39() Returns in ARGS_PATH the file path of a .mat
 %   file with arguments defined here.
 %
