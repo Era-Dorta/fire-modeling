@@ -22,6 +22,9 @@ public:
 	enum BB_TYPE {
 		BB_ONLY, BB_SOOT, BB_CHEM
 	};
+	enum TM_TYPE {
+		HDR, VON_KRIES, REINHARD
+	};
 	virtual bool compute_black_body_emission_threaded(
 			float visual_adaptation_factor, FuelType fuel_type);
 	virtual bool compute_soot_absorption_threaded(
@@ -30,8 +33,8 @@ public:
 			float visual_adaptation_factor, FuelType fuel_type);
 	const miColor& get_max_voxel_value();
 	virtual void compute_max_voxel_value();
-	bool isToneMapped() const;
-	void setToneMapped(bool tone_mapped);
+	TM_TYPE getToneMapping() const;
+	void setToneMapping(TM_TYPE tone_mapping);
 
 private:
 	openvdb::Vec3f linear_interp(float t, const openvdb::Vec3f& c0,
@@ -52,6 +55,9 @@ private:
 	static void remove_specials(openvdb::Vec3f& v);
 	static void remove_specials(float &v);
 	void clear_coefficients();
+	void apply_tm_reinhard(const bool isRGB);
+	void apply_tm_von_kries(const bool isRGB);
+	void apply_tm_hdr(const bool isRGB);
 
 protected:
 	miColor max_color;
@@ -62,7 +68,7 @@ private:
 	std::vector<AbsorptionSpectrum> absorption_spec;
 
 	BB_TYPE bb_type;
-	bool tone_mapped;
+	TM_TYPE tone_mapping;
 };
 
 #endif /* VOXELDATASETCOLOR_H_ */

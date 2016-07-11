@@ -133,6 +133,7 @@ global proc AEfire_volumeTemplate ( string $nodeName )
 		editorTemplate -annotation "Number of light samples per ray, values from 1 to 256" -addControl "high_samples";
 		editorTemplate -annotation "Quality parameter, ideally it should be set to half the voxel size" -addControl "march_increment";
 		editorTemplate -annotation "If true, computes how light varies when traversing the medium" -addControl "cast_shadows";
+		editorTemplate -annotation "HDR to LDR conversion, set to HDR if using piccante_tone_map shader" -label "HDR Conversion" -addControl "hdr_conversion";
 			
 	editorTemplate -endLayout;
 	

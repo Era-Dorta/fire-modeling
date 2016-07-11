@@ -76,6 +76,11 @@ extern "C" DLLEXPORT int piccante_tone_map_version(void) {
 extern "C" DLLEXPORT miBoolean piccante_tone_map(void *result, miState *state,
 		struct piccante_tone_map *paras) {
 	const miInteger tm_operator = *mi_eval_integer(&paras->tm_operator);
+
+	if (tm_operator == 4) { // Do nothing operator
+		return miTRUE;
+	}
+
 	const miScalar gamma = *mi_eval_scalar(&paras->gamma);
 	const miScalar f_stop = *mi_eval_scalar(&paras->f_stop);
 

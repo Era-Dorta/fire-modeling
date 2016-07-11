@@ -27,6 +27,8 @@ struct voxel_rgb_value {
 
 	miVector min_point;
 	miVector max_point;
+
+	miInteger hdr_conversion;
 };
 
 enum ComputeMode {
@@ -64,11 +66,9 @@ extern "C" DLLEXPORT miBoolean voxel_rgb_value_init(miState *state,
 		voxels->setInterpolationMode(
 				(VoxelDatasetColor::InterpolationMode) interpolation_mode);
 
-		/*
-		 * TODO This should be from an user parameter, assuming the user always
-		 * wants to render in hdr and do post processing tone mapping
-		 */
-		voxels->setToneMapped(false);
+		miInteger hdr_conversion = *mi_eval_integer(&params->hdr_conversion);
+		voxels->setToneMapping(
+				static_cast<VoxelDatasetColor::TM_TYPE>(hdr_conversion));
 
 		// Get the data file path
 		FuelType fuel_type = static_cast<FuelType>(*mi_eval_integer(

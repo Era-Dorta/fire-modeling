@@ -17,7 +17,7 @@ VoxelDatasetColor::VoxelDatasetColor() :
 				openvdb::Vec3f(0, 0, 0)) {
 	miaux_set_rgb(&max_color, 0);
 	bb_type = BB_ONLY;
-	tone_mapped = false;
+	tone_mapping = HDR;
 }
 
 VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
@@ -25,7 +25,7 @@ VoxelDatasetColor::VoxelDatasetColor(const miColor& background) :
 				openvdb::Vec3f(background.r, background.g, background.b)) {
 	miaux_set_rgb(&max_color, 0);
 	bb_type = BB_ONLY;
-	tone_mapped = false;
+	tone_mapping = HDR;
 }
 
 bool VoxelDatasetColor::compute_black_body_emission_threaded(
@@ -185,7 +185,7 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 	}
 	float maxT = 0, currentT = 0;
 
-	if (tone_mapped) {
+	if (tone_mapping != HDR) {
 		// Vector where the densities will be saved for later use
 		densities.resize(block->activeVoxelCount());
 	}
@@ -193,7 +193,7 @@ void VoxelDatasetColor::compute_chemical_absorption(unsigned start_offset,
 	for (auto i = start_offset; i < end_offset && iter; i++, ++iter) {
 		t = iter.getValue();
 
-		if (tone_mapped) {
+		if (tone_mapping != HDR) {
 			densities.at(i) = t.y();
 		}
 
@@ -317,119 +317,19 @@ void VoxelDatasetColor::apply_visual_adaptation(
 	const bool isRGB = mi_colorprofile_renderspace_id()
 			!= mi_colorprofile_ciexyz_color_id();
 
-	if (!tone_mapped) {
-		// Convert the values to current colorprofile and exit
-		for (auto iter = block->beginValueOn(); iter; ++iter) {
-			if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
-				openvdb::Vec3f color_adapted;
-
-				openvdb::Vec3f color_xyz = iter.getValue();
-
-				if (isRGB) {
-					XYZToRGB(&color_xyz.x(), &color_adapted.x());
-				} else {
-					color_adapted = color_xyz;
-				}
-
-				// Remove negative values
-				clamp(color_adapted, 0, FLT_MAX);
-
-				remove_specials(color_adapted);
-
-				iter.setValue(color_adapted);
-			}
-		}
-
-		max_color.r = accessor.getValue(max_ind).x();
-		max_color.g = accessor.getValue(max_ind).y();
-		max_color.b = accessor.getValue(max_ind).z();
-
-		return;
+	switch (tone_mapping) {
+	case HDR: {
+		apply_tm_hdr(isRGB);
+		break;
 	}
-
-	// This section is heavily inspired by the Reinhard Tone Mapping code
-	// in https://github.com/banterle/HDR_Toolbox
-	const float inv_gamma = 1.0 / 2.2;
-	const float lMax = max_color.g, lMin = 0;
-	const float log2Max = log2(lMax + 1e-9);
-	const float log2Min = log2(lMin + 1e-9);
-
-	// Estimate the white point luminance as in Reinhard
-	float pWhite2 = 1.5 * pow(2, log2Max - log2Min - 5);
-
-	// Set the white point as the luminance of the voxel with highest
-	// temperature, Nguyen 2002
-	// float pWhite2 = max_color.g;
-
-	pWhite2 = pWhite2 * pWhite2;
-
-	// Computer the e^(mean(luminance))
-	float exp_mean_log = 0;
-	for (auto iter = block->cbeginValueOn(); iter; ++iter) {
-		exp_mean_log += log(iter->y() + 1e-6);
+	case VON_KRIES: {
+		apply_tm_von_kries(isRGB);
+		break;
 	}
-	exp_mean_log = exp(exp_mean_log / block->activeVoxelCount());
-
-	// Estimate the image exposure
-	const float pAlpha = 0.18
-			* pow(4,
-					((2.0 * log2(exp_mean_log + 1e-9) - log2Min - log2Max)
-							/ (log2Max - log2Min))) * visual_adaptation_factor;
-
-	mi_info("Estimated exposure in tone mapping: %f", pAlpha);
-
-	// Compute visual adaptation with the previous value
-	for (auto iter = block->beginValueOn(); iter; ++iter) {
-		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
-			openvdb::Vec3f color_rgb_adapted, color_rgb;
-
-			openvdb::Vec3f color_xyz = iter.getValue();
-
-			if (isRGB) {
-				XYZToRGB(&color_xyz.x(), &color_rgb.x());
-			} else {
-				color_rgb = color_xyz;
-			}
-
-			// Remove negative RGB values
-			clamp(color_rgb, 0, FLT_MAX);
-
-			// Compute new luminance as in Reinhard et. al. 2002
-			// "Photographic tone reproduction for digital images"
-			float new_l = (pAlpha * color_xyz.y()) / exp_mean_log;
-			new_l = (new_l * (1 + new_l / pWhite2)) / (1 + new_l);
-
-			// Apply luminance change to the original RGB color
-			color_rgb_adapted = (color_rgb * new_l) / color_xyz.y();
-
-			remove_specials(color_rgb_adapted);
-
-			if (isRGB) {
-				RGBToXYZ(&color_rgb_adapted.x(), &color_xyz.x());
-			} else {
-				color_xyz = color_rgb_adapted;
-			}
-
-			// Apply Schlick color correction, with 0.5 coefficient -> sqrt
-			color_rgb_adapted.x() = sqrt(color_rgb_adapted.x() / color_xyz.y())
-					* color_xyz.y();
-			color_rgb_adapted.y() = sqrt(color_rgb_adapted.y() / color_xyz.y())
-					* color_xyz.y();
-			color_rgb_adapted.z() = sqrt(color_rgb_adapted.z() / color_xyz.y())
-					* color_xyz.y();
-
-			remove_specials(color_rgb_adapted);
-
-			// Apply Gamma correction, with Gamma 2.2
-			color_rgb_adapted.x() = pow(color_rgb_adapted.x(), inv_gamma);
-			color_rgb_adapted.y() = pow(color_rgb_adapted.y(), inv_gamma);
-			color_rgb_adapted.z() = pow(color_rgb_adapted.z(), inv_gamma);
-
-			// Final clamping for [0..1] RGB space
-			clamp(color_rgb_adapted, 0, 1);
-
-			iter.setValue(color_rgb_adapted);
-		}
+	case REINHARD: {
+		apply_tm_reinhard(isRGB);
+		break;
+	}
 	}
 
 	max_color.r = accessor.getValue(max_ind).x();
@@ -443,7 +343,7 @@ void VoxelDatasetColor::fix_chem_absorption() {
 	 * adapted absorption by the densities, otherwise the densities would have
 	 * no effect during the ray marching
 	 */
-	if (tone_mapped) {
+	if (tone_mapping != HDR) {
 		auto density = densities.begin();
 		for (auto iter = block->beginValueOn(); iter; ++iter) {
 
@@ -524,10 +424,160 @@ void VoxelDatasetColor::clear_coefficients() {
 	absorption_spec.clear();
 }
 
-bool VoxelDatasetColor::isToneMapped() const {
-	return tone_mapped;
+VoxelDatasetColor::TM_TYPE VoxelDatasetColor::getToneMapping() const {
+	return tone_mapping;
 }
 
-void VoxelDatasetColor::setToneMapped(bool tone_mapped) {
-	this->tone_mapped = tone_mapped;
+void VoxelDatasetColor::setToneMapping(TM_TYPE tone_mapping) {
+	this->tone_mapping = tone_mapping;
+}
+
+void VoxelDatasetColor::apply_tm_reinhard(const bool isRGB) {
+	// This section is heavily inspired by the Reinhard Tone Mapping code
+	// in https://github.com/banterle/HDR_Toolbox
+	const float inv_gamma = 1.0 / 2.2;
+	const float lMax = max_color.g, lMin = 0;
+	const float log2Max = log2(lMax + 1e-9);
+	const float log2Min = log2(lMin + 1e-9);
+
+	// Estimate the white point luminance as in Reinhard
+	float pWhite2 = 1.5 * pow(2, log2Max - log2Min - 5);
+
+	// Set the white point as the luminance of the voxel with highest
+	// temperature, Nguyen 2002
+	// float pWhite2 = max_color.g;
+
+	pWhite2 = pWhite2 * pWhite2;
+
+	// Computer the e^(mean(luminance))
+	float exp_mean_log = 0;
+	for (auto iter = block->cbeginValueOn(); iter; ++iter) {
+		exp_mean_log += log(iter->y() + 1e-6);
+	}
+	exp_mean_log = exp(exp_mean_log / block->activeVoxelCount());
+
+	// Estimate the image exposure
+	const float pAlpha = 0.18
+			* pow(4,
+					((2.0 * log2(exp_mean_log + 1e-9) - log2Min - log2Max)
+							/ (log2Max - log2Min)));
+
+	// Compute visual adaptation with the previous value
+	for (auto iter = block->beginValueOn(); iter; ++iter) {
+		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
+			openvdb::Vec3f color_rgb_adapted, color_rgb;
+
+			openvdb::Vec3f color_xyz = iter.getValue();
+
+			if (isRGB) {
+				XYZToRGB(&color_xyz.x(), &color_rgb.x());
+			} else {
+				color_rgb = color_xyz;
+			}
+
+			// Remove negative RGB values
+			clamp(color_rgb, 0, FLT_MAX);
+
+			// Compute new luminance as in Reinhard et. al. 2002
+			// "Photographic tone reproduction for digital images"
+			float new_l = (pAlpha * color_xyz.y()) / exp_mean_log;
+			new_l = (new_l * (1 + new_l / pWhite2)) / (1 + new_l);
+
+			// Apply luminance change to the original RGB color
+			color_rgb_adapted = (color_rgb * new_l) / color_xyz.y();
+
+			remove_specials(color_rgb_adapted);
+
+			if (isRGB) {
+				RGBToXYZ(&color_rgb_adapted.x(), &color_xyz.x());
+			} else {
+				color_xyz = color_rgb_adapted;
+			}
+
+			// Apply Schlick color correction, with 0.5 coefficient -> sqrt
+			color_rgb_adapted.x() = sqrt(color_rgb_adapted.x() / color_xyz.y())
+					* color_xyz.y();
+			color_rgb_adapted.y() = sqrt(color_rgb_adapted.y() / color_xyz.y())
+					* color_xyz.y();
+			color_rgb_adapted.z() = sqrt(color_rgb_adapted.z() / color_xyz.y())
+					* color_xyz.y();
+
+			remove_specials(color_rgb_adapted);
+
+			// Apply Gamma correction, with Gamma 2.2
+			color_rgb_adapted.x() = pow(color_rgb_adapted.x(), inv_gamma);
+			color_rgb_adapted.y() = pow(color_rgb_adapted.y(), inv_gamma);
+			color_rgb_adapted.z() = pow(color_rgb_adapted.z(), inv_gamma);
+
+			// Final clamping for [0..1] RGB space
+			clamp(color_rgb_adapted, 0, 1);
+
+			iter.setValue(color_rgb_adapted);
+		}
+	}
+}
+
+void VoxelDatasetColor::apply_tm_von_kries(const bool isRGB) {
+	float max_xyz_float[3];
+
+	max_xyz_float[0] = max_color.r;
+	max_xyz_float[1] = max_color.g;
+	max_xyz_float[2] = max_color.b;
+
+	openvdb::Vec3f inv_max_lms;
+	XYZtoLMS(max_xyz_float, &inv_max_lms[0]);
+
+	inv_max_lms.x() = 1.0 / (inv_max_lms.x() + FLT_EPSILON);
+	inv_max_lms.y() = 1.0 / (inv_max_lms.y() + FLT_EPSILON);
+	inv_max_lms.z() = 1.0 / (inv_max_lms.z() + FLT_EPSILON);
+
+	// Compute visual adaptation with the previous value
+	for (auto iter = block->beginValueOn(); iter; ++iter) {
+		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
+			openvdb::Vec3f color_adapted, color_lms;
+
+			openvdb::Vec3f color_xyz = iter.getValue();
+
+			XYZtoLMS(&color_xyz.x(), &color_lms.x());
+
+			// Apply adaptation, is a diagonal matrix so we can just multiply
+			// the values
+			color_lms = color_lms * inv_max_lms;
+
+			LMStoXYZ(&color_lms.x(), &color_xyz.x());
+
+			XYZToRGB(&color_xyz.x(), &color_adapted.x());
+
+			remove_specials(color_adapted);
+
+			// Final clamping for [0..1] RGB space
+			clamp(color_adapted, 0, 1);
+
+			iter.setValue(color_adapted);
+		}
+	}
+}
+
+void VoxelDatasetColor::apply_tm_hdr(const bool isRGB) {
+	// Convert the values to current colorprofile
+	for (auto iter = block->beginValueOn(); iter; ++iter) {
+		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
+			openvdb::Vec3f color_adapted;
+
+			openvdb::Vec3f color_xyz = iter.getValue();
+
+			if (isRGB) {
+				XYZToRGB(&color_xyz.x(), &color_adapted.x());
+			} else {
+				color_adapted = color_xyz;
+			}
+
+			// Remove negative values
+			clamp(color_adapted, 0, FLT_MAX);
+
+			remove_specials(color_adapted);
+
+			iter.setValue(color_adapted);
+		}
+	}
 }

@@ -56,6 +56,9 @@ declare shader
 		vector "max_point", 
 			#: default 1 1 1
 			#: hidden true
+		integer "hdr_conversion",
+			#: default 0
+			#: enum "HDR:Von Kries:Reinhard"
 			)
 	version 1
 end declare
@@ -152,6 +155,9 @@ declare shader
 				#: min 0
 				#: softmax 500
 			array light "lights",
+			integer "hdr_conversion",
+				#: default 0
+				#: enum "HDR:Von Kries:Reinhard"
 				)
 	apply volume
 	version 3
@@ -208,7 +214,7 @@ declare shader
 	"piccante_tone_map" (
 		integer "tm_operator",
 			#: default 3
-			#: enum "Gamma Correction:Exposure Fusion:Reinhard:Lischinski"
+			#: enum "Gamma Correction:Exposure Fusion:Reinhard:Lischinski:None"
 		scalar "white_point",
 			#: default 0.0
 			#: min 0.0

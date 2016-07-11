@@ -122,6 +122,9 @@ global proc string createFireVolume( string $temperature_file, string $density_f
 	
 	connectAttr -f ($fire_shader + ".high_samples") ($area_light + ".areaHiSamples");
 	connectAttr -f ($fire_shader + ".high_samples") ($fire_light_shader + ".high_samples");
+	
+	connectAttr -f ($fire_shader + ".hdr_conversion") ($absorption_shader + ".hdr_conversion");
+	connectAttr -f ($fire_shader + ".hdr_conversion") ($black_body_shader + ".hdr_conversion");
 
 	// Fire volume will only be illuminated by its own light
 	connectAttr ($area_light + ".message") ($fire_shader + ".lights[0]");

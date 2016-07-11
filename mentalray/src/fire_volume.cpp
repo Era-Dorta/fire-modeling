@@ -43,6 +43,7 @@ struct fire_volume {
 	miInteger i_light;	// index of first light
 	miInteger n_light;	// number of lights
 	miTag light[1];	// list of lights
+	miInteger hdr_conversion; // Dummy
 };
 
 extern "C" DLLEXPORT int fire_volume_version(void) {

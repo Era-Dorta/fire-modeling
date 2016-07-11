@@ -33,7 +33,10 @@ global proc update_piccante(string $nodeName){
 		editorTemplate -dimControl $nodeName "image_exposure" false;
 		editorTemplate -dimControl $nodeName "gamma" false;
 		editorTemplate -dimControl $nodeName "f_stop" false;
-		break;	
+		break;
+	case 4: // No operator
+		editorTemplate -dimControl $nodeName "gamma" true;
+		editorTemplate -dimControl $nodeName "f_stop" true;
 	default:
 		break;
 	}
