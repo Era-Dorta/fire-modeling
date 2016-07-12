@@ -89,31 +89,37 @@ try
     %% Distance function
     dist_fnc = get_dist_fnc_from_file(opts);
     
-    %% Create the samples
-    % For each sample we need two heat maps
-    opts.num_samples = opts.num_samples * 2;
-    
-    totalTime = tic;
-    
-    heat_map_v = zeros(opts.num_samples, init_heat_map.count);
-    
-    heat_map_v(1:2:end,:) = rand(opts.num_samples/2, init_heat_map.count);
-    heat_map_v(1:2:end,:) = fitToRange(heat_map_v(1:2:end,:), 0, 1, opts.LB, opts.UB);
-    
+    %% Maximum distance and edges for the distance histogram
+    % norm(ub - lb)
     max_norm = zeros(init_heat_map.count, 1) + opts.UB;
     max_norm = max_norm - opts.LB;
     max_norm = norm(max_norm);
     
-    for i=2:2:opts.num_samples
+    edges_s = linspace(0, max_norm, opts.samples_n_bins + 1);
+    edges_s(end) = edges_s(end) + eps;
+    
+    %% Simple random sampling and plot histogram
+    show_random_sampling = true;
+    if show_random_sampling
+        heat_map_v = rand(opts.num_samples, init_heat_map.count);
+        heat_map_v = fitToRange(heat_map_v, 0, 1, opts.LB, opts.UB);
         
-        % Generate a random perturbation of the solution
-        perturbation = rand(1, init_heat_map.count) - 0.5;
+        h_norm = zeros(1, opts.num_samples/2);
+        j=1;
+        for i=2:2:opts.num_samples
+            h_norm(j) = norm(heat_map_v(i-1,:) - heat_map_v(i,:));
+            j = j+1;
+        end
         
-        % Normalize each sample
-        perturbation = perturbation / norm(perturbation);
+        h_count = histcounts( h_norm, edges_s);
+        h_count = h_count / sum(h_count);
         
-        % Scale each sample to given norm
-        perturbation = perturbation * (max_norm / opts.sample_divisions);
+        hold on;
+        bar(linspace(0, 100, opts.samples_n_bins), h_count);
+        xlim([0,100]);
+        hold off;
+    end
+    
         
         heat_map_v(i,:) = heat_map_v(i-1,:) + perturbation;
         
