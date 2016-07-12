@@ -359,6 +359,9 @@ try
     
     save(fullfile(output_img_folder, 'OutData.mat'), 'dist_rgb');
     
+    %% Plot the results
+    compare_uniform_sampling_tests(output_img_folder, summary_data);
+    
     %% Compress the output data
     % Cannot use full paths so create the tar.gz and then move it
     for l=1:opts.samples_n_bins
