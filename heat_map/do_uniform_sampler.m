@@ -99,7 +99,7 @@ try
     edges_s(end) = edges_s(end) + eps;
     
     %% Simple random sampling and plot histogram
-    show_random_sampling = true;
+    show_random_sampling = false;
     if show_random_sampling
         heat_map_v = rand(opts.num_samples, init_heat_map.count);
         heat_map_v = fitToRange(heat_map_v, 0, 1, opts.LB, opts.UB);
@@ -111,7 +111,7 @@ try
             j = j+1;
         end
         
-        h_count = histcounts( h_norm, edges_s);
+        h_count = histcounts(h_norm, edges_s);
         h_count = h_count / sum(h_count);
         
         hold on;
@@ -124,15 +124,15 @@ try
     % For each sample we need two heat maps
     heat_map_v = cell(opts.samples_n_bins, 1);
     
-    if opts.num_samples < opts.samples_n_bins
-        error('num_samples must be >= samples_n_bins');
+    if opts.num_samples < 2 * opts.samples_n_bins
+        error('num_samples must be >= 2 * samples_n_bins');
     end
     
     opts.num_samples = round((opts.num_samples * 2)/opts.samples_n_bins);
     if mod(opts.num_samples, 2) ~= 0
         opts.num_samples = opts.num_samples + 1;
     end
-        
+    
     totalTime = tic;
     
     % Norm distance between histogram bins
@@ -159,6 +159,7 @@ try
         
         for i=2:2:num_samples
             valid_sample = false;
+            perturbation = zeros(1, hm_count);
             
             %% First case, generate random sample, generate perturbation
             % of desired norm and add it to the sample
@@ -284,19 +285,20 @@ try
     end
     
     %% Compare the histogram changes for each of them
+    edges = linspace(0, 255, opts.n_bins+1);
     histo_dim = 3;
     mean_dist_rgb = zeros(opts.samples_n_bins, histo_dim);
     std_dist_rgb = zeros(opts.samples_n_bins, histo_dim);
     
+    norm_factor = 1 / sum(img_mask(:) == 1);
+    assert(~isinf(norm_factor));
+    
+    dist_rgb = zeros(opts.num_samples/2, histo_dim);
+    
     for l=1:opts.samples_n_bins
         lstr = num2str(l);
+        disp(['Bin ' lstr]);
         render_folder = fullfile(output_img_folder, ['data' lstr 'Cam1' ]);
-        
-        edges = linspace(0, 255, opts.n_bins+1);
-        norm_factor = 1 / sum(img_mask(:) == 1);
-        assert(~isinf(norm_factor));
-        
-        dist_rgb = zeros(opts.num_samples/2, histo_dim);
         
         k = 1;
         for i=1:2:opts.num_samples
@@ -329,11 +331,11 @@ try
         
         mean_dist_rgb(l,:) = mean(dist_rgb);
         std_dist_rgb(l,:) = std(dist_rgb);
+        
+        disp(['    Mean RGB distance is ' num2str(mean_dist_rgb(l,:))]);
+        disp(['    Std RGB distance is ' num2str(std_dist_rgb(l,:))]);
     end
     totalTime = toc(totalTime);
-    
-    disp(['Mean RGB distance is ' num2str(mean_dist_rgb)]);
-    disp(['Std RGB distance is ' num2str(std_dist_rgb)]);
     
     % Restore the previous value for the number of samples
     opts.num_samples = opts.num_samples / 2 * opts.samples_n_bins;
@@ -359,9 +361,13 @@ try
     
     %% Compress the output data
     % Cannot use full paths so create the tar.gz and then move it
-    tar('data.tar.gz', render_folder);
-    movefile('data.tar.gz', output_img_folder);
-    rmdir(render_folder,'s');
+    for l=1:opts.samples_n_bins
+        lstr = num2str(l);
+        render_folder = fullfile(output_img_folder, ['data' lstr 'Cam1' ]);
+        tar(['data' lstr '.tar.gz'], render_folder);
+        movefile(['data' lstr '.tar.gz'], output_img_folder);
+        rmdir(render_folder,'s');
+    end
     
     %% Resource clean up after execution
     
