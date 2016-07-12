@@ -277,58 +277,66 @@ try
     end
     
     %% Render the samples
-    render_ga_population_par( heat_map_v, opts, maya_send, num_goal, ...
-        init_heat_map, output_img_folder_name, 'data', false );
-    
-    %% Compare the histogram changes for each of them
-    render_folder = fullfile(output_img_folder, 'dataCam1');
-    
-    edges = linspace(0, 255, opts.n_bins+1);
-    norm_factor = 1 / sum(img_mask(:) == 1);
-    assert(~isinf(norm_factor));
-    
-    histo_dim = 3;
-    dist_rgb = zeros(opts.num_samples/2, histo_dim);
-    
-    k = 1;
-    for i=1:2:opts.num_samples
-        istr = num2str(i);
-        
-        img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
-        
-        I = imread(img_path);
-        I = I(:,:,1:3);
-        
-        ori_histo = getImgRGBHistogram( I, img_mask, opts.n_bins, edges);
-        ori_histo = ori_histo * norm_factor;
-        
-        istr = num2str(i+1);
-        
-        img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
-        
-        I = imread(img_path);
-        I = I(:,:,1:3);
-        
-        i_histo = getImgRGBHistogram( I, img_mask, opts.n_bins, edges);
-        i_histo = i_histo * norm_factor;
-        
-        for j=1:histo_dim
-            dist_rgb(k, j) = dist_fnc(i_histo(j, :), ori_histo(j, :));
-        end
-        
-        k = k + 1;
+    for j=1:opts.samples_n_bins
+        jstr = num2str(j);
+        render_ga_population_par( heat_map_v{j}, opts, maya_send, num_goal, ...
+            init_heat_map, output_img_folder_name, ['data' jstr], false );
     end
     
-    mean_dist_rgb = mean(dist_rgb);
-    std_dist_rgb = std(dist_rgb);
+    %% Compare the histogram changes for each of them
+    histo_dim = 3;
+    mean_dist_rgb = zeros(opts.samples_n_bins, histo_dim);
+    std_dist_rgb = zeros(opts.samples_n_bins, histo_dim);
     
+    for l=1:opts.samples_n_bins
+        lstr = num2str(l);
+        render_folder = fullfile(output_img_folder, ['data' lstr 'Cam1' ]);
+        
+        edges = linspace(0, 255, opts.n_bins+1);
+        norm_factor = 1 / sum(img_mask(:) == 1);
+        assert(~isinf(norm_factor));
+        
+        dist_rgb = zeros(opts.num_samples/2, histo_dim);
+        
+        k = 1;
+        for i=1:2:opts.num_samples
+            istr = num2str(i);
+            
+            img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
+            
+            I = imread(img_path);
+            I = I(:,:,1:3);
+            
+            ori_histo = getImgRGBHistogram( I, img_mask, opts.n_bins, edges);
+            ori_histo = ori_histo * norm_factor;
+            
+            istr = num2str(i+1);
+            
+            img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
+            
+            I = imread(img_path);
+            I = I(:,:,1:3);
+            
+            i_histo = getImgRGBHistogram( I, img_mask, opts.n_bins, edges);
+            i_histo = i_histo * norm_factor;
+            
+            for j=1:histo_dim
+                dist_rgb(k, j) = dist_fnc(i_histo(j, :), ori_histo(j, :));
+            end
+            
+            k = k + 1;
+        end
+        
+        mean_dist_rgb(l,:) = mean(dist_rgb);
+        std_dist_rgb(l,:) = std(dist_rgb);
+    end
     totalTime = toc(totalTime);
     
     disp(['Mean RGB distance is ' num2str(mean_dist_rgb)]);
     disp(['Std RGB distance is ' num2str(std_dist_rgb)]);
     
     % Restore the previous value for the number of samples
-    opts.num_samples = opts.num_samples / 2;
+    opts.num_samples = opts.num_samples / 2 * opts.samples_n_bins;
     
     %% Save data
     summary_data = opts;
@@ -342,7 +350,7 @@ try
     summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
     summary_data.MeanRGBDistance = mean_dist_rgb;
     summary_data.StdRGBDistance = std_dist_rgb;
-    summary_data.StepSize = max_norm / opts.sample_divisions;
+    summary_data.StepSize = edges_s;
     
     save_summary_file(fullfile(output_img_folder, 'summary_file'), ...
         summary_data, []);
