@@ -12,7 +12,7 @@ end
 
 % Numeric values to string
 idx = cellfun(@isnumeric, outcell);
-outcell(idx) = cellfun(@num2str, outcell(idx), 'UniformOutput', 0);
+outcell(idx) = cellfun(@mat2str, outcell(idx), 'UniformOutput', 0);
 
 % Function pointers to string
 func_handl_cell = cellstr(repmat('function_handle', size(outcell,1), 1));
