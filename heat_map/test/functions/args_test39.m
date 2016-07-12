@@ -27,8 +27,8 @@ raw_temp_offset = 1200;
 
 max_ite = 3000;
 maxFunEvals = max_ite;
-sample_divisions = 4;
-num_samples = max_ite;
+samples_n_bins = 100; % Number of bins
+num_samples = 100 * samples_n_bins; % 100 samples for each bin
 
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 

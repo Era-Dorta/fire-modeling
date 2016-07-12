@@ -372,8 +372,10 @@ try
         rmdir(render_folder,'s');
     end
     
-    %% Resource clean up after execution
+    %% Copy arguments file
+    copyfile(args_path, output_img_folder);
     
+    %% Resource clean up after execution    
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
