@@ -11,17 +11,13 @@ mean_rgb = opts.MeanRGBDistance;
 std_rgb = opts.StdRGBDistance;
 step_size = opts.StepSize;
 
-% Step size is edges for a histogram, convert to a new vector with the
-% mean bin value
-max_step_size = step_size(end);
-
 step_size = step_size + mean(step_size(1:2));
 step_size = step_size(1:end-1);
 
 num_steps = numel(step_size);
 
 % Convert the step size to percentage of the maximum step size
-step_size = (step_size / max_step_size) * 100;
+steps = linspace(0, 100, num_steps);
 
 %% Plot the comparison
 
@@ -30,18 +26,17 @@ hold on;
 
 % Plot the mean value at regular intervals with error bars for the standard
 % deviation of each value
-errorbar(1:num_steps, mean_rgb(:,1), std_rgb(:,1), '-rx');
-errorbar(1:num_steps, mean_rgb(:,2), std_rgb(:,2), '-gx');
-errorbar(1:num_steps, mean_rgb(:,3), std_rgb(:,3), '-bx');
+errorbar(steps, mean_rgb(:,1), std_rgb(:,1), '-rx');
+errorbar(steps, mean_rgb(:,2), std_rgb(:,2), '-gx');
+errorbar(steps, mean_rgb(:,3), std_rgb(:,3), '-bx');
 
 xlabel('Step size (% of max step size)');
 ylabel('Histogram Distance');
 
 % Change the regular intervals for the actual step size
-set(gca,'XTick', 1:num_steps);
-set(gca,'xticklabel', strsplit(num2str(step_size)));
+xlim([0,100]);
 
-legend('Red Channel', 'Green Channel', 'Blue Channel', 'Location', 'northwest');
+legend('Red Channel', 'Green Channel', 'Blue Channel', 'Location', 'best');
 
 hold off;
 

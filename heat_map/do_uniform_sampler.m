@@ -117,6 +117,8 @@ try
         hold on;
         bar(linspace(0, 100, opts.samples_n_bins), h_count);
         xlim([0,100]);
+        xlabel('Step size (% of max step size)');
+        ylabel('Normalised frequency');
         hold off;
     end
     
