@@ -9,18 +9,11 @@ function compare_uniform_sampling_tests(output_folder, opts)
 % Load the data file
 mean_rgb = opts.MeanRGBDistance;
 std_rgb = opts.StdRGBDistance;
-step_size = opts.StepSize;
 
-step_size = step_size + mean(step_size(1:2));
-step_size = step_size(1:end-1);
-
-num_steps = numel(step_size);
-
-% Convert the step size to percentage of the maximum step size
-steps = linspace(0, 100, num_steps);
+% Convert the bin norm to percentage of the maximum norm
+steps = (opts.BinNorm / opts.MaxNorm) * 100;
 
 %% Plot the comparison
-
 fig_h = figure;
 hold on;
 
