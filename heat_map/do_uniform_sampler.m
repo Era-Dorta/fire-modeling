@@ -154,128 +154,44 @@ try
     lb = opts.LB;
     ub = opts.UB;
     
+    diff_b_step = ((ub - lb) / 2) / opts.samples_n_bins;
+    
+    i_next = ones(opts.samples_n_bins, 1);
+    
     % Parfor as it is quite computationally intensive
-    parfor j=1:opts.samples_n_bins
-        heat_map_v{j} = zeros(num_samples, hm_count);
-        mean_norm = mean(edges_s(j:j+1)); %#ok<PFBNS>
+    for j=1:opts.samples_n_bins
+        nlb(1) = lb + diff_b_step * (j - 1);
+        nub(1) = ub - diff_b_step * j;
+        nlb(2) = lb + diff_b_step * j;
+        nub(2) = ub - diff_b_step * (j - 1);
         
         for i=2:2:num_samples
-            valid_sample = false;
-            perturbation = zeros(1, hm_count);
             
-            %% First case, generate random sample, generate perturbation
-            % of desired norm and add it to the sample
-            n_tries = 1;
-            while ~valid_sample && n_tries <= max_tries1
-                
-                n_tries = n_tries + 1;
-                
-                heat_map_v{j}(i-1,:) = rand(1, hm_count);
-                heat_map_v{j}(i-1,:) = fitToRange(heat_map_v{j}(i-1,:), 0, 1, lb, ub);
-                
-                % Generate a random perturbation of the solution
-                perturbation = rand(1, hm_count) - 0.5;
-                
-                % Normalize each sample
-                perturbation = perturbation / norm(perturbation);
-                
-                heat_map_v{j}(i,:) = heat_map_v{j}(i-1,:) + perturbation * mean_norm;
-                
-                % Make the sample be within the bounds
-                heat_map_v{j}(i,:) = max(heat_map_v{j}(i,:), lb);
-                heat_map_v{j}(i,:) = min(heat_map_v{j}(i,:), ub);
-                
-                h_norm = norm(heat_map_v{j}(i-1,:) - heat_map_v{j}(i,:));
-                
-                if h_norm >= edges_s(j) && h_norm < edges_s(j+1)
-                    valid_sample = true;
-                end
-            end
+            idx = logical(randi([0 1], 1, hm_count));
             
-            %% Second case, gradually increase the permutation norm
-            % up to the next norm
-            k=1;
-            while ~valid_sample && k <= max_tries2
-                
-                heat_map_v{j}(i,:) = heat_map_v{j}(i-1,:) + ...
-                    perturbation * (mean_norm + l_steps(k)); %#ok<PFBNS>
-                
-                % Make the sample be within the bounds
-                heat_map_v{j}(i,:) = max(heat_map_v{j}(i,:), lb);
-                heat_map_v{j}(i,:) = min(heat_map_v{j}(i,:), ub);
-                
-                h_norm = norm(heat_map_v{j}(i-1,:) - heat_map_v{j}(i,:));
-                
-                if h_norm >= edges_s(j) && h_norm < edges_s(j+1)
-                    valid_sample = true;
-                end
-                k = k + 1;
-            end
+            % Generate random point and its mirror
+            heat_map_v1 = rand(1, hm_count);
+            heat_map_v2 = 1 - heat_map_v1;
             
-            %% Third case pull the samples towards the corners
-            if ~valid_sample
-                % Get closer corner for the first sample
-                c1 = heat_map_v{j}(i-1,:);
-                ub_idx = (c1 >= mean_bounds);
-                c1(ub_idx) = ub;
-                c1(~ub_idx) = lb;
-                
-                % Compute opposite corner
-                c2 = c1;
-                c2(~ub_idx) = ub;
-                c2(ub_idx) = lb;
-                
-                % Recompute the second pair
-                heat_map_v{j}(i,:) = heat_map_v{j}(i-1,:) + perturbation * mean_norm;
-                heat_map_v{j}(i,:) = max(heat_map_v{j}(i,:), lb);
-                heat_map_v{j}(i,:) = min(heat_map_v{j}(i,:), ub);
-                
-                % Recompute initial norm
-                prev_h_norm = norm(heat_map_v{j}(i-1,:) - heat_map_v{j}(i,:));
-                
-                % Initialy do not use the corners
-                i_val = 0;
-                i_step = 0.1; % 10% initial step size
-                
-                while ~valid_sample
-                    
-                    % Interpolate between the samples and their corners
-                    h_1 = heat_map_v{j}(i-1,:) * (1 - i_val) + c1 * i_val;
-                    h_2 = heat_map_v{j}(i,:) * (1 - i_val) + c2 * i_val;
-                    
-                    h_norm = norm(h_1 - h_2);
-                    
-                    % Under the lower bin
-                    if h_norm < edges_s(j)
-                        % If the previous norm is larger it must have
-                        % been above the larger bin, so we overstepped
-                        % down, so decrease step size
-                        if h_norm < prev_h_norm
-                            i_step = i_step * 0.5;
-                        end
-                        
-                        % Increase interpolation to add more corner
-                        i_val = i_val + i_step;
-                        i_val = min(i_val, 1);
-                        
-                    else % Above the higher bin
-                        % Overstepped high
-                        if h_norm > prev_h_norm
-                            i_step = i_step * 0.5;
-                        end
-                        
-                        % Decreate interpolation rate
-                        i_val = i_val - i_step;
-                        i_val = max(i_val, 0);
-                    end
-                    
-                    if h_norm >= edges_s(j) && h_norm < edges_s(j+1)
-                        valid_sample = true;
-                        heat_map_v{j}(i-1,:) = h_1;
-                        heat_map_v{j}(i,:) = h_2;
-                    end
-                end
-            end
+            % Addjust the low and high values
+            heat_map_v1(idx) = fitToRange(heat_map_v1(idx), 0, 1, nlb(1), nlb(2));
+            heat_map_v1(~idx) = fitToRange(heat_map_v1(~idx), 0, 1, nub(1), nub(2));
+            
+            % Do for the opposite indices for the mirror
+            heat_map_v2(~idx) = fitToRange(heat_map_v2(~idx), 0, 1, nlb(1), nlb(2));
+            heat_map_v2(idx) = fitToRange(heat_map_v2(idx), 0, 1, nub(1), nub(2));
+            
+            h_norm = norm(heat_map_v1 - heat_map_v2);
+            
+            % Find where the pair sample lies according to the norm
+            j_real = discretize(h_norm, edges_s);
+            
+            ii = i_next(j_real);
+            
+            heat_map_v{j_real}(ii,:) = heat_map_v1;
+            heat_map_v{j_real}(ii + 1,:) = heat_map_v2;
+            
+            i_next(j_real) = ii + 2;
         end
     end
     
@@ -377,7 +293,7 @@ try
     %% Copy arguments file
     copyfile(args_path, output_img_folder);
     
-    %% Resource clean up after execution    
+    %% Resource clean up after execution
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
