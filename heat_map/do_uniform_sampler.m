@@ -140,14 +140,6 @@ try
     % Norm distance between histogram bins
     norm_step = edges_s(2) - edges_s(1);
     
-    mean_bounds = mean([opts.LB, opts.UB]);
-    
-    % Increase to try more times use pure random samples
-    max_tries1 = 25;
-    max_tries2 = 25;
-    
-    l_steps = linspace(0, norm_step, max_tries1);
-    
     % Copy data to have more efficient parfor evaluation
     num_samples = opts.num_samples;
     hm_count = init_heat_map.count;
@@ -167,19 +159,27 @@ try
         
         for i=2:2:num_samples
             
-            idx = logical(randi([0 1], 1, hm_count));
+            idx = randi(hm_count, 1, 1);
             
             % Generate random point and its mirror
             heat_map_v1 = rand(1, hm_count);
             heat_map_v2 = 1 - heat_map_v1;
             
-            % Addjust the low and high values
-            heat_map_v1(idx) = fitToRange(heat_map_v1(idx), 0, 1, nlb(1), nlb(2));
-            heat_map_v1(~idx) = fitToRange(heat_map_v1(~idx), 0, 1, nub(1), nub(2));
+            s_val1 = heat_map_v1(idx);
             
-            % Do for the opposite indices for the mirror
-            heat_map_v2(~idx) = fitToRange(heat_map_v2(~idx), 0, 1, nlb(1), nlb(2));
-            heat_map_v2(idx) = fitToRange(heat_map_v2(idx), 0, 1, nub(1), nub(2));
+            % Put all the values inside the current hypercube
+            heat_map_v1 = fitToRange(heat_map_v1, 0, 1, nlb(1), nub(2));
+            heat_map_v2 = fitToRange(heat_map_v2, 0, 1, nlb(1), nub(2));
+            
+            % Make one dimension be in the band of the edge of the
+            % hypercube so that the inside is not sampled
+            if rand() > 0.5
+                heat_map_v1(idx) = fitToRange(s_val1, 0, 1, nlb(1), nlb(2));
+                heat_map_v2(idx) = fitToRange(1 - s_val1, 0, 1, nub(1), nub(2));
+            else
+                heat_map_v1(idx) = fitToRange(s_val1, 0, 1, nub(1), nub(2));
+                heat_map_v2(idx) = fitToRange(1 - s_val1, 0, 1, nlb(1), nlb(2));
+            end
             
             h_norm = norm(heat_map_v1 - heat_map_v2);
             
