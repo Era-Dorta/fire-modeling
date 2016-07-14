@@ -25,17 +25,22 @@ end
 opti_img = colorspace_transform_imgs(opti_img, 'RGB', opts.color_space);
 
 %% Plot the simple image histograms
+histo_folder = fullfile(output_folder, 'histogram_compare');
+if (~exist(histo_folder, 'dir'))
+    mkdir(histo_folder);
+end
+
 out_ylim = plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
-    output_folder, goal_imgs, goal_mask, 'GoalHisto');
+    histo_folder, goal_imgs, goal_mask, 'GoalHisto');
 
 plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
-    output_folder, opti_img, opti_mask, 'OptiHisto', out_ylim);
+    histo_folder, opti_img, opti_mask, 'OptiHisto', out_ylim);
 if do_iter0
     plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
-        output_folder, first_img, opti_mask, 'FirstIteHisto', out_ylim);
+        histo_folder, first_img, opti_mask, 'FirstIteHisto', out_ylim);
 end
 plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
-    output_folder, blur_opti_img, opti_mask, 'BlurOptiHisto', out_ylim);
+    histo_folder, blur_opti_img, opti_mask, 'BlurOptiHisto', out_ylim);
 
 %% Plot the side distribution histograms
 

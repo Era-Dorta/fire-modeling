@@ -25,7 +25,7 @@ scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 raw_temp_scale = 600;
 raw_temp_offset = 1200;
 
-c_space = {'RGB', 'HSV', 'Luv', 'XYZ'};
+color_space = {'RGB', 'HSV', 'Luv', 'XYZ'};
 
 max_ite = 3000;
 maxFunEvals = max_ite;

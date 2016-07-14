@@ -11,11 +11,6 @@ else
 end
 
 %% Save histograms for optmized images and goal images
-output_folder = fullfile(output_folder, 'histogram_compare');
-if (~exist(output_folder, 'dir'))
-    mkdir(output_folder);
-end
-
 plot_c = 'rgb';
 edges = linspace(0, 255, n_bins+1);
 
@@ -53,7 +48,7 @@ end
                 end
                 out_ylim{i}(j,:) = ylim();
                 
-                save_img([img_name istr '-' color_space(j)]);
+                save_img([img_name '-Cam' istr '-' color_space(j)]);
             end
         end
         

@@ -8,7 +8,6 @@ switch opts.sample_method
         [out_samples, bin_norm] = get_samples_mirror( opts );
     case 'rand_and_corner'
         [out_samples, bin_norm] = get_samples_rand_and_corner( opts );
-    case 'rand'
 end
 end
 

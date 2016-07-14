@@ -142,17 +142,20 @@ try
     
     %% Compare the histogram changes for each of them
     edges = linspace(0, 255, opts.n_bins+1);
-    num_c_space = numel(opts.c_space);
+    num_color_space = numel(opts.color_space);
     histo_dim = 3;
-    mean_dist_rgb = cell(num_c_space, 1);
+    mean_dist_rgb = cell(num_color_space, 1);
     mean_dist_rgb(:) = {zeros(opts.samples_n_bins, histo_dim)};
     std_dist_rgb = mean_dist_rgb;
     
     norm_factor = 1 / sum(img_mask(:) == 1);
     assert(~isinf(norm_factor));
     
-    dist_rgb = cell(num_c_space, 1);
+    dist_rgb = cell(num_color_space, 1);
     dist_rgb(:) = {zeros(opts.num_samples/2, histo_dim)};
+    
+    histo_sample_dir = fullfile(output_img_folder, 'histogram-samples');
+    mkdir(histo_sample_dir);
     
     for l=1:opts.samples_n_bins
         lstr = num2str(l);
@@ -175,21 +178,22 @@ try
             I1 = imread(img_path);
             I1 = I1(:,:,1:3);
             
-            dist_all = do_sampler_img_comparisons( I0, I1, img_mask, opts );
+            dist_all = do_sampler_img_comparisons( I0, I1, img_mask, opts, ...
+                i == 1, histo_sample_dir, lstr);
             
-            for j=1:num_c_space
+            for j=1:num_color_space
                 dist_rgb{j}(k, :) = dist_all{j};
             end
             
             k = k + 1;
         end
         
-        for j=1:num_c_space
+        for j=1:num_color_space
             mean_dist_rgb{j}(l,:) = mean(dist_rgb{j});
             std_dist_rgb{j}(l,:) = std(dist_rgb{j});
             
-            disp(['    Mean ' opts.c_space{j} ' distance is ' num2str(mean_dist_rgb{j}(l,:))]);
-            disp(['    Std ' opts.c_space{j} ' distance is ' num2str(std_dist_rgb{j}(l,:))]);
+            disp(['    Mean ' opts.color_space{j} ' distance is ' num2str(mean_dist_rgb{j}(l,:))]);
+            disp(['    Std ' opts.color_space{j} ' distance is ' num2str(std_dist_rgb{j}(l,:))]);
         end
         
     end
