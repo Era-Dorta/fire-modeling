@@ -6,7 +6,8 @@ opts.hm_count = init_heat_map.count;
 switch opts.sample_method
     case 'mirror'
         [out_samples, bin_norm] = get_samples_mirror( opts );
-    case 'rand-and-corner'
+    case 'rand_and_corner'
+        [out_samples, bin_norm] = get_samples_rand_and_corner( opts );
     case 'rand'
 end
 end
