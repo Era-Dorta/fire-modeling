@@ -330,6 +330,10 @@ void VoxelDatasetColor::apply_visual_adaptation(
 		apply_tm_reinhard(isRGB);
 		break;
 	}
+	case GAMMA: {
+		apply_tm_gamma(isRGB);
+		break;
+	}
 	}
 
 	max_color.r = accessor.getValue(max_ind).x();
@@ -578,6 +582,38 @@ void VoxelDatasetColor::apply_tm_hdr(const bool isRGB) {
 			remove_specials(color_adapted);
 
 			iter.setValue(color_adapted);
+		}
+	}
+}
+
+void VoxelDatasetColor::apply_tm_gamma(const bool isRGB) {
+	const float inv_gamma = 1.0 / 2.2;
+
+	// Compute visual adaptation with the previous value
+	for (auto iter = block->beginValueOn(); iter; ++iter) {
+		if (!(iter->x() == 0 && iter->y() == 0 && iter->z() == 0)) {
+			openvdb::Vec3f color_rgb_adapted, color_rgb;
+
+			openvdb::Vec3f color_xyz = iter.getValue();
+
+			if (isRGB) {
+				XYZToRGB(&color_xyz.x(), &color_rgb.x());
+			} else {
+				color_rgb = color_xyz;
+			}
+
+			// Remove negative RGB values
+			clamp(color_rgb, 0, FLT_MAX);
+
+			// Apply Gamma correction, with Gamma 2.2
+			color_rgb_adapted.x() = pow(color_rgb.x(), inv_gamma);
+			color_rgb_adapted.y() = pow(color_rgb.y(), inv_gamma);
+			color_rgb_adapted.z() = pow(color_rgb.z(), inv_gamma);
+
+			// Final clamping for [0..1] RGB space
+			clamp(color_rgb_adapted, 0, 1);
+
+			iter.setValue(color_rgb_adapted);
 		}
 	}
 }

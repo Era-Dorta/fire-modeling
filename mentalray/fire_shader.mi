@@ -58,7 +58,7 @@ declare shader
 			#: hidden true
 		integer "hdr_conversion",
 			#: default 0
-			#: enum "HDR:Von Kries:Reinhard"
+			#: enum "HDR:Von Kries:Reinhard:Gamma"
 			)
 	version 1
 end declare
@@ -157,7 +157,7 @@ declare shader
 			array light "lights",
 			integer "hdr_conversion",
 				#: default 0
-				#: enum "HDR:Von Kries:Reinhard"
+				#: enum "HDR:Von Kries:Reinhard:Gamma"
 				)
 	apply volume
 	version 3

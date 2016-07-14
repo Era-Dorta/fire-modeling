@@ -23,7 +23,7 @@ public:
 		BB_ONLY, BB_SOOT, BB_CHEM
 	};
 	enum TM_TYPE {
-		HDR, VON_KRIES, REINHARD
+		HDR, VON_KRIES, REINHARD, GAMMA
 	};
 	virtual bool compute_black_body_emission_threaded(
 			float visual_adaptation_factor, FuelType fuel_type);
@@ -58,6 +58,7 @@ private:
 	void apply_tm_reinhard(const bool isRGB);
 	void apply_tm_von_kries(const bool isRGB);
 	void apply_tm_hdr(const bool isRGB);
+	void apply_tm_gamma(const bool isRGB);
 
 protected:
 	miColor max_color;
