@@ -35,10 +35,26 @@ for i=1:numel(opts.color_space)
         end
         
         out_ylim = plot_histograms(opts.n_bins, opts.color_space{i}, opts.is_histo_independent, ...
-            img_save_dir, {I0}, {img_mask}, ['I0-Histo-bin' img_str]);
+            img_save_dir, out_imgs(1), {img_mask}, ['I0-Histo-bin' img_str]);
         
         plot_histograms(opts.n_bins, opts.color_space{i}, opts.is_histo_independent, ...
-            img_save_dir, {I1}, {img_mask}, ['I1-Histo-bin' img_str], out_ylim);
+            img_save_dir, out_imgs(2), {img_mask}, ['I1-Histo-bin' img_str], out_ylim);
+        
+        out_imgs{1} = uint8(bsxfun(@times, double(out_imgs{1}), img_mask));
+        out_imgs{2} = uint8(bsxfun(@times, double(out_imgs{2}), img_mask));
+        
+        imwrite(out_imgs{1}, fullfile(img_save_dir, ['I0-bin-' img_str '.tif']));
+        imwrite(out_imgs{2}, fullfile(img_save_dir, ['I1-bin-' img_str '.tif']));
+        
+        for j=1:histo_dim
+            imwrite(out_imgs{1}(:,:,j), fullfile(img_save_dir, ...
+                ['I0-bin-' img_str '-' opts.color_space{i}(j) '.tif']));
+            imwrite(out_imgs{2}(:,:,j), fullfile(img_save_dir, ...
+                ['I1-bin-' img_str '-' opts.color_space{i}(j) '.tif']));
+        end
     end
 end
+
+% Many figure are generated close them all
+close all;
 
