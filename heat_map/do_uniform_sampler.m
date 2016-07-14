@@ -226,8 +226,8 @@ try
     for l=1:opts.samples_n_bins
         lstr = num2str(l);
         render_folder = fullfile(output_img_folder, ['data' lstr 'Cam1' ]);
-        tar(['data' lstr '.tar.gz'], render_folder);
-        movefile(['data' lstr '.tar.gz'], output_img_folder);
+        tar(['data' lstr 'Cam1.tar.gz'], render_folder);
+        movefile(['data' lstr 'Cam1.tar.gz'], output_img_folder);
         rmdir(render_folder,'s');
     end
     
