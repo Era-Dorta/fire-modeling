@@ -10,7 +10,7 @@ function compare_uniform_sampling_tests(output_folder, opts)
 steps = (opts.BinNorm / opts.MaxNorm) * 100;
 
 %% Plot the comparison
-for i=1:numel(opts.c_space)
+for i=1:numel(opts.c_spaces)
     % Load the data file
     mean_rgb = opts.MeanRGBDistance{i};
     std_rgb = opts.StdRGBDistance{i};
@@ -30,13 +30,13 @@ for i=1:numel(opts.c_space)
     % Change the regular intervals for the actual step size
     xlim([0,100]);
     
-    legend([opts.c_space{i}(1) ' Channel'], [opts.c_space{i}(2) ' Channel'], ...
-        [opts.c_space{i}(3) ' Channel'], 'Location', 'best');
+    legend([opts.c_spaces{i}(1) ' Channel'], [opts.c_spaces{i}(2) ' Channel'], ...
+        [opts.c_spaces{i}(3) ' Channel'], 'Location', 'best');
     
     hold off;
     
     %% Save the figure
-    figurePath = fullfile(output_folder, ['uniform_sampler_' opts.c_space{i}]);
+    figurePath = fullfile(output_folder, ['uniform_sampler_' opts.c_spaces{i}]);
     saveas(fig_h, figurePath, 'svg');
     print(fig_h, figurePath, '-dtiff');
 end

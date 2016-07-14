@@ -86,9 +86,6 @@ try
     maya_common_initialization(maya_send, ports, opts.scene_name, ...
         opts.fuel_type, num_goal, opts.is_mr);
     
-    %% Distance function
-    dist_fnc = get_dist_fnc_from_file(opts);
-    
     %% Maximum distance and edges for the distance histogram
     % norm(ub - lb)
     max_norm = zeros(init_heat_map.count, 1) + opts.UB;
@@ -200,14 +197,17 @@ try
     
     %% Compare the histogram changes for each of them
     edges = linspace(0, 255, opts.n_bins+1);
+    num_c_space = numel(opts.c_space);
     histo_dim = 3;
-    mean_dist_rgb = zeros(opts.samples_n_bins, histo_dim);
-    std_dist_rgb = zeros(opts.samples_n_bins, histo_dim);
+    mean_dist_rgb = cell(num_c_space, 1);
+    mean_dist_rgb(:) = {zeros(opts.samples_n_bins, histo_dim)};
+    std_dist_rgb = mean_dist_rgb;
     
     norm_factor = 1 / sum(img_mask(:) == 1);
     assert(~isinf(norm_factor));
     
-    dist_rgb = zeros(opts.num_samples/2, histo_dim);
+    dist_rgb = cell(num_c_space, 1);
+    dist_rgb(:) = {zeros(opts.num_samples/2, histo_dim)};
     
     for l=1:opts.samples_n_bins
         lstr = num2str(l);
@@ -220,34 +220,33 @@ try
             
             img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
             
-            I = imread(img_path);
-            I = I(:,:,1:3);
-            
-            ori_histo = getImgRGBHistogram( I, img_mask, opts.n_bins, edges);
-            ori_histo = ori_histo * norm_factor;
+            I0 = imread(img_path);
+            I0 = I0(:,:,1:3);
             
             istr = num2str(i+1);
             
             img_path = fullfile(render_folder, ['fireimage' istr '.tif']);
             
-            I = imread(img_path);
-            I = I(:,:,1:3);
+            I1 = imread(img_path);
+            I1 = I1(:,:,1:3);
             
-            i_histo = getImgRGBHistogram( I, img_mask, opts.n_bins, edges);
-            i_histo = i_histo * norm_factor;
+            dist_all = do_sampler_img_comparisons( I0, I1, img_mask, opts );
             
-            for j=1:histo_dim
-                dist_rgb(k, j) = dist_fnc(i_histo(j, :), ori_histo(j, :));
+            for j=1:num_c_space
+                dist_rgb{j}(k, :) = dist_all{j};
             end
             
             k = k + 1;
         end
         
-        mean_dist_rgb(l,:) = mean(dist_rgb);
-        std_dist_rgb(l,:) = std(dist_rgb);
+        for j=1:num_c_space
+            mean_dist_rgb{j}(l,:) = mean(dist_rgb{j});
+            std_dist_rgb{j}(l,:) = std(dist_rgb{j});
+            
+            disp(['    Mean ' opts.c_space{j} ' distance is ' num2str(mean_dist_rgb{j}(l,:))]);
+            disp(['    Std ' opts.c_space{j} ' distance is ' num2str(std_dist_rgb{j}(l,:))]);
+        end
         
-        disp(['    Mean RGB distance is ' num2str(mean_dist_rgb(l,:))]);
-        disp(['    Std RGB distance is ' num2str(std_dist_rgb(l,:))]);
     end
     totalTime = toc(totalTime);
     
