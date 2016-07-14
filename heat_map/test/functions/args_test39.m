@@ -31,6 +31,7 @@ max_ite = 3000;
 maxFunEvals = max_ite;
 samples_n_bins = 100; % Number of bins
 num_samples = 100 * samples_n_bins; % 100 samples for each bin
+sample_method = 'mirror';
 
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 
