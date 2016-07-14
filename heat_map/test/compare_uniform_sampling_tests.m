@@ -15,7 +15,12 @@ for i=1:numel(opts.c_space)
     mean_rgb = opts.MeanRGBDistance{i};
     std_rgb = opts.StdRGBDistance{i};
     
-    fig_h = figure;
+    if isBatchMode()
+        fig_h = figure('Visible', 'off');
+    else
+        fig_h = figure('Position', [125 500 560 420]);
+    end
+    
     hold on;
     
     % Plot the mean value at regular intervals with error bars for the standard
