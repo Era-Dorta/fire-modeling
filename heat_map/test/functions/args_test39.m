@@ -19,7 +19,7 @@ goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/real-fire
 mask_img_path = {'~/maya/projects/fire/images/test102_maya_data/flame-30-mask1.png'};
 raw_file_path = 'data/heat_maps/maya-flame-preset/temperature30-reduced.raw';
 
-scene_name = 'test102_maya_data';
+scene_name = 'test106_like_102_ldr';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 
 raw_temp_scale = 600;
