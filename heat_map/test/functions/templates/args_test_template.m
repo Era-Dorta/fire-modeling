@@ -78,6 +78,9 @@ n_bins_dist = 15;
 % Using independent RGB histogram or combined RGB histogram
 is_histo_independent = true;
 
+% Weights for each color in the histogram matching, must sum up to 1
+histo_w = [1/3, 1/3, 1/3];
+
 % If use_approx_fitness is true, this function will be used in the fitness
 % function, the one above one will used only to check the final result
 approx_error_foo = @histogramErrorApprox;

@@ -1,5 +1,5 @@
 function [ cerror ] = imageSideDistributionInvariant( goal_imgs, test_imgs, ...
-    goal_mask, img_mask, d_foo, is_histo_independent)
+    goal_mask, img_mask, d_foo, is_histo_independent, histo_w)
 %IMAGESIDEDISTRIBUTIONINVARIANT Compues an error measure between several images
 %   [ CERROR ] = IMAGESIDEDISTRIBUTIONINVARIANT( GOAL_IMGS, TEST_IMGS, ...
 %   GOAL_MASK, IMG_MASK, D_FOO, IS_HISTO_INDEPENDENT)
@@ -42,6 +42,7 @@ if isempty(HC_GOAL)
 end
 
 cerror = 0;
+single_error = zeros(numel(histo_w), 1);
 for i=1:numel(test_imgs)
     hc_test = {[], []};
     if is_histo_independent
@@ -51,13 +52,12 @@ for i=1:numel(test_imgs)
         error('Not supported');
     end
     
-    single_error = 0;
     for j=1:size(HC_GOAL{i}, 1)
-        single_error = single_error + d_foo(hc_test{1}(j, :), ...
+        single_error(j) = d_foo(hc_test{1}(j, :), ...
             HC_GOAL{i, 1}(j, :)) + d_foo(hc_test{2}(j, :), ...
             HC_GOAL{i, 2}(j, :));
     end
-    cerror = cerror + single_error / size(HC_GOAL{i}, 1);
+    cerror = cerror + histo_w * single_error;
 end
 
 % Divide by the number of images so that the error function is still in the

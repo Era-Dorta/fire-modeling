@@ -1,5 +1,5 @@
 function [ cerror ] = histogramErrorOpti( goal_imgs, test_imgs, goal_mask, ...
-    img_mask, d_foo, n_bins, is_histo_independent)
+    img_mask, d_foo, n_bins, is_histo_independent, histo_w)
 %HISTOGRAMERROROPTI Compues an error measure between several images
 %   CERROR = HISTOGRAMERROROPTI(GOAL_IMGS, TEST_IMGS, GOAL_MASK, IMG_MASK)
 %   this is an optimized version of HISTOGRAMERROR, assumes RGB images,
@@ -38,6 +38,7 @@ end
 
 % Compute the error as in Dobashi et. al. 2012
 cerror = 0;
+single_error = zeros(numel(histo_w), 1);
 for i=1:numel(test_imgs)
     if is_histo_independent
         hc_test = getImgRGBHistogram( test_imgs{i}, img_mask{i}, ...
@@ -50,11 +51,11 @@ for i=1:numel(test_imgs)
     % Normalize
     hc_test = hc_test * TESTIM_FACTOR(i);
     
-    single_error = 0;
+    
     for j=1:size(HC_GOAL{i}, 1)
-        single_error = single_error + d_foo(hc_test(j, :), HC_GOAL{i}(j, :));
+        single_error(j) = d_foo(hc_test(j, :), HC_GOAL{i}(j, :));
     end
-    cerror = cerror + single_error / size(HC_GOAL{i}, 1);
+    cerror = cerror + histo_w * single_error;
 end
 
 % Divide by the number of images so that the error function is still in the
