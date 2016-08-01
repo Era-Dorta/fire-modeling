@@ -103,6 +103,10 @@ prior_weights = [0.25, 0.25, 0.25, 0.25];
 
 approx_fitness_weights = [0.4, 0.2, 0.4];
 
+% Number of bins for the density estimate
+density_scales_range = [1e-4, 1e4];
+density_scale_inc = 5;
+
 clearvars('multi_goal', 'symmetric');
 
 % Save all the variables in a mat file but the listed below

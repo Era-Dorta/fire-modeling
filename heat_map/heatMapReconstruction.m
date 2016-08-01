@@ -164,6 +164,10 @@ try
             init_heat_map.size, error_foo, opts.scene_name, opts.scene_img_folder,  ...
             output_img_folder_name, maya_send, num_goal, prior_fncs, ...
             prior_weights, opts.color_space);
+        
+        % Estimate the best density for the optimization
+        summary_data.best_density = estimate_density_scale( maya_send, opts, ...
+            init_heat_map, fitness_foo, output_img_folder, num_goal);
     end
     
     %% Solver call
