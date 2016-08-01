@@ -105,7 +105,11 @@ approx_fitness_weights = [0.4, 0.2, 0.4];
 
 % Number of bins for the density estimate
 density_scales_range = [1e-4, 1e4];
-density_scale_inc = 5;
+
+% Positive integer, larger -> more sampling, 1 -> one order of magnitude
+% each step
+density_scale_inc = 2;
+density_scale_inc = 10^(1/density_scale_inc);
 
 clearvars('multi_goal', 'symmetric');
 
