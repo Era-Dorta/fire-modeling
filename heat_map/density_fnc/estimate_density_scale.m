@@ -1,4 +1,4 @@
-function [ best_density ] = estimate_density_scale( maya_send, opts, init_heat_map, ...
+function [ best_density, f_val ] = estimate_density_scale( maya_send, opts, init_heat_map, ...
     fitness_fnc, output_img_folder, num_goal)
 %ESTIMATE_DENSITY_SCALE Estimate best density for heat map
 %   [ BEST_DENSITY ] = ESTIMATE_DENSITY_SCALE( MAYA_SEND, OPTS, INIT_HEAT_MAP, ...
@@ -41,7 +41,8 @@ end
 % Get the best density scale, set it and return the value
 [~, i] = min(f_val);
 
-opts.maya_new_density_scale = opts.density_scales_range(1) * 10^(i - 1);
+opts.maya_new_density_scale = opts.density_scales_range(1) * ...
+    opts.density_scale_inc^(i - 1);
 
 maya_set_custom_parameters(maya_send, opts);
 
