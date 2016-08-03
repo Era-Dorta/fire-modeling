@@ -52,6 +52,11 @@ for i=1:numel(ports)
         % Set offset to zero
         cmd = 'setAttr \"fire_volume_shader.temperature_offset\" 0';
         maya_send{i}(cmd, 0);
+    else
+        % Densities will not be updated using the Maya shader if the 
+        % density is read from the nCache
+        cmd = 'setAttr \"Flame:flameShape.loadDensity\" 0';
+        maya_send{i}(cmd, 0);
     end
     
     % Deactive all but the first camera if there is more than one goal
@@ -61,5 +66,10 @@ for i=1:numel(ports)
         maya_send{i}(cmd, 0);
     end
 end
+
+if ~is_mr
+    disp('Deactivated nCache for fluid density in Maya');
+end
+
 end
 
