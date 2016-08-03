@@ -103,7 +103,7 @@ prior_weights = [0.25, 0.25, 0.25, 0.25];
 
 approx_fitness_weights = [0.4, 0.2, 0.4];
 
-% Number of bins for the density estimate
+% Number of bins for the density estimate, empty to not compute new density
 density_scales_range = [1e-4, 1e4];
 
 % Positive integer, larger -> more sampling, 1 -> one order of magnitude

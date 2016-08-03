@@ -4,7 +4,7 @@ function [ best_density, f_val ] = estimate_density_scale( maya_send, opts, init
 %   [ BEST_DENSITY ] = ESTIMATE_DENSITY_SCALE( MAYA_SEND, OPTS, INIT_HEAT_MAP, ...
 %    FITNESS_FNC, OUTPUT_IMG_FOLDER)
 
-if opts.is_mr == true
+if opts.is_mr == true && ~isempty(opts.density_scales_range)
     % Save the render images in this folder
     out_dir = fullfile(output_img_folder, 'density-estimates');
     mkdir(out_dir);
