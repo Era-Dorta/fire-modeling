@@ -13,8 +13,8 @@ args_test_template(args_path);
 
 L = load(args_path);
 
-goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/pegoraro1.png'};
-goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/pegoraro1-mask.png'};
+goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/real-fire1.jpg'};
+goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/real-fire1-mask.png'};
 mask_img_path = {'~/maya/projects/fire/images/test104_maya_render/mask-synthetic1.png'};
 raw_file_path = 'data/heat_maps/maya-flame-preset/density30-small.raw';
 
@@ -40,6 +40,9 @@ prior_weights = 1;
 
 options = L.options;
 
+% Heuristic creation is based on "real" temperatures in Kelvin, as Maya
+% uses an arbitrary scale, we cannot use the prior creation functions
+options.CreationFcn = @gacreationrandom;
 options.CrossoverFcn = @gacrossovercombine;
 options.MutationFcn = @mutationadaptfeasible;
 
