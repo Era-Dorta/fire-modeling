@@ -11,8 +11,6 @@
 #include <maya/MGlobal.h>
 #include <maya/MItSelectionList.h>
 
-#define MAX_DATASET_DIM 128
-
 MStatus LoadFireDataCmd::doIt(const MArgList& args) {
 	MStatus stat;
 	MSelectionList selection;
@@ -122,14 +120,14 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 
 		// Clear all the temperatures
 		for (unsigned i = 0; i < fluidFn.gridSize(); i++) {
-			fluidFn.temperature()[i] = 0;
+			fluidFn.density()[i] = 0;
 		}
 
 		unsigned x, y, z;
 		double r, g, b, a;
 
 		for (int i = 0; i < count; i++) {
-			// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
+			// Coordinates, integer, 4 bytes, flip y,z due to Matlab indexing
 			read_bin_xyz(fp, x, z, y);
 
 			if (x == 0 || y == 0 || z == 0) {
@@ -160,8 +158,8 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 			max_val =
 					static_cast<float>(max_val * 0.00390625f * scale + offset);
 
-			// For the temperature, use the channel with maximum intensity
-			fluidFn.temperature()[fluidFn.index(x, y, z)] = max_val;
+			// Save the density in the array
+			fluidFn.density()[fluidFn.index(x, y, z)] = max_val;
 		}
 
 		fp.close();
@@ -184,7 +182,6 @@ void LoadFireDataCmd::safe_binary_read(std::ifstream& fp, char *output,
 
 void LoadFireDataCmd::read_bin_xyz(std::ifstream& fp, unsigned& x, unsigned& y,
 		unsigned& z) {
-	// Coordinates, integer, 4 bytes, flip y,z, probably Matlab stuff
 	safe_binary_read(fp, reinterpret_cast<char*>(&x), 4);
 	safe_binary_read(fp, reinterpret_cast<char*>(&y), 4);
 	safe_binary_read(fp, reinterpret_cast<char*>(&z), 4);
