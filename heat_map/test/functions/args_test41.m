@@ -17,7 +17,7 @@ L = load(args_path);
 goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/real-fire1.jpg'};
 goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/real-fire1-mask.png'};
 mask_img_path = {'~/maya/projects/fire/images/test104_maya_render/mask-synthetic1.png'};
-raw_file_path = 'data/heat_maps/maya-flame-preset/density30.raw';
+raw_file_path = 'data/heat_maps/maya-flame-preset/density30-small.raw';
 
 scene_name = 'test104_maya_render';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
