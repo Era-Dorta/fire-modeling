@@ -120,7 +120,7 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 
 		// Clear all the temperatures
 		for (unsigned i = 0; i < fluidFn.gridSize(); i++) {
-			fluidFn.density()[i] = 0;
+			fluidFn.temperature()[i] = 0;
 		}
 
 		unsigned x, y, z;
@@ -158,8 +158,8 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 			max_val =
 					static_cast<float>(max_val * 0.00390625f * scale + offset);
 
-			// Save the density in the array
-			fluidFn.density()[fluidFn.index(x, y, z)] = max_val;
+			// Save the temperature in the array
+			fluidFn.temperature()[fluidFn.index(x, y, z)] = max_val;
 		}
 
 		fp.close();

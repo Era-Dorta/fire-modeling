@@ -16,7 +16,7 @@ L = load(args_path);
 goal_img_path = {'~/maya/projects/fire/data/fire-test-pics/real-fire1.jpg'};
 goal_mask_img_path = {'~/maya/projects/fire/data/fire-test-pics/trimap/real-fire1-mask.png'};
 mask_img_path = {'~/maya/projects/fire/images/test104_maya_render/mask-synthetic1.png'};
-raw_file_path = 'data/heat_maps/maya-flame-preset/density30-small.raw';
+raw_file_path = 'data/heat_maps/maya-flame-preset/temperature30-reduced2.raw';
 
 scene_name = 'test104_maya_render';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
@@ -24,8 +24,9 @@ scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 % N.B. in Maya software renderer, lower temperatures mean brighter values
 is_mr = false; % Using Maya renderer
 
-LB = 0; % Maya temperatures use a arbitrary scale from 0 to 2
-UB = 2;
+% Maya temperatures use an normalised scale of [0,1]
+LB = 0; 
+UB = 1;
 
 options = L.options;
 

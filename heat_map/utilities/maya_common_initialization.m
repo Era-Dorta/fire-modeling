@@ -53,9 +53,9 @@ for i=1:numel(ports)
         cmd = 'setAttr \"fire_volume_shader.temperature_offset\" 0';
         maya_send{i}(cmd, 0);
     else
-        % Densities will not be updated using the Maya shader if the 
-        % density is read from the nCache
-        cmd = 'setAttr \"Flame:flameShape.loadDensity\" 0';
+        % Temperatures will be overwriten by the nCache when using the Maya
+        % shader, causing all the renders to be exactly the same
+        cmd = 'setAttr \"Flame:flameShape.loadTemperature\" 0';
         maya_send{i}(cmd, 0);
     end
     
