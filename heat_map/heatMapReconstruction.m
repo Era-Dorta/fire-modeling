@@ -109,7 +109,7 @@ try
     mkdir(output_img_folder, 'preprocessed_input_images');
     preprocessed_path = fullfile(output_img_folder, 'preprocessed_input_images');
     
-    [goal_img, goal_mask, ~, img_mask, bin_mask_threshold] = preprocess_images(...
+    [goal_img, goal_mask, in_img, img_mask, bin_mask_threshold] = preprocess_images(...
         goal_img, goal_mask, in_img, img_mask, opts.bin_mask_threshold,  ...
         opts.add_background, true, fullfile(preprocessed_path, ...
         'grouped-images-Cam'));
@@ -122,6 +122,10 @@ try
     
     norm_names = get_norm_names( 'Goal-Mask-Cam', '.tif', num_goal);
     summary_data.p_goal_mask_img_path = save_cell_images( goal_mask, ...
+        norm_names, preprocessed_path);
+    
+    norm_names = get_norm_names( 'Synthetic-Cam', '.tif', num_goal);
+    summary_data.p_mask_img_path = save_cell_images( in_img, ...
         norm_names, preprocessed_path);
     
     norm_names = get_norm_names( 'Synthetic-Mask-Cam', '.tif', num_goal);
@@ -278,7 +282,7 @@ try
     
     %% Add extra metrics for visualization
     plot_energy_term_values( opts, num_goal,  output_img_folder, goal_img, ...
-        goal_mask, img_mask, ~opts.use_approx_fitness);
+        goal_mask, in_img, img_mask, ~opts.use_approx_fitness);
     
     %% Append the real error if using the approx fitness
     if(opts.use_approx_fitness)

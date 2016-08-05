@@ -1,5 +1,5 @@
 function plot_energy_term_values( opts, num_goal,  output_folder, goal_imgs, ...
-    goal_mask, opti_mask, do_iter0 )
+    goal_mask, original_imgs, opti_mask, do_iter0 )
 %PLOT_ENERGY_TERM_VALUES Plot and save energy terms
 %   PLOT_ENERGY_TERM_VALUES( OPTS, NUM_GOAL,  OUTPUT_FOLDER, GOAL_IMGS, ...
 %   GOAL_MASK, OPTI_MASK )
@@ -42,6 +42,9 @@ end
 plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
     histo_folder, blur_opti_img, opti_mask, 'BlurOptiHisto', out_ylim);
 
+plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
+    histo_folder, original_imgs, opti_mask, 'OriginalHisto', out_ylim);
+
 %% Plot the side distribution histograms
 
 % % Make the goal images have the same size as the optimised
@@ -66,6 +69,9 @@ plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
 % end
 % plot_img_side_dist( opts.color_space, opts.is_histo_independent, ...
 %     output_folder, blur_opti_img, opti_mask, 'BlurOptiHisto', out_ylim);
+%
+% plot_img_side_dist( opts.color_space, opts.is_histo_independent, ...
+%     output_folder, original_imgs, opti_mask, 'OriginalHisto', out_ylim);
 
 %% Plot the side invariant distribution histograms
 
@@ -122,6 +128,11 @@ end
 plot_img_side_dist_inv( opts.color_space, opts.is_histo_independent, ...
     output_folder, blur_opti_img, opti_mask, 'BlurOptiHisto', img_x_lim, ...
     img_y_lim, out_ylim);
+
+plot_img_side_dist_inv( opts.color_space, opts.is_histo_independent, ...
+    output_folder, original_imgs, opti_mask, 'OriginalHisto', img_x_lim, ...
+    img_y_lim, out_ylim);
+
 
 %% Auxiliary functions
     function [xlims, ylims] = bounding_box_limits(img)
