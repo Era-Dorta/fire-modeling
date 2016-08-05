@@ -5,7 +5,7 @@ function maya_set_custom_parameters( maya_send, opts )
 %
 %   See also heatMapReconstruction
 
-if opts.is_mr == true
+if opts.is_custom_shader == true
     if isfield(opts, 'maya_density_scale')
         base_d_scale = opts.maya_density_scale;
     else

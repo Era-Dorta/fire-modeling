@@ -84,7 +84,7 @@ try
     end
     
     maya_common_initialization(maya_send, ports, opts.scene_name, ...
-        opts.fuel_type, num_goal, opts.is_mr);
+        opts.fuel_type, num_goal, opts.is_custom_shader, opts.is_mr);
     
     %% Maximum distance and edges for the distance histogram
     % norm(ub - lb)

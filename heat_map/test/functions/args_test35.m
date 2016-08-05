@@ -23,7 +23,7 @@ scene_name = 'test104_maya_render';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 
 % N.B. in Maya software renderer, lower temperatures mean brighter values
-is_mr = false; % Using Maya renderer
+is_custom_shader = false; % Using Maya renderer
 
 % Maya temperatures use an normalised scale of [0,1]
 LB = 0;

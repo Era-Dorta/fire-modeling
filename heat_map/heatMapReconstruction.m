@@ -98,7 +98,7 @@ try
     end
     
     maya_common_initialization(maya_send, ports, opts.scene_name, ...
-        opts.fuel_type, num_goal, opts.is_mr);
+        opts.fuel_type, num_goal, opts.is_custom_shader, opts.is_mr);
     
     maya_set_custom_parameters(maya_send, opts);
     

@@ -27,6 +27,8 @@ solver = 'ga';
 fuel_type = 0;
 
 scene_name = 'test97_gaussian_new_linchiski';
+
+is_custom_shader = true; % True if using custom Mental Ray fire shader
 is_mr = true; % True if using Mental Ray, false if using Maya Software
 
 % Geat goal image path with convenience function

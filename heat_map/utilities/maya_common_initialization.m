@@ -1,16 +1,21 @@
 function maya_common_initialization( maya_send, ports, scene_name, ...
-    fuel_type, num_goal, is_mr)
+    fuel_type, num_goal, is_custom_shader, is_mr)
 %MAYA_COMMON_INITIALIZATION Initialization for Maya instances
 %   MAYA_COMMON_INITIALIZATION( MAYA_SEND, PORTS, SCENE_NAME, ...
 %   FUEL_TYPE, NUM_GOAL )
 
+if (is_custom_shader && ~is_mr)
+    disp('Switching to Mental Ray because custom fire shader is selected');
+    is_mr = true;
+end
+
 % Initialization of load and send functions, set Maya software renderer or
 % Mental Ray renderer
-load_hm_in_maya([], [], is_mr);
+load_hm_in_maya([], [], is_custom_shader);
 send_render_cmd([], [], is_mr);
 
 if numel(ports) > 1
-    parfevalOnAll(gcp, @load_hm_in_maya, 0, [], [], is_mr);
+    parfevalOnAll(gcp, @load_hm_in_maya, 0, [], [], is_custom_shader);
     parfevalOnAll(gcp, @send_render_cmd, 0, [], [], is_mr);
 end
 
@@ -24,8 +29,8 @@ for i=1:numel(ports)
     cmd = ['file -open -force \"scenes/' scene_name '.ma\"'];
     maya_send{i}(cmd, 0);
     
-    % Set random seed for reproducibility, most noticeable when using Maya
-    % Software renderer
+    % Set random seed for reproducibility in Maya, it doesn't affect the
+    % Maya Software renderer
     cmd = 'seed(0)';
     maya_send{i}(cmd, 0);
     
@@ -33,7 +38,7 @@ for i=1:numel(ports)
     cmd = 'loadPlugin \"SaveFireDataPlugin\"';
     maya_send{i}(cmd, 0);
     
-    if is_mr
+    if is_custom_shader
         % Force a frame update, as batch rendering later does not do it, this
         % will fix any file name errors due to using the same scene on
         % different computers
@@ -67,8 +72,8 @@ for i=1:numel(ports)
     end
 end
 
-if ~is_mr
-    disp('Deactivated nCache for fluid density in Maya');
+if ~is_custom_shader
+    disp('Deactivated nCache for fluid temperature in Maya');
 end
 
 end

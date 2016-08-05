@@ -24,8 +24,7 @@ scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 
 color_space = {'RGB', 'HSV', 'Luv', 'XYZ'};
 
-% N.B. in Maya software renderer, lower temperatures mean brighter values
-is_mr = false; % Using Maya renderer
+is_custom_shader = false;
 
 % Maya temperatures use an normalised scale of [0,1]
 LB = 0; 
