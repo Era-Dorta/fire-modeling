@@ -23,9 +23,8 @@ if is_mental_ray
     cmd = [cmd '$HOME/' heat_map_path(3:end) '\"'];
     maya_send(cmd, 0);
 else
-    % Last two values are data scale and offset
     cmd = 'loadFireData \"Flame:flameShape\" ';
-    cmd = [cmd '\"$HOME/' heat_map_path(3:end) '\" 1 0'];
+    cmd = [cmd '\"$HOME/' heat_map_path(3:end) '\"'];
     maya_send(cmd, 0);
 end
 

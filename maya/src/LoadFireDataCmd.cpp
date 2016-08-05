@@ -10,16 +10,50 @@
 #include <maya/MSelectionList.h>
 #include <maya/MGlobal.h>
 #include <maya/MItSelectionList.h>
+#include <maya/MArgDatabase.h>
+
+const char *scaleFlag = "-s", *scaleLongFlag = "-scale";
+const char *offsetFlag = "-o", *offsetLongFlag = "-offset";
+const char *typeFlag = "-t", *typeLongFlag = "-type";
 
 MStatus LoadFireDataCmd::doIt(const MArgList& args) {
 	MStatus stat;
+	MString typeStr("temperature");
+
+	scale = 1;
+	offset = 0;
+	type = TEMPERATURE;
+
+	MArgDatabase argData(syntax(), args);
+	if (argData.isFlagSet(scaleFlag)) {
+		argData.getFlagArgument(scaleFlag, 0, scale);
+	}
+	if (argData.isFlagSet(offsetFlag)) {
+		argData.getFlagArgument(offsetFlag, 0, offset);
+	}
+	if (argData.isFlagSet(typeFlag)) {
+		argData.getFlagArgument(typeFlag, 0, typeStr);
+
+		if (typeStr == "density") {
+			type = DENSITY;
+		} else if (typeStr == "temperature") {
+			type = TEMPERATURE;
+		} else {
+			MGlobal::displayError(
+					"Valid types are: \"temperature\", \"density\"");
+			return MStatus::kFailure;
+		}
+	}
+
 	MSelectionList selection;
 
-	// Get a list of currently selected objects
+	// Set the list of selected objects to contain the fluid shape
 	selection.clear();
 
 	MString fluidName;
-	args.get(0, fluidName);
+
+	argData.getCommandArgument(0, fluidName);
+	argData.getCommandArgument(1, filename);
 
 	MGlobal::getSelectionListByName(fluidName, selection);
 
@@ -29,24 +63,6 @@ MStatus LoadFireDataCmd::doIt(const MArgList& args) {
 		MGlobal::displayError("Please, enter a valid fluid shape name");
 		return MStatus::kFailure;
 	}
-
-	// Check that only one argument is given
-	if (args.length() <= 3) {
-		MGlobal::displayError("Syntax is loadFireData <shape name> "
-				"<raw file path> <scale> <offset>");
-		return MStatus::kFailure;
-	}
-
-	if (args.length() >= 5) {
-		MGlobal::displayError("Too many input arguments");
-		return MStatus::kFailure;
-	}
-
-	// Get filename path
-	args.get(1, filename);
-
-	args.get(2, scale);
-	args.get(3, offset);
 
 	return load_fluid_data();
 }
@@ -66,6 +82,16 @@ bool LoadFireDataCmd::isUndoable() const {
 
 void* LoadFireDataCmd::creator() {
 	return new LoadFireDataCmd;
+}
+
+MSyntax LoadFireDataCmd::newSyntax() {
+	MSyntax syntax;
+	syntax.addFlag(scaleFlag, scaleLongFlag, MSyntax::kDouble);
+	syntax.addFlag(offsetFlag, offsetLongFlag, MSyntax::kDouble);
+	syntax.addFlag(typeFlag, typeLongFlag, MSyntax::kString);
+	syntax.addArg(MSyntax::kString);
+	syntax.addArg(MSyntax::kString);
+	return syntax;
 }
 
 MStatus LoadFireDataCmd::load_fluid_data() {
@@ -120,7 +146,16 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 
 		// Clear all the temperatures
 		for (unsigned i = 0; i < fluidFn.gridSize(); i++) {
-			fluidFn.temperature()[i] = 0;
+			switch (type) {
+			case TEMPERATURE: {
+				fluidFn.temperature()[i] = 0;
+				break;
+			}
+			case DENSITY: {
+				fluidFn.density()[i] = 0;
+				break;
+			}
+			}
 		}
 
 		unsigned x, y, z;
@@ -158,8 +193,17 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 			max_val =
 					static_cast<float>(max_val * 0.00390625f * scale + offset);
 
-			// Save the temperature in the array
-			fluidFn.temperature()[fluidFn.index(x, y, z)] = max_val;
+			// Save the value in the array
+			switch (type) {
+			case TEMPERATURE: {
+				fluidFn.temperature()[fluidFn.index(x, y, z)] = max_val;
+				break;
+			}
+			case DENSITY: {
+				fluidFn.density()[fluidFn.index(x, y, z)] = max_val;
+				break;
+			}
+			}
 		}
 
 		fp.close();

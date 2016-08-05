@@ -11,7 +11,8 @@ MStatus initializePlugin(MObject obj) {
 		stat.perror("registerCommand failed");
 	}
 
-	stat = plugin.registerCommand("loadFireData", LoadFireDataCmd::creator);
+	stat = plugin.registerCommand("loadFireData", LoadFireDataCmd::creator,
+			LoadFireDataCmd::newSyntax);
 	if (!stat) {
 		stat.perror("registerCommand failed");
 	}
