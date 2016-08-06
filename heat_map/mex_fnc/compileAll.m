@@ -9,17 +9,17 @@ cd(fileparts(mfilename('fullpath')));
 % The name of each .cpp file that we would like to compile
 fncNames = {'combineHeatMap8.cpp'};
 
-% Common source files for each function, separated by spaces
-commonSrc = 'createVoxelDataSet.cpp';
+% Common source files for each function
+commonSrc = {'createVoxelDataSet.cpp'};
 
-% Libraries header folders, separated by spaces
-libs_inc = '-I/usr/include/';
+% Libraries header folders
+libs_inc = {'-I/usr/include/'};
 
-% Linking libraries, separated by spaces
-libs = '-lopenvdb -lHalf -ltbb';
+% Linking libraries
+libs = {'-lopenvdb', '-lHalf', '-ltbb'};
 
-% Libraries search path, separated by spaces
-libs_path = '-L/usr/lib/x86_64-linux-gnu -L/usr/lib';
+% Libraries search path
+libs_path = {'-L/usr/lib/x86_64-linux-gnu', '-L/usr/lib'};
 
 for i = 1:numel(fncNames)
     % Clear all the functions from memory, if we are compiling after a change
@@ -28,7 +28,7 @@ for i = 1:numel(fncNames)
     clear(nameNoExt);
     
     % Compile current function
-    mex(fncNames{i}, commonSrc, libs_inc, libs_path, libs);
+    mex(fncNames{i}, commonSrc{:}, libs_inc{:}, libs_path{:}, libs{:});
 end
 
 % Return to previous folder
