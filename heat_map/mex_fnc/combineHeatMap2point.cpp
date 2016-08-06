@@ -8,6 +8,7 @@
 #include <openvdb/tree/LeafManager.h>
 #include <array>
 #include <random>
+#include <utility>
 
 #define RUN_TESTS
 
@@ -66,23 +67,55 @@ struct Combine2 {
 #endif
 
 		std::uniform_int_distribution<int> rand_idx;
-		vdb::Coord b0, b1;
-		for (int i = 0; i <= 2; i++) {
-			// Lower bound
-			rand_idx = std::uniform_int_distribution<int>(min[i], max[i]);
-			b0[i] = rand_idx(generator);
+		std::vector<std::vector<std::pair<int, int>>>all_idx;
+		all_idx.resize(3);
+		int total_bbox = 1;
 
-			if (b0[i] + 1 <= max[i]) {
-				rand_idx = std::uniform_int_distribution<int>(b0[i] + 1,
-						max[i]);
-				b1[i] = rand_idx(generator);
-			} else {
-				b1[i] = max[i];
+		for (int i = 0; i <= 2; i++) {
+			// Pick two random points in the ith dimension
+			rand_idx = std::uniform_int_distribution<int>(min[i], max[i]);
+			all_idx.at(i).push_back(
+					std::make_pair(rand_idx(generator), rand_idx(generator)));
+
+			// If the first is larger, add the edges [0, p1], [p0, end]
+			if (all_idx.at(i).at(0).first > all_idx.at(i).at(0).second) {
+				// Add a second pair with right edge
+				all_idx.at(i).push_back(
+						std::make_pair(all_idx.at(i).at(0).first, max[i]));
+
+				// Put left edge is first pair
+				all_idx.at(i).at(0).first = min[i];
+
+				// Every time we wrap with the edge the number of bounding
+				// boxes needed to cover the space is doubled
+				total_bbox *= 2;
 			}
 		}
 
-		// Set the limits of the bounding box
-		bbox.reset(b0, b1);
+		bbox.resize(total_bbox);
+
+		/*
+		 * Generate all the combination of bounding boxes, as we are using the
+		 * modulus with the edges
+		 */
+		vdb::Coord b0, b1;
+		int l = 0;
+		for (unsigned i = 0; i < all_idx[0].size(); i++) {
+			for (unsigned j = 0; j < all_idx[1].size(); j++) {
+				for (unsigned k = 0; k < all_idx[2].size(); k++) {
+					b0.x() = all_idx[0][i].first;
+					b0.y() = all_idx[1][j].first;
+					b0.z() = all_idx[2][k].first;
+
+					b1.x() = all_idx[0][i].second;
+					b1.y() = all_idx[1][j].second;
+					b1.z() = all_idx[2][k].second;
+
+					bbox.at(l).reset(b0, b1);
+					l++;
+				}
+			}
+		}
 	}
 
 	template<typename LeafNodeType>
@@ -95,25 +128,34 @@ struct Combine2 {
 			for (; point; ++point) {
 				const vdb::Coord coord = point.getCoord();
 				/*
-				 * If the voxel is inside the bounding box the assign the
+				 * If the voxel is inside any bounding box the assign the
 				 * interpolated value from volume 2, otherwise place directly
 				 * the value from volume 1
 				 */
 				const float point1 = c1Leaf->getValue(point.pos());
 				const float point2 = c2Leaf->getValue(point.pos());
 
-				if (bbox.isInside(coord)) {
-					if (!isOnEdge(bbox, coord)) {
-						point.setValue(interpolate(point1, point2, interp_r));
-					} else {
-						// If the point is on the edge of the bounding box add
-						// less of the second volume to have a smoother
-						// transition
-						point.setValue(
-								interpolate(point1, point2,
-										1 - interp_r * 0.5));
+				bool value_set = false;
+				for (const auto& box : bbox) {
+					if (box.isInside(coord)) {
+						if (!isOnEdge(box, coord)) {
+							point.setValue(
+									interpolate(point1, point2, interp_r));
+							value_set = true;
+							break;
+						} else {
+							// If the point is on the edge of the bounding box add
+							// less of the second volume to have a smoother
+							// transition
+							point.setValue(
+									interpolate(point1, point2,
+											1 - interp_r * 0.5));
+							value_set = true;
+							break;
+						}
 					}
-				} else {
+				}
+				if (!value_set) {
 					point.setValue(point1);
 				}
 			}
@@ -122,7 +164,7 @@ struct Combine2 {
 private:
 	Accessor acc1;
 	Accessor acc2;
-	vdb::CoordBBox bbox;
+	std::vector<vdb::CoordBBox> bbox;
 	float interp_r;
 };
 
