@@ -1,6 +1,6 @@
 ///*
 // * To compile call
-// * mex crossover2point3d.cpp createVoxelDataSet.cpp -lopenvdb -lHalf -ltbb  -L/usr/lib/x86_64-linux-gnu/ -L/usr/include/
+// * mex combineHeatMap2point.cpp createVoxelDataSet.cpp -lopenvdb -lHalf -ltbb  -L/usr/lib/x86_64-linux-gnu/ -L/usr/include/
 // */
 
 #include "mex.h"
@@ -19,12 +19,12 @@ namespace vdb = openvdb;
 /*
  __attribute__((constructor))
  void mex_load() {
- mexPrintf("crossover2point3d library loading\n");
+ mexPrintf("combineHeatMap2point library loading\n");
  }
 
  __attribute__((destructor))
  void mex_unload() {
- mexPrintf("crossover2point3d library unloading\n");
+ mexPrintf("combineHeatMap2point library unloading\n");
  }
  */
 
