@@ -28,6 +28,11 @@ ELSE("$ENV{MATLAB_ROOT}" STREQUAL "" )
                       NAMES libmx mx
                       PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib 
                       PATH_SUFFIXES glnxa64 glnx86 win64/microsoft win32/microsoft)
+                      
+       FIND_LIBRARY( MATLAB_MAT_LIBRARY
+                      NAMES libmat mat
+                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib 
+                      PATH_SUFFIXES glnxa64 glnx86 win64/microsoft win32/microsoft)
 
     MESSAGE (STATUS "MATLAB_ROOT: $ENV{MATLAB_ROOT}")
 
@@ -37,6 +42,7 @@ ENDIF("$ENV{MATLAB_ROOT}" STREQUAL "" )
 SET(MATLAB_LIBRARIES
   ${MATLAB_MEX_LIBRARY}
   ${MATLAB_MX_LIBRARY}
+  ${MATLAB_MAT_LIBRARY}
 )
 
 IF(MATLAB_INCLUDE_DIR AND MATLAB_LIBRARIES)
