@@ -45,6 +45,8 @@ static inline float interpolate(float v0, float v1, float t) {
 	return v0 * t + v1 * (1.0 - t);
 }
 
+static bool voxel_changed;
+
 template<typename TreeType>
 struct Combine2 {
 	typedef vdb::tree::ValueAccessor<const TreeType> Accessor;
@@ -141,18 +143,17 @@ struct Combine2 {
 						if (!isOnEdge(box, coord)) {
 							point.setValue(
 									interpolate(point1, point2, interp_r));
-							value_set = true;
-							break;
 						} else {
-							// If the point is on the edge of the bounding box add
-							// less of the second volume to have a smoother
+							// If the point is on the edge of the bounding box
+							// add less of the second volume to have a smoother
 							// transition
 							point.setValue(
 									interpolate(point1, point2,
 											1 - interp_r * 0.5));
-							value_set = true;
-							break;
 						}
+						value_set = true;
+						voxel_changed = true;
+						break;
 					}
 				}
 				if (!value_set) {
@@ -233,16 +234,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	}
 
 	datap = mxGetPr(seedp);
-	const unsigned seed_f = static_cast<unsigned>(datap[0]);
+	unsigned seed_f = static_cast<unsigned>(datap[0]);
 
 	// Copying the whole grid is faster than inserting the elements
 	vdb::FloatGrid::Ptr resgrid = grid1->deepCopy();
 
 	vdb::tree::LeafManager<vdb::FloatTree> leafNodes(resgrid->tree());
-	leafNodes.foreach(
-			Combine2<vdb::FloatTree>(grid1->tree(), grid2->tree(), min, max,
-					interp_f, seed_f));
 
+	// Do the combination, if no voxel value was changed using the second grid
+	// then try again with another set of random indices
+	voxel_changed = false;
+	while (!voxel_changed) {
+		leafNodes.foreach(
+				Combine2<vdb::FloatTree>(grid1->tree(), grid2->tree(), min, max,
+						interp_f, seed_f++));
+	}
 	// Return the result, the values in v are in the same order as the input
 	voxelDatasetValues2arrayOrdered(resgrid, xyz, vp);
 }
