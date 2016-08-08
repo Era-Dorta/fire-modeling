@@ -73,11 +73,21 @@ struct Combine2 {
 		all_idx.resize(3);
 		int total_bbox = 1;
 
+#ifdef PRINT_INFO
+		mexPrintf("Total size\n[%d, %d, %d]\n[%d, %d, %d]\n", min[0], min[1],
+				min[2], max[0], max[1], max[2]);
+#endif
+
 		for (int i = 0; i <= 2; i++) {
 			// Pick two random points in the ith dimension
 			rand_idx = std::uniform_int_distribution<int>(min[i], max[i]);
 			all_idx.at(i).push_back(
 					std::make_pair(rand_idx(generator), rand_idx(generator)));
+
+#ifdef PRINT_INFO
+			mexPrintf("ori idx\n[%d, %d]\n", all_idx.at(i).at(0).first,
+					all_idx.at(i).at(0).second);
+#endif
 
 			// If the first is larger, add the edges [0, p1], [p0, end]
 			if (all_idx.at(i).at(0).first > all_idx.at(i).at(0).second) {
@@ -114,6 +124,11 @@ struct Combine2 {
 					b1.z() = all_idx[2][k].second;
 
 					bbox.at(l).reset(b0, b1);
+
+#ifdef PRINT_INFO
+					mexPrintf("Box idx\n[%d, %d, %d]\n[%d, %d, %d]\n", b0[0],
+							b0[1], b0[2], b1[0], b1[1], b1[2]);
+#endif
 					l++;
 				}
 			}
