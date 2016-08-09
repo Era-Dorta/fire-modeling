@@ -4,24 +4,26 @@ function [ best_density, f_val ] = estimate_density_scale( maya_send, opts, init
 %   [ BEST_DENSITY ] = ESTIMATE_DENSITY_SCALE( MAYA_SEND, OPTS, INIT_HEAT_MAP, ...
 %    FITNESS_FNC, OUTPUT_IMG_FOLDER)
 
-if opts.is_custom_shader == true && ~isempty(opts.density_scales_range)
+if ~isempty(opts.density_scales_range)
     % Save the render images in this folder
     out_dir = fullfile(output_img_folder, 'density-estimates');
     mkdir(out_dir);
     
-    j = 1;
-    f_val = [];
+    k0 = log10(opts.density_scales_range(1));
+    k1 = log10(opts.density_scales_range(2));
     
-    % Loop for density_scales_range(1) to density_scales_range(2) using the
-    % given step size
-    i = opts.density_scales_range(1);
-    while i <= opts.density_scales_range(2)
+    k_samples = linspace(k0, k1, opts.n_density_scale);
+    
+    f_val = zeros(1, numel(k_samples));
+    
+    % Loop in a logarithmic scale for the samples
+    for i=1:numel(k_samples)
         % Set the new scale
-        opts.maya_new_density_scale = i;
+        opts.maya_new_density_scale = 10^k_samples(i);
         maya_set_custom_parameters(maya_send, opts);
         
         % Evaluate the fitness function
-        f_val(end+1) = fitness_fnc(init_heat_map.v');
+        f_val(i) = fitness_fnc(init_heat_map.v');
         
         % Clear the cache of the fitness as it is saved with the same
         % temperature
@@ -31,19 +33,15 @@ if opts.is_custom_shader == true && ~isempty(opts.density_scales_range)
         for k=1:num_goal
             kstr = num2str(k);
             movefile(fullfile(output_img_folder, ['current1-Cam' kstr '.tif']), ...
-                fullfile(out_dir, [num2str(j, '%03d') '-density-' num2str(i) ...
-                '-Cam' kstr '.tif']));
+                fullfile(out_dir, [num2str(i, '%03d') '-density-' ...
+                num2str(opts.maya_new_density_scale) '-Cam' kstr '.tif']));
         end
-        
-        i = i * opts.density_scale_inc;
-        j = j + 1;
     end
     
     % Get the best density scale, set it and return the value
     [~, i] = min(f_val);
     
-    opts.maya_new_density_scale = opts.density_scales_range(1) * ...
-        opts.density_scale_inc^(i - 1);
+    opts.maya_new_density_scale = 10^k_samples(i);
     
     maya_set_custom_parameters(maya_send, opts);
     
