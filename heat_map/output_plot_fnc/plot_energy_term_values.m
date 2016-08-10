@@ -45,6 +45,24 @@ plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
 plot_histograms(opts.n_bins, opts.color_space, opts.is_histo_independent, ...
     histo_folder, original_imgs, opti_mask, 'OriginalHisto', out_ylim);
 
+if ~opts.is_histo_independent
+    % Plot the RGB separate histograms as they are easier to interpret
+    out_ylim = plot_histograms(opts.n_bins, opts.color_space, true, ...
+        histo_folder, goal_imgs, goal_mask, 'GoalHisto-Independent');
+    
+    plot_histograms(opts.n_bins, opts.color_space, true, ...
+        histo_folder, opti_img, opti_mask, 'OptiHisto-Independent', out_ylim);
+    if do_iter0
+        plot_histograms(opts.n_bins, opts.color_space, true, ...
+            histo_folder, first_img, opti_mask, 'FirstIteHisto-Independent', out_ylim);
+    end
+    plot_histograms(opts.n_bins, opts.color_space, true, ...
+        histo_folder, blur_opti_img, opti_mask, 'BlurOptiHisto-Independent', out_ylim);
+    
+    plot_histograms(opts.n_bins, opts.color_space, true, ...
+        histo_folder, original_imgs, opti_mask, 'OriginalHisto-Independent', out_ylim);
+end
+
 %% Plot the side distribution histograms
 
 % % Make the goal images have the same size as the optimised
