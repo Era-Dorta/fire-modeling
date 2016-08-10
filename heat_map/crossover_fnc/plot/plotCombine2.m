@@ -97,6 +97,7 @@ for i=1:3
     end
     
     alpha(0.2);
+    axis equal; % Same units for all the axis
     view(3);
     
     legend('Heat Values', 'BBox start', 'BBox end', 'Space limits', 'Combine BBox');
