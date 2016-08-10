@@ -1,6 +1,6 @@
 function plotBbox( v_min, v_max, color )
-%PLOT_BBOX Plots a cube
-%   PLOT_BBOX( V_MIN, V_MAX, COLOR ) Plot a cube (bounding box) with
+%PLOTBBOX Plots a bounding box
+%   PLOTBBOX( V_MIN, V_MAX, COLOR ) Plot a cube (bounding box) with
 %   vertices in V_MIN and V_MAX and COLOR
 
 fac = [1 2 3 4;
