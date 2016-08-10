@@ -48,7 +48,11 @@ end
                 end
                 out_ylim{i}(j,:) = ylim();
                 
-                save_img([img_name '-Cam' istr '-' color_space(j)]);
+                if is_histo_independent
+                    save_img([img_name '-Cam' istr '-' color_space(j)]);
+                else
+                    save_img([img_name '-Cam' istr '-' color_space]);
+                end
             end
         end
         
@@ -58,7 +62,7 @@ end
             set(groot, 'CurrentFigure', fig_h);
             xlabel('Bin number');
             ylabel('Normalised bin count');
-            xlim([1,n_bins]);
+            xlim([1,size(hc, 2)]);
             bar(hc, color, 'EdgeColor', 'none');
             hold off;
         end
