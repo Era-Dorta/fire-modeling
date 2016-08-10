@@ -11,6 +11,7 @@
 #include <utility>
 
 #define RUN_TESTS
+//#define PRINT_INFO
 
 // Shorter openvdb namespace
 namespace vdb = openvdb;
