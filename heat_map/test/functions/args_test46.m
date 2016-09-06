@@ -33,7 +33,6 @@ options.CreationFcn = @gacreationrandom;
 options.CrossoverFcn = @gacrossovercombine;
 options.MutationFcn = @mutationuniform;
 density_scales_range = [10 50];
-density_scales_range = [0.01 1000];
 
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
