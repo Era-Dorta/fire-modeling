@@ -30,7 +30,7 @@ prior_weights = 1;
 options = L.options;
 
 options.CreationFcn = @gacreationrandom;
-options.CrossoverFcn = @gacrossovercombine;
+options.CrossoverFcn = @gacrossovercombine2;
 options.MutationFcn = @mutationuniform;
 density_scales_range = [10 50];
 
