@@ -63,9 +63,9 @@ try
     else
         resize_goal = false;
     end
-    [ goal_img, goal_mask, in_img, img_mask ] = readGoalAndMask( ...
+    [ goal_img, goal_mask, in_img, img_mask, in_bg_img ] = readGoalAndMask( ...
         opts.goal_img_path,  opts.in_img_path, opts.mask_img_path,  ...
-        opts.goal_mask_img_path, resize_goal);
+        opts.goal_mask_img_path, opts.in_img_bg_path, resize_goal);
     
     %% SendMaya script initialization
     % Render script is located in the same maya_comm folder
@@ -109,10 +109,10 @@ try
     mkdir(output_img_folder, 'preprocessed_input_images');
     preprocessed_path = fullfile(output_img_folder, 'preprocessed_input_images');
     
-    [goal_img, goal_mask, in_img, img_mask, bin_mask_threshold] = preprocess_images(...
-        goal_img, goal_mask, in_img, img_mask, opts.bin_mask_threshold,  ...
-        opts.add_background, true, fullfile(preprocessed_path, ...
-        'grouped-images-Cam'));
+    [goal_img, goal_mask, in_img, img_mask, bin_mask_threshold, in_bg_img] = ...
+        preprocess_images(goal_img, goal_mask, in_img, img_mask, in_bg_img, ...
+        opts.bin_mask_threshold,  opts.add_background, true, ...
+        fullfile(preprocessed_path, 'grouped-images-Cam'));
     
     % Save the preprocessed images in the preprocessed_path folder using
     % normalized names and extensions
@@ -125,11 +125,15 @@ try
         norm_names, preprocessed_path);
     
     norm_names = get_norm_names( 'Synthetic-Cam', '.tif', num_goal);
-    summary_data.p_mask_img_path = save_cell_images( in_img, ...
+    summary_data.p_img_path = save_cell_images( in_img, ...
         norm_names, preprocessed_path);
     
     norm_names = get_norm_names( 'Synthetic-Mask-Cam', '.tif', num_goal);
     summary_data.p_mask_img_path = save_cell_images( img_mask, ...
+        norm_names, preprocessed_path);
+    
+    norm_names = get_norm_names( 'Synthetic-BG-Cam', '.tif', num_goal);
+    summary_data.p_img_bg_path = save_cell_images( in_bg_img, ...
         norm_names, preprocessed_path);
     
     % Do colour conversion if needed

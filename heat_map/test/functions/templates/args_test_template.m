@@ -37,6 +37,7 @@ symmetric = true; % Symmetric or asymmetric goal image
 [project_path, raw_file_path, scene_img_folder, goal_img_path, ...
     goal_mask_img_path, mask_img_path, in_img_path] = get_test_paths( ...
     scene_name, multi_goal, symmetric);
+in_img_bg_path = in_img_path;
 
 density_file_path = '';
 

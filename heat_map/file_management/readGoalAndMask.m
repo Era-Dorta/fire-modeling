@@ -1,10 +1,11 @@
-function [ goal_img, goal_mask, in_img, img_mask ] = readGoalAndMask( goal_img_path, ...
-    in_img_path, mask_img_path, goal_mask_img_path, resize_goal )
+function [ goal_img, goal_mask, in_img, img_mask, in_bg_img ] = readGoalAndMask( goal_img_path, ...
+    in_img_path, mask_img_path, goal_mask_img_path, in_img_bg_path, resize_goal )
 %READGOALANDMASK Summary of this function goes here
 %   Detailed explanation goes here
 
 goal_img = cell(numel(goal_img_path), 1);
 in_img = cell(numel(goal_img_path), 1);
+in_bg_img = cell(numel(goal_img_path), 1);
 img_mask = cell(numel(goal_img_path), 1);
 goal_mask = cell(numel(goal_img_path), 1);
 
@@ -14,6 +15,9 @@ for i=1:numel(goal_img_path)
     
     in_img{i} = imread(in_img_path{i});
     in_img{i} = in_img{i}(:,:,1:3); % Transparency is not used, so ignore it
+    
+    in_bg_img{i} = imread(in_img_bg_path{i});
+    in_bg_img{i} = in_bg_img{i}(:,:,1:3); % Transparency is not used, so ignore it
     
     img_mask{i} = imread(mask_img_path{i});
     

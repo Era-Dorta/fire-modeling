@@ -1,6 +1,6 @@
-function [ goal_imgs, goal_mask_imgs, in_imgs, mask_imgs, bin_mask_threshold ] ...
+function [ goal_imgs, goal_mask_imgs, in_imgs, mask_imgs, bin_mask_threshold, in_bg_imgs ] ...
     = preprocess_images( goal_imgs, goal_mask_imgs, in_imgs, mask_imgs, ...
-    bin_mask_threshold, add_background, do_plots, figurePath)
+    in_bg_imgs, bin_mask_threshold, add_background, do_plots, figurePath)
 % PREPROCESS_IMAGES Background substraction
 %[ GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD ] = PREPROCESS_IMAGES(
 %   GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD, DO_PLOTS, FIGUREPATH)
@@ -55,7 +55,7 @@ for i=1:numel(goal_imgs)
     goal_size = size(goal_imgs{i});
     % TODO Do a real background substraction for in img too, with texture
     % synthesis for the substracted part
-    in_img_bg = imresize(in_imgs{i}, goal_size(1:2));
+    in_img_bg = imresize(in_bg_imgs{i}, goal_size(1:2));
     
     if do_plots
         % Plot the goal image and the trimap

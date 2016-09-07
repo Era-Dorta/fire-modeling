@@ -16,6 +16,7 @@ L = load(args_path);
 goal_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/goal1.png'};
 goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/tri-map.png'};
 in_img_path = {'~/maya/projects/fire/images/test109_same_input/test109_same_input.tif'};
+in_img_bg_path = {'~/maya/projects/fire/images/test109_same_input/background-new.png'};
 mask_img_path = {'~/maya/projects/fire/images/test109_same_input/mask.png'};
 raw_file_path = 'data/from_dmitry/vox_bin_00841_clean.raw2';
 density_file_path = '~/maya/projects/fire/data/from_dmitry/vox_bin_00841_clean.raw2';
