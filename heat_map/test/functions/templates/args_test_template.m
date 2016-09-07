@@ -38,6 +38,8 @@ symmetric = true; % Symmetric or asymmetric goal image
     goal_mask_img_path, mask_img_path, in_img_path] = get_test_paths( ...
     scene_name, multi_goal, symmetric);
 
+density_file_path = '';
+
 add_background = false;
 
 % Scale and offset used for the raw file

@@ -27,4 +27,12 @@ if isfield(opts, 'maya_new_density_scale')
     
 end
 
+% If a density raw file is given, set it as the one for rendering
+if ~isempty(opts.density_file_path)
+    for i=1:numel(maya_send)
+        load_density_raw_in_maya(opts.density_file_path, maya_send{i}, ...
+            opts.is_custom_shader);
+    end
+end
+
 end

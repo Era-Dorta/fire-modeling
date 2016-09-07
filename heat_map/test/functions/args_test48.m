@@ -1,6 +1,6 @@
-function [args_path] = args_test46()
-%ARGS_TEST46 Vox_bin_00841 256, Vox_bin_00841 Goal
-%   ARGS_PATH = ARGS_TEST46() Returns in ARGS_PATH the file path of a .mat
+function [args_path] = args_test48()
+%ARGS_TEST48 Vox_bin_00841 64, Vox_bin_00841 Goal
+%   ARGS_PATH = ARGS_TEST48() Returns in ARGS_PATH the file path of a .mat
 %   file with arguments defined here.
 %
 %   See also heatMapReconstruction, args_test_template,
@@ -17,8 +17,8 @@ goal_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/goal1.png'};
 goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/tri-map.png'};
 in_img_path = {'~/maya/projects/fire/images/test109_same_input/test109_same_input.tif'};
 mask_img_path = {'~/maya/projects/fire/images/test109_same_input/mask.png'};
-raw_file_path = 'data/from_dmitry/vox_bin_00841_clean.raw2';
-density_file_path = 'data/from_dmitry/vox_bin_00841_clean.raw2';
+raw_file_path = 'data/from_dmitry/vox_bin_00841_clean_64.raw2';
+density_file_path = 'data/from_dmitry/vox_bin_00841_clean_64.raw2';
 
 scene_name = 'test109_same_input';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
