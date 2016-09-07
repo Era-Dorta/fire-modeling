@@ -5,7 +5,7 @@ function out_ylim = plot_histograms( n_bins, color_space, is_histo_independent, 
 %   OUTPUT_FOLDER, GOAL_IMGS, GOAL_MASK,  OPTI_IMG, OPTI_MASK)
 
 if isBatchMode()
-    fig_h = figure('Visible', 'off', [0 0 960 540]);
+    fig_h = figure('Visible', 'off', 'Position', [0 0 960 540]);
 else
     fig_h = figure('Position', [125 500 960 540]);
 end
