@@ -53,7 +53,7 @@ if nargin == 2
     % Get the non zero values
     nonzeroInd = find(Vq ~= 0);
     Vq = Vq(nonzeroInd);
-    XYZnew = [Ynew(nonzeroInd), Xnew(nonzeroInd), Znew(nonzeroInd)];
+    XYZnew = [Xnew(nonzeroInd), Ynew(nonzeroInd), Znew(nonzeroInd)];
 else
     % Get the values given by the user
     Vq = Vq(sub2ind(newsize, XYZnew(:,1), XYZnew(:,2), XYZnew(:,3)));
