@@ -50,8 +50,8 @@ Vq(isnan(Vq)) = 0;
 %% Build the output
 
 if nargin == 2
-    % Get the non zero values
-    nonzeroInd = find(Vq ~= 0);
+    % Ignore zeros and really small values
+    nonzeroInd = find(Vq > eps);
     Vq = Vq(nonzeroInd);
     XYZnew = [Xnew(nonzeroInd), Ynew(nonzeroInd), Znew(nonzeroInd)];
 else
