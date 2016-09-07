@@ -37,12 +37,15 @@ Zq = fitToRange(Znew, 0.5, newsize(3) + 0.5, 0.5, inheatmap.size(3) + 0.5);
 %% Interpolate the data
 % Create a sparse interpolator, linear extrapolation keeps the slope
 % between the last two known points creating too large and negative
-% temperatures, compromise is to use nearest. Could also add zeros or
-% lower bound values surrounding the cube of data
+% temperatures. Nearest fills the space with the closest neighbour.
+% So we don't extrapolate values
 fs = scatteredInterpolant(inheatmap.xyz(:, 1), inheatmap.xyz(:, 2), ...
-    inheatmap.xyz(:, 3), inheatmap.v, 'linear', 'nearest' );
+    inheatmap.xyz(:, 3), inheatmap.v, 'linear', 'none' );
 
 Vq = fs(Xq, Yq, Zq);
+
+% Extrapolated values are NaN, set them to zero
+Vq(isnan(Vq)) = 0;
 
 %% Build the output
 
