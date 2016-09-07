@@ -98,8 +98,28 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 	MStatus stat;
 	MFnFluid fluidFn(fluidShapePath, &stat);
 
+	// Is fluid shape?
 	if (!fluidShapePath.isValid() || !stat) {
 		MGlobal::displayError("Please, enter a valid fluid shape");
+		return MStatus::kFailure;
+	}
+
+	// Can be edited?
+	MFnFluid::FluidMethod method;
+	MFnFluid::FluidGradient gradient;
+	switch (type) {
+	case TEMPERATURE: {
+		fluidFn.getTemperatureMode(method, gradient);
+		break;
+	}
+	case DENSITY: {
+		fluidFn.getDensityMode(method, gradient);
+		break;
+	}
+	}
+	if (method != MFnFluid::kDynamicGrid) {
+		MGlobal::displayError(MString("Fluid density and/or temperature must "
+				"be set to Dynamic Grid"));
 		return MStatus::kFailure;
 	}
 
@@ -131,6 +151,7 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 			return MStatus::kFailure;
 		}
 
+		// Has same resolution?
 		unsigned fluidRes[3];
 		fluidFn.getResolution(fluidRes[0], fluidRes[1], fluidRes[2]);
 		if (fluidRes[0] != (unsigned) width || fluidRes[1] != (unsigned) height
