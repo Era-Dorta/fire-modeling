@@ -17,7 +17,7 @@ if(num_maya == 1 || num_hm <= num_maya)
         init_heat_map, output_img_folder_name, msg, 0);
 else
     
-    num_hm_per_thread = round(num_hm / num_maya);
+    num_hm_per_thread = floor(num_hm / num_maya);
     f = parallel.FevalFuture;
     
     % Launch each evaluation in parallel

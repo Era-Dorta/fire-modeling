@@ -18,7 +18,7 @@ if(num_maya == 1 || size(heat_map_v, 1) <= num_maya)
         1, num_goal, prior_fncs, prior_weights, color_space);
 else
     num_hm = size(heat_map_v, 1);
-    num_hm_per_thread = round(num_hm / num_maya);
+    num_hm_per_thread = floor(num_hm / num_maya);
     error_thread = cell(1, num_maya);
     f = parallel.FevalFuture;
     

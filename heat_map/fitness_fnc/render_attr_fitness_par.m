@@ -17,7 +17,7 @@ if(num_maya == 1 || size(render_attr, 1) <= num_maya)
         scene_img_folder, output_img_folder_name, maya_send{1}, 1, num_goal);
 else
     num_ra = size(render_attr, 1);
-    num_ra_per_thread = round(num_ra / num_maya);
+    num_ra_per_thread = floor(num_ra / num_maya);
     error_thread = cell(1, num_maya);
     f = parallel.FevalFuture;
     
