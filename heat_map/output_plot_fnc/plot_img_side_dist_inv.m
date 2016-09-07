@@ -6,7 +6,7 @@ function out_ylim = plot_img_side_dist_inv( color_space, is_histo_independent, .
 %
 
 if isBatchMode()
-    fig_h = figure('Visible', 'off');
+    fig_h = figure('Visible', 'off', 'Position', [0 0 960 540]);
 else
     fig_h = figure('Position', [125 500 560 420]);
 end
