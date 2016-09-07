@@ -1,10 +1,22 @@
-function [ best_density, f_val ] = estimate_density_scale( maya_send, opts, init_heat_map, ...
+function [ best_density, f_val, density_norm ] = estimate_density_scale( maya_send, opts, init_heat_map, ...
     fitness_fnc, output_img_folder, num_goal)
 %ESTIMATE_DENSITY_SCALE Estimate best density for heat map
 %   [ BEST_DENSITY ] = ESTIMATE_DENSITY_SCALE( MAYA_SEND, OPTS, INIT_HEAT_MAP, ...
 %    FITNESS_FNC, OUTPUT_IMG_FOLDER)
 
 if ~isempty(opts.density_scales_range)
+    
+    if ~isempty(opts.density_file_path)
+        density_raw = read_raw_file(opts.density_file_path);
+        density_norm = 1 / max(density_raw.v);
+        if isinf(density_norm)
+            error('Density file max value is zero');
+        end
+    else
+        density_norm = 1;
+        warning(['If no density file path is given, it is recommended that' ...
+            ' the one already set is normalized']);
+    end
     
     init_heat_map.v(:) = mean([opts.LB, opts.UB]);
     
@@ -22,7 +34,7 @@ if ~isempty(opts.density_scales_range)
     % Loop in a logarithmic scale for the samples
     for i=1:numel(k_samples)
         % Set the new scale
-        opts.maya_new_density_scale = 10^k_samples(i);
+        opts.maya_new_density_scale = 10^k_samples(i) * density_norm;
         maya_set_custom_parameters(maya_send, opts);
         
         % Evaluate the fitness function
@@ -44,7 +56,7 @@ if ~isempty(opts.density_scales_range)
     % Get the best density scale, set it and return the value
     [~, i] = min(f_val);
     
-    opts.maya_new_density_scale = 10^k_samples(i);
+    opts.maya_new_density_scale = 10^k_samples(i) * density_norm;
     
     maya_set_custom_parameters(maya_send, opts);
     

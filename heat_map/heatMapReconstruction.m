@@ -170,10 +170,11 @@ try
             prior_weights, opts.color_space);
         
         % Estimate the best density for the optimization
-        [best_density, f_density] =  estimate_density_scale( maya_send, opts, ...
-            init_heat_map, fitness_foo, output_img_folder, num_goal);
+        [best_density, f_density, d_norm] =  estimate_density_scale( maya_send,  ...
+            opts, init_heat_map, fitness_foo, output_img_folder, num_goal);
         
         summary_data.best_density = best_density;
+        summary_data.density_norm = d_norm;
         summary_data.fitness_for_density = f_density;
     end
     
