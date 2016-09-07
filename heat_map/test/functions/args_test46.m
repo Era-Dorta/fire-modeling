@@ -18,7 +18,7 @@ goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/tri-map.png'};
 in_img_path = {'~/maya/projects/fire/images/test109_same_input/test109_same_input.tif'};
 mask_img_path = {'~/maya/projects/fire/images/test109_same_input/mask.png'};
 raw_file_path = 'data/from_dmitry/vox_bin_00841_clean.raw2';
-density_file_path = 'data/from_dmitry/vox_bin_00841_clean.raw2';
+density_file_path = '~/maya/projects/fire/data/from_dmitry/vox_bin_00841_clean.raw2';
 
 scene_name = 'test109_same_input';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
