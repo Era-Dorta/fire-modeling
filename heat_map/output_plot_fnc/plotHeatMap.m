@@ -19,12 +19,21 @@ if nargin == 2 || max(colors) > 1
     colors = colors * scale_factor;
 end
 
-colors = [colors, zeros(heat_map.count, 1), zeros(heat_map.count, 1)];
-
 figure;
 hold on;
 
-scatter3(heat_map.xyz(:,1), heat_map.xyz(:,3), heat_map.xyz(:,2), 1, colors);
+% Set background color to gray
+set(gca,'Color',[0.8 0.8 0.8]);
+
+% Plot each point as a poligon patch to be able to have transparency
+pb=patch(heat_map.xyz(:,1), heat_map.xyz(:,3), heat_map.xyz(:,2), colors, 'edgecolor','none');
+
+% Set transparency
+alpha(pb, .1);
+
+% Colors goes into a colormap, 'hot' is a good one for flames, goes from
+% black to white
+colormap('hot');
 
 set(gca,'xlim', [0, heat_map.size(1)]);
 set(gca,'ylim', [0, heat_map.size(2)]);
