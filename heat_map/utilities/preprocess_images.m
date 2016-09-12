@@ -1,6 +1,6 @@
 function [ goal_imgs, goal_mask_imgs, in_imgs, mask_imgs, bin_mask_threshold, in_bg_imgs ] ...
     = preprocess_images( goal_imgs, goal_mask_imgs, in_imgs, mask_imgs, ...
-    in_bg_imgs, bin_mask_threshold, add_background, do_plots, figurePath)
+    in_bg_imgs, bin_mask_threshold, add_background, do_plots, copy_mask, figurePath)
 % PREPROCESS_IMAGES Background substraction
 %[ GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD ] = PREPROCESS_IMAGES(
 %   GOAL_IMGS, GOAL_MASK_IMGS, MASK_IMGS, BIN_MASK_THRESHOLD, DO_PLOTS, FIGUREPATH)
@@ -103,7 +103,11 @@ for i=1:numel(goal_imgs)
     % TODO The same should be done with the mask images, either initialize
     % the temperatures to all active, 2000K or 1500K render once to get
     % synthetic image or add the images as another argument
-    mask_imgs{i} = mask_imgs{i} > bin_mask_threshold(i);
+    if copy_mask
+        mask_imgs{i} = goal_mask_imgs{i};
+    else
+        mask_imgs{i} = mask_imgs{i} > bin_mask_threshold(i);
+    end
     
     %% Show and save the results
     if do_plots
