@@ -113,7 +113,7 @@ try
     
     %% Read goal and mask image/s
     % For MSE resize the goal image to match the synthetic image
-    if(isequal(error_foo{1}, @MSE))
+    ifisequalFncCell(error_foo{1}, {@MSE, @MSEPerceptual})
         resize_goal = true;
     else
         resize_goal = false;
