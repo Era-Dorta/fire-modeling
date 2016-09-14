@@ -52,7 +52,7 @@ try
     
     [ ~, ~, ~, img_mask ] = readGoalAndMask( ...
         opts.goal_img_path,  opts.in_img_path, opts.mask_img_path,  ...
-        opts.goal_mask_img_path, false);
+        opts.goal_mask_img_path, opts.in_img_bg_path, false);
     img_mask = img_mask{1};
     
     %% SendMaya script initialization
@@ -112,7 +112,7 @@ try
         h_count = h_count / sum(h_count);
         
         hold on;
-        bar(linspace(0, 100, opts.samples_n_bins), h_count);
+        bar(linspace(0, 100, opts.samples_n_bins), h_count, 'EdgeColor', 'none');
         xlim([0,100]);
         xlabel('Step size (% of max step size)');
         ylabel('Normalised frequency');
