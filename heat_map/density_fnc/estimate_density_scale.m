@@ -65,6 +65,7 @@ if ~isempty(opts.density_scales_range)
 else
     best_density = [];
     f_val = [];
+    density_norm = [];
 end
 
 end
