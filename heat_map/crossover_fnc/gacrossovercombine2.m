@@ -23,8 +23,8 @@ xoverKids = zeros(nKids,GenomeLength);
 % being produced, a separate index for the parents is needed
 index = 1;
 
-% Combine the heatmaps with equal probabilities
-weight = 0.5;
+% Substitute values instead of interpolating
+weight = 0;
 
 for i=1:nKids
     % get parents
