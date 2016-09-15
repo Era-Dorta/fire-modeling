@@ -200,6 +200,15 @@ switch solver
         
         initCreationFnc = @gacreationheuristic3;
         creation_fnc_n_bins = 255;
+    case 'icm'
+        options.MaxIterations = max_ite;
+        options.MaxFunctionEvaluations = maxFunEvals;
+        options.Display = 'iter'; % Give some output on each iteration
+        options.FunctionTolerance = 1e-6;
+        options.TemperatureNSamples = 25;
+        
+        options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
+            @gradsavescores};
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'']'];
