@@ -12,6 +12,10 @@ L = load(data_file);
 in_data = [L.AllPopulation];
 scores = L.AllScores;
 
+if size(in_data, 1) < 2
+    return;
+end
+
 pairDists = pdist(in_data, 'euclidean');
 
 Y = cmdscale(pairDists, 2); % Project pairDists to a 2 Dimensional space

@@ -51,7 +51,7 @@ while(true)
         
     end
     
-    new_score = sum(cur_score);
+    optimValues.fval = sum(cur_score);
     
     if(call_output_fnc())
         state = 'interrupt';
@@ -59,7 +59,7 @@ while(true)
         break;
     end
     
-    if (abs(new_score-current_score ) < options.FunctionTolerance || ...
+    if (abs(optimValues.fval-current_score ) < options.FunctionTolerance || ...
             optimValues.iteration > options.MaxIterations || ...
             optimValues.funcCount > options.MaxFunctionEvaluations)
         break;
