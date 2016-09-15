@@ -1,14 +1,12 @@
-function [ x, fval, exitFlag, output ] = icm ( fun, x0, lb, ub, options)
-%ICM Iterative Conditional Modes parallel solver
+function [ x, fval, exitFlag, output ] = icm_sequential ( fun, x0, lb, ub, options)
+%ICM_SEQUENTIAL Iterative Conditional Modes solver
 
 exitFlag = 0;
 num_dim = numel(x0);
 
 cur_score = inf(num_dim, 1);
 t = linspace(lb(1), ub(1), options.TemperatureNSamples);
-
-% Replicate x to be able to evaluate in parallel
-x = repmat(x0, options.TemperatureNSamples, 1);
+x = x0;
 
 optimValues.fval = inf;
 optimValues.iteration = 0;
@@ -20,38 +18,40 @@ call_output_fnc();
 state = 'iter';
 
 while(true)
-    
-    current_score = sum(cur_score);
-    
-    % Iterate for each voxel
+    current_score = 0;
     for i=1:num_dim
-        
-        % Get score for the current voxel
-        min_score = cur_score(i);
-        cur_temp = x(1, i);
-        
-        % Assign a different temperature to each copy of x
-        x(:, i) = t;
-        
-        % Compute all the scores
-        new_score = calculate_score(i, x);
-        
-        % Get the min
-        [new_score, j] = min(new_score);
-        
-        % Update on improvement
-        if (new_score < min_score)
-            cur_temp = t(j);
-            min_score = new_score;
-        end
-        
-        % Set the voxel to have the best temperature so far
-        x(:, i) = cur_temp;
-        cur_score(i) = min_score;
-        
+        current_score = current_score + cur_score(i);
     end
     
-    new_score = sum(cur_score);
+    for i=1:num_dim
+        
+        min_score = cur_score(i);
+        cur_temp = x(i);
+        for j=1:options.TemperatureNSamples
+            
+            if (t(j) == cur_temp)
+                continue;
+            end
+            % bool do_replacement = false;
+            x(i) = t(j);
+            new_score = calculate_score(i, x);
+            if (new_score < min_score)
+                
+                cur_temp = t(j);
+                min_score = new_score;
+                
+            end
+            
+        end
+        x(i) = cur_temp;
+        cur_score(i) = min_score;
+    end
+    
+    
+    new_score = 0;
+    for i=1:num_dim
+        new_score = new_score + cur_score(i);
+    end
     
     if(call_output_fnc())
         state = 'interrupt';
@@ -64,7 +64,6 @@ while(true)
             optimValues.funcCount > options.MaxFunctionEvaluations)
         break;
     end
-    
     optimValues.iteration = optimValues.iteration + 1;
 end
 
@@ -75,12 +74,10 @@ output = optimValues;
 
 call_output_fnc();
 
-x = x(1,:);
-
     function [stop] = call_output_fnc()
         stop = false;
         for k=1:numel(options.OutputFcn)
-            if(options.OutputFcn{k}(x(1,:), optimValues, state))
+            if(options.OutputFcn{k}(x, optimValues, state))
                 stop = true;
             end
         end
@@ -88,7 +85,7 @@ x = x(1,:);
 
     function [score] = calculate_score(i, x)
         
-        score = data_term_score(i, x);
+        score = data_term_score(i);
         
         if(false)
             neighbors = getNeighbors(i);
@@ -99,10 +96,10 @@ x = x(1,:);
         end
     end
 
-    function [score] = data_term_score(i, x)
+    function [score] = data_term_score(i)
         
         score = fun(x);
-        optimValues.funcCount = optimValues.funcCount + options.TemperatureNSamples;
+        optimValues.funcCount = optimValues.funcCount + 1;
         
     end
 
