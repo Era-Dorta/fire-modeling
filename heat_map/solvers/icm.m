@@ -19,6 +19,13 @@ optimValues.fval = 1;
 optimValues.iteration = 0;
 optimValues.funcCount = 0;
 
+if(options.TemperatureNSamples < 2)
+    exitFlag = -1;
+    optimValues.message = 'TemperatureNSamples must be >= 2';
+    disp(optimValues.message);
+    return;
+end
+
 state = 'init';
 call_output_fnc();
 
