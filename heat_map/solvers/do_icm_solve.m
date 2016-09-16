@@ -42,7 +42,7 @@ save(output_data_path, 'InitialPopulation');
 
 %% Call the gradient descent optimization
 
-[heat_map_v, best_error, exitflag] = icm(fitness_foo, InitialPopulation, ...
+[heat_map_v, best_error, exitflag, output] = icm(fitness_foo, InitialPopulation, ...
     LB, UB, options);
 
 totalTime = toc(startTime);
@@ -65,6 +65,7 @@ summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 summary_data.InitGuessFile = init_heat_map.filename;
 summary_data.OuputDataFile = output_data_path;
+summary_data.output = output;
 
 % For gradient, options is a class, convert it to struct to use it in the
 % save summary function, the struct() function also copies the private data
