@@ -61,20 +61,20 @@ while(true)
     
     display_info();
     
-    if(call_output_fnc())
+    if (call_output_fnc())
         state = 'interrupt';
         exitFlag = -1;
         break;
     end
     
-    if (abs(optimValues.fval-current_score ) < options.FunctionTolerance || ...
-            optimValues.iteration > options.MaxIterations || ...
-            optimValues.funcCount > options.MaxFunctionEvaluations)
+    if (check_exit_conditions())
         break;
     end
     
     optimValues.iteration = optimValues.iteration + 1;
 end
+
+disp(optimValues.message);
 
 state = 'done';
 fval = optimValues.fval;
@@ -92,10 +92,33 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
         stop = false;
         for k=1:numel(options.OutputFcn)
             if(options.OutputFcn{k}(x(1,:), optimValues, state))
+                if ~stop
+                    optimValues.message = ['Interrupted by ' func2str(options.OutputFcn{k})];
+                end
                 stop = true;
             end
         end
     end
+
+    function [stop] = check_exit_conditions()
+        stop = false;
+        if (abs(optimValues.fval-current_score ) < options.FunctionTolerance)
+            optimValues.message = 'Change in fval smaller than FunctionTolerance';
+            stop = true;
+            return;
+        end
+        if (optimValues.iteration > options.MaxIterations)
+            optimValues.message = 'MaxIterations reached';
+            stop = true;
+            return;
+        end
+        if (optimValues.funcCount > options.MaxFunctionEvaluations)
+            optimValues.message = 'MaxFunctionEvaluations reached';
+            stop = true;
+            return;
+        end
+    end
+
 
     function [score] = calculate_score(i, x)
         
