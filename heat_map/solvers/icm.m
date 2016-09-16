@@ -52,12 +52,8 @@ while(true)
     end
     
     optimValues.fval = mean(cur_score);
-
-    if mod(optimValues.iteration, 25) == 0
-        disp('Iter F-count           f(x)');
-    end
-    fprintf('% 4d %7d    %.5e\n', optimValues.iteration, ...
-        optimValues.funcCount, optimValues.fval);
+    
+    display_info();
     
     if(call_output_fnc())
         state = 'interrupt';
@@ -113,5 +109,14 @@ x = x(1,:);
         
     end
 
+    function display_info()
+        if strcmp(options.Display, 'iter')
+            if mod(optimValues.iteration, 25) == 0
+                disp('Iter F-count           f(x)');
+            end
+            fprintf('% 4d %7d    %.5e\n', optimValues.iteration, ...
+                optimValues.funcCount, optimValues.fval);
+        end
+    end
 end
 
