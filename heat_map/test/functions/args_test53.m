@@ -21,8 +21,8 @@ args_test_solver_template(args_path, solver);
 
 L = load(args_path);
 
-goal_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/goal1-resize.png'};
-goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/tri-map-resize.png'};
+goal_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/goal1-aligned.png'};
+goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/tri-map-aligned.png'};
 in_img_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/test110_like_109_close_camera.tif'};
 in_img_bg_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/background-new.png'};
 mask_img_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/mask.png'};
