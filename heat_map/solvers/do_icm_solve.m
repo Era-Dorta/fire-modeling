@@ -43,7 +43,7 @@ save(output_data_path, 'InitialPopulation');
 %% Call the gradient descent optimization
 
 [heat_map_v, best_error, exitflag, output] = icm(fitness_foo, InitialPopulation, ...
-    LB, UB, options);
+    init_heat_map.xyz, LB, UB, options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);

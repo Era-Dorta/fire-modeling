@@ -1,4 +1,4 @@
-function [ x, fval, exitFlag, output ] = icm ( fun, x0, lb, ub, options)
+function [ x, fval, exitFlag, output ] = icm ( fun, x0, xyz, lb, ub, options)
 %ICM Iterative Conditional Modes parallel solver
 
 exitFlag = 0;
@@ -9,6 +9,11 @@ t = linspace(lb(1), ub(1), options.TemperatureNSamples);
 
 % Replicate x to be able to evaluate in parallel
 x = repmat(x0, options.TemperatureNSamples, 1);
+
+% Copy the data using an interpolant for easy access using the xyz coords
+x_interp = scatteredInterpolant(xyz(:, 1), xyz(:, 2), xyz(:, 3), ...
+    x0', 'nearest', 'none' );
+warning('off', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
 optimValues.fval = 1;
 optimValues.iteration = 0;
@@ -47,6 +52,7 @@ while(true)
         
         % Set the voxel to have the best temperature so far
         x(:, i) = cur_temp;
+        update_interpolant_temperatures(i, cur_temp);
         cur_score(i) = min_score;
         
     end
@@ -80,6 +86,8 @@ call_output_fnc();
 % Remove the copies of x
 x = x(1,:);
 
+warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
+
     function [stop] = call_output_fnc()
         stop = false;
         for k=1:numel(options.OutputFcn)
@@ -91,15 +99,11 @@ x = x(1,:);
 
     function [score] = calculate_score(i, x)
         
-        score = data_term_score(i, x);
+        score = data_term_score(i, x) * 0.8;
         
-        if(false)
-            neighbors = getNeighbors(i);
-            
-            for k=1:numel(neighbors)
-                score =  score + pairwise_term(i, n, x);
-            end
-        end
+        n_xyz = getNeighborsIndices(i);
+        
+        score = score + pairwise_term(i, n_xyz, x) * 0.2;
     end
 
     function [score] = data_term_score(i, x)
@@ -116,6 +120,39 @@ x = x(1,:);
             end
             fprintf('% 4d %7d    %.5e\n', optimValues.iteration, ...
                 optimValues.funcCount, optimValues.fval);
+        end
+    end
+
+    function [neigh_idx] = getNeighborsIndices(i)
+        % Get ith voxel xyz coordinates
+        idx = xyz(i,:);
+        
+        % Offsets for up, bottom, left and right neighbours
+        neigh_offset = [1, 0, 0; -1, 0, 0; 0, 1, 0; 0, -1, 0; 0, 0, 1; 0, 0, -1];
+        
+        % xyz for indices for the neighbours
+        neigh_idx = bsxfun(@plus, neigh_offset, idx);
+    end
+
+    function update_interpolant_temperatures(i, t)
+        x_interp.Values(i) = t;
+    end
+
+    function score = pairwise_term(i, n_xyz, x)
+        score = zeros(1, options.TemperatureNSamples);
+        
+        % Get the neighbours temperatures
+        neigh = x_interp(n_xyz);
+        
+        if(~isempty(neigh))
+            % Inverse maximum neighbour distance
+            inv_factor = 1 / ((ub(1) - lb(1)) * sum(isnan(neigh)));
+            
+            % Compute it for all the possible temperature samples in the
+            % ith voxel
+            for k=1:options.TemperatureNSamples
+                score(k) = nansum(abs(bsxfun(@minus, x(k, i), neigh))) * inv_factor;
+            end
         end
     end
 end
