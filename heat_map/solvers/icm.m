@@ -4,13 +4,13 @@ function [ x, fval, exitFlag, output ] = icm ( fun, x0, lb, ub, options)
 exitFlag = 0;
 num_dim = numel(x0);
 
-cur_score = inf(num_dim, 1);
+cur_score = ones(num_dim, 1);
 t = linspace(lb(1), ub(1), options.TemperatureNSamples);
 
 % Replicate x to be able to evaluate in parallel
 x = repmat(x0, options.TemperatureNSamples, 1);
 
-optimValues.fval = inf;
+optimValues.fval = 1;
 optimValues.iteration = 0;
 optimValues.funcCount = 0;
 
@@ -21,7 +21,7 @@ state = 'iter';
 
 while(true)
     
-    current_score = sum(cur_score);
+    current_score = mean(cur_score);
     
     % Iterate for each voxel
     for i=1:num_dim
@@ -51,7 +51,7 @@ while(true)
         
     end
     
-    optimValues.fval = sum(cur_score);
+    optimValues.fval = mean(cur_score);
     
     if(call_output_fnc())
         state = 'interrupt';
