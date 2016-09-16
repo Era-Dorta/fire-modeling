@@ -21,6 +21,9 @@ for i=1:numel(options.OutputFcn)
     elseif isequal(options.OutputFcn{i}, @gradsavescores)
         options.OutputFcn{i} = @(x, optimValues, state) gradsavescores(x, ...
             optimValues, state, output_data_path);
+    elseif isequal(options.OutputFcn{i}, @gradploterror)
+        options.OutputFcn{i} = @(x, optimValues, state) gradploterror(x, ...
+            optimValues, state, paths_str.errorfig);
     else
         foo_str = func2str(options.OutputFcn{i});
         error(['Unkown outputFnc ' foo_str ' in do_icm_solve']);

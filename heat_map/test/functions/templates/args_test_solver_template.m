@@ -128,7 +128,7 @@ switch solver
         options.Display = 'iter-detailed'; % Give some output on each iteration
         
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
-            @gradsavescores};
+            @gradsavescores, @gradploterror};
     case 'cmaes'
         % Get default values
         options = cmaes('defaults');
@@ -208,7 +208,7 @@ switch solver
         options.TemperatureNSamples = 25;
         
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
-            @gradsavescores};
+            @gradsavescores, @gradploterror};
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'']'];

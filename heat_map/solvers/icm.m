@@ -75,6 +75,7 @@ output = optimValues;
 
 call_output_fnc();
 
+% Remove the copies of x
 x = x(1,:);
 
     function [stop] = call_output_fnc()
