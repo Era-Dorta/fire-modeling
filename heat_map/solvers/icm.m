@@ -191,7 +191,7 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
     function t = generate_new_temperatures(i)
         % Generate temperatures
-        t = linspace(lb(1), ub(1), options.TemperatureNSamples);
+        t = linspace(lb(i), ub(i), options.TemperatureNSamples);
     end
 
     function update_temperature_range(i, cur_temp, t)
