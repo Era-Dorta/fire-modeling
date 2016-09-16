@@ -162,19 +162,21 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
     end
 
     function score = pairwise_term(i, n_xyz, x)
-        score = zeros(1, options.TemperatureNSamples);
+        score = ones(1, options.TemperatureNSamples);
         
         % Get the neighbours temperatures
         neigh = x_interp(n_xyz);
         
         if(~isempty(neigh))
             % Inverse maximum neighbour distance
-            inv_factor = 1 / ((ub(1) - lb(1)) * sum(isnan(neigh)));
+            inv_factor = 1 / ((ub(1) - lb(1)) * sum(~isnan(neigh)));
             
-            % Compute it for all the possible temperature samples in the
-            % ith voxel
-            for k=1:options.TemperatureNSamples
-                score(k) = nansum(abs(bsxfun(@minus, x(k, i), neigh))) * inv_factor;
+            if ~isinf(inv_factor)
+                % Compute it for all the possible temperature samples in the
+                % ith voxel
+                for k=1:options.TemperatureNSamples
+                    score(k) = nansum(abs(bsxfun(@minus, x(k, i), neigh))) * inv_factor;
+                end
             end
         end
     end
