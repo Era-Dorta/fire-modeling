@@ -43,7 +43,7 @@ while(true)
         cur_temp = x(1, i);
         
         % Assign a different temperature to each copy of x
-        x(:, i) = t;
+        x(:, i) = generate_new_temperatures(i);
         
         % Compute all the scores
         new_score = calculate_score(i, x);
@@ -60,6 +60,7 @@ while(true)
         % Set the voxel to have the best temperature so far
         x(:, i) = cur_temp;
         update_interpolant_temperatures(i, cur_temp);
+        update_temperature_range(i, cur_temp, t);
         cur_score(i) = min_score;
         
     end
@@ -185,6 +186,23 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
                     score(k) = nansum(abs(bsxfun(@minus, x(k, i), neigh))) * inv_factor;
                 end
             end
+        end
+    end
+
+    function t = generate_new_temperatures(i)
+        % Generate temperatures
+        t = linspace(lb(1), ub(1), options.TemperatureNSamples);
+    end
+
+    function update_temperature_range(i, cur_temp, t)
+        step_bounds = t(2) - t(1);
+        mean_ublb = mean([lb(i), ub(i)]);
+        
+        % Reduce the bounds
+        if cur_temp > mean_ublb
+            lb(i) = lb(i) + step_bounds;
+        else
+            ub(i) = ub(i) - step_bounds;
         end
     end
 end
