@@ -5,10 +5,13 @@ exitFlag = 0;
 num_dim = numel(x0);
 
 cur_score = ones(num_dim, 1);
-t = linspace(lb(1), ub(1), options.TemperatureNSamples);
 
 % Replicate x to be able to evaluate in parallel
 x = repmat(x0, options.TemperatureNSamples, 1);
+
+% Temperature range, it will be gradually deacreased for each voxel
+tlr = lb;
+tur = ub;
 
 % Copy the data using an interpolant for easy access using the xyz coords
 x_interp = scatteredInterpolant(xyz(:, 1), xyz(:, 2), xyz(:, 3), ...
@@ -43,7 +46,8 @@ while(true)
         cur_temp = x(1, i);
         
         % Assign a different temperature to each copy of x
-        x(:, i) = generate_new_temperatures_icm(i, options, lb, ub);
+        t = generate_new_temperatures_icm(i, options, tlr, tur);
+        x(:, i) = t;
         
         % Compute all the scores
         new_score = calculate_score(i, x);
@@ -61,7 +65,7 @@ while(true)
         % Reset or update the voxel temperature
         x(:, i) = cur_temp;
         
-        [lb, ub] = update_temperature_range_icm(i, cur_temp, t, lb, ub);
+        [tlr, tur] = update_temperature_range_icm(i, cur_temp, t, tlr, tur);
     end
     
     optimValues.fval = mean(cur_score);
