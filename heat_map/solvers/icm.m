@@ -111,16 +111,14 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
     end
 
     function [score] = data_term_score(i, x)
-        score = fun(x);
-        optimValues.funcCount = optimValues.funcCount + options.TemperatureNSamples;
         
-        %         if mod(optimValues.iteration, 2) == 0
-        %             score = fun(x);
-        %             optimValues.funcCount = optimValues.funcCount + options.TemperatureNSamples;
-        %         else
-        %             score = ones(1, options.TemperatureNSamples);
-        %         end
-        %
+        if true %mod(optimValues.iteration, 2) == 0
+            score = fun(x);
+            optimValues.funcCount = optimValues.funcCount + options.TemperatureNSamples;
+        else
+            score = ones(1, options.TemperatureNSamples);
+        end
+        
     end
 
     function score = pairwise_term(i, n_xyz, x)
