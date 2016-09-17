@@ -1,10 +1,10 @@
 function [neigh_idx] = getNeighborsIndices_icm(i, xyz)
-% Get ith voxel xyz coordinates
-idx = xyz(i,:);
+persistent N_I
 
-% Offsets for up, bottom, left and right neighbours
-neigh_offset = [1, 0, 0; -1, 0, 0; 0, 1, 0; 0, -1, 0; 0, 0, 1; 0, 0, -1];
+if isempty(N_I)
+    N_I = precompute_neight_indices( xyz );
+end
 
-% xyz for indices for the neighbours
-neigh_idx = bsxfun(@plus, neigh_offset, idx);
+neigh_idx = N_I{i};
+
 end
