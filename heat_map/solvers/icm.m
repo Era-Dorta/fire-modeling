@@ -18,6 +18,7 @@ warning('off', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 optimValues.fval = 1;
 optimValues.iteration = 0;
 optimValues.funcCount = 0;
+optimValues.message = 'Initial message';
 
 if(options.TemperatureNSamples < 2)
     exitFlag = -1;
@@ -74,7 +75,8 @@ while(true)
         break;
     end
     
-    if (check_exit_conditions_icm(options, optimValues, current_score))
+    [stop, optimValues] = check_exit_conditions_icm(options, optimValues, current_score);
+    if (stop)
         break;
     end
     
