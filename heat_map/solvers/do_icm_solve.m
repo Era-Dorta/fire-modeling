@@ -45,6 +45,12 @@ summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 summary_data.InitGuessFile = init_heat_map.filename;
 summary_data.OuputDataFile = output_data_path;
+
+save(output_data_path, 'output', '-append');
+
+output.tlr = ['saved in  ' output_data_path];
+output.tur = ['saved in  ' output_data_path];
+
 summary_data.output = output;
 
 % For gradient, options is a class, convert it to struct to use it in the

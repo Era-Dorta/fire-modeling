@@ -93,6 +93,8 @@ state = 'done';
 fval = optimValues.fval;
 
 output = optimValues;
+output.tlr = tlr;
+output.tur = tur;
 
 call_output_fnc_icm(x, options, optimValues, state);
 
