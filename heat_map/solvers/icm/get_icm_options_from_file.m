@@ -1,5 +1,6 @@
 function [ options_out ] = get_icm_options_from_file( L, init_heat_map,  ...
-    goal_img, goal_mask, output_data_path, paths_str, is_grad, fitness_foo)
+    goal_img, goal_mask, output_data_path, paths_str, is_grad, fitness_foo, ...
+    maya_send)
 %GET_ICM_OPTIONS_FROM_FILE Sets ICM options
 %   [ OPTIONS_OUT ] = GET_ICM_OPTIONS_FROM_FILE( ARGS_PATH, INIT_HEAT_MAP,
 %      GOAL_IMG, GOAL_MASK, INIT_POPULATION_PATH, PATHS_STR) Given a mat
@@ -32,18 +33,18 @@ for i=1:numel(L.options.OutputFcn)
     end
 end
 
-if is_grad
-    options_out = L.options;
-    return;
-end
-
 %% CreationFcn
 valid_foo = {@random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm, ...
     @getInitHeatMapScaled_icm};
 
-if ~isequalFncCell(L.options.CreationFcn, valid_foo)
-    error(['Unkown ICM CreationFcn @' func2str(L.options.CreationFcn) ...
+if ~isequalFncCell(L.initGuessFnc, valid_foo)
+    error(['Unkown ICM initGuessFnc @' func2str(L.initGuessFnc) ...
         ' in ' L.args_path]);
+end
+
+if is_grad
+    options_out = L.options;
+    return;
 end
 
 %% CreateSamplesFcn
