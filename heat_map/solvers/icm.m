@@ -46,7 +46,7 @@ while(true)
         cur_temp = x(1, i);
         
         % Assign a different temperature to each copy of x
-        t = generate_new_temperatures_icm(i, options, tlr, tur);
+        t = options.CreateSamplesFcn(i, options, tlr, tur);
         x(:, i) = t;
         
         % Compute all the scores
@@ -65,7 +65,7 @@ while(true)
         % Reset or update the voxel temperature
         x(:, i) = cur_temp;
         
-        [tlr, tur] = update_temperature_range_icm(i, cur_temp, t, tlr, tur);
+        [tlr, tur] = options.UpdateSampleRangeFcn(i, cur_temp, t, tlr, tur);
     end
     
     optimValues.fval = mean(cur_score);
