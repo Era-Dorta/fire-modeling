@@ -116,23 +116,23 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
     function [score] = data_term_score(i)
         
-        [score, optimValues] = options.DataTermFcn{1}(i, x, options, ...
-            optimValues, lb, ub);
+        score = zeros(1, options.TemperatureNSamples);
         
-        for k=2:numel(options.DataTermFcn)
+        for k=1:numel(options.DataTermFcn)
             [data_score, optimValues] = options.DataTermFcn{k}(i, x,  ...
                 options, optimValues, lb, ub);
-            score = score + data_score;
+            score = score + data_score * options.DataTermFactors(k);
         end
         
     end
 
     function score = pairwise_term(i, n_i)
         
-        score = options.PairWiseTermFcn{1}(i, n_i, x, options, lb, ub);
+        score = zeros(1, options.TemperatureNSamples);
         
-        for k=2:numel(options.PairWiseTermFcn)
-            score = score + options.PairWiseTermFcn{k}(i, n_i, x, options, lb, ub);
+        for k=1:numel(options.PairWiseTermFcn)
+            score = score + options.PairWiseTermFcn{k}(i, n_i, x, options, ...
+                lb, ub) * options.PairWiseTermFactors(k);
         end
         
     end

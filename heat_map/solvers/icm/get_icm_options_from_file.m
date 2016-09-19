@@ -33,6 +33,12 @@ end
 %% DataTermFcn
 valid_foo =  {@zero_data_term_icm};
 
+if numel(L.options.DataTermFcn) ~= numel(L.options.DataTermFactors)
+    error(['ICM there are ' num2str(numel(L.options.DataTermFcn))  ...
+        ' dataterm functions and ' num2str(numel(L.options.DataTermFactors)) ...
+        ' but both must be the same']);
+end
+
 for i=1:numel(L.options.DataTermFcn)
     
     if isequal(L.options.DataTermFcn{i}, @eval_render_function_always_icm)
@@ -53,6 +59,13 @@ for i=1:numel(L.options.DataTermFcn)
 end
 
 %% PairWiseTermFcn
+
+if numel(L.options.PairWiseTermFcn) ~= numel(L.options.PairWiseTermFactors)
+    error(['ICM there are ' num2str(numel(L.options.DataTermFcn))  ...
+        ' pairwise term functions and ' num2str(numel(L.options.PairWiseTermFactors)) ...
+        ' but both must be the same']);
+end
+
 valid_foo = {@neighbour_distance_term_icm, @zero_pairwise_score_icm};
 
 for i=1:numel(L.options.PairWiseTermFcn)

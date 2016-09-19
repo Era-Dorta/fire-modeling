@@ -218,8 +218,14 @@ switch solver
         % @zero_data_term_icm, @eval_render_function_always_icm
         options.DataTermFcn = @eval_render_function_always_icm;
         
+        % Factor that multiplies the result of each data term
+        options.DataTermFactors = [1];
+        
         % @neighbour_distance_term_icm, @zero_pairwise_score_icm
         options.PairWiseTermFcn = {@neighbour_distance_term_icm};
+        
+        % Factor that multiplies the result of each pairwise term
+        options.PairWiseTermFactors = [1];
         
         % @gradient_time_limit, @gradplotbestgen, @gradsavescores,
         % @gradploterror
