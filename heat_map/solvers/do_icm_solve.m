@@ -1,19 +1,20 @@
 function [ heat_map_v, best_error, exitflag] = do_icm_solve( ...
     init_heat_map, fitness_foo, paths_str, summary_data, goal_img, goal_mask, ...
-    opts)
+    opts, maya_send)
 % Gradient descent solver for heat map reconstruction
 %% Options for the icm solver
 % Path where the initial population will be saved
 output_data_path = [paths_str.output_folder 'OutputData.mat'];
 
 options = get_icm_options_from_file( opts, init_heat_map,  ...
-    goal_img, goal_mask, output_data_path, paths_str, false, fitness_foo);
+    goal_img, goal_mask, output_data_path, paths_str, false, fitness_foo, ...
+    maya_send);
 
 LB = ones(init_heat_map.count, 1) * opts.LB;
 UB = ones(init_heat_map.count, 1) * opts.UB;
 
 % Initial guess for ICM
-InitialPopulation = options.CreationFcn(init_heat_map, LB', UB');
+InitialPopulation = opts.initGuessFnc(init_heat_map, LB', UB');
 
 % Save the initial value
 save(output_data_path, 'InitialPopulation');

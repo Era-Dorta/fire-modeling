@@ -129,6 +129,10 @@ switch solver
         
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
             @gradsavescores, @gradploterror};
+        
+        % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
+        % @getInitHeatMapScaled_icm
+        initGuessFnc = @random_guess_icm;
     case 'cmaes'
         % Get default values
         options = cmaes('defaults');
@@ -234,7 +238,7 @@ switch solver
         
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm
-        options.CreationFcn = @random_guess_icm;
+        initGuessFnc = @random_guess_icm;
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'']'];

@@ -1,5 +1,5 @@
 function [ best_density, f_val, density_norm ] = estimate_density_scale( maya_send, opts, init_heat_map, ...
-    fitness_fnc, output_img_folder, num_goal)
+    fitness_fnc, output_img_folder, out_dir, num_goal, use_mean_t)
 %ESTIMATE_DENSITY_SCALE Estimate best density for heat map
 %   [ BEST_DENSITY ] = ESTIMATE_DENSITY_SCALE( MAYA_SEND, OPTS, INIT_HEAT_MAP, ...
 %    FITNESS_FNC, OUTPUT_IMG_FOLDER)
@@ -18,10 +18,11 @@ if ~isempty(opts.density_scales_range)
             ' the one already set is normalized']);
     end
     
-    init_heat_map.v(:) = mean([opts.LB, opts.UB]);
+    if use_mean_t
+        init_heat_map.v(:) = mean([opts.LB, opts.UB]);
+    end
     
     % Save the render images in this folder
-    out_dir = fullfile(output_img_folder, 'density-estimates');
     mkdir(out_dir);
     
     k0 = log10(opts.density_scales_range(1));

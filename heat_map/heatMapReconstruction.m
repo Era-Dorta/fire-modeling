@@ -174,8 +174,10 @@ try
             prior_weights, opts.color_space);
         
         % Estimate the best density for the optimization
+        density_folder = fullfile(output_img_folder, 'density-estimates', 'initial');
         [best_density, f_density, d_norm] =  estimate_density_scale( maya_send,  ...
-            opts, init_heat_map, fitness_foo, output_img_folder, num_goal);
+            opts, init_heat_map, fitness_foo, output_img_folder, ...
+            density_folder, num_goal, true);
         
         summary_data.best_density = best_density;
         summary_data.density_norm = d_norm;
@@ -214,7 +216,8 @@ try
                 summary_data, goal_img, goal_mask, opts);
         case 'grad'
             [heat_map_v, ~, ~] = do_gradient_solve( init_heat_map, ...
-                fitness_foo, paths_str, summary_data, goal_img, opts);
+                fitness_foo, paths_str, summary_data, goal_img, goal_mask, ...
+                opts, maya_send);
         case 'cmaes'
             % CMAES gets the data in column order so transpose it for it
             % to work
@@ -257,7 +260,7 @@ try
                 opts);
         case 'icm'
             [heat_map_v, ~, ~] = do_icm_solve( init_heat_map, fitness_foo, ...
-                paths_str, summary_data, goal_img, goal_mask, opts);
+                paths_str, summary_data, goal_img, goal_mask, opts, maya_send);
         otherwise
             solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ' ...
                 '''cmaes'', ''lhs'']'];

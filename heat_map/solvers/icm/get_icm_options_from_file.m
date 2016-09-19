@@ -27,6 +27,13 @@ for i=1:numel(L.options.OutputFcn)
     elseif isequal(L.options.OutputFcn{i}, @gradploterror)
         L.options.OutputFcn{i} = @(x, optimValues, state) gradploterror(x, ...
             optimValues, state, paths_str.errorfig);
+        
+    elseif isequal(L.options.OutputFcn{i}, @gradestimate_density_scale)
+        
+        L.options.OutputFcn{i} = @(x, optimValues, state) ...
+            gradestimate_density_scale(x, optimValues, state, ...
+            maya_send, L, init_heat_map, fitness_foo,  ...
+            paths_str.output_folder, num_goal);
     else
         foo_str = func2str(L.options.OutputFcn{i});
         error(['Unkown outputFnc ' foo_str ' in do_icm_solve']);
