@@ -11,17 +11,13 @@ function [ options_out ] = get_icm_options_from_file( L, init_heat_map,  ...
 num_goal = numel(goal_img);
 
 %% CreateSamplesFcn
-if isequal(L.options.CreateSamplesFcn, @generate_linspace_temperatures_icm)
     
-else
-    
-    valid_foo = { };
-    
-    if ~isequalFncCell(L.options.CreateSamplesFcn, valid_foo)
-        error(['Unkown GA CrossoverFcn @' func2str(L.options.CreateSamplesFcn) ...
-            ' in ' L.args_path]);
-    end
-    
+valid_foo = { @generate_random_temperatures_icm, ...
+    @generate_linspace_temperatures_icm};
+
+if ~isequalFncCell(L.options.CreateSamplesFcn, valid_foo)
+    error(['Unkown GA CrossoverFcn @' func2str(L.options.CreateSamplesFcn) ...
+        ' in ' L.args_path]);
 end
 
 %% UpdateSampleRangeFcn

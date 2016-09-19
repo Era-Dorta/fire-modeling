@@ -207,11 +207,22 @@ switch solver
         options.Display = 'iter'; % Give some output on each iteration
         options.FunctionTolerance = 1e-6;
         options.TemperatureNSamples = 25;
+        
+        % @generate_random_temperatures_icm, 
+        % @generate_linspace_temperatures_icm
         options.CreateSamplesFcn = @generate_linspace_temperatures_icm;
+        
+        % @linear_range_reduce_temperature_icm
         options.UpdateSampleRangeFcn = @linear_range_reduce_temperature_icm;
+        
+        % @data_term_score
         options.DataTermFcn = @data_term_score;
+        
+        % @pairwise_term
         options.PairWiseTermFcn = @pairwise_term;
         
+        % @gradient_time_limit, @gradplotbestgen, @gradsavescores, 
+        % @gradploterror
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
             @gradsavescores, @gradploterror};
     otherwise
