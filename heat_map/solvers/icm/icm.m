@@ -106,11 +106,11 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
     function [score] = calculate_score(i)
         
-        score = data_term_score(i) * 0.8;
+        score = data_term_score(i);
         
         n_i = getNeighborsIndices_icm(i, xyz);
         
-        score = score + pairwise_term(i, n_i) * 0.2;
+        score = score + pairwise_term(i, n_i);
         
     end
 
