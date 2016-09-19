@@ -212,7 +212,7 @@ switch solver
         % @generate_linspace_temperatures_icm
         options.CreateSamplesFcn = @generate_linspace_temperatures_icm;
         
-        % @linear_range_reduce_temperature_icm
+        % @linear_range_reduce_temperature_icm, @update_range_none_icm
         options.UpdateSampleRangeFcn = @linear_range_reduce_temperature_icm;
         
         % @data_term_score

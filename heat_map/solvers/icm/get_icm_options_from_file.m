@@ -11,25 +11,23 @@ function [ options_out ] = get_icm_options_from_file( L, init_heat_map,  ...
 num_goal = numel(goal_img);
 
 %% CreateSamplesFcn
-    
+
 valid_foo = { @generate_random_temperatures_icm, ...
     @generate_linspace_temperatures_icm};
 
 if ~isequalFncCell(L.options.CreateSamplesFcn, valid_foo)
-    error(['Unkown GA CrossoverFcn @' func2str(L.options.CreateSamplesFcn) ...
+    error(['Unkown ICM CreateSamplesFcn @' func2str(L.options.CreateSamplesFcn) ...
         ' in ' L.args_path]);
 end
 
 %% UpdateSampleRangeFcn
-if isequal(L.options.UpdateSampleRangeFcn, @linear_range_reduce_temperature_icm)
-    
-    
-elseif ~isequal(L.options.CreationFcn, @gacreationuniform) && ...
-        ~isequal(L.options.CreationFcn, @gacreationlinearfeasible)
-    
-    error(['Unkown ICM CreateSamplesFcn @' func2str(L.options.CreationFcn) ...
+
+valid_foo = { @update_range_none_icm, ...
+    @linear_range_reduce_temperature_icm};
+
+if ~isequalFncCell(L.options.UpdateSampleRangeFcn, valid_foo)
+    error(['Unkown ICM UpdateSampleRangeFcn @' func2str(L.options.UpdateSampleRangeFcn) ...
         ' in ' L.args_path]);
-    
 end
 
 %% DataTermFcn
