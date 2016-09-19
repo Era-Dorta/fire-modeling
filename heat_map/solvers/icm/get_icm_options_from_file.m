@@ -46,15 +46,12 @@ else
 end
 
 %% PairWiseTermFcn
-if isequal(L.options.PairWiseTermFcn, @pairwise_term)
+valid_foo = {@neighbour_distance_term_icm, @zero_pairwise_score_icm};
+
+for i=1:numel(L.options.PairWiseTermFcn)
     
-    
-else
-    
-    valid_foo = { };
-    
-    if ~isequalFncCell(L.options.PairWiseTermFcn, valid_foo)
-        error(['Unkown ICM PairWiseTermFcn @' func2str(L.options.PairWiseTermFcn) ...
+    if ~isequalFncCell(L.options.PairWiseTermFcn{i}, valid_foo)
+        error(['Unkown ICM PairWiseTermFcn @' func2str(L.options.PairWiseTermFcn{i}) ...
             ' in ' L.args_path]);
     end
     

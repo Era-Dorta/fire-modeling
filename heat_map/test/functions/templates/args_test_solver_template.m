@@ -218,8 +218,8 @@ switch solver
         % @data_term_score
         options.DataTermFcn = @data_term_score;
         
-        % @pairwise_term
-        options.PairWiseTermFcn = @pairwise_term;
+        % @neighbour_distance_term_icm, @zero_pairwise_score_icm
+        options.PairWiseTermFcn = {@neighbour_distance_term_icm};
         
         % @gradient_time_limit, @gradplotbestgen, @gradsavescores, 
         % @gradploterror

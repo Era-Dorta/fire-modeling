@@ -109,7 +109,7 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
         
         n_i = getNeighborsIndices_icm(i, xyz);
         
-        score = score + pairwise_term(i, n_i, x) * 0.2;
+        score = score + pairwise_term(i, n_i, x, options, lb, ub) * 0.2;
     end
 
     function [score] = data_term_score(i, x)
@@ -123,23 +123,14 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
         
     end
 
-    function score = pairwise_term(i, n_i, x)
-        score = ones(1, options.TemperatureNSamples);
+    function score = pairwise_term(i, n_i, x, options, lb, ub)
         
-        % Get the neighbours temperatures
-        neigh = x(1, n_i);
+        score = options.PairWiseTermFcn{1}(i, n_i, x, options, lb, ub);
         
-        if(~isempty(neigh))
-            % Inverse maximum neighbour distance
-            inv_factor = 1 / ((ub(i) - lb(i)) * numel(neigh));
-            
-            if ~isinf(inv_factor)
-                % Normalised sum of the absolute distance to each neighbour
-                % for all the possible voxel temperatures in x(:,i)
-                score = nansum(abs(bsxfun(@minus, x(:, i), neigh)), 2)' ...
-                    * inv_factor;
-            end
+        for k=2:numel(options.PairWiseTermFcn)
+            score = score + options.PairWiseTermFcn{k}(i, n_i, x, options, lb, ub);
         end
+
     end
 
 end
