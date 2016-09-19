@@ -43,7 +43,9 @@ if ~isempty(opts.density_scales_range)
         
         % Clear the cache of the fitness as it is saved with the same
         % temperature
-        clear_cache();
+        if opts.use_cache
+            clear_cache();
+        end
         
         % Move the render image to the save folder
         for k=1:num_goal

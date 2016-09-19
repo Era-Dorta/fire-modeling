@@ -1,6 +1,6 @@
 function [ error_v ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
-    id, num_goal, prior_fncs, prior_weights, color_space)
+    id, num_goal, prior_fncs, prior_weights, color_space, use_cache)
 %HEAT_MAP_FITNESS Heat map fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
@@ -9,8 +9,10 @@ function [ error_v ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
 
 persistent CACHE
 
-if(isempty(CACHE))
-    CACHE = containers.Map();
+if use_cache
+    if(isempty(CACHE))
+        CACHE = containers.Map();
+    end
 end
 
 output_img_folder = [scene_img_folder output_img_folder_name];
@@ -29,8 +31,10 @@ id_str = num2str(id);
 best_save_path = [output_img_folder  'current' id_str '-Cam'];
 
 for pop=1:size(heat_map_v, 1)
-    key = num2str(heat_map_v(pop, :));
-    if isKey(CACHE, key)
+    if use_cache
+        key = num2str(heat_map_v(pop, :));
+    end
+    if use_cache && isKey(CACHE, key)
         error_v(:, pop) = CACHE(key);
         
         if(error_v(pop) < best_error)
@@ -134,11 +138,13 @@ for pop=1:size(heat_map_v, 1)
         % Delete the temporary files
         rmdir(tmpdir, 's')
         
-        CACHE(key) = error_v(:,pop);
+        if use_cache
+            CACHE(key) = error_v(:,pop);
+        end
     end
 end
 
-if(best_in_cache && best_file_exists)
+if(use_cache && best_in_cache && best_file_exists)
     delete([best_save_path '*.tif']);
 end
 

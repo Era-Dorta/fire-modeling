@@ -34,6 +34,10 @@ for i=1:numel(L.options.OutputFcn)
             gradestimate_density_scale(x, optimValues, state, ...
             maya_send, L, init_heat_map, fitness_foo,  ...
             paths_str.output_folder, num_goal);
+        
+        if L.use_cache
+            error('use_cache must be set to false when using @gradestimate_density_scale');
+        end
     else
         foo_str = func2str(L.options.OutputFcn{i});
         error(['Unkown outputFnc ' foo_str ' in do_icm_solve']);

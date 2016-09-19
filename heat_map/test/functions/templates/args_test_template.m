@@ -114,6 +114,8 @@ density_scales_range = [];
 % Number of samples in the scale range
 n_density_scale = 25;
 
+use_cache = true;
+
 clearvars('multi_goal', 'symmetric');
 
 % Save all the variables in a mat file but the listed below
