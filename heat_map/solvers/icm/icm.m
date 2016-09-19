@@ -4,19 +4,9 @@ function [ x, fval, exitFlag, output ] = icm ( fun, x0, xyz, lb, ub, options)
 exitFlag = 0;
 num_dim = numel(x0);
 
-cur_score = ones(num_dim, 1);
-
-% Replicate x to be able to evaluate in parallel
-x = repmat(x0, options.TemperatureNSamples, 1);
-
 % Temperature range, it will be gradually deacreased for each voxel
 tlr = lb;
 tur = ub;
-
-% Copy the data using an interpolant for easy access using the xyz coords
-x_interp = scatteredInterpolant(xyz(:, 1), xyz(:, 2), xyz(:, 3), ...
-    x0', 'nearest', 'none' );
-warning('off', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
 optimValues.fval = 1;
 optimValues.iteration = 0;
@@ -31,6 +21,17 @@ if(options.TemperatureNSamples < 1)
 end
 
 state = 'init';
+
+cur_score = calculate_score_initial();
+
+% Replicate x to be able to evaluate in parallel
+x = repmat(x0, options.TemperatureNSamples, 1);
+
+% Copy the data using an interpolant for easy access using the xyz coords
+x_interp = scatteredInterpolant(xyz(:, 1), xyz(:, 2), xyz(:, 3), ...
+    x0', 'nearest', 'none' );
+warning('off', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
+
 [~, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
 
 state = 'iter';
@@ -133,6 +134,36 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
         for k=1:numel(options.PairWiseTermFcn)
             score = score + options.PairWiseTermFcn{k}(i, n_i, x, options, ...
                 lb, ub) * options.PairWiseTermFactors(k);
+        end
+        
+    end
+
+    function [score] = calculate_score_initial()
+        
+        x = x0;
+        
+        score = ones(num_dim, 1);
+        
+        % If data term function is eval render, just render once as the
+        % values are not changing
+        if(isempty(options.DataTermFcn) || (numel(options.DataTermFcn) == 1 ...
+                && ~isempty(strfind(func2str(options.DataTermFcn{1}), ...
+                'eval_render_function_always_icm'))))
+            
+            [data_score, optimValues] = options.DataTermFcn{1}(1, x,  ...
+                options, optimValues, lb, ub);
+            
+            score(:) = data_score * options.DataTermFactors(1);
+            
+            for k=1:num_dim
+                n_i = getNeighborsIndices_icm(k, xyz);
+                
+                score(k) = score(k) + pairwise_term(k, n_i);
+            end
+        else
+            for k=1:num_dim
+                score(k) = calculate_score(k);
+            end
         end
         
     end
