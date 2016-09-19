@@ -127,6 +127,8 @@ switch solver
         options.MaxFunEvals = maxFunEvals;
         options.Display = 'iter-detailed'; % Give some output on each iteration
         
+        % @gradient_time_limit, @gradplotbestgen, @gradsavescores,
+        % @gradploterror, @gradestimate_density_scale
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
             @gradsavescores, @gradploterror};
         
@@ -232,7 +234,7 @@ switch solver
         options.PairWiseTermFactors = [1];
         
         % @gradient_time_limit, @gradplotbestgen, @gradsavescores,
-        % @gradploterror
+        % @gradploterror, @gradestimate_density_scale
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
             @gradsavescores, @gradploterror};
         
