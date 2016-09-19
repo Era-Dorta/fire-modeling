@@ -23,9 +23,9 @@ optimValues.iteration = 0;
 optimValues.funcCount = 0;
 optimValues.message = 'Initial message';
 
-if(options.TemperatureNSamples < 2)
+if(options.TemperatureNSamples < 1)
     exitFlag = -1;
-    optimValues.message = 'TemperatureNSamples must be >= 2';
+    optimValues.message = 'TemperatureNSamples must be >= 1';
     disp(optimValues.message);
     return;
 end
@@ -116,7 +116,7 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
     function [score] = data_term_score(i)
         
-        score = zeros(1, options.TemperatureNSamples);
+        score = zeros(1, size(x, 1));
         
         for k=1:numel(options.DataTermFcn)
             [data_score, optimValues] = options.DataTermFcn{k}(i, x,  ...
@@ -128,7 +128,7 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
     function score = pairwise_term(i, n_i)
         
-        score = zeros(1, options.TemperatureNSamples);
+        score = zeros(1, size(x, 1));
         
         for k=1:numel(options.PairWiseTermFcn)
             score = score + options.PairWiseTermFcn{k}(i, n_i, x, options, ...

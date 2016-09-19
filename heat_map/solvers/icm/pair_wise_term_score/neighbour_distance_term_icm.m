@@ -1,5 +1,5 @@
-function score = neighbour_distance_term_icm(i, n_i, x, options, lb, ub)
-score = ones(1, options.TemperatureNSamples);
+function score = neighbour_distance_term_icm(i, n_i, x, ~, lb, ub)
+score = ones(1, size(x, 1));
 
 % Get the neighbours temperatures
 neigh = x(1, n_i);
