@@ -201,6 +201,7 @@ switch solver
         initCreationFnc = @gacreationheuristic3;
         creation_fnc_n_bins = 255;
     case 'icm'
+        options = struct();
         options.MaxIterations = max_ite;
         options.MaxFunctionEvaluations = maxFunEvals;
         options.Display = 'iter'; % Give some output on each iteration

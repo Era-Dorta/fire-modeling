@@ -9,7 +9,7 @@ function [args_path] = args_test53()
 %% Change common parameters
 data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'data');
 args_path = fullfile(data_dir, [mfilename('clas') '.mat']);
-args_test_template(args_path);
+args_test_template(args_path, false);
 
 solver = 'icm';
 
