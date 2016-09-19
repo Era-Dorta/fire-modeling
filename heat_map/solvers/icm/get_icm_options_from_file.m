@@ -10,6 +10,15 @@ function [ options_out ] = get_icm_options_from_file( L, init_heat_map,  ...
 
 num_goal = numel(goal_img);
 
+%% CreationFcn
+valid_foo = {@random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm, ...
+    @getInitHeatMapScaled_icm};
+
+if ~isequalFncCell(L.options.CreationFcn, valid_foo)
+    error(['Unkown ICM CreationFcn @' func2str(L.options.CreationFcn) ...
+        ' in ' L.args_path]);
+end
+
 %% CreateSamplesFcn
 
 valid_foo = { @generate_random_temperatures_icm, ...

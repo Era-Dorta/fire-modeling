@@ -12,9 +12,8 @@ options = get_icm_options_from_file( opts, init_heat_map,  ...
 LB = ones(init_heat_map.count, 1) * opts.LB;
 UB = ones(init_heat_map.count, 1) * opts.UB;
 
-% Initial guess for SA, is a row vector
-% init_guess = init_heat_map.v';
-InitialPopulation = getRandomInitPopulation( LB', UB', 1);
+% Initial guess for ICM
+InitialPopulation = options.CreationFcn(init_heat_map, LB', UB');
 
 % Save the initial value
 save(output_data_path, 'InitialPopulation');
