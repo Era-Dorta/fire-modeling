@@ -7,7 +7,7 @@ function [ heat_map_v, best_error, exitflag] = do_icm_solve( ...
 output_data_path = [paths_str.output_folder 'OutputData.mat'];
 
 options = get_icm_options_from_file( opts, init_heat_map,  ...
-    goal_img, goal_mask, output_data_path, paths_str, false);
+    goal_img, goal_mask, output_data_path, paths_str, false, fitness_foo);
 
 LB = ones(init_heat_map.count, 1) * opts.LB;
 UB = ones(init_heat_map.count, 1) * opts.UB;

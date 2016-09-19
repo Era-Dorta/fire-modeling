@@ -208,20 +208,20 @@ switch solver
         options.FunctionTolerance = 1e-6;
         options.TemperatureNSamples = 25;
         
-        % @generate_random_temperatures_icm, 
+        % @generate_random_temperatures_icm,
         % @generate_linspace_temperatures_icm
         options.CreateSamplesFcn = @generate_linspace_temperatures_icm;
         
         % @linear_range_reduce_temperature_icm, @update_range_none_icm
         options.UpdateSampleRangeFcn = @linear_range_reduce_temperature_icm;
         
-        % @data_term_score
-        options.DataTermFcn = @data_term_score;
+        % @zero_data_term_icm, @eval_render_function_always_icm
+        options.DataTermFcn = @eval_render_function_always_icm;
         
         % @neighbour_distance_term_icm, @zero_pairwise_score_icm
         options.PairWiseTermFcn = {@neighbour_distance_term_icm};
         
-        % @gradient_time_limit, @gradplotbestgen, @gradsavescores, 
+        % @gradient_time_limit, @gradplotbestgen, @gradsavescores,
         % @gradploterror
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
             @gradsavescores, @gradploterror};

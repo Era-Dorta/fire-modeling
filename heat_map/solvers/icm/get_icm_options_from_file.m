@@ -1,5 +1,5 @@
 function [ options_out ] = get_icm_options_from_file( L, init_heat_map,  ...
-    goal_img, goal_mask, output_data_path, paths_str, use_first)
+    goal_img, goal_mask, output_data_path, paths_str, use_first, fitness_foo)
 %GET_ICM_OPTIONS_FROM_FILE Sets ICM options
 %   [ OPTIONS_OUT ] = GET_ICM_OPTIONS_FROM_FILE( ARGS_PATH, INIT_HEAT_MAP,
 %      GOAL_IMG, GOAL_MASK, INIT_POPULATION_PATH, PATHS_STR) Given a mat
@@ -31,16 +31,23 @@ if ~isequalFncCell(L.options.UpdateSampleRangeFcn, valid_foo)
 end
 
 %% DataTermFcn
-if isequal(L.options.DataTermFcn, @data_term_score)
+valid_foo =  {@zero_data_term_icm};
+
+for i=1:numel(L.options.DataTermFcn)
     
-    
-else
-    
-    valid_foo = { };
-    
-    if ~isequalFncCell(L.options.DataTermFcn, valid_foo)
-        error(['Unkown ICM DataTermFcn @' func2str(L.options.DataTermFcn) ...
-            ' in ' L.args_path]);
+    if isequal(L.options.DataTermFcn{i}, @eval_render_function_always_icm)
+        
+        L.options.DataTermFcn{i} = @( i, x,  options, ...
+            optimValues, lb, ub) eval_render_function_always_icm ...
+            (i, x,  options, optimValues, lb, ub, fitness_foo);
+        
+    else
+        
+        if ~isequalFncCell(L.options.DataTermFcn{i}, valid_foo)
+            error(['Unkown ICM DataTermFcn @' func2str(L.options.DataTermFcn{i}) ...
+                ' in ' L.args_path]);
+        end
+        
     end
     
 end

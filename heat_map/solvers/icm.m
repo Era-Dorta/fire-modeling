@@ -50,7 +50,7 @@ while(true)
         x(:, i) = t;
         
         % Compute all the scores
-        new_score = calculate_score(i, x);
+        new_score = calculate_score(i);
         
         % Get the min
         [new_score, j] = min(new_score);
@@ -66,6 +66,7 @@ while(true)
         x(:, i) = cur_temp;
         
         [tlr, tur] = options.UpdateSampleRangeFcn(i, cur_temp, t, tlr, tur);
+        
     end
     
     optimValues.fval = mean(cur_score);
@@ -103,34 +104,37 @@ x = x(1,:);
 
 warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
-    function [score] = calculate_score(i, x)
+    function [score] = calculate_score(i)
         
-        score = data_term_score(i, x) * 0.8;
+        score = data_term_score(i) * 0.8;
         
         n_i = getNeighborsIndices_icm(i, xyz);
         
-        score = score + pairwise_term(i, n_i, x, options, lb, ub) * 0.2;
+        score = score + pairwise_term(i, n_i) * 0.2;
+        
     end
 
-    function [score] = data_term_score(i, x)
+    function [score] = data_term_score(i)
         
-        if true %mod(optimValues.iteration, 2) == 0
-            score = fun(x);
-            optimValues.funcCount = optimValues.funcCount + options.TemperatureNSamples;
-        else
-            score = ones(1, options.TemperatureNSamples);
+        [score, optimValues] = options.DataTermFcn{1}(i, x, options, ...
+            optimValues, lb, ub);
+        
+        for k=2:numel(options.DataTermFcn)
+            [data_score, optimValues] = options.DataTermFcn{k}(i, x,  ...
+                options, optimValues, lb, ub);
+            score = score + data_score;
         end
         
     end
 
-    function score = pairwise_term(i, n_i, x, options, lb, ub)
+    function score = pairwise_term(i, n_i)
         
         score = options.PairWiseTermFcn{1}(i, n_i, x, options, lb, ub);
         
         for k=2:numel(options.PairWiseTermFcn)
             score = score + options.PairWiseTermFcn{k}(i, n_i, x, options, lb, ub);
         end
-
+        
     end
 
 end
