@@ -206,8 +206,8 @@ switch solver
         options.Display = 'iter'; % Give some output on each iteration
         options.FunctionTolerance = 1e-6;
         options.TemperatureNSamples = 25;
-        options.CreateSamplesFcn = @generate_new_temperatures_icm;
-        options.UpdateSampleRangeFcn = @update_temperature_range_icm;
+        options.CreateSamplesFcn = @generate_linspace_temperatures_icm;
+        options.UpdateSampleRangeFcn = @linear_range_reduce_temperature_icm;
         options.DataTermFcn = @data_term_score;
         options.PairWiseTermFcn = @pairwise_term;
         

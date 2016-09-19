@@ -11,7 +11,7 @@ function [ options_out ] = get_icm_options_from_file( L, init_heat_map,  ...
 num_goal = numel(goal_img);
 
 %% CreateSamplesFcn
-if isequal(L.options.CreateSamplesFcn, @generate_new_temperatures_icm)
+if isequal(L.options.CreateSamplesFcn, @generate_linspace_temperatures_icm)
     
 else
     
@@ -25,7 +25,7 @@ else
 end
 
 %% UpdateSampleRangeFcn
-if isequal(L.options.UpdateSampleRangeFcn, @update_temperature_range_icm)
+if isequal(L.options.UpdateSampleRangeFcn, @linear_range_reduce_temperature_icm)
     
     
 elseif ~isequal(L.options.CreationFcn, @gacreationuniform) && ...

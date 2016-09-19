@@ -1,5 +1,5 @@
-function [lb, ub] = update_temperature_range_icm(i, cur_temp, t, lb, ub)
-%UPDATE_TEMPERATURE_RANGE_ICM
+function [lb, ub] = linear_range_reduce_temperature_icm(i, cur_temp, t, lb, ub)
+%LINEAR_RANGE_REDUCE_TEMPERATURE_ICM
 
 % [0,1] percentage of the space that will be discarded
 reduce_factor = 0.2;
