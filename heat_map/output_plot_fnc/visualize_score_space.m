@@ -12,6 +12,7 @@ L = load(data_file);
 in_data = [L.AllPopulation];
 scores = L.AllScores;
 
+% Not enough data
 if size(in_data, 1) < 2
     return;
 end
@@ -19,6 +20,12 @@ end
 pairDists = pdist(in_data, 'euclidean');
 
 Y = cmdscale(pairDists, 2); % Project pairDists to a 2 Dimensional space
+
+% Projection must have at least 2 dimensions to be drawn on a plane,
+% usually this means that all the input points have the same values
+if size(Y, 2) ~= 2
+    return;
+end
 
 %% Plot the data
 % Create a new figure
