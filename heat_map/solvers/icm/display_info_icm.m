@@ -4,6 +4,6 @@ if strcmp(options.Display, 'iter')
         disp('Iter F-count           f(x)');
     end
     fprintf('% 4d %7d    %.5e\n', optimValues.iteration, ...
-        optimValues.funcCount, optimValues.fval);
+        optimValues.funccount, optimValues.fval);
 end
 end

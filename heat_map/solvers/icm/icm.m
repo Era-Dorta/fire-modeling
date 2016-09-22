@@ -12,13 +12,13 @@ tur = ub;
 
 optimValues.fval = 1;
 optimValues.iteration = 0;
-optimValues.funcCount = 0;
-optimValues.message = 'Initial message';
+optimValues.funccount = 0;
+optimValues.procedure = 'Initial message';
 
 if(options.TemperatureNSamples < 1)
     exitFlag = -1;
-    optimValues.message = 'TemperatureNSamples must be >= 1';
-    disp(optimValues.message);
+    optimValues.procedure = 'TemperatureNSamples must be >= 1';
+    disp(optimValues.procedure);
     return;
 end
 
@@ -110,12 +110,13 @@ while(~stop)
 end
 
 %% Clean up, exit state
-disp(optimValues.message);
+disp(optimValues.procedure);
 
 state = 'done';
 fval = optimValues.fval;
 
-output = optimValues;
+output = struct('funcCount', optimValues.funccount, 'iterations', ...
+    optimValues.iteration, 'message', optimValues.procedure);
 output.tlr = tlr;
 output.tur = tur;
 
