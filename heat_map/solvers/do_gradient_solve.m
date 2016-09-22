@@ -21,7 +21,8 @@ save(output_data_path, 'InitialPopulation');
 
 if options.UseParallel
     warning('fminsearch in parallel to be implemented');
-    % TODO Do the search using one of this methods
+    % TODO Do the search using one of this methods, those methods only
+    % support fmincon, fminunc, lsqnonlin, lsqcurvefit
     % http://uk.mathworks.com/help/gads/multistart-class.html
     % http://uk.mathworks.com/help/gads/globalsearch-class.html
 end
