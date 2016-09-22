@@ -22,15 +22,24 @@ if(options.TemperatureNSamples < 1)
     return;
 end
 
-x = x0;
-[~, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
+% If data term function is eval render, just render once as the
+% values are not changing
+if(isempty(options.DataTermFcn) || (numel(options.DataTermFcn) == 1 ...
+        && ~isempty(strfind(func2str(options.DataTermFcn{1}), ...
+        'eval_render_function_always_icm'))))
+    use_common_dataterm = true;
+else
+    use_common_dataterm = false;
+end
+
+[~, optimValues] = call_output_fnc_icm(x0, options, optimValues, state);
 
 %% First "iteration" is just an evaluation of the initial point
 % Changing the state and calling twice the output fnc is needed to
 % replicate the behaviour of the other solvers
 state = 'iter';
 
-cur_score = calculate_score_all();
+cur_score = calculate_score_all(x0);
 
 optimValues.fval = mean(cur_score);
 
@@ -62,7 +71,7 @@ while(~stop)
         x(:, i) = t;
         
         % Compute all the scores
-        new_score = calculate_score(i);
+        new_score = calculate_score(i, x);
         
         % Get the min
         [new_score, j] = min(new_score);
@@ -80,6 +89,9 @@ while(~stop)
         [tlr, tur] = options.UpdateSampleRangeFcn(i, cur_temp, t, tlr, tur);
         
     end
+    
+    % Update the score in case approximations where used
+    cur_score = calculate_score_all(x(1,:));
     
     optimValues.fval = mean(cur_score);
     
@@ -115,17 +127,17 @@ x = x(1,:);
 warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
 %% Auxiliary functions
-    function [score] = calculate_score(i)
+    function [score] = calculate_score(i, x)
         
-        score = data_term_score(i);
+        score = data_term_score(i, x);
         
         n_i = getNeighborsIndices_icm(i, xyz);
         
-        score = score + pairwise_term(i, n_i);
+        score = score + pairwise_term(i, n_i, x);
         
     end
 
-    function [score] = data_term_score(i)
+    function [score] = data_term_score(i, x)
         
         score = zeros(1, size(x, 1));
         
@@ -137,7 +149,7 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
         
     end
 
-    function score = pairwise_term(i, n_i)
+    function score = pairwise_term(i, n_i, x)
         
         score = zeros(1, size(x, 1));
         
@@ -148,15 +160,12 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
         
     end
 
-    function [score] = calculate_score_all()
+    function [score] = calculate_score_all(x)
         
         score = ones(num_dim, 1);
         
-        % If data term function is eval render, just render once as the
-        % values are not changing
-        if(isempty(options.DataTermFcn) || (numel(options.DataTermFcn) == 1 ...
-                && ~isempty(strfind(func2str(options.DataTermFcn{1}), ...
-                'eval_render_function_always_icm'))))
+        % Compute data term only once for all the temperatures
+        if(use_common_dataterm)
             
             [data_score, optimValues] = options.DataTermFcn{1}(1, x,  ...
                 options, optimValues, lb, ub);
@@ -166,11 +175,12 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
             for k=1:num_dim
                 n_i = getNeighborsIndices_icm(k, xyz);
                 
-                score(k) = score(k) + pairwise_term(k, n_i);
+                score(k) = score(k) + pairwise_term(k, n_i, x);
             end
+            
         else
             for k=1:num_dim
-                score(k) = calculate_score(k);
+                score(k) = calculate_score(k, x);
             end
         end
         
