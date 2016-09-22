@@ -67,7 +67,7 @@ while(~stop)
         cur_temp = x(1, i);
         
         % Assign a different temperature to each copy of x
-        t = options.CreateSamplesFcn(i, options, tlr, tur);
+        t = options.CreateSamplesFcn(i, x(1,:), optimValues, options, tlr, tur);
         x(:, i) = t;
         
         % Compute all the scores
