@@ -1,6 +1,8 @@
 function [ x, fval, exitFlag, output ] = icm ( fun, x0, xyz, lb, ub, options)
 %ICM Iterative Conditional Modes parallel solver
 
+%% Initialisation
+state = 'init';
 exitFlag = 0;
 num_dim = numel(x0);
 
@@ -20,9 +22,17 @@ if(options.TemperatureNSamples < 1)
     return;
 end
 
-state = 'init';
+x = x0;
+[~, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
 
-cur_score = calculate_score_initial();
+%% First "iteration" is just an evaluation of the initial point
+% Changing the state and calling twice the output fnc is needed to
+% replicate the behaviour of the other solvers
+state = 'iter';
+
+cur_score = calculate_score_all();
+
+optimValues.fval = mean(cur_score);
 
 % Replicate x to be able to evaluate in parallel
 x = repmat(x0, options.TemperatureNSamples, 1);
@@ -32,11 +42,12 @@ x_interp = scatteredInterpolant(xyz(:, 1), xyz(:, 2), xyz(:, 3), ...
     x0', 'nearest', 'none' );
 warning('off', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
-[~, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
+display_info_icm(options, optimValues);
 
-state = 'iter';
+[stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
 
-while(true)
+%% Main loop
+while(~stop)
     
     current_score = mean(cur_score);
     
@@ -72,23 +83,21 @@ while(true)
     
     optimValues.fval = mean(cur_score);
     
+    optimValues.iteration = optimValues.iteration + 1;
+    
     display_info_icm(options, optimValues);
     
     [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
     if (stop)
         state = 'interrupt';
         exitFlag = -1;
-        break;
+    else
+        [stop, optimValues] = check_exit_conditions_icm(options, optimValues, current_score);
     end
     
-    [stop, optimValues] = check_exit_conditions_icm(options, optimValues, current_score);
-    if (stop)
-        break;
-    end
-    
-    optimValues.iteration = optimValues.iteration + 1;
 end
 
+%% Clean up, exit state
 disp(optimValues.message);
 
 state = 'done';
@@ -105,6 +114,7 @@ x = x(1,:);
 
 warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
+%% Auxiliary functions
     function [score] = calculate_score(i)
         
         score = data_term_score(i);
@@ -138,9 +148,7 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
         
     end
 
-    function [score] = calculate_score_initial()
-        
-        x = x0;
+    function [score] = calculate_score_all()
         
         score = ones(num_dim, 1);
         
