@@ -71,7 +71,7 @@ while(~stop)
         x(:, i) = t;
         
         % Compute all the scores
-        new_score = calculate_score(i, x);
+        new_score = calculate_score_approx(i, x);
         
         % Get the min
         [new_score, j] = min(new_score);
@@ -128,6 +128,28 @@ x = x(1,:);
 warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
 %% Auxiliary functions
+    function [score] = calculate_score_approx(i, x)
+        
+        score = data_term_score_approx(i, x);
+        
+        n_i = getNeighborsIndices_icm(i, xyz, options.NeighbourhoodSize);
+        
+        score = score + pairwise_term(i, n_i, x);
+        
+    end
+
+    function [score] = data_term_score_approx(i, x)
+        
+        score = zeros(1, size(x, 1));
+        
+        for k=1:numel(options.DataTermFcn)
+            [data_score, optimValues] = options.DataTermApproxFcn{k}(i, x,  ...
+                options, optimValues, lb, ub);
+            score = score + data_score * options.DataTermApproxFactors(k);
+        end
+        
+    end
+
     function [score] = calculate_score(i, x)
         
         score = data_term_score(i, x);

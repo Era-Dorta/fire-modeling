@@ -223,11 +223,19 @@ switch solver
         % @linear_range_reduce_temperature_icm, @update_range_none_icm
         options.UpdateSampleRangeFcn = @linear_range_reduce_temperature_icm;
         
-        % @zero_data_term_icm, @eval_render_function_always_icm
+        % @zero_data_term_icm, @eval_render_function_always_icm,
+        % @eval_render_function_half_ite_icm
         options.DataTermFcn = {@eval_render_function_always_icm};
         
         % Factor that multiplies the result of each data term
         options.DataTermFactors = [1];
+        
+        % @zero_data_term_icm, @eval_render_function_always_icm,
+        % @eval_render_function_half_ite_icm
+        options.DataTermApproxFcn = {};
+        
+        % Factor that multiplies the result of each data term
+        options.DataTermApproxFactors = [];        
         
         % @neighbour_distance_term_icm, @zero_pairwise_score_icm
         options.PairWiseTermFcn = {@neighbour_distance_term_icm};

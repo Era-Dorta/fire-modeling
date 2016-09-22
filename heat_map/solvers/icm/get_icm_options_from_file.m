@@ -106,6 +106,47 @@ for i=1:numel(L.options.DataTermFcn)
     
 end
 
+%% DataTermApproxFcn
+if isempty(L.options.DataTermApproxFactors)
+    L.options.DataTermApproxFactors = L.options.DataTermFactors;
+end
+
+% If not specified, just copy from data term
+if isempty(L.options.DataTermApproxFcn)
+    L.options.DataTermApproxFcn = L.options.DataTermFcn;    
+else
+    valid_foo =  {@zero_data_term_icm};
+    
+    if numel(L.options.DataTermApproxFcn) ~= numel(L.options.DataTermApproxFactors)
+        error(['ICM there are ' num2str(numel(L.options.DataTermApproxFcn))  ...
+            ' dataterm functions and ' num2str(numel(L.options.DataTermApproxFactors)) ...
+            ' but both must be the same']);
+    end
+    
+    for i=1:numel(L.options.DataTermApproxFcn)
+        
+        if isequal(L.options.DataTermApproxFcn{i}, @eval_render_function_always_icm)
+            
+            L.options.DataTermApproxFcn{i} = @( i, x,  options, ...
+                optimValues, lb, ub) eval_render_function_always_icm ...
+                (i, x,  options, optimValues, lb, ub, fitness_foo);
+            
+        elseif isequal(L.options.DataTermApproxFcn{i}, @eval_render_function_half_ite_icm)
+            
+            L.options.DataTermApproxFcn{i} = @( i, x,  options, ...
+                optimValues, lb, ub) eval_render_function_half_ite_icm ...
+                (i, x,  options, optimValues, lb, ub, fitness_foo);
+            
+        else
+            
+            if ~isequalFncCell(L.options.DataTermApproxFcn{i}, valid_foo)
+                error(['Unkown ICM DataTermApproxFcn @' func2str(L.options.DataTermApproxFcn{i}) ...
+                    ' in ' L.args_path]);
+            end
+        end
+    end
+    
+end
 %% PairWiseTermFcn
 
 if numel(L.options.PairWiseTermFcn) ~= numel(L.options.PairWiseTermFactors)
