@@ -100,6 +100,12 @@ for i=1:numel(goal_imgs)
     % threshold, this will be usefull for edge detection
     goal_mask_imgs{i} = alpha{i} > bin_mask_threshold(i);
     
+    % Extend mask to cover a square
+    [idx, idy] = find(goal_mask_imgs{i});    
+    idx_m(1) = min(idx); idx_m(2) = max(idx);
+    idy_m(1) = min(idy); idy_m(2) = max(idy);
+    goal_mask_imgs{i}(idx_m(1):idx_m(2), idy_m(1):idy_m(2)) = 1;
+    
     % TODO The same should be done with the mask images, either initialize
     % the temperatures to all active, 2000K or 1500K render once to get
     % synthetic image or add the images as another argument
