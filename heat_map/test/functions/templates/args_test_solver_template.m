@@ -213,6 +213,8 @@ switch solver
         options.Display = 'iter'; % Give some output on each iteration
         options.FunctionTolerance = 1e-6;
         options.TemperatureNSamples = 25;
+        % 0 -> 6 neighbours, 1 -> 18, 2 -> 26, 3 -> 124, etc
+        options.NeighbourhoodSize = 0; 
         
         % @generate_random_temperatures_icm,
         % @generate_linspace_temperatures_icm

@@ -131,7 +131,7 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
         
         score = data_term_score(i, x);
         
-        n_i = getNeighborsIndices_icm(i, xyz);
+        n_i = getNeighborsIndices_icm(i, xyz, options.NeighbourhoodSize);
         
         score = score + pairwise_term(i, n_i, x);
         
@@ -173,7 +173,7 @@ warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
             score(:) = data_score * options.DataTermFactors(1);
             
             for k=1:num_dim
-                n_i = getNeighborsIndices_icm(k, xyz);
+                n_i = getNeighborsIndices_icm(k, xyz, options.NeighbourhoodSize);
                 
                 score(k) = score(k) + pairwise_term(k, n_i, x);
             end
