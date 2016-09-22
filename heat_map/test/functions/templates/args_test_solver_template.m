@@ -216,8 +216,8 @@ switch solver
         % 0 -> 6 neighbours, 1 -> 18, 2 -> 26, 3 -> 124, etc
         options.NeighbourhoodSize = 0; 
         
-        % @generate_random_temperatures_icm,
-        % @generate_linspace_temperatures_icm
+        % @generate_random_temperatures_icm, @generate_linspace_temperatures_icm
+        % @generate_gaussian_temperatures_icm 
         options.CreateSamplesFcn = @generate_linspace_temperatures_icm;
         
         % @linear_range_reduce_temperature_icm, @update_range_none_icm

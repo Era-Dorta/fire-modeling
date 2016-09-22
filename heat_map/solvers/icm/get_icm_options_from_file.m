@@ -61,7 +61,7 @@ end
 %% CreateSamplesFcn
 
 valid_foo = { @generate_random_temperatures_icm, ...
-    @generate_linspace_temperatures_icm};
+    @generate_linspace_temperatures_icm, @generate_gaussian_temperatures_icm};
 
 if ~isequalFncCell(L.options.CreateSamplesFcn, valid_foo)
     error(['Unkown ICM CreateSamplesFcn @' func2str(L.options.CreateSamplesFcn) ...
