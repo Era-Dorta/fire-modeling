@@ -19,6 +19,13 @@ InitialPopulation = opts.initGuessFnc(init_heat_map, LB', UB');
 % Save the initial value
 save(output_data_path, 'InitialPopulation');
 
+if options.UseParallel
+    warning('fminsearch in parallel to be implemented');
+    % TODO Do the search using one of this methods
+    % http://uk.mathworks.com/help/gads/multistart-class.html
+    % http://uk.mathworks.com/help/gads/globalsearch-class.html
+end
+
 %% Call the gradient descent optimization
 startTime = tic;
 
