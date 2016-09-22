@@ -121,11 +121,11 @@ switch solver
         options.OutputFcns = @sa_time_limit;
     case 'grad'
         % Get default values
-        options = optimoptions(@fmincon);
+        options = optimset(@fminsearch);
         
         options.MaxIter = max_ite;
         options.MaxFunEvals = maxFunEvals;
-        options.Display = 'iter-detailed'; % Give some output on each iteration
+        options.Display = 'iter'; % Give some output on each iteration
         
         % @gradient_time_limit, @gradplotbestgen, @gradsavescores,
         % @gradploterror, @gradestimate_density_scale

@@ -13,12 +13,6 @@ options = get_icm_options_from_file( opts, init_heat_map,  ...
 LB = ones(init_heat_map.count, 1) * opts.LB;
 UB = ones(init_heat_map.count, 1) * opts.UB;
 
-A = [];
-b = [];
-Aeq = [];
-beq = [];
-nonlcon = [];
-
 % Initial guess for gradient solver, is a row vector
 InitialPopulation = opts.initGuessFnc(init_heat_map, LB', UB');
 
@@ -28,8 +22,8 @@ save(output_data_path, 'InitialPopulation');
 %% Call the gradient descent optimization
 startTime = tic;
 
-[heat_map_v, best_error, exitflag] = fmincon(fitness_foo, InitialPopulation, ...
-    A, b, Aeq, beq, LB, UB, nonlcon, options);
+[heat_map_v, best_error, exitflag] = fminsearch(fitness_foo, ...
+    InitialPopulation, options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
