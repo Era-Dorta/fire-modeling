@@ -30,21 +30,21 @@ end
 %% Call the gradient descent optimization
 startTime = tic;
 
-[heat_map_v, best_error, exitflag] = fminsearch(fitness_foo, ...
+[heat_map_v, best_error, exitflag, output] = fminsearch(fitness_foo, ...
     InitialPopulation, options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
-%% If grad_time_limit made it stop, @gradsavescores was not called, so we
+%% If grad_time_limit made it stop, call the functions to perform the save
 % do it manually here
 if exitflag == -1 % Fail by output function
-    for i=1:numel(opts.options.OutputFcn) % Check for gradsavescores
-        if isequal(opts.options.OutputFcn{i}, @gradsavescores)
-            % Call the anonymous version which already includes the save path
-            options.OutputFcn{i}([], [], 'done');
-            break;
-        end
+    optimValues = struct('funccount', output.funcCount, 'iteration', output.iterations, ...
+        'fval', best_error, 'procedure', output.message);
+    
+    for i=1:numel(opts.options.OutputFcn)
+        % Call the anonymous versions which already include the inputs
+        options.OutputFcn{i}(heat_map_v, optimValues, 'done');
     end
 end
 
