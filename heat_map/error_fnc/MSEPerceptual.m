@@ -3,6 +3,8 @@ function Mean_Square_Error= MSEPerceptual(Reference_Image, Target_Image, ...
 %MSEPERCEPTUAL MSE using color
 %   MEAN_SQUARE_ERROR= MSEPERCEPTUAL(REFERENCE_IMAGE, TARGET_IMAGE, ...
 %    REFERENCE_MASK, TARGET_MASK)
+%
+%   See also MSE
 
 Mean_Square_Error = 0;
 

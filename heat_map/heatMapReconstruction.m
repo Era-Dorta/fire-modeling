@@ -58,7 +58,7 @@ try
     num_goal = numel(opts.goal_img_path);
     
     % For MSE resize the goal image to match the synthetic image
-    if isequalFncCell(opts.error_foo{1}, {@MSE, @MSEPerceptual})
+    if isequalFncCell(opts.error_foo{1}, {@MSE, @MSEPerceptual, @MSEPerceptualExp})
         resize_goal = true;
     else
         resize_goal = false;

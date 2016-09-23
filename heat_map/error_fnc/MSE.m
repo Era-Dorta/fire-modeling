@@ -1,9 +1,10 @@
 function Mean_Square_Error= MSE(Reference_Image, Target_Image, ...
     reference_mask, target_mask)
-
-% Takes two images (2D) and returns Mean Square Error
-% Be aware Matrix dimensions must agree
-
+%MSE Mean square error between images
+%   MEAN_SQUARE_ERROR= MSE(REFERENCE_IMAGE, TARGET_IMAGE, ...
+%    REFERENCE_MASK, TARGET_MASK) Takes two images (2D) and returns 
+%    Mean Square Error, be aware Matrix dimensions must agree
+%
 % written by Amir Pasha Mahmoudzadeh
 % Wright State University
 % Biomedical Imaging Lab
