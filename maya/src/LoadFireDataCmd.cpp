@@ -208,20 +208,19 @@ MStatus LoadFireDataCmd::load_fluid_data() {
 			// RGBA components, double, 8 bytes
 			read_bin_rgba(fp, r, g, b, a);
 
-			float max_val = static_cast<float>(std::max(std::max(r, g), b));
+			double max_val = static_cast<float>(std::max(std::max(r, g), b));
 
 			// Divide by 256 to get the rgb values in [0..1]
-			max_val =
-					static_cast<float>(max_val * 0.00390625f * scale + offset);
+			max_val = max_val * 0.00390625 * scale + offset;
 
 			// Save the value in the array
 			switch (type) {
 			case TEMPERATURE: {
-				fluidFn.temperature()[fluidFn.index(x, y, z)] = max_val;
+				fluidFn.temperature()[fluidFn.index(x, y, z)] = static_cast<float>(max_val);
 				break;
 			}
 			case DENSITY: {
-				fluidFn.density()[fluidFn.index(x, y, z)] = max_val;
+				fluidFn.density()[fluidFn.index(x, y, z)] = static_cast<float>(max_val);
 				break;
 			}
 			}

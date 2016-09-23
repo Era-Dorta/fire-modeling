@@ -170,7 +170,7 @@ MStatus SaveFireDataCmd::save_fluid_internal(const unsigned fluidRes[3],
 						bin_write(fp, reinterpret_cast<const char*>(&j), 4);
 
 						// Save as RGBA, read file will divide by 256
-						density_val *= 256;
+						density_val *= 256.0;
 						bin_write(fp,
 								reinterpret_cast<const char*>(&density_val), 8);
 						bin_write(fp, zeroc, 8);
