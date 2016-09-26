@@ -48,7 +48,7 @@ if optimValues.iteration == 0
     xlabel('Iteration')
     ylabel('Error')
     set(gca,'xlim', [0, 1]);
-    set(gca,'ylim', [0, 1]);
+%     set(gca,'ylim', [0, 1]);
     
     ERROR = optimValues.fval;
 else
