@@ -220,6 +220,8 @@ switch solver
         % @generate_gaussian_temperatures_icm 
         options.CreateSamplesFcn = @generate_linspace_temperatures_icm;
         
+        options.GenTempStd = 200;
+        
         % @linear_range_reduce_temperature_icm, @update_range_none_icm
         options.UpdateSampleRangeFcn = @linear_range_reduce_temperature_icm;
         
