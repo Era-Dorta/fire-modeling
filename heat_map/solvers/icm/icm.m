@@ -15,6 +15,15 @@ optimValues.iteration = 0;
 optimValues.funccount = 0;
 optimValues.procedure = 'Initial message';
 
+if options.DataTermEvalVM > 0.5
+    % More than 50% evaluations, use random generator
+    options.DataTermEvalVMRand = true;    
+else
+    % Less than 50% use mod to eval without probabilities
+    options.DataTermEvalVMRand = false;
+    options.DataTermEvalVM = round(1 / options.DataTermEvalVM);
+end
+
 if(options.TemperatureNSamples < 1)
     exitFlag = -1;
     optimValues.procedure = 'TemperatureNSamples must be >= 1';

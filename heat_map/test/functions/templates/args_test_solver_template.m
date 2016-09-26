@@ -236,6 +236,11 @@ switch solver
         
         % Factor that multiplies the result of each data term
         options.DataTermApproxFactors = [];        
+
+        % For use with eval_render_function_half_ite_icm, number of voxels
+        % that use the real eval function
+        % 0 -> 0%, 0.5 -> 50%, 1 -> 100%
+        options.DataTermEvalVM = 0.50;
         
         % @neighbour_distance_term_icm, @zero_pairwise_score_icm
         options.PairWiseTermFcn = {@neighbour_distance_term_icm};
