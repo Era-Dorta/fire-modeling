@@ -48,7 +48,6 @@ if optimValues.iteration == 0
     xlabel('Iteration')
     ylabel('Error')
     set(gca,'xlim', [0, 1]);
-%     set(gca,'ylim', [0, 1]);
     
     ERROR = optimValues.fval;
 else
@@ -68,6 +67,9 @@ plot(0:optimValues.iteration, ERROR, '-rx');
 if optimValues.iteration == 0
     % It has to be called after at least one plot(...)
     legend('Error');
+    
+    ylim1 = get(gca, 'ylim');
+    set(gca,'ylim', [0, ylim1(2)]);
 end
 
 hold off;
