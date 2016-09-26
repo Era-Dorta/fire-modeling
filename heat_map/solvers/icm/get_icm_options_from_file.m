@@ -155,7 +155,8 @@ if numel(L.options.PairWiseTermFcn) ~= numel(L.options.PairWiseTermFactors)
         ' but both must be the same']);
 end
 
-valid_foo = {@neighbour_distance_term_icm, @zero_pairwise_score_icm};
+valid_foo = {@neighbour_distance_term_icm, @zero_pairwise_score_icm, ...
+    @neighbour_distance_exp_term_icm};
 
 for i=1:numel(L.options.PairWiseTermFcn)
     
