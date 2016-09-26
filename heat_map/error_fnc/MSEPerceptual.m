@@ -26,12 +26,12 @@ for i=1:numel(Reference_Image)
     Mean_Square_Error = Mean_Square_Error + sum(error_image(:)) / valid_pixels;
 end
 
-% Normalize by the number of goal images and by the maximum difference
-% squared (pixels are in the range of 0..255) so that the error goes from
-% 0 to 1
-Mean_Square_Error = Mean_Square_Error ./ (numel(Reference_Image) * sqrt(3*(255^2)));
+% Normalize by the number of goal images
+Mean_Square_Error = Mean_Square_Error ./ numel(Reference_Image);
 
-assert_valid_range_in_0_1(Mean_Square_Error);
+assert(all(~isinf(Mean_Square_Error)), 'X contains Inf');
+assert(all(~isnan(Mean_Square_Error)), 'X contains NaN');
+assert(all(Mean_Square_Error >= 0), 'X is < 0');
 
 end
 
