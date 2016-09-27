@@ -1,9 +1,15 @@
-function plotHeatMap( heat_map, scale_factor )
+function plotHeatMap( heat_map, scale_factor, new_fig )
 %PLOTHEATMAP Plots the heat map given as parameter
 %   PLOTHEATMAP( HEAT_MAP ) Plot the heat map
 %
 %   PLOTHEATMAP( HEAT_MAP, SCALE_FACTOR ) Plot the heat map, HEAT_MAP.V are
 %   rescaled before plotting HEAT_MAP.V = HEAT_MAP.V * SCALE_FACTOR
+
+persistent FIG_H
+
+if isempty(FIG_H) || nargin <= 2 || new_fig 
+    FIG_H = figure;
+end
 
 % Do a simple color mapping from the temperatures
 colors = heat_map.v;
@@ -19,17 +25,19 @@ if nargin == 2 || max(colors) > 1
     colors = colors * scale_factor;
 end
 
-figure;
+set(groot, 'CurrentFigure', FIG_H);
 hold on;
 
 % Set background color to gray
 set(gca,'Color',[0.8 0.8 0.8]);
 
-% Plot each point as a poligon patch to be able to have transparency
-pb=patch(heat_map.xyz(:,1), heat_map.xyz(:,3), heat_map.xyz(:,2), colors, 'edgecolor','none');
+% Plot points as circles
+scatter3(heat_map.xyz(:,1), heat_map.xyz(:,3), heat_map.xyz(:,2), 25, colors, 'MarkerFaceColor', 'flat');
+alpha(0.01);
 
-% Set transparency
-alpha(pb, .1);
+% Plot each point as a poligon patch to be able to have transparency
+% pb=patch(heat_map.xyz(:,1), heat_map.xyz(:,3), heat_map.xyz(:,2), colors, 'edgecolor','none');
+% alpha(pb, .1);
 
 % Colors goes into a colormap, 'hot' is a good one for flames, goes from
 % black to white

@@ -10,7 +10,9 @@ function child = plotCombine8( parent1, parent2)
 close all;
 if nargin == 0
     parent1 = read_raw_file('~/h0.raw');
+    parent1.v = parent1.v * 0.5;
     parent2 = read_raw_file('~/h1.raw');
+    parent2.v = parent2.v * 1.5;
 end
 
 % Assuming both parents have the same xyz
@@ -53,29 +55,36 @@ v_max = [x1, y1, z1;
     x1, y2, z2;
     x2, y2, z2];
 
-plot_c = 'bggbgbbg';
+plot_c = {'bggbgbbg', 'gbbgbggb', 'bggbgbbg',};
+
 
 names = {'parent1', 'parent2', 'child'};
 
 for i=1:3
     
-    plotHeatMap(hm{i});
+    plotHeatMap(hm{i}, 1/0.0162);
     
     fig = gcf;
     fig.Name = names{i};
     
     hold on;
     
-    % All bounding boxes
-    for j=1:size(v_min, 1)
-        plotBbox(v_min(j,:), v_max(j,:), plot_c(j));
+    if i == 3
+        % All bounding boxes
+        for j=1:size(v_min, 1)
+            plotBbox(v_min(j,:), v_max(j,:), plot_c{i}(j));
+        end
     end
     
     alpha(0.2);
     axis equal; % Same units for all the axis
-    view(3);
+    %view(3);
+    view(-56, 16);
     
-    legend('Heat Values', 'Parent 1', 'Parent 2');
+    if i == 3
+        legend('Heat Values', 'Parent 1', 'Parent 2');
+    end
+    
     hold off;
 end
 
