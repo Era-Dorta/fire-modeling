@@ -39,10 +39,36 @@ Zq = fitToRange(Znew, 0.5, newsize(3) + 0.5, 0.5, inheatmap.size(3) + 0.5);
 % between the last two known points creating too large and negative
 % temperatures. Nearest fills the space with the closest neighbour.
 % So we don't extrapolate values
+
 fs = scatteredInterpolant(inheatmap.xyz(:, 1), inheatmap.xyz(:, 2), ...
     inheatmap.xyz(:, 3), inheatmap.v, 'linear', 'none' );
 
-Vq = fs(Xq, Yq, Zq);
+% Convert InterpEmptyTri3DWarn from warnings to errors
+s = warning('Query', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
+warning('error', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId'); %#ok<CTPCT>
+
+try
+    Vq = fs(Xq, Yq, Zq);
+    
+catch ME
+    % In case of failure try with dense interpolant
+    if (strcmp(ME.identifier,'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId'))
+        volumeSize = inheatmap.size;
+        V = zeros(volumeSize(1), volumeSize(2), volumeSize(3));
+        vInd = sub2ind(volumeSize, inheatmap.xyz(:,1), inheatmap.xyz(:,2), inheatmap.xyz(:,3));
+        V(vInd) = inheatmap.v;
+        
+        fs = griddedInterpolant(V, 'linear', 'none');
+        
+        Vq = fs(Xq, Yq, Zq);
+    else
+        warning(s);
+        rethrow(ME);
+    end
+end
+
+% Restore the warning to previous state
+warning(s);
 
 % Extrapolated values are NaN, set them to zero
 Vq(isnan(Vq)) = 0;
