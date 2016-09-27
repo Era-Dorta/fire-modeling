@@ -34,6 +34,7 @@ alpha(pb, .1);
 % Colors goes into a colormap, 'hot' is a good one for flames, goes from
 % black to white
 colormap('hot');
+caxis([0 1]);
 
 set(gca,'xlim', [0, heat_map.size(1)]);
 set(gca,'ylim', [0, heat_map.size(2)]);
