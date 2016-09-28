@@ -20,10 +20,6 @@ if(~isempty(neigh))
         
         score = sum(exp(score), 2)' * options.NeighDistExpFactor(2) ...
             - numel(neigh);
-        
-%         score = sum(exp((bsxfun(@minus, x(:, i), neigh).^2) * ...
-%             inv_factor * options.NeighDistExpFactor(1)), 2)' * ...
-%             options.NeighDistExpFactor(2)  - numel(neigh);
     end
 end
 end
