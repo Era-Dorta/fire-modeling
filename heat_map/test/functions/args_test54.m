@@ -1,5 +1,5 @@
 function [args_path] = args_test54()
-%ARGS_TEST53 GRAD Vox_bin_00841 32 close, Vox_bin_00841 Goal resize
+%ARGS_TEST54 GRAD Vox_bin_00841 32 close, Vox_bin_00841 Goal resize
 %   ARGS_PATH = ARGS_TEST54() Returns in ARGS_PATH the file path of a .mat
 %   file with arguments defined here.
 %
