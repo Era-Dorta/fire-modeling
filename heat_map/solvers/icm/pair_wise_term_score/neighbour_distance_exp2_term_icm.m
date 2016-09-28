@@ -1,5 +1,5 @@
 function score = neighbour_distance_exp2_term_icm(i, n_i, x, options, lb, ub)
-%NEIGHBOUR_DISTANCE_EXP2_TERM_ICM sum(exp((x - neigh)^2*w0))*w1
+%NEIGHBOUR_DISTANCE_EXP2_TERM_ICM sum(exp(((x - neigh)^2)*w0))*w1
 
 score = ones(1, size(x, 1));
 
