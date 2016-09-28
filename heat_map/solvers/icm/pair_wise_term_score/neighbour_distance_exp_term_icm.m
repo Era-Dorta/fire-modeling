@@ -15,7 +15,7 @@ if(~isempty(neigh))
         % exp(0) = 1, so remove number of neighbours to have 0 error when
         % they are all the same
         score = sum(exp(abs(bsxfun(@minus, x(:, i), neigh)) * ...
-            inv_factor * options.NeighDistExpFactor), 2)' - numel(neigh);
+            inv_factor * options.NeighDistExpFactor(1)), 2)' - numel(neigh);
     end
 end
 end

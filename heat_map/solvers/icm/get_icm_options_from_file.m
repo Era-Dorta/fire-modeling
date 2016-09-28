@@ -156,7 +156,7 @@ if numel(L.options.PairWiseTermFcn) ~= numel(L.options.PairWiseTermFactors)
 end
 
 valid_foo = {@neighbour_distance_term_icm, @zero_pairwise_score_icm, ...
-    @neighbour_distance_exp_term_icm};
+    @neighbour_distance_exp_term_icm, @neighbour_distance_exp2_term_icm};
 
 for i=1:numel(L.options.PairWiseTermFcn)
     

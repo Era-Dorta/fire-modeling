@@ -245,12 +245,12 @@ switch solver
         options.DataTermEvalVM = 0.50;
         
         % @neighbour_distance_term_icm, @zero_pairwise_score_icm,
-        % @neighbour_distance_exp_term_icm
+        % @neighbour_distance_exp_term_icm, @neighbour_distance_exp2_term_icm
         options.PairWiseTermFcn = {@neighbour_distance_term_icm};
         
         % Used with neighbour_distance_exp_term_icm, min 1, larger values
         % cause larger distances to be penalised more
-        options.NeighDistExpFactor = 20;
+        options.NeighDistExpFactor = [20, 1];
         
         % Factor that multiplies the result of each pairwise term
         options.PairWiseTermFactors = [1];
