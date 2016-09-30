@@ -1,15 +1,22 @@
 function [ outheapmap ] = resampleHeatMap( inheatmap, mode,  XYZnew)
 % Resamples the heat map, either by half or by double the size
 
-if strcmp(mode,'up')
-    % Upsample the volume
-    newsize = inheatmap.size * 2;
-else
-    if strcmp(mode,'down')
-        % Down sample the volume
-        newsize = round(inheatmap.size / 2);
+if ischar(mode)
+    if strcmp(mode,'up')
+        % Upsample the volume
+        newsize = inheatmap.size * 2;
     else
-        error('mode must be "up" or "down"');
+        if strcmp(mode,'down')
+            % Down sample the volume
+            newsize = round(inheatmap.size / 2);
+        else
+            error('mode must be "up", "down", positive integer of size 1x1 or 1x3');
+        end
+    end
+else
+    newsize = mode;
+    if numel(newsize) == 1
+        newsize = repmat(newsize, 1, 3);
     end
 end
 
