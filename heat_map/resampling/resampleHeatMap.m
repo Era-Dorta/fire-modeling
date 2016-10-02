@@ -50,6 +50,11 @@ Zq = fitToRange(Znew, 0.5, newsize(3) + 0.5, 0.5, inheatmap.size(3) + 0.5);
 fs = scatteredInterpolant(inheatmap.xyz(:, 1), inheatmap.xyz(:, 2), ...
     inheatmap.xyz(:, 3), inheatmap.v, 'linear', 'none' );
 
+% If increasing the size, do extrapolation
+if sum(inheatmap.size) <  sum(newsize)
+    fs.ExtrapolationMethod = 'linear';
+end
+
 % Convert InterpEmptyTri3DWarn from warnings to errors
 s = warning('Query', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 warning('error', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId'); %#ok<CTPCT>
@@ -61,11 +66,11 @@ catch ME
     % In case of failure try with dense interpolant
     if (strcmp(ME.identifier,'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId'))
         volumeSize = inheatmap.size;
-        V = zeros(volumeSize(1), volumeSize(2), volumeSize(3));
+        V = zeros(volumeSize(1), volumeSize(2), volumeSize(3)) + mean(inheatmap.v) - std(inheatmap.v);
         vInd = sub2ind(volumeSize, inheatmap.xyz(:,1), inheatmap.xyz(:,2), inheatmap.xyz(:,3));
         V(vInd) = inheatmap.v;
         
-        fs = griddedInterpolant(V, 'linear', 'none');
+        fs = griddedInterpolant(V, 'linear', 'nearest');
         
         Vq = fs(Xq, Yq, Zq);
     else
@@ -83,7 +88,7 @@ Vq(isnan(Vq)) = 0;
 %% Build the output
 
 if nargin == 2
-    % Ignore zeros and really small values
+    % Ignore zeros and "small" values
     nonzeroInd = find(Vq > eps);
     Vq = Vq(nonzeroInd);
     XYZnew = [Xnew(nonzeroInd), Ynew(nonzeroInd), Znew(nonzeroInd)];
