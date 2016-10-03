@@ -1,8 +1,8 @@
 function [stop, optimValues] = check_exit_conditions_icm_re(options, optimValues, current_score)
 stop = false;
 if (abs(optimValues.fval-current_score ) < options.FunctionTolerance)
-    if optimValues.ite_inc / 2 > 1
-        optimValues.ite_inc = optimValues.ite_inc / 2;
+    if round(optimValues.ite_inc / 2) > 1
+        optimValues.ite_inc = round(optimValues.ite_inc / 2);
         disp(['Change in fval smaller than FunctionTolerance, new ite inc ' ...
             num2str(optimValues.ite_inc)]);
     else

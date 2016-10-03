@@ -14,7 +14,7 @@ optimValues.fval = 1;
 optimValues.iteration = 0;
 optimValues.funccount = 0;
 optimValues.procedure = 'Initial message';
-optimValues.ite_inc = num_dim / 2;
+optimValues.ite_inc = round(num_dim / 2);
 
 if options.DataTermEvalVM > 0.5
     % More than 50% evaluations, use random generator
