@@ -13,8 +13,8 @@ if strcmp(state,'iter')
         FVAL = optimValues.fexposure;
     else
         init_heat_map.v = x';
-        out_dir = fullfile(output_img_folder, 'exposure-estimates', ['iter-' ...
-            num2str(optimValues.iteration + 1)]);        
+        out_dir = fullfile(output_img_folder, 'exposure-estimates',  ...
+            ['iter-' num2str(optimValues.iteration)]);
         
         options.GenExposureStd = options.GenExposureStd - options.GenExposureStd * ...
             optimValues.iteration / options.MaxIterations;
