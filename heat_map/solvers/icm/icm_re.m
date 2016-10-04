@@ -48,6 +48,7 @@ end
 
 optimValues = options.ExposureFnc(x0, optimValues, state);
 optimValues = options.DensityFnc(x0, optimValues, state);
+
 [~, optimValues] = call_output_fnc_icm(x0, options, optimValues, state);
 
 %% First "iteration" is just an evaluation of the initial point
@@ -62,11 +63,9 @@ optimValues.fval = mean(cur_score);
 % Replicate x to be able to evaluate in parallel
 x = repmat(x0, options.TemperatureNSamples, 1);
 
-display_info_icm(options, optimValues, num_dim);
-
-optimValues = options.ExposureFnc(x(1,:), optimValues, state);
-optimValues = options.DensityFnc(x(1,:), optimValues, state);
 [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
+
+display_info_icm(options, optimValues, num_dim);
 
 %% Main loop
 while(~stop)
@@ -103,17 +102,15 @@ while(~stop)
         
     end
     
+    optimValues = options.ExposureFnc(x(1,:), optimValues, state);
+    optimValues = options.DensityFnc(x(1,:), optimValues, state);
+    
     % Update the score in case approximations where used
     cur_score = calculate_score_all(x(1,:));
     
     optimValues.fval = mean(cur_score);
     
     optimValues.iteration = optimValues.iteration + 1;
-
-    optimValues = options.ExposureFnc(x(1,:), optimValues, state);
-    optimValues = options.DensityFnc(x(1,:), optimValues, state);
-    
-    display_info_icm(options, optimValues, num_dim);
     
     [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
     if (stop)
@@ -123,6 +120,7 @@ while(~stop)
         [stop, optimValues] = check_exit_conditions_icm_re(options, optimValues, current_score);
     end
     
+    display_info_icm(options, optimValues, num_dim);
 end
 
 %% Clean up, exit state

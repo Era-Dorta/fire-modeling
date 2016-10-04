@@ -4,7 +4,7 @@ function [optimValues] = icm_estimate_density_scale(x, optimValues, state, ...
 %
 %   See also do_gradient_solve
 
-if strcmp(state,'iter') && optimValues.iteration > 0
+if strcmp(state,'iter')
     options = opts.options;
     init_heat_map.v = x';
     out_dir = fullfile(output_img_folder, 'density-estimates',  ...
