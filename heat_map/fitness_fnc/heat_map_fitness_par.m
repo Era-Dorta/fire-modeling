@@ -9,15 +9,16 @@ function [ error ] = heat_map_fitness_par( heat_map_v, xyz, whd, error_foo, ...
 %   See also HEAT_MAP_FITNESS
 
 num_maya = numel(maya_send);
+num_hm = size(heat_map_v, 1);
 
-if(num_maya == 1 || size(heat_map_v, 1) <= num_maya)
+if(num_maya == 1 || num_hm == 1)
     % When there are more Maya instances than data or if only one port was
     % given use a single instance to render al the data
     error = heat_map_fitness(heat_map_v, xyz, whd, error_foo, ...
         scene_name, scene_img_folder, output_img_folder_name, maya_send{1}, ...
         1, num_goal, prior_fncs, prior_weights, color_space, use_cache);
 else
-    num_hm = size(heat_map_v, 1);
+    num_maya = min(num_maya, num_hm);
     num_hm_per_thread = floor(num_hm / num_maya);
     error_thread = cell(1, num_maya);
     f = parallel.FevalFuture;
