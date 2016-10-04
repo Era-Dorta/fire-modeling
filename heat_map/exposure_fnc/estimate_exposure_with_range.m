@@ -5,18 +5,32 @@ function [ best_exposure, f_val ] = estimate_exposure_with_range( maya_send, ...
 %    FITNESS_FNC, OUTPUT_IMG_FOLDER)
 
 if opts.is_custom_shader
-        
+    
     shape_name = 'mia_exposure_photographic1.cm2_factor';
     
     % Save the render images in this folder
     mkdir(out_dir);
-        
+    
     f_val = zeros(1, numel(k_samples));
+    num_samples = numel(k_samples);
+    num_maya = min(numel(maya_send), num_samples);
+    x = repmat(init_heat_map.v', num_maya, 1);
     
     maya_par_eval();
     
     % Get the best exposure scale, set it and return the value
     [~, i] = min(f_val);
+    
+    if num_maya > 1
+        % With parallel evaluation we can only move the best image as
+        % the other are deleted inside the fitness_fnc
+        for m=1:num_goal
+            mstr = num2str(m);
+            movefile(fullfile(output_img_folder, ['current1-Cam' mstr '.tif']), ...
+                fullfile(out_dir, [num2str(i, '%03d') '-exposure-' ...
+                num2str(k_samples(i)) '-Cam' mstr '.tif']));
+        end
+    end
     
     best_exposure = k_samples(i);
     
@@ -30,10 +44,7 @@ else
     f_val = [];
 end
 
-    function maya_par_eval
-        num_samples = numel(k_samples);
-        num_maya = min(numel(maya_send), num_samples);
-        x = repmat(init_heat_map.v', num_maya, 1);
+    function maya_par_eval()
         
         for j=1:num_maya:num_samples
             l = j:min(j+num_maya-1, num_samples);
@@ -61,18 +72,6 @@ end
             % temperature
             if opts.use_cache
                 clear_cache();
-            end
-        end
-        
-        if num_maya > 1
-            % With parallel evaluation we can only move the best image as
-            % the other are deleted inside the fitness_fnc
-            [~, j] = min(f_val);
-            for k=1:num_goal
-                kstr = num2str(k);
-                movefile(fullfile(output_img_folder, ['current1-Cam' kstr '.tif']), ...
-                    fullfile(out_dir, [num2str(j, '%03d') '-exposure-' ...
-                    num2str(k_samples(j)) '-Cam' kstr '.tif']));
             end
         end
         
