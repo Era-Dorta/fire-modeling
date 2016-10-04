@@ -24,7 +24,7 @@ startTime = tic;
 
 [heat_map_v, best_error, exitflag, output] = icm_re(fitness_foo, InitialPopulation, ...
     init_heat_map.xyz, LB, UB, options);
-std(heat_map_v)
+
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
@@ -34,7 +34,7 @@ FinalPopulation = heat_map_v;
 save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
 
 %% Visualize distance space
-% visualize_score_space(output_data_path, paths_str.visualization_fig_path);
+visualize_score_space(output_data_path, paths_str.visualization_fig_path);
 
 %% Save summary file
 
