@@ -265,6 +265,11 @@ switch solver
         
         options.GenExposureStd = 100;
         
+        % @icm_estimate_density_scale, @icm_estimate_density_none
+        options.DensityFnc = @icm_estimate_density_scale;
+        
+        options.GenDensityStd = 100;
+        
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm
         initGuessFnc = @random_guess_icm;

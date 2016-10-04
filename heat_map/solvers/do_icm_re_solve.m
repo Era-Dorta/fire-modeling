@@ -12,6 +12,8 @@ options = get_icm_options_from_file( opts, init_heat_map,  ...
 
 options.exposure = summary_data.best_exposure;
 options.fexposure = min(summary_data.fitness_for_exposure);
+options.density = summary_data.best_density;
+options.fdensity = min(summary_data.fitness_for_density);
 
 LB = ones(init_heat_map.count, 1) * opts.LB;
 UB = ones(init_heat_map.count, 1) * opts.UB;

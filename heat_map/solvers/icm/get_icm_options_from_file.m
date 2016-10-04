@@ -179,12 +179,34 @@ if isequal(L.options.ExposureFnc, @grad_estimate_exposure_scale)
         paths_str.output_folder, num_goal);
     
     if L.use_cache
-        error('use_cache must be set to false when using @gradestimate_density_scale');
+        error('use_cache must be set to false when using @grad_estimate_exposure_scale');
     end
 else
     
     if ~isequalFncCell(L.options.ExposureFnc, valid_foo)
         error(['Unkown ICM ExposureFnc @' func2str(L.options.ExposureFnc) ...
+            ' in ' L.args_path]);
+    end
+    
+end
+
+%% DensityFnc
+valid_foo = {@icm_estimate_density_scale, @icm_estimate_density_none};
+
+if isequal(L.options.DensityFnc, @icm_estimate_density_scale)
+    
+    L.options.DensityFnc = @(x, optimValues, state) ...
+        icm_estimate_density_scale(x, optimValues, state, ...
+        maya_send, L, init_heat_map, fitness_foo,  ...
+        paths_str.output_folder, num_goal);
+    
+    if L.use_cache
+        error('use_cache must be set to false when using @icm_estimate_density_scale');
+    end
+else
+    
+    if ~isequalFncCell(L.options.DensityFnc, valid_foo)
+        error(['Unkown ICM ExposureFnc @' func2str(L.options.DensityFnc) ...
             ' in ' L.args_path]);
     end
     

@@ -17,6 +17,8 @@ optimValues.procedure = 'Initial message';
 optimValues.ite_inc = round(num_dim / 2);
 optimValues.exposure = options.exposure;
 optimValues.fexposure = options.fexposure;
+optimValues.density = options.density;
+optimValues.fdensity = options.fdensity;
 
 if options.DataTermEvalVM > 0.5
     % More than 50% evaluations, use random generator
@@ -45,6 +47,7 @@ else
 end
 
 optimValues = options.ExposureFnc(x0, optimValues, state);
+optimValues = options.DensityFnc(x0, optimValues, state);
 [~, optimValues] = call_output_fnc_icm(x0, options, optimValues, state);
 
 %% First "iteration" is just an evaluation of the initial point
@@ -62,6 +65,7 @@ x = repmat(x0, options.TemperatureNSamples, 1);
 display_info_icm(options, optimValues, num_dim);
 
 optimValues = options.ExposureFnc(x(1,:), optimValues, state);
+optimValues = options.DensityFnc(x(1,:), optimValues, state);
 [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
 
 %% Main loop
@@ -107,6 +111,7 @@ while(~stop)
     optimValues.iteration = optimValues.iteration + 1;
 
     optimValues = options.ExposureFnc(x(1,:), optimValues, state);
+    optimValues = options.DensityFnc(x(1,:), optimValues, state);
     
     display_info_icm(options, optimValues, num_dim);
     
@@ -128,7 +133,8 @@ fval = optimValues.fval;
 
 output = struct('funcCount', optimValues.funccount, 'iterations', ...
     optimValues.iteration, 'message', optimValues.procedure, 'exposure', ...
-    optimValues.exposure, 'fexposure', optimValues.fexposure, 'tlr', tlr, ...
+    optimValues.exposure, 'fexposure', optimValues.fexposure, 'density', ...
+    optimValues.density, 'fdensity', optimValues.fdensity,'tlr', tlr, ...
     'tur', tur);
 
 call_output_fnc_icm(x, options, optimValues, state);
