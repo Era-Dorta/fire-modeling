@@ -119,6 +119,12 @@ density_scales_range = [];
 % Number of samples in the scale range
 n_density_scale = 25;
 
+% Number of bins for the density estimate, empty to not compute new density
+exposure_scales_range = [];
+
+% Number of samples in the scale range
+n_exposure_scale = 25;
+
 use_cache = true;
 
 clearvars('multi_goal', 'symmetric');
