@@ -214,10 +214,10 @@ switch solver
         options.FunctionTolerance = 1e-6;
         options.TemperatureNSamples = 25;
         % 0 -> 6 neighbours, 1 -> 18, 2 -> 26, 3 -> 124, etc
-        options.NeighbourhoodSize = 0; 
+        options.NeighbourhoodSize = 0;
         
         % @generate_random_temperatures_icm, @generate_linspace_temperatures_icm
-        % @generate_gaussian_temperatures_icm 
+        % @generate_gaussian_temperatures_icm
         options.CreateSamplesFcn = @generate_linspace_temperatures_icm;
         
         options.GenTempStd = 200;
@@ -237,8 +237,8 @@ switch solver
         options.DataTermApproxFcn = {};
         
         % Factor that multiplies the result of each data term
-        options.DataTermApproxFactors = [];        
-
+        options.DataTermApproxFactors = [];
+        
         % For use with eval_render_function_half_ite_icm, number of voxels
         % that use the real eval function
         % 0 -> 0%, 0.5 -> 50%, 1 -> 100%
@@ -260,11 +260,14 @@ switch solver
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
             @gradsavescores, @gradploterror};
         
+        % @grad_estimate_exposure_scale
+        options.ExposureFnc = @grad_estimate_exposure_scale;
+        
+        options.GenExposureStd = 100;
+        
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm
         initGuessFnc = @random_guess_icm;
-
-        options.GenExposureStd = 100;
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'', ''icm'', ''icm-re'']'];

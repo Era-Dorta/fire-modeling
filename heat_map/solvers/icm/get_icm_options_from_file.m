@@ -39,17 +39,6 @@ for i=1:numel(L.options.OutputFcn)
             error('use_cache must be set to false when using @gradestimate_density_scale');
         end
         
-    elseif isequal(L.options.OutputFcn{i}, @grad_estimate_exposure_scale)
-        
-        L.options.OutputFcn{i} = @(x, optimValues, state) ...
-            grad_estimate_exposure_scale(x, optimValues, state, ...
-            maya_send, L, init_heat_map, fitness_foo,  ...
-            paths_str.output_folder, num_goal);
-        
-        if L.use_cache
-            error('use_cache must be set to false when using @gradestimate_density_scale');
-        end
-        
     else
         foo_str = func2str(L.options.OutputFcn{i});
         error(['Unkown outputFnc ' foo_str ' in do_icm_solve']);
@@ -125,7 +114,7 @@ end
 
 % If not specified, just copy from data term
 if isempty(L.options.DataTermApproxFcn)
-    L.options.DataTermApproxFcn = L.options.DataTermFcn;    
+    L.options.DataTermApproxFcn = L.options.DataTermFcn;
 else
     valid_foo =  {@zero_data_term_icm};
     
@@ -174,6 +163,28 @@ for i=1:numel(L.options.PairWiseTermFcn)
     
     if ~isequalFncCell(L.options.PairWiseTermFcn{i}, valid_foo)
         error(['Unkown ICM PairWiseTermFcn @' func2str(L.options.PairWiseTermFcn{i}) ...
+            ' in ' L.args_path]);
+    end
+    
+end
+
+%% ExposureFnc
+valid_foo = {@grad_estimate_exposure_scale};
+
+if isequal(L.options.ExposureFnc, @grad_estimate_exposure_scale)
+    
+    L.options.ExposureFnc = @(x, optimValues, state) ...
+        grad_estimate_exposure_scale(x, optimValues, state, ...
+        maya_send, L, init_heat_map, fitness_foo,  ...
+        paths_str.output_folder, num_goal);
+    
+    if L.use_cache
+        error('use_cache must be set to false when using @gradestimate_density_scale');
+    end
+else
+    
+    if ~isequalFncCell(L.options.ExposureFnc, valid_foo)
+        error(['Unkown ICM ExposureFnc @' func2str(L.options.ExposureFnc) ...
             ' in ' L.args_path]);
     end
     
