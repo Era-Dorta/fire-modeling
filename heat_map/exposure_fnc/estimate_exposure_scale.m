@@ -13,7 +13,7 @@ if ~isempty(opts.exposure_scales_range) && opts.is_custom_shader
     k0 = log10(opts.exposure_scales_range(1));
     k1 = log10(opts.exposure_scales_range(2));
     
-    k_samples = linspace(k0, k1, opts.n_exposure_scale);
+    k_samples = 10.^linspace(k0, k1, opts.n_exposure_scale);
     
     [best_exposure, f_val] = estimate_exposure_with_range( maya_send, ...
         opts, init_heat_map, fitness_fnc, output_img_folder, out_dir, ...
