@@ -13,10 +13,13 @@ if strcmp(state,'iter') && optimValues.iteration > 0
     options.GenDensityStd = options.GenDensityStd - options.GenDensityStd * ...
         optimValues.iteration / options.MaxIterations;
     density_samples = normrnd(optimValues.density, options.GenDensityStd, 1, opts.n_density_scale);
-    density_samples = max(density_samples, eps);
+    density_samples = max([density_samples, optimValues.density], eps);
     
     [out_density, f_val] = estimate_density_with_range( maya_send, opts, init_heat_map, ...
         fitness_fnc, output_img_folder, out_dir, num_goal, density_samples);
+    
+    optimValues.fdensity = f_val(end);
+    
     f_val = min(f_val);
     
     if f_val < optimValues.fdensity
