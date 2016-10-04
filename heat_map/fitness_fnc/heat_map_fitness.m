@@ -107,12 +107,7 @@ for pop=1:size(heat_map_v, 1)
         % Evaluate all the error functions, usually only one will be given
         error_vals(:) = 0;
         for i=1:num_error_foos
-            if(any(cellfun(@(x)sum(x(:)), c_img) == 0))
-                % If any of the rendered image is completely black set the error manually
-                error_vals(i,:) = 1;
-            else
-                error_vals(i,:) = sum(error_foo{i}(c_img_converted));
-            end
+            error_vals(i,:) = sum(error_foo{i}(c_img_converted));
         end
         
         prior_vals(:) = 0;
