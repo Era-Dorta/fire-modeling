@@ -178,6 +178,10 @@ if isequal(L.options.ExposureFnc, @grad_estimate_exposure_scale)
         maya_send, L, init_heat_map, fitness_foo,  ...
         paths_str.output_folder, num_goal);
     
+    if isempty(L.exposure_scales_range)
+        error('exposure_scales_range is needed for grad_estimate_exposure_scale');
+    end
+    
     if L.use_cache
         error('use_cache must be set to false when using @grad_estimate_exposure_scale');
     end
@@ -202,6 +206,10 @@ if isequal(L.options.DensityFnc, @icm_estimate_density_scale)
     
     if L.use_cache
         error('use_cache must be set to false when using @icm_estimate_density_scale');
+    end
+    
+    if isempty(L.density_scales_range)
+        error('density_scales_range is needed for icm_estimate_density_scale');
     end
 else
     
