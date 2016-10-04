@@ -61,7 +61,7 @@ x = repmat(x0, options.TemperatureNSamples, 1);
 
 display_info_icm(options, optimValues, num_dim);
 
-optimValues = options.ExposureFnc(x0, optimValues, state);
+optimValues = options.ExposureFnc(x(1,:), optimValues, state);
 [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
 
 %% Main loop
@@ -106,7 +106,7 @@ while(~stop)
     
     optimValues.iteration = optimValues.iteration + 1;
 
-    optimValues = options.ExposureFnc(x0, optimValues, state);
+    optimValues = options.ExposureFnc(x(1,:), optimValues, state);
     
     display_info_icm(options, optimValues, num_dim);
     
