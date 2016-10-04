@@ -175,6 +175,15 @@ try
             output_img_folder_name, maya_send, num_goal, prior_fncs, ...
             prior_weights, opts.color_space, opts.use_cache);
         
+        % Estimate the best exposure for the optimization
+        exposure_folder = fullfile(output_img_folder, 'exposure-estimates', 'initial');
+        [best_exposure, f_exposure] = estimate_exposure_scale( maya_send,  ...
+            opts, init_heat_map, fitness_foo, output_img_folder, ...
+            exposure_folder, num_goal, true);
+        
+        summary_data.best_exposure = best_exposure;
+        summary_data.fitness_for_exposure = f_exposure;
+
         % Estimate the best density for the optimization
         density_folder = fullfile(output_img_folder, 'density-estimates', 'initial');
         [best_density, f_density, d_norm] =  estimate_density_scale( maya_send,  ...

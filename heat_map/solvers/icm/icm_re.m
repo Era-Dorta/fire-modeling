@@ -15,6 +15,8 @@ optimValues.iteration = 0;
 optimValues.funccount = 0;
 optimValues.procedure = 'Initial message';
 optimValues.ite_inc = round(num_dim / 2);
+optimValues.exposure = options.exposure;
+optimValues.fexposure = options.fexposure;
 
 if options.DataTermEvalVM > 0.5
     % More than 50% evaluations, use random generator

@@ -10,6 +10,9 @@ options = get_icm_options_from_file( opts, init_heat_map,  ...
     goal_img, goal_mask, output_data_path, paths_str, false, fitness_foo, ...
     maya_send);
 
+options.exposure = summary_data.best_exposure;
+options.fexposure = min(summary_data.fitness_for_exposure);
+
 LB = ones(init_heat_map.count, 1) * opts.LB;
 UB = ones(init_heat_map.count, 1) * opts.UB;
 

@@ -263,6 +263,8 @@ switch solver
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm
         initGuessFnc = @random_guess_icm;
+
+        options.GenExposureStd = 100;
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'', ''icm'', ''icm-re'']'];
