@@ -266,9 +266,12 @@ try
         case 'icm'
             [heat_map_v, ~, ~] = do_icm_solve( init_heat_map, fitness_foo, ...
                 paths_str, summary_data, goal_img, goal_mask, opts, maya_send);
+        case 'icm-re'
+            [heat_map_v, ~, ~] = do_icm_re_solve( init_heat_map, fitness_foo, ...
+                paths_str, summary_data, goal_img, goal_mask, opts, maya_send);
         otherwise
-            solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ' ...
-                '''cmaes'', ''lhs'']'];
+            solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
+            ' ''lhs'', ''icm'', ''icm-re'']'];
             error(['Invalid solver, choose one of ' solver_names ]);
     end
     

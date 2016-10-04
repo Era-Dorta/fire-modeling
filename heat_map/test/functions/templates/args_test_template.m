@@ -19,7 +19,11 @@ function args_test_template(args_path, do_solver)
 %   'ga' -> Genetic Algorithm
 %   'sa' -> Simulated Annealing
 %   'ga-re' -> Genetic Algorithm with heat map resampling
-%   'grad' -> Gradient Descent
+%   'grad' -> Gradient Descent (simplex with fminsearch)
+%   'cmaes' ->  Covariance Matrix Adaptation Evolution Strategy
+%   'lsh' -> latin hypercube sampling
+%   'icm' -> Iterated Conditional Modes
+%   'icm-re' -> Iterated Conditional Modes with resampling
 solver = 'ga';
 
 % BlackBody, Propane, Acetylene, Methane, BlueSyn, Cu, S, Li, Ba, Na, Co, Sc, C, H, C3H8

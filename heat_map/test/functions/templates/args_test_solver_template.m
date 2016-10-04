@@ -206,7 +206,7 @@ switch solver
         
         initCreationFnc = @gacreationheuristic3;
         creation_fnc_n_bins = 255;
-    case 'icm'
+    case {'icm', 'icm-re'}
         options = struct();
         options.MaxIterations = max_ite;
         options.MaxFunctionEvaluations = maxFunEvals;
@@ -265,7 +265,7 @@ switch solver
         initGuessFnc = @random_guess_icm;
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
-            ' ''lhs'']'];
+            ' ''lhs'', ''icm'', ''icm-re'']'];
         error(['Invalid solver, choose one of ' solver_names ]);
 end
 
