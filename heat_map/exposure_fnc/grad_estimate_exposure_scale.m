@@ -13,6 +13,7 @@ if strcmp(state,'iter') && optimValues.iteration > 0
     options.GenExposureStd = options.GenExposureStd - options.GenExposureStd * ...
         optimValues.iteration / options.MaxIterations;
     exposure_samples = normrnd(optimValues.exposure, options.GenExposureStd, 1, opts.n_exposure_scale);
+    exposure_samples = max(exposure_samples, eps);
     
     [out_exposure, f_val] = estimate_exposure_with_range( maya_send, opts, init_heat_map, ...
         fitness_fnc, output_img_folder, out_dir, num_goal, exposure_samples);
