@@ -260,7 +260,7 @@ switch solver
         options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
             @gradsavescores, @gradploterror};
         
-        % @grad_estimate_exposure_scale
+        % @grad_estimate_exposure_scale, @icm_estimate_exposure_none
         options.ExposureFnc = @grad_estimate_exposure_scale;
         
         options.GenExposureStd = 100;

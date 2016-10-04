@@ -169,7 +169,7 @@ for i=1:numel(L.options.PairWiseTermFcn)
 end
 
 %% ExposureFnc
-valid_foo = {@grad_estimate_exposure_scale};
+valid_foo = {@grad_estimate_exposure_scale, @icm_estimate_exposure_none};
 
 if isequal(L.options.ExposureFnc, @grad_estimate_exposure_scale)
     
