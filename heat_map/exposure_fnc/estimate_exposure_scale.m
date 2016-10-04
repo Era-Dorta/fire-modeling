@@ -23,26 +23,16 @@ if ~isempty(opts.exposure_scales_range) && opts.is_custom_shader
     f_val = zeros(1, numel(k_samples));
     
     maya_par_eval();
-        
+    
     % Get the best exposure scale, set it and return the value
     [~, i] = min(f_val);
     
-    % Move the render image to the save folder
-    for k=1:num_goal
-        kstr = num2str(k);
-        movefile(fullfile(output_img_folder, ['current1-Cam' kstr '.tif']), ...
-            fullfile(out_dir, [num2str(i, '%03d') '-exposure-' ...
-            num2str(opts.maya_new_exposure_scale) '-Cam' kstr '.tif']));
-    end
+    best_exposure = 10^k_samples(i);
     
-    opts.maya_new_exposure_scale = 10^k_samples(i);
-    
-    cmd = ['setAttr ' shape_name ' ' num2str( opts.maya_new_exposure_scale)];
+    cmd = ['setAttr ' shape_name ' ' num2str( best_exposure)];
     for i=1:numel(maya_send)
         maya_send{i}(cmd, 0);
     end
-    
-    best_exposure = opts.maya_new_exposure_scale;
     
 else
     best_exposure = [];
@@ -58,19 +48,43 @@ end
             l = j:min(j+num_maya-1, num_samples);
             
             for c_maya=1:numel(l)
-                opts.maya_new_exposure_scale = 10^k_samples(l(c_maya));
-                cmd = ['setAttr ' shape_name ' ' num2str( opts.maya_new_exposure_scale)];
+                new_exposure = 10^k_samples(l(c_maya));
+                cmd = ['setAttr ' shape_name ' ' num2str(new_exposure)];
                 maya_send{c_maya}(cmd, 0);
             end
             
             f_val(l) = fitness_fnc(x(1:numel(l),:));
-
+            
+            if num_maya == 1
+                % With one maya instance move each render image to
+                % the save folder
+                for k=1:num_goal
+                    kstr = num2str(k);
+                    movefile(fullfile(output_img_folder, ['current1-Cam' kstr '.tif']), ...
+                        fullfile(out_dir, [num2str(j, '%03d') '-exposure-' ...
+                        num2str(new_exposure) '-Cam' kstr '.tif']));
+                end
+            end
+            
             % Clear the cache of the fitness as it is saved with the same
             % temperature
             if opts.use_cache
                 clear_cache();
             end
         end
+        
+        if num_maya > 1
+            % With parallel evaluation we can only move the best image as
+            % the other are deleted inside the fitness_fnc
+            [~, j] = min(f_val);
+            for k=1:num_goal
+                kstr = num2str(k);
+                movefile(fullfile(output_img_folder, ['current1-Cam' kstr '.tif']), ...
+                    fullfile(out_dir, [num2str(j, '%03d') '-exposure-' ...
+                    num2str(10^k_samples(j)) '-Cam' kstr '.tif']));
+            end
+        end
+        
     end
 
 end
