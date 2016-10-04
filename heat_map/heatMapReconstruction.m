@@ -82,9 +82,7 @@ try
     end
     
     %% Volumetric data initialization
-    init_heat_map = read_raw_file([opts.project_path opts.raw_file_path]);
-    init_heat_map.v = init_heat_map.v * opts.raw_temp_scale + ...
-        opts.raw_temp_offset;
+    init_heat_map = get_init_heat_map( opts );
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
@@ -271,7 +269,7 @@ try
                 paths_str, summary_data, goal_img, goal_mask, opts, maya_send);
         otherwise
             solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
-            ' ''lhs'', ''icm'', ''icm-re'']'];
+                ' ''lhs'', ''icm'', ''icm-re'']'];
             error(['Invalid solver, choose one of ' solver_names ]);
     end
     
