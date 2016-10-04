@@ -127,9 +127,9 @@ state = 'done';
 fval = optimValues.fval;
 
 output = struct('funcCount', optimValues.funccount, 'iterations', ...
-    optimValues.iteration, 'message', optimValues.procedure);
-output.tlr = tlr;
-output.tur = tur;
+    optimValues.iteration, 'message', optimValues.procedure, 'exposure', ...
+    optimValues.exposure, 'fexposure', optimValues.fexposure, 'tlr', tlr, ...
+    'tur', tur);
 
 call_output_fnc_icm(x, options, optimValues, state);
 
