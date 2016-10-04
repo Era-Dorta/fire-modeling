@@ -126,6 +126,9 @@ exposure_scales_range = [];
 % Number of samples in the scale range
 n_exposure_scale = 25;
 
+% Initial guess for exposure, ignored if no exposure extimation is done
+init_exposure = 150;
+
 use_cache = true;
 
 clearvars('multi_goal', 'symmetric');

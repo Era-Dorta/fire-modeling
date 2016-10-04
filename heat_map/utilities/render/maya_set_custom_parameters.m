@@ -35,4 +35,12 @@ if ~isempty(opts.density_file_path)
     end
 end
 
+if ~isempty(opts.exposure_scales_range) && ~isempty(opts.init_exposure)
+    shape_name = 'mia_exposure_photographic1.cm2_factor';
+    for i=1:numel(maya_send)
+        cmd = ['setAttr ' shape_name ' ' num2str(opts.init_exposure)];
+        maya_send{i}(cmd, 0);
+    end
+end
+
 end
