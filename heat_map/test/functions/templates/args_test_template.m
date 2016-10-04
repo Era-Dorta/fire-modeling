@@ -119,7 +119,8 @@ density_scales_range = [];
 % Number of samples in the scale range
 n_density_scale = 25;
 
-% Number of bins for the density estimate, empty to not compute new density
+% Number of bins for the density estimate, empty to not compute new
+% exposure
 exposure_scales_range = [];
 
 % Number of samples in the scale range
