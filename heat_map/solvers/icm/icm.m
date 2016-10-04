@@ -14,6 +14,7 @@ optimValues.fval = 1;
 optimValues.iteration = 0;
 optimValues.funccount = 0;
 optimValues.procedure = 'Initial message';
+optimValues.ite_inc = 1;
 
 if options.DataTermEvalVM > 0.5
     % More than 50% evaluations, use random generator
@@ -60,7 +61,7 @@ x_interp = scatteredInterpolant(xyz(:, 1), xyz(:, 2), xyz(:, 3), ...
     x0', 'nearest', 'none' );
 warning('off', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
-display_info_icm(options, optimValues);
+display_info_icm(options, optimValues, num_dim);
 
 [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
 
@@ -106,7 +107,7 @@ while(~stop)
     
     optimValues.iteration = optimValues.iteration + 1;
     
-    display_info_icm(options, optimValues);
+    display_info_icm(options, optimValues, num_dim);
     
     [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
     if (stop)

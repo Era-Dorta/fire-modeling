@@ -56,7 +56,7 @@ optimValues.fval = mean(cur_score);
 % Replicate x to be able to evaluate in parallel
 x = repmat(x0, options.TemperatureNSamples, 1);
 
-display_info_icm(options, optimValues);
+display_info_icm(options, optimValues, num_dim);
 
 [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
 
@@ -102,7 +102,7 @@ while(~stop)
     
     optimValues.iteration = optimValues.iteration + 1;
     
-    display_info_icm(options, optimValues);
+    display_info_icm(options, optimValues, num_dim);
     
     [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
     if (stop)
