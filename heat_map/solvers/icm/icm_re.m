@@ -18,7 +18,7 @@ optimValues.ite_inc = round(num_dim / 2);
 
 if options.DataTermEvalVM > 0.5
     % More than 50% evaluations, use random generator
-    options.DataTermEvalVMRand = true;    
+    options.DataTermEvalVMRand = true;
 else
     % Less than 50% use mod to eval without probabilities
     options.DataTermEvalVMRand = false;
@@ -94,8 +94,6 @@ while(~stop)
         [tlr, tur] = options.UpdateSampleRangeFcn(ii, cur_temp, t, tlr, tur);
         
     end
-    
-    plotHeatMap( struct('v', x(1,:), 'xyz', xyz, 'size', [32,32,32]), 1/2300, optimValues.iteration == 0 );
     
     % Update the score in case approximations where used
     cur_score = calculate_score_all(x(1,:));
