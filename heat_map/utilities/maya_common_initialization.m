@@ -12,10 +12,12 @@ end
 % Initialization of load and send functions, set Maya software renderer or
 % Mental Ray renderer
 load_hm_in_maya([], [], is_custom_shader);
+load_density_in_maya([], [], is_custom_shader);
 send_render_cmd([], [], is_mr);
 
 if numel(ports) > 1
     parfevalOnAll(gcp, @load_hm_in_maya, 0, [], [], is_custom_shader);
+    parfevalOnAll(gcp, @load_density_in_maya, 0, [], [], is_custom_shader);
     parfevalOnAll(gcp, @send_render_cmd, 0, [], [], is_mr);
 end
 

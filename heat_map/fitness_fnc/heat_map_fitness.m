@@ -1,6 +1,7 @@
 function [ error_v ] = heat_map_fitness( heat_map_v, xyz, whd, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
-    id, num_goal, prior_fncs, prior_weights, color_space, use_cache)
+    id, num_goal, prior_fncs, prior_weights, color_space, use_cache, ...
+    load_temperature)
 %HEAT_MAP_FITNESS Heat map fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
@@ -56,8 +57,12 @@ for pop=1:size(heat_map_v, 1)
         %% Set the heat map file as temperature file
         % Either set the full path or set the file relative maya path for
         % temperature_file_first and force frame update to run
-        load_hm_in_maya(heat_map_path, maya_send);
-        
+        if load_temperature
+            load_hm_in_maya(heat_map_path, maya_send);
+        else
+            load_density_in_maya(heat_map_path, maya_send);
+        end
+       
         c_img = cell(num_goal, 1);
         
         for i=1:num_goal

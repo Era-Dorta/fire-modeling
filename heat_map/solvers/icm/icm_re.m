@@ -1,5 +1,5 @@
 function [ x, fval, exitFlag, output ] = icm_re ( fun, x0, xyz, lb, ub, options)
-%ICM_RE Iterative Conditional Modes parallel solver
+%ICM_RE Iterative Conditional Modes resampling parallel solver
 
 %% Initialisation
 state = 'init';
