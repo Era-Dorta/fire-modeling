@@ -39,6 +39,12 @@ for i=1:numel(L.options.OutputFcn)
             error('use_cache must be set to false when using @gradestimate_density_scale');
         end
         
+    elseif isequal(L.options.OutputFcn{i}, @icm_restore_raw_file)
+        
+        L.options.OutputFcn{i} = @(x, optimValues, state) icm_restore_raw_file( ...
+            x, optimValues, state, maya_send, init_heat_map, ...
+            fullfile(paths_str.output_folder, 'temp-raw-files'));
+        
     else
         foo_str = func2str(L.options.OutputFcn{i});
         error(['Unkown outputFnc ' foo_str ' in do_icm_solve']);
