@@ -15,10 +15,14 @@ optimValues.iteration = 0;
 optimValues.funccount = 0;
 optimValues.procedure = 'Initial message';
 optimValues.ite_inc = 1;
+optimValues.exposure = options.exposure;
+optimValues.fexposure = options.fexposure;
+optimValues.density = options.density;
+optimValues.fdensity = options.fdensity;
 
 if options.DataTermEvalVM > 0.5
     % More than 50% evaluations, use random generator
-    options.DataTermEvalVMRand = true;    
+    options.DataTermEvalVMRand = true;
 else
     % Less than 50% use mod to eval without probabilities
     options.DataTermEvalVMRand = false;
@@ -42,6 +46,9 @@ else
     use_common_dataterm = false;
 end
 
+optimValues = options.ExposureFnc(x0, optimValues, state);
+optimValues = options.DensityFnc(x0, optimValues, state);
+
 [~, optimValues] = call_output_fnc_icm(x0, options, optimValues, state);
 
 %% First "iteration" is just an evaluation of the initial point
@@ -55,11 +62,6 @@ optimValues.fval = mean(cur_score);
 
 % Replicate x to be able to evaluate in parallel
 x = repmat(x0, options.TemperatureNSamples, 1);
-
-% Copy the data using an interpolant for easy access using the xyz coords
-x_interp = scatteredInterpolant(xyz(:, 1), xyz(:, 2), xyz(:, 3), ...
-    x0', 'nearest', 'none' );
-warning('off', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
 display_info_icm(options, optimValues, num_dim);
 
@@ -90,7 +92,6 @@ while(~stop)
         if (new_score < cur_score(i))
             cur_temp = t(j);
             cur_score(i) = new_score;
-            x_interp.Values(i) = cur_temp;
         end
         
         % Reset or update the voxel temperature
@@ -99,6 +100,9 @@ while(~stop)
         [tlr, tur] = options.UpdateSampleRangeFcn(i, cur_temp, t, tlr, tur);
         
     end
+    
+    optimValues = options.ExposureFnc(x(1,:), optimValues, state);
+    optimValues = options.DensityFnc(x(1,:), optimValues, state);
     
     % Update the score in case approximations where used
     cur_score = calculate_score_all(x(1,:));
@@ -126,16 +130,15 @@ state = 'done';
 fval = optimValues.fval;
 
 output = struct('funcCount', optimValues.funccount, 'iterations', ...
-    optimValues.iteration, 'message', optimValues.procedure);
-output.tlr = tlr;
-output.tur = tur;
+    optimValues.iteration, 'message', optimValues.procedure, 'exposure', ...
+    optimValues.exposure, 'fexposure', optimValues.fexposure, 'density', ...
+    optimValues.density, 'fdensity', optimValues.fdensity,'tlr', tlr, ...
+    'tur', tur);
 
 call_output_fnc_icm(x, options, optimValues, state);
 
 % Remove the copies of x
 x = x(1,:);
-
-warning('on', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
 
 %% Auxiliary functions
     function [score] = calculate_score_approx(i, x)
