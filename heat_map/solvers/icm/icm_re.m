@@ -20,6 +20,8 @@ optimValues.fexposure = options.fexposure;
 optimValues.density = options.density;
 optimValues.fdensity = options.fdensity;
 
+prev_ite_inc = optimValues.ite_inc;
+
 if options.DataTermEvalVM > 0.5
     % More than 50% evaluations, use random generator
     options.DataTermEvalVMRand = true;
@@ -115,6 +117,7 @@ while(~stop)
     optimValues.iteration = optimValues.iteration + 1;
     
     optimValues = options.ClusterUpdateFnc(x(1,:), options, optimValues, state);
+    cur_score = recompute_after_cluster_update(x(1,:), cur_score);
     
     [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
     if (stop)
@@ -230,6 +233,22 @@ x = x(1,:);
             end
         end
         
+    end
+
+    function [score] = recompute_after_cluster_update(x, score)
+        if(prev_ite_inc ~= optimValues.ite_inc)
+            new_inc = optimValues.ite_inc;
+            optimValues.ite_inc = prev_ite_inc;
+            
+            display_info_icm(options, optimValues, num_dim);
+            
+            optimValues.ite_inc = new_inc;
+            prev_ite_inc = optimValues.ite_inc;
+            
+            score = calculate_score_all(x);
+
+            optimValues.fval = mean(score);
+        end
     end
 
 end
