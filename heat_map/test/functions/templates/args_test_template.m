@@ -117,14 +117,14 @@ approx_fitness_weights = [0.4, 0.2, 0.4];
 density_scales_range = [];
 
 % Number of samples in the scale range
-n_density_scale = 25;
+n_density_scale = 10;
 
 % Number of bins for the density estimate, empty to not compute new
 % exposure
 exposure_scales_range = [];
 
 % Number of samples in the scale range
-n_exposure_scale = 25;
+n_exposure_scale = 10;
 
 % Initial guess for exposure, ignored if no exposure extimation is done
 init_exposure = 150;

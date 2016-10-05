@@ -6,6 +6,7 @@ function [ best_density, f_val, density_norm ] = estimate_density_scale_initial(
 %    FITNESS_FNC, OUTPUT_IMG_FOLDER)
 
 if ~isempty(opts.density_scales_range)
+    disp('Estimating initial scale factor');
     
     if ~isempty(opts.density_file_path)
         density_raw = read_raw_file(opts.density_file_path);
@@ -26,7 +27,9 @@ if ~isempty(opts.density_scales_range)
     k0 = log10(opts.density_scales_range(1));
     k1 = log10(opts.density_scales_range(2));
     
-    k_samples = 10.^linspace(k0, k1, opts.n_density_scale);
+    % Log scale for the samples, as it is the initial estimate, sample
+    % twice as much to provide better coverage
+    k_samples = 10.^linspace(k0, k1, opts.n_density_scale * 2);
     
     [best_density, f_val] = estimate_density_with_range( maya_send, ...
         opts, init_heat_map, fitness_fnc, output_img_folder, out_dir, ...
