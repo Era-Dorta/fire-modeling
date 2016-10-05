@@ -120,7 +120,7 @@ while(~stop)
         state = 'interrupt';
         exitFlag = -1;
     else
-        [stop, optimValues] = check_exit_conditions_icm_re(options, optimValues, current_score);
+        [stop, optimValues] = check_exit_conditions_icm(options, optimValues, current_score);
     end
     
     display_info_icm(options, optimValues, num_dim);
