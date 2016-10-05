@@ -169,21 +169,21 @@ for i=1:numel(L.options.PairWiseTermFcn)
 end
 
 %% ExposureFnc
-valid_foo = {@grad_estimate_exposure_scale, @icm_estimate_exposure_none};
+valid_foo = {@icm_estimate_exposure_scale, @icm_estimate_exposure_none};
 
-if isequal(L.options.ExposureFnc, @grad_estimate_exposure_scale)
+if isequal(L.options.ExposureFnc, @icm_estimate_exposure_scale)
     
     L.options.ExposureFnc = @(x, optimValues, state) ...
-        grad_estimate_exposure_scale(x, optimValues, state, ...
+        icm_estimate_exposure_scale(x, optimValues, state, ...
         maya_send, L, init_heat_map, fitness_foo,  ...
         paths_str.output_folder, num_goal);
     
     if isempty(L.exposure_scales_range)
-        error('exposure_scales_range is needed for grad_estimate_exposure_scale');
+        error('exposure_scales_range is needed for icm_estimate_exposure_scale');
     end
     
     if L.use_cache
-        error('use_cache must be set to false when using @grad_estimate_exposure_scale');
+        error('use_cache must be set to false when using @icm_estimate_exposure_scale');
     end
 else
     

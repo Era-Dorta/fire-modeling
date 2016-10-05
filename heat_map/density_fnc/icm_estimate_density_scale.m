@@ -1,6 +1,6 @@
 function [optimValues] = icm_estimate_density_scale(x, optimValues, state, ...
     maya_send, opts, init_heat_map, fitness_fnc, output_img_folder, num_goal)
-%ICM_ESTIMATE_DENSITY_SCALE density estimate for Gradient Solver
+%ICM_ESTIMATE_DENSITY_SCALE density estimate for ICM Solver
 %
 %   See also do_gradient_solve
 

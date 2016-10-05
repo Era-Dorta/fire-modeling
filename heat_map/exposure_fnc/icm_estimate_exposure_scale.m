@@ -1,6 +1,6 @@
-function [optimValues] = grad_estimate_exposure_scale(x, optimValues, state, ...
+function [optimValues] = icm_estimate_exposure_scale(x, optimValues, state, ...
     maya_send, opts, init_heat_map, fitness_fnc, output_img_folder, num_goal)
-%GRAD_ESTIMATE_EXPOSURE_SCALE Exposure estimate for Gradient Solver
+%ICM_ESTIMATE_EXPOSURE_SCALE Exposure estimate for ICM Solver
 %
 %   See also do_gradient_solve
 
