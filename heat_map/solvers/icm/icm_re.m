@@ -93,6 +93,7 @@ while(~stop)
         % Update on improvement
         if (new_score < cur_score(i))
             cur_temp = t(j);
+            % Assign the new score to all ii voxels
             cur_score(ii) = new_score;
         end
         
@@ -148,7 +149,7 @@ x = x(1,:);
         
         score = data_term_score_approx(i, x);
         
-        n_i = getNeighborsIndices_icm(i, xyz, options.NeighbourhoodSize);
+        n_i = getNeighborsIndices_icm_re(i, xyz, options.NeighbourhoodSize);
         
         score = score + pairwise_term(i, n_i, x);
         
@@ -159,7 +160,11 @@ x = x(1,:);
         score = zeros(1, size(x, 1));
         
         for k=1:numel(options.DataTermFcn)
-            [data_score, optimValues] = options.DataTermApproxFcn{k}(i, x,  ...
+            % Call the function with the first voxel index i(1), all the i
+            % have the same temperatures, so they will all share the score
+            % as they are considered to be clustered together, the same
+            % applies to DataTermFcn and PairWiseTermFcn
+            [data_score, optimValues] = options.DataTermApproxFcn{k}(i(1), x,  ...
                 options, optimValues, lb, ub);
             score = score + data_score * options.DataTermApproxFactors(k);
         end
@@ -170,7 +175,7 @@ x = x(1,:);
         
         score = data_term_score(i, x);
         
-        n_i = getNeighborsIndices_icm(i, xyz, options.NeighbourhoodSize);
+        n_i = getNeighborsIndices_icm_re(i, xyz, options.NeighbourhoodSize);
         
         score = score + pairwise_term(i, n_i, x);
         
@@ -181,7 +186,7 @@ x = x(1,:);
         score = zeros(1, size(x, 1));
         
         for k=1:numel(options.DataTermFcn)
-            [data_score, optimValues] = options.DataTermFcn{k}(i, x,  ...
+            [data_score, optimValues] = options.DataTermFcn{k}(i(1), x,  ...
                 options, optimValues, lb, ub);
             score = score + data_score * options.DataTermFactors(k);
         end
@@ -193,7 +198,7 @@ x = x(1,:);
         score = zeros(1, size(x, 1));
         
         for k=1:numel(options.PairWiseTermFcn)
-            score = score + options.PairWiseTermFcn{k}(i, n_i, x, options, ...
+            score = score + options.PairWiseTermFcn{k}(i(1), n_i, x, options, ...
                 lb, ub) * options.PairWiseTermFactors(k);
         end
         
@@ -211,15 +216,17 @@ x = x(1,:);
             
             score(:) = data_score * options.DataTermFactors(1);
             
-            for k=1:num_dim
-                n_i = getNeighborsIndices_icm(k, xyz, options.NeighbourhoodSize);
+            for k=1:optimValues.ite_inc:num_dim
+                kk = k:min(k+optimValues.ite_inc-1, num_dim);
+                n_i = getNeighborsIndices_icm_re(kk, xyz, options.NeighbourhoodSize);
                 
-                score(k) = score(k) + pairwise_term(k, n_i, x);
+                score(kk) = score(kk) + pairwise_term(kk, n_i, x);
             end
             
         else
-            for k=1:num_dim
-                score(k) = calculate_score(k, x);
+            for k=1:optimValues.ite_inc:num_dim
+                kk = k:min(k+optimValues.ite_inc-1, num_dim);
+                score(kk) = calculate_score(kk, x);
             end
         end
         

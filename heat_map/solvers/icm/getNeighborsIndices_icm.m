@@ -5,6 +5,6 @@ if isempty(N_I)
     N_I = precompute_neight_indices( xyz, NeighbourhoodSize);
 end
 
-neigh_idx = N_I{i};
+neigh_idx = [N_I{i}];
 
 end
