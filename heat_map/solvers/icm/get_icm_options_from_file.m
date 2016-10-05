@@ -80,7 +80,7 @@ if ~isequalFncCell(L.options.UpdateSampleRangeFcn, valid_foo)
 end
 
 %% DataTermFcn
-valid_foo =  {@zero_data_term_icm};
+valid_foo =  {@zero_data_term_icm, @rand_data_term_icm};
 
 if numel(L.options.DataTermFcn) ~= numel(L.options.DataTermFactors)
     error(['ICM there are ' num2str(numel(L.options.DataTermFcn))  ...
@@ -116,7 +116,7 @@ end
 if isempty(L.options.DataTermApproxFcn)
     L.options.DataTermApproxFcn = L.options.DataTermFcn;
 else
-    valid_foo =  {@zero_data_term_icm};
+    valid_foo =  {@zero_data_term_icm, @rand_data_term_icm};
     
     if numel(L.options.DataTermApproxFcn) ~= numel(L.options.DataTermApproxFactors)
         error(['ICM there are ' num2str(numel(L.options.DataTermApproxFcn))  ...

@@ -226,7 +226,7 @@ switch solver
         options.UpdateSampleRangeFcn = @linear_range_reduce_temperature_icm;
         
         % @zero_data_term_icm, @eval_render_function_always_icm,
-        % @eval_render_function_half_ite_icm
+        % @eval_render_function_half_ite_icm, @rand_data_term_icm
         options.DataTermFcn = {@eval_render_function_always_icm};
         
         % Factor that multiplies the result of each data term
