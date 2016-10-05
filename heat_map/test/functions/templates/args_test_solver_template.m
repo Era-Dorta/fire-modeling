@@ -270,6 +270,14 @@ switch solver
         
         options.GenDensityStd = 100;
         
+        % @cluster_reduce_none, @cluster_reduce_ftol, @cluster_reduce_each_ite
+        % @cluster_reduce_nth_ite
+        options.ClusterUpdateFnc = @cluster_reduce_each_ite;
+        
+        % Number of iterations after which the number of clusters in
+        % doubled, only used in @cluster_reduce_nth_ite
+        options.cluster_n_reduce = 2;
+        
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm
         initGuessFnc = @random_guess_icm;

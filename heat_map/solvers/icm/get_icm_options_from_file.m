@@ -220,6 +220,15 @@ else
     
 end
 
+%% ClusterUpdateFnc
+valid_foo = {@cluster_reduce_none, @cluster_reduce_ftol, ...
+    @cluster_reduce_each_ite, @cluster_reduce_nth_ite};
+
+if ~isequalFncCell(L.options.ClusterUpdateFnc, valid_foo)
+    error(['Unkown ICM ClusterUpdateFnc @' func2str(L.options.ClusterUpdateFnc) ...
+        ' in ' L.args_path]);
+end
+
 %% Return the full options struct
 options_out = L.options;
 
