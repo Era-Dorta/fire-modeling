@@ -1,4 +1,4 @@
-function [ heat_map_v, best_error, exitflag] = do_icm_re_density_solve( ...
+function [ heat_map_v, density_v, best_error, exitflag] = do_icm_re_density_solve( ...
     init_heat_map, fitness_foo, paths_str, summary_data, goal_img, goal_mask, ...
     opts, maya_send)
 % Gradient descent solver for heat map reconstruction
@@ -18,17 +18,22 @@ options.fdensity = min(summary_data.fitness_for_density);
 LB = ones(init_heat_map.count, 1) * opts.LB;
 UB = ones(init_heat_map.count, 1) * opts.UB;
 
+LBd = ones(init_heat_map.count, 1) * opts.LBd;
+UBd = ones(init_heat_map.count, 1) * opts.UBd;
+
 % Initial guess for ICM
 InitialPopulation = opts.initGuessFnc(init_heat_map, LB', UB');
+InitialPopulationd = opts.initGuessFnc(init_heat_map, LBd', UBd');
 
 % Save the initial value
-save(output_data_path, 'InitialPopulation');
+save(output_data_path, 'InitialPopulation', 'InitialPopulationd');
 
 %% Call the gradient descent optimization
 startTime = tic;
 
-[heat_map_v, best_error, exitflag, output] = icm_re(fitness_foo, InitialPopulation, ...
-    init_heat_map.xyz, LB, UB, options);
+[heat_map_v, density_v, best_error, exitflag, output] = icm_re_density(fitness_foo, ...
+    InitialPopulation, InitialPopulationd, init_heat_map.xyz, LB, UB, ...
+    LBd, UBd, options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
@@ -36,10 +41,11 @@ disp(['Optimization total time ' num2str(totalTime)]);
 %% Save data to file
 FinalScores = best_error;
 FinalPopulation = heat_map_v;
+FinalPopulationd = density_v;
 save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
 
 %% Visualize distance space
-%visualize_score_space(output_data_path, paths_str.visualization_fig_path);
+visualize_score_space(output_data_path, paths_str.visualization_fig_path);
 
 %% Save summary file
 
