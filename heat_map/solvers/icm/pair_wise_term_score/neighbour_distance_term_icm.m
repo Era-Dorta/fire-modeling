@@ -1,6 +1,6 @@
 function score = neighbour_distance_term_icm(i, n_i, x, ~, lb, ub)
 %NEIGHBOUR_DISTANCE_TERM_ICM sum(abs(x - neigh))
-score = ones(1, size(x, 1));
+score = zeros(1, size(x, 1));
 
 % Get the neighbours temperatures
 neigh = x(1, n_i);
