@@ -126,8 +126,8 @@ exposure_scales_range = [];
 % Number of samples in the scale range
 n_exposure_scale = 10;
 
-% Initial guess for exposure, ignored if no exposure extimation is done
-init_exposure = 150;
+% Initial guess for exposure, empty to use the one saved in the maya scene
+init_exposure = [];
 
 use_cache = true;
 
