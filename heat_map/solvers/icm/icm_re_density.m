@@ -315,7 +315,18 @@ d = d(1,:);
         else
             for k=1:optimValues.ite_inc:num_dim
                 kk = k:min(k+optimValues.ite_inc-1, num_dim);
-                score(kk) = calculate_score(kk, x, lb, ub);
+                
+                n_i = getNeighborsIndices_icm_re(kk, xyz, options.NeighbourhoodSize);
+                
+                score(kk) = pairwise_term(kk, n_i, x, lb, ub);
+                
+                if optimValues.do_temperature
+                    cur_score_pairwise_t(kk) = score(kk) - cur_score_pairwise_d(kk);
+                else
+                    cur_score_pairwise_d(kk) = score(kk) - cur_score_pairwise_t(kk);
+                end
+                
+                score(kk) = score(kk) + data_term_score(kk, x, lb, ub);
             end
         end
         
