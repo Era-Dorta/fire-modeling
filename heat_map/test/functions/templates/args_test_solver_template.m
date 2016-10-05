@@ -206,7 +206,7 @@ switch solver
         
         initCreationFnc = @gacreationheuristic3;
         creation_fnc_n_bins = 255;
-    case {'icm', 'icm-re'}
+    case {'icm', 'icm-re', 'icm-re-density'}
         options = struct();
         options.MaxIterations = max_ite;
         options.MaxFunctionEvaluations = maxFunEvals;
@@ -227,6 +227,7 @@ switch solver
         
         % @zero_data_term_icm, @eval_render_function_always_icm,
         % @eval_render_function_half_ite_icm, @rand_data_term_icm
+        % @eval_render_function_always_icm_density
         options.DataTermFcn = {@eval_render_function_always_icm};
         
         % Factor that multiplies the result of each data term
@@ -281,6 +282,11 @@ switch solver
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm
         initGuessFnc = @random_guess_icm;
+        
+        if strcmp(solver, 'icm-re-density')
+            LBd = 0.01;
+            UBd = 500;
+        end
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
             ' ''lhs'', ''icm'', ''icm-re'']'];

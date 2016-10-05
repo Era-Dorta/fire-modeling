@@ -96,6 +96,17 @@ for i=1:numel(L.options.DataTermFcn)
             optimValues, lb, ub) eval_render_function_always_icm ...
             (i, x,  options, optimValues, lb, ub, fitness_foo);
         
+    elseif isequal(L.options.DataTermFcn{i}, @eval_render_function_always_icm_density)
+        
+        L.options.DataTermFcn{i} = @( i, x,  options, ...
+            optimValues, lb, ub) eval_render_function_always_icm_density ...
+            (i, x,  options, optimValues, lb, ub, fitness_foo);
+        
+        if strcmp(L.solver, 'icm-re-density') == 0
+            error(['Invalid ICM DataTermFcn @eval_render_function_always_icm_density' ...
+                'can only be used with icm-re-density']);
+        end
+        
     else
         
         if ~isequalFncCell(L.options.DataTermFcn{i}, valid_foo)
@@ -131,6 +142,17 @@ else
             L.options.DataTermApproxFcn{i} = @( i, x,  options, ...
                 optimValues, lb, ub) eval_render_function_always_icm ...
                 (i, x,  options, optimValues, lb, ub, fitness_foo);
+            
+        elseif isequal(L.options.DataTermApproxFcn{i}, @eval_render_function_always_icm_density)
+            
+            L.options.DataTermApproxFcn{i} = @( i, x,  options, ...
+                optimValues, lb, ub) eval_render_function_always_icm_density ...
+                (i, x,  options, optimValues, lb, ub, fitness_foo);
+            
+            if strcmp(L.solver, 'icm-re-density') == 0
+                error(['Invalid ICM DataTermApproxFcn @eval_render_function_always_icm_density' ...
+                    'can only be used with icm-re-density']);
+            end
             
         elseif isequal(L.options.DataTermApproxFcn{i}, @eval_render_function_half_ite_icm)
             
