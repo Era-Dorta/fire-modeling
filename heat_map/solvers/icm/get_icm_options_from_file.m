@@ -201,10 +201,17 @@ valid_foo = {@icm_estimate_exposure_scale, @icm_estimate_exposure_none};
 
 if isequal(L.options.ExposureFnc, @icm_estimate_exposure_scale)
     
-    L.options.ExposureFnc = @(x, optimValues, state) ...
-        icm_estimate_exposure_scale(x, optimValues, state, ...
-        maya_send, L, init_heat_map, fitness_foo,  ...
-        paths_str.output_folder, num_goal);
+    if(strcmp(L.solver, 'icm-re-density'))
+        L.options.ExposureFnc = @(x, optimValues, state) ...
+            icm_density_estimate_exposure_scale(x, optimValues, state, ...
+            maya_send, L, init_heat_map, fitness_foo,  ...
+            paths_str.output_folder, num_goal);
+    else
+        L.options.ExposureFnc = @(x, optimValues, state) ...
+            icm_estimate_exposure_scale(x, optimValues, state, ...
+            maya_send, L, init_heat_map, fitness_foo,  ...
+            paths_str.output_folder, num_goal);
+    end
     
     if isempty(L.exposure_scales_range)
         error('exposure_scales_range is needed for icm_estimate_exposure_scale');
@@ -213,6 +220,7 @@ if isequal(L.options.ExposureFnc, @icm_estimate_exposure_scale)
     if L.use_cache
         error('use_cache must be set to false when using @icm_estimate_exposure_scale');
     end
+    
 else
     
     if ~isequalFncCell(L.options.ExposureFnc, valid_foo)
