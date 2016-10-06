@@ -49,7 +49,7 @@ visualize_score_space(output_data_path, paths_str.visualization_fig_path);
 
 %% Save summary file
 
-summary_data.OptimizationMethod = 'ICM with resampling';
+summary_data.OptimizationMethod = 'ICM temperature and density with resampling';
 summary_data.ImageError = best_error;
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
