@@ -288,6 +288,7 @@ switch solver
             UBd = 500;
             options.OutputFcn = [options.OutputFcn, {@icm_restore_raw_file}];
             options.DensityFnc = @icm_estimate_density_none;
+            options.ClusterUpdateFnc = @cluster_reduce_nth_ite;
         end
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
