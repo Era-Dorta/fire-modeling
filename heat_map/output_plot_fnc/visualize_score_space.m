@@ -12,9 +12,20 @@ L = load(data_file);
 in_data = [L.AllPopulation];
 scores = L.AllScores;
 
+if isfield(L, 'InitialPopulationd')
+    valid_idx = 1:2:size(in_data,1);
+    in_data = in_data(valid_idx,:);
+    scores = scores(valid_idx);
+end
+
 % Not enough data
 if size(in_data, 1) < 2
     return;
+end
+
+max_score = max(scores(:));
+if max_score > 1
+    scores = scores / max_score;
 end
 
 pairDists = pdist(in_data, 'euclidean');
