@@ -23,6 +23,7 @@ if ~isempty(opts.exposure_scales_range) && opts.is_custom_shader
         opts, init_heat_map, fitness_fnc, output_img_folder, out_dir, ...
         num_goal, k_samples);
     
+    disp(['Exposure factor is ' num2str(best_exposure)]);
 else
     best_exposure = [];
     f_val = [];

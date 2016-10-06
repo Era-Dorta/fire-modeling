@@ -35,6 +35,7 @@ if ~isempty(opts.density_scales_range)
         opts, init_heat_map, fitness_fnc, output_img_folder, out_dir, ...
         num_goal, k_samples);
     
+    disp(['Density factor is ' num2str(best_density)]);
 else
     best_density = [];
     f_val = [];
