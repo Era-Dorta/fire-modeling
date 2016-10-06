@@ -6,7 +6,9 @@ function [stop] = icm_restore_raw_file(x, optimValues, state, maya_send, ...
 stop = false;
 
 if strcmp(state, 'init')
-    mkdir(output_img_folder);
+    if exist(output_img_folder, 'dir') ~= 7
+        mkdir(output_img_folder);
+    end
     load_file();
     return;
 end
