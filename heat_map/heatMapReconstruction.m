@@ -282,9 +282,19 @@ try
                 init_heat_map.size, error_foo, opts.scene_name, opts.scene_img_folder,  ...
                 output_img_folder_name, maya_send, num_goal, prior_fncs, ...
                 prior_weights, opts.color_space, opts.use_cache, y);
-                
+            
             [heat_map_v, density_v, ~, ~] = do_icm_re_density_solve( init_heat_map, fitness_foo, ...
                 paths_str, summary_data, goal_img, goal_mask, opts, maya_send);
+            
+            density_v = density_v';
+            
+            % Save the best density_v in a raw file
+            density_path = fullfile(output_img_folder, 'density.raw');
+            disp(['Final density saved in ' density_path]);
+            density_map = struct('xyz', init_heat_map.xyz, 'v', density_v, 'size', ...
+                init_heat_map.size, 'count', init_heat_map.count);
+            save_raw_file(density_path, density_map);
+            plotHeatMap(density_map);
         otherwise
             solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
                 ' ''lhs'', ''icm'', ''icm-re'']'];
