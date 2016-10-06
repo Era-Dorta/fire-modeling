@@ -52,7 +52,6 @@ else
 end
 
 optimValues = options.ExposureFnc(d0, optimValues, state);
-optimValues = options.DensityFnc(d0, optimValues, state);
 
 [~, optimValues] = call_output_fnc_icm(d0, options, optimValues, state);
 
@@ -120,7 +119,6 @@ while(~stop)
         end
         
         optimValues = options.ExposureFnc(t(1,:), optimValues, state);
-        optimValues = options.DensityFnc(t(1,:), optimValues, state);
         
         % Update the score in case approximations where used
         cur_score = calculate_score_all(t(1,:), lbt, ubt);
@@ -174,7 +172,6 @@ while(~stop)
         end
         
         optimValues = options.ExposureFnc(d(1,:), optimValues, state);
-        optimValues = options.DensityFnc(d(1,:), optimValues, state);
         
         % Update the score in case approximations where used
         cur_score = calculate_score_all(d(1,:), lbd, ubd);
