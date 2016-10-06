@@ -189,7 +189,7 @@ try
         exposure_folder = fullfile(output_img_folder, 'exposure-estimates', 'initial');
         [best_exposure, f_exposure] = estimate_exposure_scale_initial( maya_send,  ...
             opts, init_heat_map, fitness_foo, output_img_folder, ...
-            exposure_folder, num_goal, true);
+            exposure_folder, num_goal, true, isempty(best_density));
         
         summary_data.best_exposure = best_exposure;
         summary_data.fitness_for_exposure = f_exposure;
