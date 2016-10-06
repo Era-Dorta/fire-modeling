@@ -42,45 +42,33 @@ Yq = fitToRange(Ynew, 0.5, newsize(2) + 0.5, 0.5, inheatmap.size(2) + 0.5);
 Zq = fitToRange(Znew, 0.5, newsize(3) + 0.5, 0.5, inheatmap.size(3) + 0.5);
 
 %% Interpolate the data
-% Create a sparse interpolator, linear extrapolation keeps the slope
-% between the last two known points creating too large and negative
-% temperatures. Nearest fills the space with the closest neighbour.
-% So we don't extrapolate values
-
-fs = scatteredInterpolant(inheatmap.xyz(:, 1), inheatmap.xyz(:, 2), ...
-    inheatmap.xyz(:, 3), inheatmap.v, 'linear', 'none' );
-
-% If increasing the size, do extrapolation
-if sum(inheatmap.size) <  sum(newsize)
-    fs.ExtrapolationMethod = 'linear';
-end
-
-% Convert InterpEmptyTri3DWarn from warnings to errors
-s = warning('Query', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId');
-warning('error', 'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId'); %#ok<CTPCT>
-
-try
-    Vq = fs(Xq, Yq, Zq);
+if false
+    % Create a sparse interpolator, linear extrapolation keeps the slope
+    % between the last two known points creating too large and negative
+    % temperatures. Nearest fills the space with the closest neighbour.
+    % So we don't extrapolate values
     
-catch ME
-    % In case of failure try with dense interpolant
-    if (strcmp(ME.identifier,'MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId'))
-        volumeSize = inheatmap.size;
-        V = zeros(volumeSize(1), volumeSize(2), volumeSize(3)) + mean(inheatmap.v) - std(inheatmap.v);
-        vInd = sub2ind(volumeSize, inheatmap.xyz(:,1), inheatmap.xyz(:,2), inheatmap.xyz(:,3));
-        V(vInd) = inheatmap.v;
-        
-        fs = griddedInterpolant(V, 'linear', 'nearest');
-        
-        Vq = fs(Xq, Yq, Zq);
-    else
-        warning(s);
-        rethrow(ME);
+    fs = scatteredInterpolant(inheatmap.xyz(:, 1), inheatmap.xyz(:, 2), ...
+        inheatmap.xyz(:, 3), inheatmap.v, 'linear', 'none' );
+    
+    % If increasing the size, do extrapolation
+    if sum(inheatmap.size) <  sum(newsize)
+        fs.ExtrapolationMethod = 'linear';
     end
+    
+    Vq = fs(Xq, Yq, Zq);
+else
+    % Use dense interpolant, explicitly fill in the space in the points
+    % with zeros (or with a low value)
+    volumeSize = inheatmap.size;
+    V = zeros(volumeSize(1), volumeSize(2), volumeSize(3)) + mean(inheatmap.v) - std(inheatmap.v);
+    vInd = sub2ind(volumeSize, inheatmap.xyz(:,1), inheatmap.xyz(:,2), inheatmap.xyz(:,3));
+    V(vInd) = inheatmap.v;
+    
+    fs = griddedInterpolant(V, 'linear', 'nearest');
+    
+    Vq = fs(Xq, Yq, Zq);
 end
-
-% Restore the warning to previous state
-warning(s);
 
 % Extrapolated values are NaN, set them to zero
 Vq(isnan(Vq)) = 0;
