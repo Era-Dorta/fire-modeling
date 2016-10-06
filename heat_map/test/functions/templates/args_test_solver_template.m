@@ -286,6 +286,8 @@ switch solver
         if strcmp(solver, 'icm-re-density')
             LBd = 0.01;
             UBd = 500;
+            options.OutputFcn = [options.OutputFcn, {@icm_restore_raw_file}];
+            options.DensityFnc = @icm_estimate_density_none;
         end
     otherwise
         solver_names = ['[''ga'', ''sa'', ''ga-re'', ''grad'', ''cmaes'',' ...
