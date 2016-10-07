@@ -18,8 +18,8 @@ goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/tri-map.png'};
 in_img_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/test110_like_109_close_camera.tif'};
 in_img_bg_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/background-new.png'};
 mask_img_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/mask.png'};
-raw_file_path = 'data/from_dmitry/vox_bin_00841_clean.raw2';
-density_file_path = '~/maya/projects/fire/data/from_dmitry/vox_bin_00841_clean.raw2';
+raw_file_path = 'data/from_dmitry/vox_bin_00841_clean_256.raw2';
+density_file_path = '~/maya/projects/fire/data/from_dmitry/vox_bin_00841_clean_256.raw2';
 
 scene_name = 'test110_like_109_close_camera';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
