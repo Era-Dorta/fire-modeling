@@ -36,6 +36,7 @@ error_foo = {@MSEPerceptual};
 prior_fncs = {};
 prior_weights = 1;
 
+exposure_scales_range = [0.01 1000];
 density_scales_range = [0.01 1000];
 
 use_cache = false;
