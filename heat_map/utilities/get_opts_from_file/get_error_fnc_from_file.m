@@ -26,18 +26,18 @@ for i=1:numel(opts.error_foo)
         
     elseif isequal(opts.error_foo{i}, @MSE)
         
-        error_fnc{i} = @(syn_img) MSE(goal_img, syn_img, goal_mask, ...
-            syn_img_mask);
+        error_fnc{i} = @(syn_img) MSE(syn_img, goal_img, syn_img_mask, ...
+            goal_mask);
         
     elseif isequal(opts.error_foo{i}, @MSEPerceptual)
         
-        error_fnc{i} = @(syn_img) MSEPerceptual(goal_img, syn_img, goal_mask, ...
-            syn_img_mask);
+        error_fnc{i} = @(syn_img) MSEPerceptual(syn_img, goal_img, syn_img_mask, ...
+            goal_mask);
         
     elseif isequal(opts.error_foo{i}, @MSEPerceptualExp)
         
-        error_fnc{i} = @(syn_img) MSEPerceptualExp(goal_img, syn_img, goal_mask, ...
-            syn_img_mask);
+        error_fnc{i} = @(syn_img) MSEPerceptualExp(syn_img, goal_img, syn_img_mask, ...
+            goal_mask);
         
     elseif isequal(opts.error_foo{i}, @imageSideDistribution)
         
