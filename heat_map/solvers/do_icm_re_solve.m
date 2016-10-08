@@ -39,7 +39,7 @@ FinalPopulation = heat_map_v;
 save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
 
 %% Visualize distance space
-visualize_score_space(output_data_path, paths_str.visualization_fig_path);
+visualize_score_space_simple(output_data_path, paths_str.visualization_fig_path);
 
 %% Save summary file
 
