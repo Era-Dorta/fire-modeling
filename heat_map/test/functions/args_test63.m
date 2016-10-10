@@ -37,7 +37,7 @@ prior_fncs = {};
 prior_weights = 1;
 
 exposure_scales_range = [0.01 1000];
-density_scales_range = [0.01 1000];
+density_scales_range = [0.01 300];
 
 use_cache = false;
 
@@ -45,7 +45,7 @@ options.CreateSamplesFcn = @generate_gaussian_temperatures_icm;
 options.UpdateSampleRangeFcn = @update_range_none_icm;
 options.DataTermApproxFcn = {@eval_render_function_always_icm};
 options.DataTermFcn = {@eval_render_function_always_icm};
-options.PairWiseTermFcn = {@zero_pairwise_score_icm};
+options.PairWiseTermFcn = {@neighbour_distance_term_icm};
 options.PairWiseTermFactors = [10];
 
 initGuessFnc = @getMeanTemp_icm;
