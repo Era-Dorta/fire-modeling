@@ -22,7 +22,7 @@ args_test_solver_template(args_path, solver);
 L = load(args_path);
 options = L.options;
 
-goal_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/goal1.tif'};
+goal_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/goal1.png'};
 goal_mask_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/trimap1-ext.png'};
 in_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/synthetic1.tif'};
 mask_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/trimap1-ext.png'};
