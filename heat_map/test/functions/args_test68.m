@@ -54,15 +54,6 @@ initGuessFnc = @random_guess_icm;
 
 options.NeighbourhoodSize = 1;
 
-%%
-options.TemperatureNSamples = 1;
-max_ite = 1;
-options.MaxIterations = max_ite;
-exposure_scales_range = [10 200];
-density_scales_range = [1 100];
-n_exposure_scale = 1;
-n_density_scale = 1;
-
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 
