@@ -374,13 +374,13 @@ try
         
         c_img = imread([output_img_folder 'optimized-Cam1.tif']);
         c_img = c_img(:,:,1:3); % Transparency is not used, so ignore it
-        c_img = colorspace_transform_imgs(c_img, 'RGB', opts.color_space);
+        c_img = colorspace_transform_imgs({c_img}, 'RGB', opts.color_space);
         
         clear_cache; % Clear the fnc cache as we are evaluating again
         
         single_error = 0;
         for i=1:numel(error_foo)
-            single_error = single_error + sum(error_foo{i}({c_img})) * ...
+            single_error = single_error + sum(error_foo{i}(c_img)) * ...
                 opts.prior_weights(i);
         end
         
