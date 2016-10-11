@@ -10,7 +10,9 @@ if ~isempty(opts.exposure_scales_range) && opts.is_custom_shader
     
     if use_mean_d
         raw_folder = fullfile(output_img_folder, 'temp-raw-files');
-        mkdir(raw_folder);
+        if exist(raw_folder, 'dir') ~= 7
+            mkdir(raw_folder);
+        end
         heat_map_path = fullfile(raw_folder, 'density-for-exposure-estimate-initial.raw');
         init_heat_map.v(:) = mean([opts.LBd, opts.UBd]);
         save_raw_file(heat_map_path, init_heat_map);

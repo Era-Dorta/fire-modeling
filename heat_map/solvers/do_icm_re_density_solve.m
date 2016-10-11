@@ -28,6 +28,12 @@ InitialPopulationd = opts.initGuessFnc(init_heat_map, LBd', UBd');
 % Save the initial value
 save(output_data_path, 'InitialPopulation', 'InitialPopulationd');
 
+% Load the initial temperature
+optimValues.do_temperature = true;
+optimValues.iteration = 0;
+icm_restore_raw_file(InitialPopulation, optimValues, 'init', maya_send, ...
+    init_heat_map, fullfile(paths_str.output_folder, 'temp-raw-files'));
+
 %% Call the gradient descent optimization
 startTime = tic;
 

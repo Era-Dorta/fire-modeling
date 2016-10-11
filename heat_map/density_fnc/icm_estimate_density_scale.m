@@ -4,11 +4,26 @@ function [optimValues] = icm_estimate_density_scale(x, optimValues, state, ...
 %
 %   See also do_gradient_solve
 
+if strcmp(state,'init')
+    init_heat_map.v = x';
+    
+    density_folder = fullfile(output_img_folder, 'density-estimates', 'initial');
+    [out_density, f_val] =  estimate_density_scale_initial( maya_send,  ...
+        opts, init_heat_map, fitness_fnc, output_img_folder, ...
+        density_folder, num_goal, false);
+    
+    optimValues.density = out_density;
+    optimValues.fdensity = min(f_val);
+    
+    optimValues.funccount = optimValues.funccount + numel(f_val);
+    return;
+end
+
 if strcmp(state,'iter')
     options = opts.options;
     init_heat_map.v = x';
     out_dir = fullfile(output_img_folder, 'density-estimates',  ...
-        ['iter-' num2str(optimValues.iteration)]);
+        [state '-' num2str(optimValues.iteration)]);
     
     options.GenDensityStd = options.GenDensityStd - options.GenDensityStd * ...
         optimValues.iteration / options.MaxIterations;
