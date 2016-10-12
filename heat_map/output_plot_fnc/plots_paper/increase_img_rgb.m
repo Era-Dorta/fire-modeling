@@ -1,12 +1,11 @@
 function increase_img_rgb()
 folder = '~/workspaces/github/paper/images';
-imgs_name = {'four-columns-point-light.png', 'teaser1.png', 'teaser2.png'};
+imgs_name = {'overview-illuminated.png', 'four-columns-point-light.png', 'teaser1.png', 'teaser2.png'};
 for i=1:numel(imgs_name)
-    img = imread(fullfile(folder, imgs_name{i}));
     [~, name, ext] = fileparts(imgs_name{i});
-    movefile(fullfile(folder, imgs_name{i}),fullfile(folder, [name '-original' ext]));
+    img = imread(fullfile(folder, [name '-original' ext]));
     
-    img = img + 20;
+    img = img + 40;
     
     % Saving in png changes the color, use tif
     imwrite(img, fullfile(folder, [name '.tif']));
