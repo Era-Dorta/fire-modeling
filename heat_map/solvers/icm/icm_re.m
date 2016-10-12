@@ -134,6 +134,7 @@ while(~stop)
     end
     
     display_info_icm(options, optimValues, num_dim);
+    user_stop_script;
 end
 
 %% Clean up, exit state

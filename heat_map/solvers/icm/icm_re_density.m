@@ -203,6 +203,7 @@ while(~stop)
     optimValues.do_temperature = ~optimValues.do_temperature;
     
     display_info_icm(options, optimValues, num_dim);
+    user_stop_script;
 end
 
 %% Clean up, exit state
