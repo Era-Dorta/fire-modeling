@@ -113,8 +113,8 @@ xlim(x_axis_lim);
 ylim(y_axis_lim);
 
 % Do hidden plots to get the colors right in the legend
-hl1 = plot(inf, inf, 'ro');
-hl2 = plot(inf, inf, 'go');
+hl1 = plot(inf, inf, 'go');
+hl2 = plot(inf, inf, 'ro');
 hl3 = plot(inf, inf, 'bo');
 
 % ith iteration population
@@ -131,7 +131,9 @@ viscircles(Y(end,:), scores(end)*rscale, 'Color','b', 'LineWidth', line_width);
 
 % Legend using only the handlers that we are interested in
 legend([hl1, hl2, hl3], 'Initial', 'Intermediate','Final', ...
-    'Location', 'northoutside', 'Orientation', 'horizontal');
+    'Location', 'best', 'Orientation', 'horizontal');
+axis tight;
+axis equal;
 hold off;
 
 saveas(fig_h, fig_save_path, 'tiff');
