@@ -51,6 +51,8 @@ options.PairWiseTermFactors = [10];
 initGuessFnc = @getMeanTemp_icm;
 
 options.NeighbourhoodSize = 1;
+max_ite = 30;
+options.MaxIterations = max_ite;
 
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');

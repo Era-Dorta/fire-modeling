@@ -49,6 +49,8 @@ options.PairWiseTermFcn = {@zero_pairwise_score_icm};
 options.PairWiseTermFactors = [10];
 
 initGuessFnc = @getMeanTemp_icm;
+max_ite = 30;
+options.MaxIterations = max_ite;
 
 options.NeighbourhoodSize = 1;
 

@@ -58,6 +58,9 @@ initGuessFnc = @getMeanTemp_icm;
 
 options.NeighbourhoodSize = 1;
 
+max_ite = 20;
+options.MaxIterations = max_ite;
+
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
 

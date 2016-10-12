@@ -207,6 +207,7 @@ switch solver
         initCreationFnc = @gacreationheuristic3;
         creation_fnc_n_bins = 255;
     case {'icm', 'icm-re', 'icm-re-density'}
+        max_ite = 15;
         options = struct();
         options.MaxIterations = max_ite;
         options.MaxFunctionEvaluations = maxFunEvals;
@@ -220,7 +221,7 @@ switch solver
         % @generate_gaussian_temperatures_icm
         options.CreateSamplesFcn = @generate_linspace_temperatures_icm;
         
-        options.GenTempStd = 200;
+        options.GenTempStd = 400;
         
         % @linear_range_reduce_temperature_icm, @update_range_none_icm
         options.UpdateSampleRangeFcn = @linear_range_reduce_temperature_icm;
