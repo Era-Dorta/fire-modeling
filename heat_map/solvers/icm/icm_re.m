@@ -134,7 +134,8 @@ while(~stop)
     end
     
     display_info_icm(options, optimValues, num_dim);
-    user_stop_script;
+    clear user_stop_script; % Reload the function, file might have changed
+    user_stop_script; % Check if the user wants to stop
 end
 
 %% Clean up, exit state
