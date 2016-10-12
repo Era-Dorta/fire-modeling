@@ -53,6 +53,13 @@ end
 
 optimValues = options.ExposureFnc(d0, optimValues, state);
 
+% Put the same value in all clusters
+for i=1:optimValues.ite_inc:num_dim
+    ii = i:min(i+optimValues.ite_inc-1, num_dim);
+    d0(ii) = mean(d0(ii));
+    t0(ii) = mean(t0(ii));
+end
+
 [~, optimValues] = call_output_fnc_icm(d0, options, optimValues, state);
 
 %% First "iteration" is just an evaluation of the initial point

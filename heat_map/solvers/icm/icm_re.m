@@ -58,6 +58,12 @@ optimValues = options.ExposureFnc(x0, optimValues, state);
 % replicate the behaviour of the other solvers
 state = 'iter';
 
+% Put the same value in all clusters
+for i=1:optimValues.ite_inc:num_dim
+    ii = i:min(i+optimValues.ite_inc-1, num_dim);
+    x0(ii) = mean(x0(ii));
+end
+
 cur_score = calculate_score_all(x0);
 
 optimValues.fval = mean(cur_score);
