@@ -35,22 +35,21 @@ scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 
 error_foo = {@MSEPerceptual};
 prior_fncs = {@smoothnessEstimateGrad};
-prior_weights = [0.5, 0.5];
+prior_weights = [1, 5e3];
 
 % Data from icm-re-search8-size128-xyz-ordered-exp-density-cluster-each-ite-6-hours
 init_exposure = 57.3888741892001;
 maya_new_density_scale = 151.771899639965;
 
-use_cache = false;
-
 color_space = 'Lab';
 
 options = L.options;
 
-options.CreationFcn = @gacreationrandom;
+options.CreationFcn = @gacreationlinspace;
 options.CrossoverFcn = @gacrossovercombine2;
 options.MutationFcn = @mutationadaptfeasible;
 options.OutputFcns = [options.OutputFcns, {@ga_user_interrupt}];
+options.PopulationSize = 400;
 
 max_ite = 30;
 maxFunEvals = 1e8;
