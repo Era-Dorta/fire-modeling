@@ -192,6 +192,8 @@ for i=1:numel(L.options.OutputFcns)
         % Save scores and best per generation in a file
         L.options.OutputFcns{i} = @(options, state, flag)gasavescores( ...
             options, state, flag, output_data_path);
+    elseif isequal(L.options.OutputFcns{i}, @ga_user_interrupt)
+        % Do nothing        
     else
         error(['Unkown GA OutputFcn @' func2str(L.options.OutputFcns{i}) ...
             ' in ' L.args_path]);
