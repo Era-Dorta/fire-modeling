@@ -45,7 +45,7 @@ if state.Generation == 0
     xlabel('Generation')
     ylabel('Error')
     set(gca,'xlim', [0, 1]);
-    set(gca,'ylim', [0, 1]);
+%     set(gca,'ylim', [0, 1]);
     
     % For the initial population the state.Best variable is empty, so
     % compute the values from the Score
@@ -72,6 +72,9 @@ plot(0:state.Generation, GAPLOTMEAN, '-go');
 if state.Generation == 0
     % It has to be called after at least one plot(...)
     legend('Best', 'Mean');
+    
+    ylim1 = get(gca, 'ylim');
+    set(gca,'ylim', [0, ylim1(2)]);
 end
 
 hold off;
