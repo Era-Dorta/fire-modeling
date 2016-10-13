@@ -74,7 +74,6 @@ while(~stop)
     
     % Iterate for each voxel
     for i=1:num_dim
-        
         % Get temperature for the current voxel
         cur_temp = x(1, i);
         
@@ -99,6 +98,10 @@ while(~stop)
         
         [tlr, tur] = options.UpdateSampleRangeFcn(i, cur_temp, t, tlr, tur);
         
+        clear user_stop_script; % Reload the function, file might have changed
+        if user_stop_fnc()
+            break;
+        end
     end
     
     optimValues = options.DensityFnc(x(1,:), optimValues, state);
@@ -121,8 +124,9 @@ while(~stop)
         [stop, optimValues] = check_exit_conditions_icm(options, optimValues, current_score);
     end
     
-    clear user_stop_script; % Reload the function, file might have changed
-    user_stop_script; % Check if the user wants to stop
+    if user_stop_fnc()
+        stop = true;
+    end
 end
 
 %% Clean up, exit state
