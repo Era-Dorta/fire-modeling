@@ -27,8 +27,8 @@ goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/tri-map-aligne
 in_img_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/test110_like_109_close_camera.tif'};
 in_img_bg_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/background-new.png'};
 mask_img_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/mask.png'};
-raw_file_path = 'data/from_dmitry/vox_bin_00841_clean_128.raw2';
-density_file_path = '~/maya/projects/fire/data/from_dmitry/vox_bin_00841_clean_128.raw2';
+raw_file_path = 'data/from_dmitry/vox_bin_00841_clean_32.raw2';
+density_file_path = '~/maya/projects/fire/data/from_dmitry/vox_bin_00841_clean_32.raw2';
 
 scene_name = 'test111_no_background';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
@@ -55,7 +55,7 @@ options.PairWiseTermFactors = [10];
 max_ite = 30;
 options.MaxIterations = max_ite;
 
-initGuessFnc = @random_guess_icm;
+initGuessFnc = @getMeanTemp_icm;
 
 options.NeighbourhoodSize = 1;
 
