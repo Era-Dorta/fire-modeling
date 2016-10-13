@@ -51,6 +51,7 @@ options.DataTermApproxFcn = {@eval_render_function_always_icm_density};
 options.DataTermFcn = {@eval_render_function_always_icm_density};
 options.PairWiseTermFcn = {@neighbour_distance_term_icm};
 options.PairWiseTermFactors = [10];
+options.TemperatureNSamples = 30;
 
 max_ite = 30;
 options.MaxIterations = max_ite;
@@ -58,6 +59,10 @@ options.MaxIterations = max_ite;
 initGuessFnc = @getMeanTemp_icm;
 
 options.NeighbourhoodSize = 1;
+
+maxFunEvals = 6500; % Maximum number of allowed function evaluations
+time_limit = 4 * 60 * 60; % Two hours
+options.MaxFunctionEvaluations = maxFunEvals;
 
 % Save all but L
 save(args_path, '-regexp','^(?!(L|data_dir)$).', '-append');
