@@ -76,6 +76,8 @@ optimValues = options.ClusterUpdateFnc(x(1,:), options, optimValues, state);
 
 display_info_icm(options, optimValues, num_dim);
 
+must_stop = [true,true,true];
+
 %% Main loop
 while(~stop)
     
@@ -110,10 +112,36 @@ while(~stop)
         
         [tlr, tur] = options.UpdateSampleRangeFcn(ii, cur_temp, t, tlr, tur);
         
+        if (must_stop(1) && optimValues.funccount >= 2296)
+            must_stop(1) = false;
+            keyboard;
+        end
+        if (must_stop(2) && optimValues.funccount >= 4593)
+            must_stop(2) = false;
+            keyboard;
+        end
+        if (must_stop(3) && optimValues.funccount >= 6890)
+            must_stop(3) = false;
+            keyboard;
+        end
     end
     
     optimValues = options.DensityFnc(x(1,:), optimValues, state);
     optimValues = options.ExposureFnc(x(1,:), optimValues, state);
+    
+    if (must_stop(1) && optimValues.funccount >= 2296)
+        must_stop(1) = false;
+        keyboard;
+    end
+    if (must_stop(2) && optimValues.funccount >= 4593)
+        must_stop(2) = false;
+        keyboard;
+    end
+    if (must_stop(3) && optimValues.funccount >= 6890)
+        must_stop(3) = false;
+        keyboard;
+    end
+    
     
     % Update the score in case approximations where used
     cur_score = calculate_score_all(x(1,:));
@@ -136,6 +164,20 @@ while(~stop)
     display_info_icm(options, optimValues, num_dim);
     clear user_stop_script; % Reload the function, file might have changed
     user_stop_script; % Check if the user wants to stop
+    
+    if (must_stop(1) && optimValues.funccount >= 2296)
+        must_stop(1) = false;
+        keyboard;
+    end
+    if (must_stop(2) && optimValues.funccount >= 4593)
+        must_stop(2) = false;
+        keyboard;
+    end
+    if (must_stop(3) && optimValues.funccount >= 6890)
+        must_stop(3) = false;
+        keyboard;
+    end
+    
 end
 
 %% Clean up, exit state
