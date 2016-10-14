@@ -100,6 +100,7 @@ while(~stop)
         
         clear user_stop_fnc; % Reload the function, file might have changed
         if user_stop_fnc()
+            disp('User stop fcn exit');
             break;
         end
     end
