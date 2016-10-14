@@ -98,7 +98,7 @@ while(~stop)
         
         [tlr, tur] = options.UpdateSampleRangeFcn(i, cur_temp, t, tlr, tur);
         
-        clear user_stop_script; % Reload the function, file might have changed
+        clear user_stop_fnc; % Reload the function, file might have changed
         if user_stop_fnc()
             break;
         end
