@@ -11,6 +11,7 @@
 
 #include "Spectrum.h"
 #include "miaux.h"
+#include <cmath>
 
 VoxelDatasetColor::VoxelDatasetColor() :
 		VoxelDataset<openvdb::Vec3f, openvdb::Vec3fTree>(
@@ -417,7 +418,7 @@ void VoxelDatasetColor::remove_specials(openvdb::Vec3f& v) {
 }
 
 void VoxelDatasetColor::remove_specials(float &v) {
-	if (isnan(v) || isnan(-v) || isinf(v) || isinf(-v)) {
+	if (std::isnan(v) || std::isnan(-v) || std::isinf(v) || std::isinf(-v)) {
 		v = 0;
 	}
 }
