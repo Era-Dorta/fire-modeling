@@ -7,8 +7,12 @@ function plotHeatMap( heat_map, scale_factor, new_fig )
 
 persistent FIG_H
 
-if isempty(FIG_H) || nargin <= 2 || new_fig 
-    FIG_H = figure;
+if isempty(FIG_H) || nargin <= 2 || isgraphics(new_fig, 'figure') || new_fig
+    if nargin >= 3 && isgraphics(new_fig, 'figure')
+        FIG_H = new_fig;
+    else
+        FIG_H = figure;
+    end
 end
 
 % Do a simple color mapping from the temperatures
