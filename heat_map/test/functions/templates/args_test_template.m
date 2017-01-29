@@ -131,6 +131,8 @@ init_exposure = [];
 
 use_cache = true;
 
+use_ram_fs = true;
+
 clearvars('multi_goal', 'symmetric');
 
 % Save all the variables in a mat file but the listed below

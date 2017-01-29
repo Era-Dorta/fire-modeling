@@ -86,7 +86,7 @@ try
     
     %% Ouput folder
     disp(['Creating new output folder ' output_img_folder]);
-    mkdir(opts.scene_img_folder, output_img_folder_name);
+    create_test_folder(output_img_folder_name, opts);
     
     %% Maya initialization
     % TODO Render once and test if an image is created, if not -> activate
@@ -430,7 +430,7 @@ try
     copyfile(args_path, output_img_folder);
     
     %% Resource clean up after execution
-    
+    move_temp_files( output_img_folder_name, opts);
     % If running in batch mode, exit matlab
     if(isBatchMode())
         move_file( logfile, [output_img_folder 'matlab.log'] );
@@ -451,10 +451,13 @@ try
 catch ME
     if(isBatchMode())
         disp(getReport(ME));
-        if(exist('logfile', 'var') && exist('output_img_folder', 'var'))
-            move_file( logfile, [output_img_folder 'matlab.log'] );
-            if(exist('ports', 'var'))
-                copy_maya_log_files(logfile, output_img_folder, ports);
+        if exist('output_img_folder', 'var')
+            move_temp_files( output_img_folder_name, opts);
+            if exist('logfile', 'var')
+                move_file( logfile, [output_img_folder 'matlab.log'] );
+                if(exist('ports', 'var'))
+                    copy_maya_log_files(logfile, output_img_folder, ports);
+                end
             end
         end
         exit(1);
