@@ -271,19 +271,23 @@ switch solver
         options.DensityFnc = @icm_estimate_density_scale;
         
         options.GenDensityStd = 100;
-
+        
         options.initial_num_clusters = 2;
         
         % @k_means_cluster, @sequential_cluster
         options.ClusterFnc = @sequential_cluster;
         
         % @cluster_reduce_none, @cluster_reduce_ftol, @cluster_reduce_each_ite
-        % @cluster_reduce_nth_ite
+        % @cluster_reduce_nth_ite, @cluster_update_array
         options.ClusterUpdateFnc = @cluster_reduce_each_ite;
         
         % Number of iterations after which the number of clusters in
         % doubled, only used in @cluster_reduce_nth_ite
         options.cluster_n_reduce = 2;
+        
+        % Number of clusters in each iteration for @cluster_update_array,
+        % -1 is used to not use clustering
+        options.cluster_n_array = [4, 8, -1];
         
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm
