@@ -256,6 +256,14 @@ else
     
 end
 
+%% ClusterFnc
+valid_foo = {@k_means_cluster, @sequential_cluster};
+
+if ~isequalFncCell(L.options.ClusterFnc, valid_foo)
+    error(['Unkown ICM ClusterFnc @' func2str(L.options.ClusterUpdateFnc) ...
+        ' in ' L.args_path]);
+end
+
 %% ClusterUpdateFnc
 valid_foo = {@cluster_reduce_none, @cluster_reduce_ftol, ...
     @cluster_reduce_each_ite, @cluster_reduce_nth_ite};

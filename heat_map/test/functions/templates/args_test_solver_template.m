@@ -271,6 +271,11 @@ switch solver
         options.DensityFnc = @icm_estimate_density_scale;
         
         options.GenDensityStd = 100;
+
+        options.initial_num_clusters = 2;
+        
+        % @k_means_cluster, @sequential_cluster
+        options.ClusterFnc = @sequential_cluster;
         
         % @cluster_reduce_none, @cluster_reduce_ftol, @cluster_reduce_each_ite
         % @cluster_reduce_nth_ite

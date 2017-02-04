@@ -8,9 +8,9 @@ if optimValues.iteration == 0
     return;
 end
 
-if optimValues.ite_inc > 1 && ...
+if optimValues.num_clusters < numel(x) && ...
         (abs(optimValues.fval- prev_fval ) < options.FunctionTolerance)        
-    optimValues.ite_inc = round(optimValues.ite_inc / 2);    
+    optimValues.num_clusters = min(optimValues.num_clusters * 2, numel(x));
 end
 end
 

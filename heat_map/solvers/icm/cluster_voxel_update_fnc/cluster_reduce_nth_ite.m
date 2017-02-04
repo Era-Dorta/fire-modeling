@@ -4,9 +4,9 @@ function [optimValues] = cluster_reduce_nth_ite(~, options, optimValues, ~)
 if optimValues.iteration == 0
     return;
 end
-if optimValues.ite_inc > 1 && ...
+if optimValues.num_clusters < numel(x) && ...
         mod(optimValues.iteration, options.cluster_n_reduce) == 0
-    optimValues.ite_inc = round(optimValues.ite_inc / 2);    
+    optimValues.num_clusters = min(optimValues.num_clusters * 2, numel(x));
 end
 end
 

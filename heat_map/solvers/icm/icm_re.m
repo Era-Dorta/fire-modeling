@@ -14,13 +14,13 @@ optimValues.fval = 1;
 optimValues.iteration = 0;
 optimValues.funccount = 0;
 optimValues.procedure = 'Initial message';
-optimValues.ite_inc = round(num_dim / 2);
+optimValues.num_clusters = options.initial_num_clusters;
 optimValues.exposure = options.exposure;
 optimValues.fexposure = options.fexposure;
 optimValues.density = options.density;
 optimValues.fdensity = options.fdensity;
 
-prev_ite_inc = optimValues.ite_inc;
+prev_num_clusters = optimValues.num_clusters;
 
 if options.DataTermEvalVM > 0.5
     % More than 50% evaluations, use random generator
@@ -58,10 +58,11 @@ optimValues = options.ExposureFnc(x0, optimValues, state);
 % replicate the behaviour of the other solvers
 state = 'iter';
 
+[clusters_idx, optimValues] = options.ClusterFnc(x0, xyz, options, optimValues, state);
+
 % Put the same value in all clusters
-for i=1:optimValues.ite_inc:num_dim
-    ii = i:min(i+optimValues.ite_inc-1, num_dim);
-    x0(ii) = mean(x0(ii));
+for i=1:optimValues.num_clusters
+    x0(clusters_idx{i}) = mean(x0(clusters_idx{i}));
 end
 
 cur_score = calculate_score_all(x0);
@@ -70,8 +71,6 @@ optimValues.fval = mean(cur_score);
 
 % Replicate x to be able to evaluate in parallel
 x = repmat(x0, options.TemperatureNSamples, 1);
-
-optimValues = options.ClusterUpdateFnc(x(1,:), options, optimValues, state);
 [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
 
 display_info_icm(options, optimValues, num_dim);
@@ -81,9 +80,9 @@ while(~stop)
     
     current_score = mean(cur_score);
     
-    % Iterate for each voxel
-    for i=1:optimValues.ite_inc:num_dim
-        ii = i:min(i+optimValues.ite_inc-1, num_dim);
+    % Iterate for each cluster
+    for i=1:optimValues.num_clusters
+        ii = clusters_idx{i};
         iis = numel(ii);
         % Get temperature for the current voxel
         cur_temp = x(1, i);
@@ -122,7 +121,7 @@ while(~stop)
     
     optimValues.iteration = optimValues.iteration + 1;
     
-    optimValues = options.ClusterUpdateFnc(x(1,:), options, optimValues, state);
+    [clusters_idx, optimValues] = options.ClusterFnc(x(1,:), xyz, options, optimValues, state);
     cur_score = recompute_after_cluster_update(x(1,:), cur_score);
     
     [stop, optimValues] = call_output_fnc_icm(x, options, optimValues, state);
@@ -227,16 +226,16 @@ x = x(1,:);
             
             score(:) = data_score * options.DataTermFactors(1);
             
-            for k=1:optimValues.ite_inc:num_dim
-                kk = k:min(k+optimValues.ite_inc-1, num_dim);
+            for k=1:optimValues.num_clusters
+                kk = clusters_idx{k};
                 n_i = getNeighborsIndices_icm_re(kk, xyz, options.NeighbourhoodSize);
                 
                 score(kk) = score(kk) + pairwise_term(kk, n_i, x);
             end
             
         else
-            for k=1:optimValues.ite_inc:num_dim
-                kk = k:min(k+optimValues.ite_inc-1, num_dim);
+            for k=1:optimValues.num_clusters
+                kk = clusters_idx{k};
                 score(kk) = calculate_score(kk, x);
             end
         end
@@ -244,14 +243,14 @@ x = x(1,:);
     end
 
     function [score] = recompute_after_cluster_update(x, score)
-        if(prev_ite_inc ~= optimValues.ite_inc)
-            new_inc = optimValues.ite_inc;
-            optimValues.ite_inc = prev_ite_inc;
+        if(prev_num_clusters ~= optimValues.num_clusters)
+            new_num_clusters = optimValues.num_clusters;
+            optimValues.num_clusters = prev_num_clusters;
             
             display_info_icm(options, optimValues, num_dim);
             
-            optimValues.ite_inc = new_inc;
-            prev_ite_inc = optimValues.ite_inc;
+            optimValues.num_clusters = new_num_clusters;
+            prev_num_clusters = optimValues.num_clusters;
             
             score = calculate_score_all(x);
             
