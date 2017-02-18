@@ -57,9 +57,12 @@ scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 
 error_foo = {@MSEPerceptual};
 prior_fncs = {};
-prior_weights = [1, 1];
+prior_weights = [1];
+
+skip_img_preprocessing = true;
 
 if use_prev_frame
+    prior_weights = [prior_weights, 1];
     exposure_scales_range = [];
 else
     exposure_scales_range = [0.01 1000];

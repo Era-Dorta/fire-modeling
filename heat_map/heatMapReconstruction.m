@@ -111,7 +111,7 @@ try
     summary_data.p_goal_img_path = save_cell_images( goal_img, ...
         norm_names, preprocessed_path);
     
-    if opts.use_prev_frame
+    if opts.skip_img_preprocessing || opts.use_prev_frame
         bin_mask_threshold = goal_mask;
         in_bg_img = cellfun(@not, goal_mask, 'UniformOutput', false);
     else
