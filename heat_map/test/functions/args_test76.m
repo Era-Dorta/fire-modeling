@@ -24,10 +24,11 @@ options = L.options;
 
 frame_num_str = num2str(frame_num,'%05d');
 
-goal_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/goal1.png'};
-goal_mask_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/trimap1-ext.png'};
+goal_img_path = {['~/maya/projects/fire/data/from_dmitry/volumes/RequestedFrames/goal-renamed/goal' ...
+    num2str(frame_num) '.png']};
+goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/volumes/RequestedFrames/goal-renamed/mask-full.png'};
 in_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/synthetic1.tif'};
-mask_img_path = {'~/maya/projects/fire/images/test112_like_111_volume0/trimap1-ext.png'};
+mask_img_path = goal_mask_img_path;
 raw_file_path = ['data/from_dmitry/volumes/frame' frame_num_str 'vox_clean_128.raw2'];
 density_file_path = ['~/maya/projects/fire/data/from_dmitry/volumes/frame' frame_num_str 'vox_clean_128.raw2'];
 
@@ -47,8 +48,7 @@ if use_prev_frame
     maya_new_density_scale = PL.summary_data.output.density;
     
     prev_frame_img_path = {fullfile(prev_frame_folder, 'optimized-Cam1.tif')};
-    prev_frame_mask_img_path = {fullfile(prev_frame_folder, 'preprocessed_input_images', ...
-        'Goal-Mask-Cam1.tif')};
+    prev_frame_mask_img_path = goal_mask_img_path;
     prev_frame_error_foo = {@MSEPerceptual};
 end
 
@@ -88,6 +88,7 @@ else
     max_ite = 5;
 end
 
+options.MaxIterations = max_ite;
 maxFunEvals = inf;
 time_limit = inf;
 

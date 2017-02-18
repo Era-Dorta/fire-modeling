@@ -20,7 +20,7 @@ for i=1:numel(Reference_Image)
     Target_Image{i} = bsxfun(@times, double(Target_Image{i}), target_mask{i});
     
     % Compute the norm for each pixel using the 3 colors
-    error_image = (Reference_Image{i} - Target_Image{i}).^2;    
+    error_image = (Reference_Image{i} - Target_Image{i}).^2;
     error_image = sqrt(error_image(:,:,1) + error_image(:,:,2) + error_image(:,:,3));
     
     Mean_Square_Error = Mean_Square_Error + sum(error_image(:)) / valid_pixels;
