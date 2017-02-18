@@ -152,6 +152,29 @@ try
     
     % Encapsulate the distance function in the error function
     error_foo = get_error_fnc_from_file( opts, goal_img, goal_mask, img_mask);
+    if opts.use_prev_frame
+        [prev_frame_img, prev_frame_mask, ~, ~, ~ ] = readGoalAndMask( ...
+            opts.prev_frame_img_path,  opts.in_img_path, opts.mask_img_path,  ...
+            opts.prev_frame_mask_img_path, opts.in_img_bg_path, resize_goal);
+        
+        norm_names = get_norm_names( 'prev-frame-Ouptut-Cam', '.tif', num_goal);
+        summary_data.prev_frame_p_output_img_path = save_cell_images( prev_frame_img, ...
+            norm_names, preprocessed_path);
+        
+        norm_names = get_norm_names( 'prev-frame-Ouptut-Mask-Cam', '.tif', num_goal);
+        summary_data.prev_frame_p_output_mask_img_path = save_cell_images( prev_frame_mask, ...
+            norm_names, preprocessed_path);
+        
+        prev_frame_img = colorspace_transform_imgs(prev_frame_img, 'RGB', opts.color_space);
+        
+        main_error = opts.error_foo;
+        opts.error_foo = opts.prev_frame_error_foo;
+        prev_frame_error_foo = get_error_fnc_from_file(opts, prev_frame_img, ...
+            prev_frame_mask, img_mask);
+        opts.error_foo = main_error;
+        
+        error_foo = [error_foo, prev_frame_error_foo];
+    end
     
     [ prior_fncs, prior_weights ] = get_prior_fncs_from_file( ...
         opts, init_heat_map, goal_img, goal_mask, 'fitness', true);

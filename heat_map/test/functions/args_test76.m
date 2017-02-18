@@ -41,10 +41,15 @@ end
 if use_prev_frame
     PL = load(fullfile(prev_frame_folder, 'summary_file.mat'));
     prev_frame_dir_from_img = strrep(prev_frame_folder, L.project_path, '');
-
+    
     prev_frame_raw_file_path = fullfile(prev_frame_dir_from_img , 'heat-map.raw');
     init_exposure = PL.summary_data.output.exposure;
     maya_new_density_scale = PL.summary_data.output.density;
+    
+    prev_frame_img_path = {fullfile(prev_frame_folder, 'optimized-Cam1.tif')};
+    prev_frame_mask_img_path = {fullfile(prev_frame_folder, 'preprocessed_input_images', ...
+        'Goal-Mask-Cam1.tif')};
+    prev_frame_error_foo = {@MSEPerceptual};
 end
 
 scene_name = 'test112_like_111_volume0';
@@ -52,7 +57,7 @@ scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
 
 error_foo = {@MSEPerceptual};
 prior_fncs = {};
-prior_weights = 1;
+prior_weights = [1, 1];
 
 if use_prev_frame
     exposure_scales_range = [];
