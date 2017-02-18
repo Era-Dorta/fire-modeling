@@ -196,7 +196,11 @@ try
             summary_data.best_exposure = best_exposure;
             summary_data.fitness_for_exposure = f_exposure;
         else
-            summary_data.best_density = [];
+            if opts.use_prev_frame
+                summary_data.best_density = opts.maya_new_density_scale;
+            else
+                summary_data.best_density = [];
+            end
             summary_data.density_norm = [];
             summary_data.fitness_for_density = [];
             summary_data.best_exposure = [];

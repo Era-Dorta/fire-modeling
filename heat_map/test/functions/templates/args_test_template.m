@@ -133,6 +133,12 @@ use_cache = true;
 
 use_ram_fs = true;
 
+% Use the previous frame result
+use_prev_frame = false;
+
+prev_frame_raw_file_path = '';
+prev_frame_density_file_path = '';
+
 clearvars('multi_goal', 'symmetric');
 
 % Save all the variables in a mat file but the listed below

@@ -8,13 +8,20 @@ if strcmp(state,'init')
     init_heat_map.v = x';
     
     density_folder = fullfile(output_img_folder, 'density-estimates', 'initial');
-    [out_density, f_val] =  estimate_density_scale_initial( maya_send,  ...
-        opts, init_heat_map, fitness_fnc, output_img_folder, ...
-        density_folder, num_goal, false);
-    
-    optimValues.density = out_density;
+    if isempty(optimValues.density)
+        [out_density, f_val] =  estimate_density_scale_initial( maya_send,  ...
+            opts, init_heat_map, fitness_fnc, output_img_folder, ...
+            density_folder, num_goal, false);
+        
+        optimValues.density = out_density;
+    else
+        % If a density is given just eval the fitness function at the given
+        % value
+        density_samples = [optimValues.density];
+        [~, f_val] = estimate_density_with_range( maya_send, opts, init_heat_map, ...
+            fitness_fnc, output_img_folder, density_folder, num_goal, density_samples);
+    end
     optimValues.fdensity = min(f_val);
-    
     optimValues.funccount = optimValues.funccount + numel(f_val);
     return;
 end
