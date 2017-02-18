@@ -35,7 +35,9 @@ fields = fields(~idx);
 values = values(~idx);
 
 % Convert all the values to strings
-values = cell2cellstr(values);
+if ~isempty(values)
+    values = cell2cellstr(values);
+end
 
 % Combine field names and values in the same cell
 if(size(outcellstr, 1) > 0)

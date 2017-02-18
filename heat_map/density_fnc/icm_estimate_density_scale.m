@@ -17,6 +17,7 @@ if strcmp(state,'init')
     else
         % If a density is given just eval the fitness function at the given
         % value
+        disp(['Eval previous frame density ' num2str(optimValues.density)]);
         density_samples = [optimValues.density];
         [~, f_val] = estimate_density_with_range( maya_send, opts, init_heat_map, ...
             fitness_fnc, output_img_folder, density_folder, num_goal, density_samples);

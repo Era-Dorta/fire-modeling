@@ -50,6 +50,10 @@ summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 summary_data.InitGuessFile = init_heat_map.filename;
 summary_data.OuputDataFile = output_data_path;
+summary_data.best_exposure = output.exposure;
+summary_data.fitness_for_exposure = output.fexposure;
+summary_data.best_density = output.density;
+summary_data.fitness_for_density = output.fdensity;
 
 save(output_data_path, 'output', '-append');
 

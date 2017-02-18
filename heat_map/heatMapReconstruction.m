@@ -198,12 +198,13 @@ try
         else
             if opts.use_prev_frame
                 summary_data.best_density = opts.maya_new_density_scale;
+                summary_data.best_exposure = opts.init_exposure;
             else
                 summary_data.best_density = [];
+                summary_data.best_exposure = [];
             end
             summary_data.density_norm = [];
             summary_data.fitness_for_density = [];
-            summary_data.best_exposure = [];
             summary_data.fitness_for_exposure = [];
         end
     end
