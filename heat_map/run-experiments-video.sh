@@ -21,11 +21,19 @@ let START_FRAME=START_FRAME+1
 
 # Other frames with previous frame folder
 COUNTER=0
-for i in `seq $START_FRAME $NUM_FRAMES`;
+for i in `seq $START_FRAME $END_FRAME`;
 do
 	# Create data file for current frame	
 	matlab -nodesktop -nosplash -r "args_test${TEST_NUM}($i,'$DATA_FOLDER$COUNTER'); exit();"
 	./runHeatMapReconstruction.sh "./test/data/args_test${TEST_NUM}.mat"
 	let COUNTER=COUNTER+1
 	mailResult $? $i
+    while true; do
+		read -p "Continue to next frame?[y/n]" yn
+		case $yn in
+		    [Yy]* ) break;;
+		    [Nn]* ) exit;;
+		    * ) echo "Please answer yes or no.";;
+		esac
+	done
 done
