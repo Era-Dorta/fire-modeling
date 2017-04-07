@@ -30,14 +30,14 @@ if nargin == 2 || max(colors) > 1
 end
 
 set(groot, 'CurrentFigure', FIG_H);
-hold on;
-
-% Set background color to gray
-set(gca,'Color',[0.8 0.8 0.8]);
 
 % Plot points as circles
 scatter3(heat_map.xyz(:,1), heat_map.xyz(:,3), heat_map.xyz(:,2), 25, colors, 'MarkerFaceColor', 'flat');
+hold on;
 alpha(0.01);
+
+% Set background color to gray
+set(gca,'Color',[0.8 0.8 0.8]);
 
 % Plot each point as a poligon patch to be able to have transparency
 % pb=patch(heat_map.xyz(:,1), heat_map.xyz(:,3), heat_map.xyz(:,2), colors, 'edgecolor','none');
