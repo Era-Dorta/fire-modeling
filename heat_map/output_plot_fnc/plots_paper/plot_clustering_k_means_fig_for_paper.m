@@ -82,7 +82,8 @@ for i=[3, 10, 20]
     %     saveas(gcf, ipath, 'pdf');
     
     i0 = imread([ipath '.png']);
-    i0 = imcrop(i0, [340, 0, 230, 690]);
+    %i0 = imcrop(i0, [340, 0, 230, 690]);
+    i0 = i0(:,170:720,:); % Crop
     imwrite(i0, [ipath '.png']);
     
     
