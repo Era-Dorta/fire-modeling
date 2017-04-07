@@ -1,22 +1,36 @@
 function plot_clustering_k_means_fig_for_paper()
 rng(0);
 t = read_raw_file( '~/maya/projects/fire/data/from_dmitry/volumes/frame00001vox_clean_128.raw2');
+do_kmeans = false;
 
+lin_idx = sub2ind(t.size, t.xyz(:,1), t.xyz(:,3), t.xyz(:,2));
+[~, ordered_idx] = sort(lin_idx);
+t.xyz = t.xyz(ordered_idx,:);
 %t.v = t.v + 4; % Make plot colours more red/yellow
 
 minxyz = min(t.xyz);
 maxxyz = max(t.xyz);
 
-c = 'rgb';
-numc = numel(c);
 for i=[3, 10, 20]
     
-    clusters = compute_clusters(i, t.xyz);
+    if do_kmeans
+        clusters = compute_clusters_kmeans(i, t.xyz);
+        save_name = 'k_mean_cluster';
+        suffle_colors = false;
+    else
+        clusters = compute_clusters_seq(i, t.v);
+        save_name = 'sequential_cluster';
+        suffle_colors = true;
+    end
     
-    hstep = 1.0/(i-1);
+    
+    cluster_colors = linspace(0, 1, i); zeros(i,1);
+    if suffle_colors
+        cluster_colors = cluster_colors(randperm(length(cluster_colors)));
+    end
+    
     for j=1:i
-        jj = clusters{j};
-        t.v(jj) = (j-1)*hstep;
+        t.v(clusters{j}) = cluster_colors(j);
     end
     
     % IMPORTANT: COMMENT OUT THE FOLLOWING LINE IN PLOT HEATMAP TO GET
@@ -35,25 +49,6 @@ for i=[3, 10, 20]
     
     % Set background color to white
     set(gca,'Color',[1 1 1]);
-    
-    %     for j=1:i
-    %         jj = clusters{j};
-    %
-    %         if numel(jj) == 1
-    %             minxyzj = t.xyz(jj,:);
-    %             maxxyzj = t.xyz(jj,:);
-    %         else
-    %             minxyzj = min(t.xyz(jj,:));
-    %             maxxyzj = max(t.xyz(jj,:));
-    %         end
-    %
-    %         minxyzj = [minxyzj(1), minxyzj(3), minxyzj(2)];
-    %         maxxyzj = [maxxyzj(1), maxxyzj(3), maxxyzj(2)];
-    %
-    %         plotBbox( minxyzj, maxxyzj, c(k), 0.2 );
-    %     end
-    % set(gca,'visible','off');
-    
     
     view(70,25)
     
@@ -76,7 +71,7 @@ for i=[3, 10, 20]
     
     hold off;
     
-    ipath = fullfile('~/workspaces/matlab/testvis/clustering/', ['k_mean_cluster' num2str(i) ]);
+    ipath = fullfile('~/workspaces/matlab/testvis/clustering/', [save_name num2str(i) ]);
     saveas(gcf, ipath, 'png');
     saveas(gcf, ipath, 'fig');
     %     saveas(gcf, ipath, 'pdf');
@@ -89,13 +84,23 @@ for i=[3, 10, 20]
     
 end
 
-    function clusters_idx = compute_clusters(num_clusters, xyz)
+    function clusters_idx = compute_clusters_kmeans(num_clusters, xyz)
         clusters_idx = cell(1, num_clusters);
         idx = kmeans(xyz, num_clusters);
         for l=1:num_clusters
             clusters_idx{l} = find(idx == l);
         end
-        return;
+    end
+
+    function clusters_idx = compute_clusters_seq(num_clusters, v)
+        num_dim = numel(v);
+        ite_inc = num_dim / num_clusters;
+        idx = round(1:ite_inc:num_dim);
+        clusters_idx = cell(1, num_clusters);
+        for k = 1:numel(idx)-1
+            clusters_idx{k} = (idx(k):idx(k+1)-1);
+        end
+        clusters_idx{end} = (idx(end):num_dim);
     end
 
 end
