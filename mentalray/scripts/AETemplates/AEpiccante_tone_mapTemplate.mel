@@ -44,7 +44,6 @@ global proc update_piccante(string $nodeName){
 
 global proc AEpiccante_tone_mapTemplate ( string $nodeName )
 {
-	editorTemplate -beginScrollLayout;
 
 	editorTemplate -annotation "Tone mapping operator" -label "Operator" -addControl "tm_operator" "update_piccante";
 
@@ -79,6 +78,5 @@ global proc AEpiccante_tone_mapTemplate ( string $nodeName )
 		editorTemplate -addControl "nodeState"; 
 		
 	editorTemplate -endLayout;
-	
-	editorTemplate -endScrollLayout;
+
 }
