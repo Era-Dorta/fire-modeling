@@ -103,6 +103,16 @@ try
     
     maya_set_custom_parameters(maya_send, opts);
     
+    for i=1:numel(maya_send)
+        cmd = 'setAttr \"fire_volume_shader.density_offset\" 10';
+        maya_send{i}(cmd, 0);
+        
+        cmd = 'setAttr \"fire_volume_shader.temperature_offset\" 1500';
+        maya_send{i}(cmd, 0);
+        
+        load_hm_in_maya(fullfile(opts.project_path,opts.raw_file_path), maya_send{i});
+    end
+    
     %% Summary data is mainly the options from the load file
     summary_data = opts;
     

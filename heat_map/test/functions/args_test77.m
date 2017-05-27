@@ -21,13 +21,13 @@ args_test_solver_template(args_path, solver);
 
 L = load(args_path);
 
-goal_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/goal1-aligned.png'};
-goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/cam1/tri-map-aligned.png'};
-in_img_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/test110_like_109_close_camera.tif'};
-in_img_bg_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/background-new.png'};
-mask_img_path = {'~/maya/projects/fire/images/test110_like_109_close_camera/mask.png'};
-raw_file_path = 'data/from_dmitry/vox_bin_00841_clean_32.raw2';
-density_file_path = '~/maya/projects/fire/data/from_dmitry/vox_bin_00841_clean_32.raw2';
+goal_img_path = {'~/maya/projects/fire/data/from_dmitry/volumes/RequestedFrames/goal1-f1.png'};
+goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/volumes/RequestedFrames/goal-renamed/mask-full.png'};
+in_img_path = goal_img_path;
+in_img_bg_path = in_img_path;
+mask_img_path = goal_mask_img_path;
+raw_file_path = 'data/from_dmitry/volumes/frame00001vox_clean_32.raw2';
+density_file_path = '~/maya/projects/fire/data/from_dmitry/volumes/frame00001vox_clean_32.raw2';
 
 scene_name = 'test111_no_background_for_cam_align';
 scene_img_folder = fullfile(L.project_path, 'images', [scene_name '/']);
@@ -41,7 +41,7 @@ add_background = false;
 
 density_scales_range = [0.01 1000];
 
-cam_t = [0, 0, 5];
+cam_t = [0, 0, 8];
 cam_r = [0, 0, 0];
 cam_focal_length = 19;
 

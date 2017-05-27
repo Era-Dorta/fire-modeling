@@ -2,11 +2,10 @@ function [ error_v ] = camera_align_fitness( cam_attr, ~, ~, error_foo, ...
     scene_name, scene_img_folder, output_img_folder_name, maya_send, ...
     id, num_goal, prior_fncs, prior_weights, color_space, use_cache, ...
     ~)
-%HEAT_MAP_FITNESS Heat map fitness function
+%CAMERA_ALIGN_FITNESS Camera fitness function
 %    Like heat_map_fitness function but it supports several goal images
 %    given in a cell
 %
-%    See also HEAT_MAP_FITNESS
 
 persistent CACHE
 
