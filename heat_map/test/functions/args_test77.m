@@ -23,6 +23,8 @@ L = load(args_path);
 
 goal_img_path = {'~/maya/projects/fire/data/from_dmitry/volumes/RequestedFrames/goal1-f1.png'};
 goal_mask_img_path = {'~/maya/projects/fire/data/from_dmitry/volumes/RequestedFrames/goal-renamed/mask-full.png'};
+goal_img_path{2} = '~/maya/projects/fire/data/from_dmitry/volumes/RequestedFrames/cam2/goal2.png';
+goal_mask_img_path{2} = goal_mask_img_path{1};
 in_img_path = goal_img_path;
 in_img_bg_path = in_img_path;
 mask_img_path = goal_mask_img_path;
@@ -45,6 +47,10 @@ cam_t = [0, 0, 8];
 cam_r = [0, 0, 0];
 cam_focal_length = 19;
 
+cam_t = [cam_t, 0, 5, 5];
+cam_r = [cam_r, 0, 0, 0];
+cam_focal_length = [cam_focal_length, 19];
+
 cam_t_lb = [-20, -20, -20];
 cam_t_ub = [20, 20, 20];
 cam_r_lb = [0, 0, 0];
@@ -54,6 +60,17 @@ cam_focal_length_ub = 500;
 
 LB = [cam_t_lb, cam_r_lb, cam_focal_length_lb];
 UB = [cam_t_ub, cam_r_ub, cam_focal_length_ub];
+
+% Replicate the parameters for each camera
+cam_focal_length = repmat(cam_focal_length, [1, numel(goal_img_path)]);
+cam_t_lb = repmat(cam_t_lb, [1, numel(goal_img_path)]);
+cam_t_ub = repmat(cam_t_ub, [1, numel(goal_img_path)]);
+cam_r_lb = repmat(cam_r_lb, [1, numel(goal_img_path)]);
+cam_r_ub = repmat(cam_r_ub, [1, numel(goal_img_path)]);
+cam_focal_length_lb = repmat(cam_focal_length_lb, [1, numel(goal_img_path)]);
+cam_focal_length_ub = repmat(cam_focal_length_ub, [1, numel(goal_img_path)]);
+LB = repmat(LB, [1, numel(goal_img_path)]);
+UB = repmat(UB, [1, numel(goal_img_path)]);
 
 initGuessFnc = @getInitHeatMap_icm;
 
