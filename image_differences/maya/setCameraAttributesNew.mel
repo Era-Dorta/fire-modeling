@@ -1,0 +1,9 @@
+global proc setCameraAttributesNew( string $cameraName, float $tx, float $ty, float $tz, float $rx, float $ry, float $rz, float $focalLength){
+	setAttr ($cameraName + ".translateX") $tx;
+	setAttr ($cameraName + ".translateY") $ty;
+	setAttr ($cameraName + ".translateZ") $tz;
+	setAttr ($cameraName + ".rotateX") $rx;
+	setAttr ($cameraName + ".rotateY") $ry;
+	setAttr ($cameraName + ".rotateZ") $rz;
+	setAttr ($cameraName + ".focalLength") $focalLength;
+}
