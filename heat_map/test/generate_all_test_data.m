@@ -13,6 +13,11 @@ for i=1:numel(args_files_folders)
     if isempty(regexp(args_files_folders{i},'args_test[0-9]+', 'ONCE'))
         to_del_idx = [to_del_idx; i];
     end
+    % Test 76 is video test, so it's a special case that does not need to
+    % generate a .mat file
+    if strcmp(args_files_folders{i}, 'args_test76.m')
+        to_del_idx = [to_del_idx; i];
+    end
 end
 args_files_folders(to_del_idx) = [];
 
