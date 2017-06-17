@@ -1,53 +1,76 @@
 function [ heat_map_v, best_error, exitflag] = do_simulanneal_solve( ...
-    init_heat_map, fitness_foo, paths_str, summary_data, L)
+    init_heat_map, fitness_foo, paths_str, summary_data, goal_img, ...
+    goal_mask, opts, maya_send)
 % Simulated Annealing solver for heat map reconstruction
 %% Options for the SA
 
-options = L.options;
+output_data_path = [paths_str.output_folder 'OutputData.mat'];
 
-options.InitialTemperature = options.InitialTemperature * (L.UB - L.LB);
+options = get_icm_options_from_file( opts, init_heat_map,  ...
+    goal_img, goal_mask, output_data_path, paths_str, true, fitness_foo, ...
+    maya_send);
 
-% Matlab is using cputime to measure time limits in GA and Simulated
-% Annealing solvers, which just doesn't work with multiple cores and
-% multithreading even if the value is scaled with the number of cores.
-% Add a custom function to do the time limit check
-if isequal(options.OutputFcns, @sa_time_limit)
-    startTime = tic;
-    options.OutputFcns = @(options, state, flag)sa_time_limit( options, ...
-        state, flag, startTime);
-else
-    error('Unkown outputFnc in do_simulanneal_solve');
+LB = ones(init_heat_map.count, 1) * opts.LB;
+UB = ones(init_heat_map.count, 1) * opts.UB;
+
+% Initial guess for gradient solver, is a row vector
+InitialPopulation = opts.initGuessFnc(init_heat_map, LB', UB');
+
+% Save the initial value
+save(output_data_path, 'InitialPopulation');
+
+options.InitialTemperature = options.InitialTemperature * (UB - LB);
+
+% Use gradient output functions, via a custom wrapper
+options.OutputFcns = {}; % Note that for SA is OutputFcns in plural
+for i=1:numel(options.OutputFcn)
+    options.OutputFcns{i} = @(options_arg,optimvalues,flag) ...
+        option_fn_wrapper(options_arg,optimvalues,flag, options.OutputFcn{i});
 end
-
-LB = ones(init_heat_map.count, 1) * L.LB;
-UB = ones(init_heat_map.count, 1) * L.UB;
-
-% Initial guess for SA, is a row vector
-% init_guess = init_heat_map.v';
-InitialPopulation = getRandomInitPopulation( LB', UB', 1);
-
-% Path where the initial population will be saved
-init_population_path = [paths_str.output_folder 'InitialPopulation.mat'];
-save(init_population_path, 'InitialPopulation');
 
 %% Call the simulated annealing optimization
 % Use initial_heat_map as first guess
+startTime = tic;
 
-[heat_map_v, best_error, exitflag] = simulannealbnd(fitness_foo, ...
+[heat_map_v, best_error, exitflag, output] = simulannealbnd(fitness_foo, ...
     InitialPopulation, LB, UB, options);
 
 totalTime = toc(startTime);
 disp(['Optimization total time ' num2str(totalTime)]);
 
+
+%% If sa_time_limit made it stop, call the functions to perform the save
+% do it manually here
+if exitflag == -1 % Fail by output function
+    optimValues = struct('funccount', output.funccount, 'iteration', output.iterations, ...
+        'fval', best_error, 'procedure', output.message, 'x', heat_map_v);
+    
+    for i=1:numel(opts.options.OutputFcns)
+        % Call the anonymous versions which already include the inputs
+        options.OutputFcns{i}(options, optimValues, 'done');
+    end
+end
+
+%% Save data to file
+FinalScores = best_error;
+FinalPopulation = heat_map_v;
+save(output_data_path, 'FinalPopulation', 'FinalScores', '-append');
+
+%% Visualize distance space
+visualize_score_space(output_data_path, paths_str.visualization_fig_path);
+
 %% Save summary file
+
 summary_data.OptimizationMethod = 'Simulated Annealing';
 summary_data.ImageError = best_error;
 summary_data.HeatMapSize = init_heat_map.size;
 summary_data.HeatMapNumVariables = init_heat_map.count;
 summary_data.OptimizationTime = [num2str(totalTime) ' seconds'];
 summary_data.InitGuessFile = init_heat_map.filename;
-summary_data.InitialTemperature = options.InitialTemperature;
+summary_data.OuputDataFile = output_data_path;
 
+summary_data.options = options;
 save_summary_file(paths_str.summary, summary_data, []);
+
 end
 

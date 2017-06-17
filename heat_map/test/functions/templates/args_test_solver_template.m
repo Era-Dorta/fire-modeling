@@ -113,12 +113,19 @@ switch solver
         options = saoptimset('simulannealbnd');
         options.MaxIter = max_ite;
         options.MaxFunEvals = maxFunEvals;
-        options.TimeLimit = time_limit;
         options.InitialTemperature = 1/6; % Factor to multiply (UB - LB)
         options.Display = 'iter'; % Give some output on each iteration
         
-        % Only sa_time_limit
-        options.OutputFcns = @sa_time_limit;
+        % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
+        % @getInitHeatMapScaled_icm
+        initGuessFnc = @random_guess_icm;        
+        
+        % It's important to have the time limit at the end, as the stop
+        % flag gets overwritten for each output function
+        % @gradient_time_limit, @gradplotbestgen, @gradsavescores,
+        % @gradploterror, @gradestimate_density_scale
+        options.OutputFcn = {@gradplotbestgen, @gradsavescores, ...
+            @gradploterror, @gradient_time_limit};
     case 'grad'
         % Get default values
         options = optimset(@fminsearch);
@@ -129,8 +136,8 @@ switch solver
         
         % @gradient_time_limit, @gradplotbestgen, @gradsavescores,
         % @gradploterror, @gradestimate_density_scale
-        options.OutputFcn = {@gradient_time_limit, @gradplotbestgen, ...
-            @gradsavescores, @gradploterror};
+        options.OutputFcn = {@gradploterror, @gradplotbestgen, ...
+            @gradsavescores, @gradient_time_limit};
         
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm

@@ -246,7 +246,8 @@ try
                 opts);
         case 'sa'
             [heat_map_v, ~, ~] = do_simulanneal_solve( init_heat_map, ...
-                fitness_foo, paths_str, summary_data, opts);
+                fitness_foo, paths_str, summary_data, goal_img, goal_mask, ...
+                opts, maya_send);
         case 'ga-re'
             % For the solve with reconstruction the size changes so leave
             % those two parameters open, so the function can modify them.
