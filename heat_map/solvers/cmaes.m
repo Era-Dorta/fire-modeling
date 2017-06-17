@@ -3,7 +3,8 @@ function [xmin, ...      % minimum search point of last iteration
 	  counteval, ... % number of function evaluations done
 	  stopflag, ...  % stop criterion reached
 	  out, ...     % struct with various histories and solutions
-	  bestever ... % struct containing overall best solution (for convenience)
+	  bestever, ... % struct containing overall best solution (for convenience)
+      countiter ... % Number of iterations
 	 ] = cmaes( ...
     fitfun, ...    % name of objective/fitness function
     xstart, ...    % objective variables initial point, determines N
@@ -231,7 +232,8 @@ defopts.CMA.ccum = '(4 + mueff/N) / (N+4 + 2*mueff/N)  % cumulation constant for
 defopts.CMA.ccov1 = '2 / ((N+1.3)^2+mueff)  % learning rate for rank-one update'; 
 defopts.CMA.ccovmu = '2 * (mueff-2+1/mueff) / ((N+2)^2+mueff) % learning rate for rank-mu update'; 
 defopts.CMA.on     = 'yes'; 
-defopts.CMA.active = '0  % active CMA, 1: neg. updates with pos. def. check, 2: neg. updates'; 
+defopts.CMA.active = '0  % active CMA, 1: neg. updates with pos. def. check, 2: neg. updates';
+defopts.OutputFcn = '{} %Output functions called after each iteration';
 
 flg_future_setting = 0;  % testing for possible future variant(s)
 if flg_future_setting    
@@ -472,6 +474,8 @@ i = strfind(opts.LogFilenamePrefix, ' '); % remove everything after white space
 if ~isempty(i)
   opts.LogFilenamePrefix = opts.LogFilenamePrefix(1:i(1)-1);
 end
+
+outputFnc = myeval(opts.OutputFcn);
 
 % TODO here silent option? set disp, save and log options to 0 
 
@@ -729,6 +733,12 @@ else % flgresume
   end % irun == 1
   
 end % else flgresume 
+
+optimValues = struct('funccount', 0, 'iteration', countiter, ...
+'fval', out.solutions.bestever.f, 'procedure', '');
+for numOutputFnc=1:numel(outputFnc)
+  outputFnc{numOutputFnc}(out.solutions.bestever.x, optimValues, 'init');
+end  
 
 % -------------------- Generation Loop --------------------------------
 stopflag = {};
@@ -1467,6 +1477,14 @@ while isempty(stopflag)
     bestever = out.solutions.bestever;
   end
 
+  optimValues = struct('funccount', counteval, 'iteration', countiter-1, ...
+    'fval', out.solutions.bestever.f, 'procedure', '');
+  for numOutputFnc=1:numel(outputFnc)
+      if outputFnc{numOutputFnc}(out.solutions.bestever.x, optimValues, 'iter')
+          stopflag(end+1) = {'outputFnc'};
+      end
+  end  
+  
   % Set stop flag
   if fitness.raw(1) <= stopFitness, stopflag(end+1) = {'fitness'}; end
   if counteval >= stopMaxFunEvals, stopflag(end+1) = {'maxfunevals'}; end

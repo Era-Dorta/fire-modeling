@@ -118,7 +118,7 @@ switch solver
         
         % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
         % @getInitHeatMapScaled_icm
-        initGuessFnc = @random_guess_icm;        
+        initGuessFnc = @random_guess_icm;
         
         % It's important to have the time limit at the end, as the stop
         % flag gets overwritten for each output function
@@ -164,6 +164,15 @@ switch solver
         
         % Default is -Inf but our error function is minimum value is 0
         options.StopFitness = eps;
+        
+        % @gradient_time_limit, @gradplotbestgen, @gradsavescores,
+        % @gradploterror, @gradestimate_density_scale
+        options.OutputFcn = {@gradploterror, @gradplotbestgen, ...
+            @gradsavescores, @gradient_time_limit};
+        
+        % @random_guess_icm, @getInitHeatMap_icm, @getMeanTemp_icm,
+        % @getInitHeatMapScaled_icm
+        initGuessFnc = @random_guess_icm;
     case 'lhs'
         % Get default values
         options.MaxIter = max_ite;
