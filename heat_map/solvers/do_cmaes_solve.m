@@ -29,6 +29,12 @@ options.UBounds = UB;
 % according to the cmaes documentation
 sigma_0 = mean([opts.LB, opts.UB]) / 2;
 
+% Transpose the x for all the output functions
+for i=1:numel(options.OutputFcn)
+    options.OutputFcn{i} = @(x, optimValues, state) options.OutputFcn{i}( ...
+        x', optimValues, state);
+end
+
 %% Call the CMAES solver
 startTime = tic;
 
